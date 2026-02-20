@@ -30,17 +30,19 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
-                        <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+                        <div className="flex-shrink-0 flex items-center cursor-pointer group relative p-2" onClick={() => window.scrollTo(0, 0)}>
+                            {/* Logo Background/Glow for visibility */}
+                            <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-2xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
                             {/* Logo — color for light mode, white for dark mode */}
                             <img
                                 src="/images/logo-color.png"
                                 alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain block dark:hidden"
+                                className="h-12 w-auto object-contain block dark:hidden relative z-10"
                             />
                             <img
                                 src="/images/logo-white.png"
                                 alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain hidden dark:block"
+                                className="h-12 w-auto object-contain hidden dark:block relative z-10"
                             />
                         </div>
                         <div className="hidden md:flex space-x-8 items-center">
@@ -85,7 +87,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400">
                         <span className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
-                            Klinik Kesehatan Mental Profesional
+                            InDepth Mental Wellness Center
                         </span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-8 leading-tight">
@@ -162,45 +164,196 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 </div>
             </div>
 
-            {/* CTA Section (Gold Glow Dark Variant) */}
-            <div className="relative mt-20 z-10">
-                <div className="absolute inset-0 bg-gray-900 dark:bg-black">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(208,170,33,0.15)_0,rgba(0,0,0,0)_50%)]"></div>
+            {/* Director Profile Section (Saiful Anam) */}
+            <div className="py-24 relative overflow-hidden">
+                {/* Background Decorations */}
+                <div className="absolute top-1/4 -right-20 w-96 h-96 bg-gold-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+                <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-gold-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        {/* Image Column */}
+                        <div className="w-full lg:w-5/12">
+                            <div className="relative group">
+                                <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
+                                <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
+                                    <div className="absolute inset-0 flex items-center justify-center text-gold-500/20">
+                                        <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+                                        <h3 className="text-2xl font-bold text-white mb-1">Saiful Anam</h3>
+                                        <p className="text-gold-400 font-medium">Direktur InDepth / Pakar Hipnoterapi</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content Column */}
+                        <div className="w-full lg:w-7/12">
+                            <div className="space-y-8">
+                                <div>
+                                    <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Pakar Senior</h2>
+                                    <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl leading-tight">
+                                        Dedikasi Seumur Hidup untuk Transformasi Pikiran
+                                    </p>
+                                    <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed italic">
+                                        "Mengajar hipnotis dan hipnoterapi secara konsisten sejak tahun 2004."
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                                    {/* Books */}
+                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm">
+                                        <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-4">
+                                            <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.754 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                            Penulis Buku
+                                        </h4>
+                                        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> 4 Jam Pintar Hipnosis
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> Mudahnya Berpikir Positif
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> Metode Jessica V.3
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Methods */}
+                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm">
+                                        <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-4">
+                                            <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                            Penemu Metode
+                                        </h4>
+                                        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> Super Sadar & Metode Jessica
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> InDepth & Supreme State
+                                            </li>
+                                            <li className="flex items-start gap-2">
+                                                <span className="text-gold-500">•</span> InDepth Solution
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Stats Counter */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20">
+                                        <div className="text-4xl font-extrabold text-gold-600 dark:text-gold-400 mb-1">17.000+</div>
+                                        <div className="text-sm font-bold text-gray-600 dark:text-gray-300 uppercase underline decoration-gold-500/30 decoration-4 text-left">Klien Personal</div>
+                                    </div>
+                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20">
+                                        <div className="text-4xl font-extrabold text-gold-600 dark:text-gold-400 mb-1">1150+</div>
+                                        <div className="text-sm font-bold text-gray-600 dark:text-gray-300 uppercase underline decoration-gold-500/30 decoration-4 text-left">Klien Korporasi</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="relative max-w-5xl mx-auto py-24 px-4 sm:px-6 lg:px-8 text-center rounded-[3rem] border border-white/5 dark:border-gray-800 bg-white/5 dark:bg-gray-900/30 backdrop-blur-2xl shadow-2xl overflow-hidden my-12">
+            </div>
+
+            {/* CTA Section (Refined Glass Variant) */}
+            <div className="relative mt-20 z-10">
+                <div className="relative max-w-5xl mx-auto py-24 px-4 sm:px-6 lg:px-8 text-center rounded-[3rem] border border-gold-500/20 dark:border-gray-800 bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl shadow-xl overflow-hidden my-12">
                     {/* Glass reflections */}
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent"></div>
-                    <div className="absolute -top-[50%] -left-[10%] w-[120%] h-[100%] bg-gradient-to-b from-white/5 to-transparent blur-2xl transform -rotate-6 pointer-events-none"></div>
+                    <div className="absolute -top-[50%] -left-[10%] w-[120%] h-[100%] bg-gradient-to-b from-gold-500/5 to-transparent blur-2xl transform -rotate-6 pointer-events-none"></div>
 
-                    <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 text-white relative z-10">
+                    <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 text-gray-900 dark:text-white relative z-10">
                         Siap Melangkah Maju?
                     </h2>
-                    <p className="text-xl opacity-90 mb-10 text-gray-300 mx-auto max-w-2xl font-light relative z-10">
+                    <p className="text-xl opacity-90 mb-10 text-gray-600 dark:text-gray-300 mx-auto max-w-2xl font-light relative z-10">
                         Bergabunglah dengan ratusan klien sukses lainnya. Proses perubahan dimulai dari satu keputusan kecil hari ini.
                     </p>
-                    <Link href="/login" className="relative z-10 px-10 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-full text-lg shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] border border-white/20 transition-all duration-300 inline-flex items-center gap-2 group">
-                        Buat Akun Pasien
+                    <Link href="/login" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
+                        Jadwalkan Konsultasi Gratis
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </Link>
                 </div>
             </div>
 
-            {/* Footer */}
-            <footer className="relative z-10 border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-16 pb-8">
+            {/* Hubungi Kami Section (Simplified to Logo Only) */}
+            <div id="kontak" className="py-24 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="mb-12">
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Hubungi Kami</h2>
+                        <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">Klik Logo WhatsApp untuk Konsultasi</p>
+                    </div>
+
+                    <div className="flex justify-center">
+                        <a href="https://wa.me/6282220800034" target="_blank" className="group relative p-8 bg-green-500/10 dark:bg-green-500/5 rounded-[2.5rem] hover:bg-green-500 transition-all duration-500 shadow-xl hover:shadow-green-500/50">
+                            <svg className="w-24 h-24 text-green-500 group-hover:text-white transition-colors duration-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                            </svg>
+                            <span className="absolute -top-2 -right-2 flex h-6 w-6">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-6 w-6 bg-green-500 shadow-md border-2 border-white dark:border-gray-900"></span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer ("Header Bawah") */}
+            <footer className="relative z-10 border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-20 pb-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center">
-                        <div className="flex items-center mb-4 md:mb-0 opacity-80 hover:opacity-100 transition-opacity">
-                            <img
-                                src="/images/logo-color.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-10 w-auto object-contain block dark:hidden"
-                            />
-                            <img
-                                src="/images/logo-white.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-10 w-auto object-contain hidden dark:block"
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                        {/* Brand Column */}
+                        <div className="col-span-1 md:col-span-1">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white">InDepth</span>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                                Kesehatan Mental Terpadu & Profesional. Membantu Anda menemukan kembali ketenangan batin.
+                            </p>
+                            <div className="mt-6 flex space-x-4">
+                                <a href="https://www.instagram.com/indepth.co.id?igsh=MTg5NXZpdnV0NzFucg==" target="_blank" className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-pink-500 hover:text-white transition-all shadow-sm">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                                </a>
+                            </div>
                         </div>
+
+                        {/* Updated Semarang Location Column */}
+                        <div className="col-span-1 md:col-span-2">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Lokasi & Kontak</h4>
+                            <a href="https://share.google/NtOQpAGwlAfChYbxP" target="_blank" className="group block">
+                                <p className="text-gray-900 dark:text-white font-bold mb-1 group-hover:text-gold-600 transition-colors">
+                                    InDepth Mental Wellness Semarang
+                                </p>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
+                                    Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237
+                                </p>
+                                <p className="text-gray-900 dark:text-white font-bold text-sm mb-4">
+                                    Telepon: 0822-2080-0034
+                                </p>
+                                <span className="text-gold-600 dark:text-gold-400 font-bold text-sm flex items-center gap-1 group-hover:underline">
+                                    Buka di Google Maps
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                </span>
+                            </a>
+                        </div>
+
+                        {/* Quick links */}
+                        <div>
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Navigasi</h4>
+                            <ul className="space-y-4 text-sm">
+                                <li><a href="#layanan" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Layanan</a></li>
+                                <li><a href="#testimoni" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</a></li>
+                                <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
+                                <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                             &copy; {new Date().getFullYear()} InDepth Mental Wellness. All rights reserved.
                         </p>
