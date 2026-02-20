@@ -18,7 +18,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="Klinik Hipnoterapi Premium Jakarta | Transformasi Pikiran Anda" />
+            <Head title="InDepth Mental Wellness | Kesehatan Mental Terpadu & Profesional" />
 
             {/* Global Background Ambient Light (Liquid Glass foundation) */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -30,13 +30,18 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
-                        <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer relative group" onClick={() => window.scrollTo(0, 0)}>
-                            {/* Logo Glow Effect */}
-                            <div className="absolute inset-0 bg-gold-400 blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-300 rounded-xl"></div>
-                            <div className="relative w-10 h-10 bg-gradient-to-tr from-gold-600 to-yellow-400 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] border border-gold-300/30">
-                                H
-                            </div>
-                            <span className="font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white relative z-10">Hypno<span className="text-gold-500 dark:text-gold-400">Care</span></span>
+                        <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+                            {/* Logo — color for light mode, white for dark mode */}
+                            <img
+                                src="/images/logo-color.png"
+                                alt="InDepth Mental Wellness"
+                                className="h-12 w-auto object-contain block dark:hidden"
+                            />
+                            <img
+                                src="/images/logo-white.png"
+                                alt="InDepth Mental Wellness"
+                                className="h-12 w-auto object-contain hidden dark:block"
+                            />
                         </div>
                         <div className="hidden md:flex space-x-8 items-center">
                             <a href="#layanan" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Layanan</a>
@@ -80,7 +85,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400">
                         <span className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
-                            Klinik Hipnoterapi Premium di Jakarta
+                            Klinik Kesehatan Mental Profesional
                         </span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-8 leading-tight">
@@ -90,7 +95,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </span>
                     </h1>
                     <p className="mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-300 mx-auto mb-10 leading-relaxed font-light">
-                        Bebaskan diri dari stres, kecemasan, dan trauma masa lalu melalui terapi hipnosis klinis yang aman, nyaman, dan terbukti secara ilmiah.
+                        Bebaskan diri dari stres, kecemasan, dan trauma masa lalu bersama tim profesional kesehatan mental kami yang berpengalaman dan terpercaya.
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-6">
@@ -126,7 +131,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">Penyembuhan Trauma & Phobia</h3>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Atasi akar masalah emosional dan ketakutan tidak beralasan dengan regresi memori yang aman dan terkendali.
+                                Atasi akar masalah emosional dan ketakutan tidak beralasan dengan pendekatan terapeutik yang aman dan terkendali.
                             </p>
                         </div>
 
@@ -138,7 +143,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">Manajemen Stres & Kecemasan</h3>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Program ulang respon alam bawah sadar Anda terhadap pemicu stres untuk mendapatkan ketenangan yang persisten.
+                                Program terstruktur untuk melatih pikiran Anda mengelola stres dan mendapatkan ketenangan jiwa yang berkelanjutan.
                             </p>
                         </div>
 
@@ -184,14 +189,20 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <footer className="relative z-10 border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-16 pb-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center">
-                        <div className="flex items-center gap-2 mb-4 md:mb-0 opacity-80 hover:opacity-100 transition-opacity">
-                            <div className="w-8 h-8 bg-gradient-to-tr from-gold-600 to-yellow-400 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-                                H
-                            </div>
-                            <span className="font-bold text-xl text-gray-900 dark:text-white">HypnoCare</span>
+                        <div className="flex items-center mb-4 md:mb-0 opacity-80 hover:opacity-100 transition-opacity">
+                            <img
+                                src="/images/logo-color.png"
+                                alt="InDepth Mental Wellness"
+                                className="h-10 w-auto object-contain block dark:hidden"
+                            />
+                            <img
+                                src="/images/logo-white.png"
+                                alt="InDepth Mental Wellness"
+                                className="h-10 w-auto object-contain hidden dark:block"
+                            />
                         </div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                            &copy; {new Date().getFullYear()} Klinik Hipnoterapi. All rights reserved.
+                            &copy; {new Date().getFullYear()} InDepth Mental Wellness. All rights reserved.
                         </p>
                     </div>
                 </div>

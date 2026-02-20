@@ -5,14 +5,16 @@ export default function PublicBlogIndex({ posts }) {
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
             <Head>
-                <title>Blog - Klinik Hipnoterapi Jakarta</title>
-                <meta name="description" content="Baca artikel, tips, dan wawasan seputar kesehatan mental, psikologi, dan hipnoterapi langsung dari pakar profesional." />
+                <title>Blog - InDepth Mental Wellness</title>
+                <meta name="description" content="Baca artikel, tips, dan wawasan seputar kesehatan mental, psikologi, dan kesejahteraan jiwa langsung dari tim profesional InDepth Mental Wellness." />
             </Head>
 
             {/* Header/Nav (Simplified/Placeholder for Public facing page) */}
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-3xl font-extrabold text-indigo-900">Klinik <span className="text-indigo-600">Hipnoterapi</span></h1>
+                    <div className="flex items-center">
+                        <img src="/images/logo-black.png" alt="InDepth Mental Wellness" className="h-10 w-auto object-contain" />
+                    </div>
                     <nav className="space-x-4">
                         <Link href="/" className="text-gray-600 hover:text-indigo-600 font-medium">Beranda</Link>
                         <Link href={route('blog.index')} className="text-indigo-600 font-bold">Blog</Link>

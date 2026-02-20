@@ -14,7 +14,7 @@ export default function LmsIndex({ courses }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                     <div className="mb-8">
-                        <h1 className="text-3xl font-extrabold text-gray-900">E-Learning Klinik Hipnoterapi</h1>
+                        <h1 className="text-3xl font-extrabold text-gray-900">E-Learning InDepth Mental Wellness</h1>
                         <p className="mt-2 text-lg text-gray-600">Pelajari teknik self-therapy yang bisa Anda lakukan kapan saja, di mana saja.</p>
                     </div>
 

@@ -24,7 +24,7 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                     <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg overflow-hidden">
                         <div className="p-8 flex flex-col md:flex-row items-center justify-between text-white">
                             <div>
-                                <h3 className="text-2xl font-bold mb-2">Program Afiliasi Klinik Hipnoterapi</h3>
+                                <h3 className="text-2xl font-bold mb-2">Program Afiliasi InDepth Mental Wellness</h3>
                                 <p className="opacity-90 max-w-xl">Bagikan link referral Anda kepada teman atau kerabat. Dapatkan komisi sebesar 10% dari setiap pendaftaran kelas atau sesi terapi yang berhasil.</p>
 
                                 <div className="mt-6 flex items-center bg-white/20 p-2 rounded-lg backdrop-blur-sm max-w-lg">

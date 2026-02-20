@@ -17,7 +17,7 @@ export default function PublicBlogShow({ post }) {
         }],
         "publisher": {
             "@type": "Organization",
-            "name": "Klinik Hipnoterapi Baru"
+            "name": "InDepth Mental Wellness"
         },
         "description": post.meta_description || post.excerpt
     };
@@ -25,7 +25,7 @@ export default function PublicBlogShow({ post }) {
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
             <Head>
-                <title>{post.meta_title || post.title} | Klinik Hipnoterapi</title>
+                <title>{post.meta_title || post.title} | InDepth Mental Wellness</title>
                 <meta name="description" content={post.meta_description || post.excerpt || ''} />
                 {post.meta_keywords && <meta name="keywords" content={post.meta_keywords} />}
 
@@ -44,7 +44,9 @@ export default function PublicBlogShow({ post }) {
             {/* Header/Nav (Simplified/Placeholder for Public facing page) */}
             <header className="bg-white border-b border-gray-100">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <Link href="/" className="text-xl font-extrabold text-indigo-900">Klinik <span className="text-indigo-600">Hipnoterapi</span></Link>
+                    <Link href="/" className="flex items-center">
+                        <img src="/images/logo-black.png" alt="InDepth Mental Wellness" className="h-9 w-auto object-contain" />
+                    </Link>
                     <Link href={route('blog.index')} className="text-gray-500 hover:text-indigo-600 flex items-center gap-1 font-medium">
                         &larr; <span className="hidden sm:inline">Kembali ke Blog</span>
                     </Link>
@@ -85,7 +87,7 @@ export default function PublicBlogShow({ post }) {
                 <footer className="mt-20 border-t border-gray-200 pt-10 text-center">
                     <div className="inline-flex flex-col items-center bg-gray-50 rounded-2xl p-8 border border-gray-100">
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Punya masalah yang ingin diselesaikan?</h3>
-                        <p className="text-gray-600 mb-6 max-w-md text-center">Jangan tunda lagi perbaikan hidup Anda. Konsultasikan bersama ahli kami sekarang juga melalui program hipnoterapi terbaik kami.</p>
+                        <p className="text-gray-600 mb-6 max-w-md text-center">Jangan tunda lagi perbaikan hidup Anda. Konsultasikan bersama tim profesional InDepth Mental Wellness untuk perjalanan pemulihan Anda.</p>
                         <Link href="/login" className="px-8 py-3 w-full sm:w-auto text-center border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg transition-colors shadow-sm">
                             Buat Jadwal Konsultasi &rarr;
                         </Link>
