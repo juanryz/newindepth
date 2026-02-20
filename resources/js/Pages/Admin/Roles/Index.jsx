@@ -20,7 +20,14 @@ export default function RolesIndex({ roles }) {
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Manajemen Roles</h2>}>
+        <AuthenticatedLayout header={
+            <div className="flex justify-between items-center">
+                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Manajemen Roles</h2>
+                <Link href={route('admin.roles.create')} className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    Tambah Role Baru
+                </Link>
+            </div>
+        }>
             <Head title="Manajemen Roles" />
 
             <div className="py-12">
@@ -35,12 +42,6 @@ export default function RolesIndex({ roles }) {
                             {flash.error}
                         </div>
                     )}
-
-                    <div className="flex justify-end items-center bg-white dark:bg-gray-800 p-4 shadow sm:rounded-lg">
-                        <Link href={route('admin.roles.create')} className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            Tambah Role Baru
-                        </Link>
-                    </div>
 
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100 overflow-x-auto">

@@ -29,6 +29,9 @@ class User extends Authenticatable
         'bio',
         'specialization',
         'status',
+        'recommended_package',
+        'screening_answers',
+        'screening_completed_at',
     ];
 
     /**
@@ -51,6 +54,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'screening_answers' => 'json',
+            'screening_completed_at' => 'datetime',
         ];
     }
 
@@ -77,5 +82,15 @@ class User extends Authenticatable
     public function courses()
     {
         return $this->belongsToMany(Course::class)->withPivot('transaction_id', 'enrolled_at');
+    }
+
+    public function hasCompletedScreening(): bool
+    {
+        return !is_null($this->screening_completed_at);
+    }
+
+    public function isPackageLocked(): bool
+    {
+        return !is_null($this->recommended_package);
     }
 }

@@ -47,10 +47,9 @@ class BookingService
                 'booking_code' => $this->generateBookingCode(),
                 'patient_id' => $patientId,
                 'schedule_id' => $schedule->id,
-                'screening_form_id' => $data['screening_form_id'] ?? null,
-                'screening_answers' => $data['screening_answers'] ?? null,
+                'package_type' => $data['package_type'], // Using locked package from controller
                 'affiliate_ref_code' => cookie('ref_code'), // Automatically pulls from cookie
-                'status' => 'pending_screening',
+                'status' => 'pending_payment', // Skip screening status, go straight to payment since screening is done earlier
             ]);
         });
     }

@@ -16,6 +16,7 @@ class Booking extends Model
         'affiliate_ref_code',
         'notes',
         'recording_link',
+        'package_type',
     ];
 
     protected $casts = [

@@ -44,11 +44,13 @@ class PaymentController extends Controller
 
         $path = $request->file('payment_proof')->store('payments', 'public');
 
+        $amount = $booking->package_type === 'vip' ? 8000000 : 2000000;
+
         $transaction = $booking->transaction()->updateOrCreate(
             ['user_id' => auth()->id()],
             [
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
-                'amount' => 500000, // Hardcoded for MVP, ideally from a settings/pricing table
+                'amount' => $amount,
                 'payment_method' => $request->payment_method,
                 'payment_bank' => $request->payment_bank,
                 'payment_proof' => $path,

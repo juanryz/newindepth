@@ -32,77 +32,22 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/" className="inline-flex gap-2 items-center group">
-                                    <div className="relative w-8 h-8 bg-gradient-to-tr from-gold-600 to-yellow-400 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] border border-gold-300/30">
-                                        H
-                                        <div className="absolute inset-0 bg-gold-400 blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-300 rounded-lg z-[-1]"></div>
-                                    </div>
-                                    <span className="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white hidden sm:block">Hypno<span className="text-gold-500 dark:text-gold-400">Care</span></span>
+                                <Link href="/" className="inline-flex items-center group relative p-1">
+                                    <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
+                                    <img
+                                        src="/images/logo-color.png"
+                                        alt="InDepth Mental Wellness"
+                                        className="h-10 w-auto object-contain block dark:hidden relative z-10"
+                                    />
+                                    <img
+                                        src="/images/logo-white.png"
+                                        alt="InDepth Mental Wellness"
+                                        className="h-10 w-auto object-contain hidden dark:block relative z-10"
+                                    />
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex text-sm">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                    Dashboard
-                                </NavLink>
-
-                                {/* Admin Links */}
-                                {isAdmin && (
-                                    <>
-                                        <NavLink href={route('admin.transactions.index')} active={route().current('admin.transactions.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Pembayaran
-                                        </NavLink>
-                                        <NavLink href={route('admin.reports.index')} active={route().current('admin.reports.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Laporan
-                                        </NavLink>
-                                        <NavLink href={route('admin.blog.index')} active={route().current('admin.blog.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Blog CMS
-                                        </NavLink>
-                                        <NavLink href={route('admin.schedules.index')} active={route().current('admin.schedules.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Manajemen Jadwal
-                                        </NavLink>
-                                        <NavLink href={route('admin.expenses.index')} active={route().current('admin.expenses.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Pengeluaran
-                                        </NavLink>
-                                    </>
-                                )}
-
-                                {/* Super Admin Links */}
-                                {isSuperAdmin && (
-                                    <>
-                                        <NavLink href={route('admin.users.index')} active={route().current('admin.users.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            User
-                                        </NavLink>
-                                        <NavLink href={route('admin.roles.index')} active={route().current('admin.roles.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                            Roles
-                                        </NavLink>
-                                    </>
-                                )}
-
-                                {/* Therapist Links */}
-                                {isTherapist && !isAdmin && (
-                                    <NavLink href={route('schedules.index')} active={route().current('schedules.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                        Jadwal Saya
-                                    </NavLink>
-                                )}
-
-                                {/* Patient Links */}
-                                {isPatient && (
-                                    <NavLink href={route('bookings.create')} active={route().current('bookings.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                        Buat Janji
-                                    </NavLink>
-                                )}
-
-                                {/* Shared */}
-                                <NavLink href={route('courses.index')} active={route().current('courses.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                    E-Learning
-                                </NavLink>
-                                {!isSuperAdmin && (
-                                    <NavLink href={route('affiliate.dashboard')} active={route().current('affiliate.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
-                                        Afiliasi
-                                    </NavLink>
-                                )}
-                            </div>
+                            {/* No menu links — Dashboard hub handles navigation */}
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
@@ -209,25 +154,6 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
-                        {isAdmin && (
-                            <>
-                                <ResponsiveNavLink href={route('admin.transactions.index')}>Validasi Pembayaran</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.reports.index')}>Laporan Keuangan</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.blog.index')}>Blog CMS</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.schedules.index')}>Manajemen Jadwal</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('admin.expenses.index')}>Pengeluaran</ResponsiveNavLink>
-                            </>
-                        )}
-                        {isTherapist && !isAdmin && (
-                            <ResponsiveNavLink href={route('schedules.index')}>Jadwal Saya</ResponsiveNavLink>
-                        )}
-                        {isPatient && (
-                            <ResponsiveNavLink href={route('bookings.create')}>Buat Janji</ResponsiveNavLink>
-                        )}
-                        <ResponsiveNavLink href={route('courses.index')}>E-Learning</ResponsiveNavLink>
-                        {!isSuperAdmin && (
-                            <ResponsiveNavLink href={route('affiliate.dashboard')}>Afiliasi</ResponsiveNavLink>
-                        )}
                     </div>
 
                     <div className="border-t border-white/40 pb-1 pt-4 dark:border-gray-700/50">
@@ -259,6 +185,12 @@ export default function AuthenticatedLayout({ header, children }) {
             {header && (
                 <header className="relative z-40 border-b border-white/20 dark:border-gray-800/30 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg shadow-[0_4px_30px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                        {!route().current('dashboard') && (
+                            <Link href={route('dashboard')} className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors mb-3">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                                Kembali ke Dashboard
+                            </Link>
+                        )}
                         {header}
                     </div>
                 </header>

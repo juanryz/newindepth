@@ -32,20 +32,29 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'phone' => 'required|string|max:20|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        $package = $request->query('package', null);
+        $validPackages = ['reguler', 'vip'];
+        $recommendedPackage = in_array($package, $validPackages) ? $package : null;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'recommended_package' => $recommendedPackage, // Optional pre-fill from URL param if available
         ]);
+
+        $user->assignRole('patient');
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('screening.show', absolute: false));
     }
 }

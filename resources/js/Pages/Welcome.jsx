@@ -209,7 +209,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 </li>
                             </ul>
 
-                            <Link href="/login" className="block text-center py-4 px-8 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300">
+                            <Link href="/register?package=reguler" className="block text-center py-4 px-8 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300">
                                 Pilih Paket Reguler
                             </Link>
                         </div>
@@ -251,7 +251,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 </li>
                             </ul>
 
-                            <Link href="/login" className="block text-center py-5 px-8 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold text-lg shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1">
+                            <Link href="/register?package=vip" className="block text-center py-5 px-8 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold text-lg shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1">
                                 Ambil Paket VIP
                             </Link>
                         </div>
@@ -368,7 +368,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <p className="text-xl opacity-90 mb-10 text-gray-600 dark:text-gray-300 mx-auto max-w-2xl font-light relative z-10">
                         Bergabunglah dengan ratusan klien sukses lainnya. Proses perubahan dimulai dari satu keputusan kecil hari ini.
                     </p>
-                    <Link href="/login" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
+                    <Link href="/register" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
                         Jadwalkan Konsultasi Gratis
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </Link>

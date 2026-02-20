@@ -32,11 +32,11 @@ export default function PaymentUpload({ booking, transaction }) {
                         <div className="mb-8 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
                             <h3 className="text-lg font-bold text-indigo-900 mb-2">Instruksi Pembayaran</h3>
                             <p className="text-sm text-indigo-800 mb-4">
-                                Silakan transfer ke salah satu rekening berikut sejumlah <strong>Rp 500.000</strong>:
+                                Silakan transfer ke salah satu rekening berikut sejumlah <strong>Rp {booking.package_type === 'vip' ? '8.000.000' : '2.000.000'}</strong>:
                             </p>
-                            <ul className="text-sm text-indigo-800 list-disc ml-5 space-y-1">
-                                <li>BCA: 1234567890 a.n. Klinik Hypnotherapy</li>
-                                <li>Mandiri: 0987654321 a.n. Klinik Hypnotherapy</li>
+                            <ul className="text-sm text-indigo-800 list-disc ml-5 space-y-1 font-medium">
+                                <li>BCA: 8720394817 a.n. InDepth Mental Wellness</li>
+                                <li>Mandiri: 1390028471530 a.n. InDepth Mental Wellness</li>
                             </ul>
                         </div>
 
