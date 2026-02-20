@@ -20,7 +20,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <Head title="Klinik Hipnoterapi Premium Jakarta | Transformasi Pikiran Anda" />
 
             {/* Navbar */}
-            <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
+            <nav className="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
                         <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
@@ -47,13 +47,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 <>
                                     <Link
                                         href={route('login')}
-                                        className="text-gray-600 hover:text-gray-900 font-semibold px-4 py-2 transition-colors"
+                                        className="text-gray-600 z-50 relative hover:text-gray-900 font-semibold px-4 py-2 transition-colors"
                                     >
                                         Log in
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="px-6 py-2.5 rounded-full font-semibold text-white bg-indigo-600 border border-transparent hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                                        className="px-6 py-2.5 z-50 relative rounded-full font-semibold text-white bg-indigo-600 border border-transparent hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                                     >
                                         Daftar Sekarang
                                     </Link>
@@ -68,10 +68,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <main>
                 <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
                     {/* Background decorations */}
-                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-50 blur-3xl opacity-70 animate-pulse"></div>
-                    <div className="absolute top-40 left-0 -ml-20 w-72 h-72 rounded-full bg-purple-50 blur-3xl opacity-70 animate-pulse" style={{ animationDelay: '2s' }}></div>
+                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-50 blur-3xl opacity-70 animate-pulse pointer-events-none z-0"></div>
+                    <div className="absolute top-40 left-0 -ml-20 w-72 h-72 rounded-full bg-purple-50 blur-3xl opacity-70 animate-pulse pointer-events-none z-0" style={{ animationDelay: '2s' }}></div>
 
-                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="relative max-w-7xl z-10 mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 mb-8 leading-tight">
                             Temukan Kembali <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
