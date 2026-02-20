@@ -52,13 +52,19 @@ Route::middleware('auth')->group(function () {
 
         // Reports & Expenses
         Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class, 'exportCsv'])->name('reports.export-csv');
         Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
-        Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+        Route::delete('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
         // Admin E-Learning CMS
         Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
         Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
+
+        // Admin Schedule Management
+        Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');
+        Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
+        Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
     });
 
     // Super Admin Only Routes (User Management, Role Management)
@@ -69,6 +75,10 @@ Route::middleware('auth')->group(function () {
 
     // Affiliate Dashboard
     Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class, 'index'])->name('affiliate.dashboard');
+
+    // Notifications
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 });
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
@@ -79,6 +89,10 @@ Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms
 // Public Blog Routes
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
+// Public Therapist Routes
+Route::get('/therapists', [\App\Http\Controllers\TherapistController::class, 'index'])->name('therapists.index');
+Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class, 'show'])->name('therapists.show');
 
 // Dynamic XML Sitemap
 Route::get('/sitemap.xml', function () {
@@ -109,3 +123,13 @@ Route::get('/sitemap.xml', function () {
 });
 
 require __DIR__ . '/auth.php';
+
+Route::get('/setup-notifications', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('make:notifications-table');
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return '✅ Notifications table created and migrated!';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});

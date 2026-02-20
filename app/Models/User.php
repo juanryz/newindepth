@@ -26,6 +26,8 @@ class User extends Authenticatable
         'referral_code',
         'affiliate_ref',
         'avatar',
+        'bio',
+        'specialization',
         'status',
     ];
 

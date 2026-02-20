@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Clinic;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Transaction;
+use App\Models\User;
+use App\Notifications\NewPaymentReceived;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 
@@ -55,6 +58,10 @@ class PaymentController extends Controller
         );
 
         $booking->update(['status' => 'pending_validation']);
+
+        // Notify Admins & CS
+        $admins = User::role(['cs', 'admin', 'super_admin'])->get();
+        Notification::send($admins, new NewPaymentReceived($transaction));
 
         return redirect()->route('bookings.show', $booking->id)->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu validasi admin.');
     }
