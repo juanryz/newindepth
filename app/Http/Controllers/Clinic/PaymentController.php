@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Http\Controllers\Clinic;
+
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Str;
+
+class PaymentController extends Controller
+{
+    public function create(Booking $booking)
+    {
+        if ($booking->patient_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($booking->status !== 'pending_payment' && $booking->status !== 'pending_validation') {
+            return redirect()->route('bookings.show', $booking->id)->withErrors(['error' => 'Booking tidak dalam status menunggu pembayaran.']);
+        }
+
+        return Inertia::render('Clinic/Payments/Upload', [
+            'booking' => $booking->load('schedule.therapist'),
+            'transaction' => $booking->transaction,
+        ]);
+    }
+
+    public function store(Request $request, Booking $booking)
+    {
+        if ($booking->patient_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'payment_proof' => 'required|image|max:2048',
+            'payment_bank' => 'required|string|max:50',
+            'payment_method' => 'required|string|max:50',
+        ]);
+
+        $path = $request->file('payment_proof')->store('payments', 'public');
+
+        $transaction = $booking->transaction()->updateOrCreate(
+            ['user_id' => auth()->id()],
+            [
+                'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
+                'amount' => 500000, // Hardcoded for MVP, ideally from a settings/pricing table
+                'payment_method' => $request->payment_method,
+                'payment_bank' => $request->payment_bank,
+                'payment_proof' => $path,
+                'payment_proof_uploaded_at' => now(),
+                'status' => 'pending',
+            ]
+        );
+
+        $booking->update(['status' => 'pending_validation']);
+
+        return redirect()->route('bookings.show', $booking->id)->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu validasi admin.');
+    }
+}
