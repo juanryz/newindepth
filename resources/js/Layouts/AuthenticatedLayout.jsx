@@ -58,7 +58,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <NavLink href={route('admin.blog.index')} active={route().current('admin.blog.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
                                             Blog CMS
                                         </NavLink>
-                                        <NavLink href={route('schedules.index')} active={route().current('schedules.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                        <NavLink href={route('admin.schedules.index')} active={route().current('admin.schedules.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
                                             Manajemen Jadwal
                                         </NavLink>
                                         <NavLink href={route('admin.expenses.index')} active={route().current('admin.expenses.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
@@ -214,7 +214,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <ResponsiveNavLink href={route('admin.transactions.index')}>Validasi Pembayaran</ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('admin.reports.index')}>Laporan Keuangan</ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('admin.blog.index')}>Blog CMS</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('schedules.index')}>Manajemen Jadwal</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.schedules.index')}>Manajemen Jadwal</ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('admin.expenses.index')}>Pengeluaran</ResponsiveNavLink>
                             </>
                         )}

@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'patient_id',
+        'schedule_id',
+        'screening_form_id',
+        'screening_answers',
+        'status',
+        'affiliate_ref_code',
+        'notes',
+        'recording_link',
+    ];
 
     protected $casts = [
         'screening_answers' => 'json',

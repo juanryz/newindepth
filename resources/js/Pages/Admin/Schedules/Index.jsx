@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { format, parseISO } from 'date-fns';
-import { id } from 'date-fns/locale';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import idLocale from '@fullcalendar/core/locales/id';
 
-export default function AdminSchedulesIndex({ schedulesByDate, therapists, filters }) {
+export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         therapist_id: '',
         date: '',
-        time_slot: '',
+        start_time: '',
+        end_time: '',
     });
 
     const [isAdding, setIsAdding] = useState(false);
+    const calendarRef = useRef(null);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -33,21 +38,51 @@ export default function AdminSchedulesIndex({ schedulesByDate, therapists, filte
 
     const deleteSchedule = (scheduleId) => {
         if (confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
-            router.delete(route('admin.schedules.destroy', scheduleId));
+            router.delete(route('admin.schedules.destroy', scheduleId), {
+                preserveScroll: true
+            });
         }
+    };
+
+    // Format events for FullCalendar
+    const events = schedules.map(schedule => {
+        const isBooked = schedule.bookings && schedule.bookings.length > 0;
+        return {
+            id: schedule.id,
+            title: `${schedule.therapist.name} ${isBooked ? '(Terisi)' : ''}`,
+            start: `${schedule.date}T${schedule.start_time}`,
+            end: `${schedule.date}T${schedule.end_time}`,
+            backgroundColor: isBooked ? '#f3f4f6' : '#10b981',
+            borderColor: isBooked ? '#e5e7eb' : '#059669',
+            textColor: isBooked ? '#374151' : '#ffffff',
+            extendedProps: { ...schedule, isBooked }
+        };
+    });
+
+    const handleEventClick = (info) => {
+        const schedule = info.event.extendedProps;
+        if (!schedule.isBooked) {
+            deleteSchedule(schedule.id);
+        } else {
+            alert('Slot yang sudah dipesan tidak dapat dihapus.');
+        }
+    };
+
+    const printPdf = () => {
+        window.print();
     };
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Jadwal Terapis</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight print:hidden">Manajemen Jadwal Terapis</h2>}
         >
             <Head title="Manajemen Jadwal Terapis" />
 
-            <div className="py-12">
+            <div className="py-12 print:py-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                    {/* Filters & Actions */}
-                    <div className="bg-white p-4 shadow-sm sm:rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    {/* Filters & Actions - Hidden during print */}
+                    <div className="bg-white p-4 shadow-sm sm:rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                             <select
                                 name="therapist_id"
@@ -60,28 +95,30 @@ export default function AdminSchedulesIndex({ schedulesByDate, therapists, filte
                                     <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                             </select>
-                            <input
-                                type="date"
-                                name="date"
-                                className="border-gray-300 rounded-md shadow-sm text-sm w-full sm:w-48"
-                                value={filters.date || ''}
-                                onChange={handleFilterChange}
-                            />
                         </div>
-                        <button
-                            onClick={() => setIsAdding(!isAdding)}
-                            className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                        >
-                            {isAdding ? 'Batal Tambah' : '+ Tambah Slot Manual'}
-                        </button>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <button
+                                onClick={printPdf}
+                                className="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                Cetak PDF
+                            </button>
+                            <button
+                                onClick={() => setIsAdding(!isAdding)}
+                                className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                            >
+                                {isAdding ? 'Batal Tambah' : '+ Tambah Slot Manual'}
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Add Schedule Form */}
+                    {/* Add Schedule Form - Hidden during print */}
                     {isAdding && (
-                        <div className="bg-indigo-50 p-6 shadow-sm sm:rounded-lg border border-indigo-100">
+                        <div className="bg-indigo-50 p-6 shadow-sm sm:rounded-lg border border-indigo-100 print:hidden">
                             <h3 className="text-lg font-bold text-indigo-900 mb-4">Tambah Slot Jadwal Baru</h3>
-                            <form onSubmit={submit} className="flex flex-col sm:flex-row gap-4 items-end">
-                                <div className="w-full sm:w-1/3">
+                            <form onSubmit={submit} className="flex flex-col sm:flex-row gap-4 items-end flex-wrap">
+                                <div className="w-full sm:w-64">
                                     <label className="block text-sm font-medium text-gray-700">Terapis</label>
                                     <select
                                         name="therapist_id"
@@ -97,7 +134,7 @@ export default function AdminSchedulesIndex({ schedulesByDate, therapists, filte
                                     </select>
                                     {errors.therapist_id && <div className="text-red-500 text-xs mt-1">{errors.therapist_id}</div>}
                                 </div>
-                                <div className="w-full sm:w-1/4">
+                                <div className="w-full sm:w-48">
                                     <label className="block text-sm font-medium text-gray-700">Tanggal</label>
                                     <input
                                         type="date"
@@ -109,16 +146,27 @@ export default function AdminSchedulesIndex({ schedulesByDate, therapists, filte
                                     />
                                     {errors.date && <div className="text-red-500 text-xs mt-1">{errors.date}</div>}
                                 </div>
-                                <div className="w-full sm:w-1/4">
-                                    <label className="block text-sm font-medium text-gray-700">Jam (HH:mm)</label>
+                                <div className="w-full sm:w-32">
+                                    <label className="block text-sm font-medium text-gray-700">Mulai (HH:mm)</label>
                                     <input
                                         type="time"
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        value={data.time_slot}
-                                        onChange={e => setData('time_slot', e.target.value)}
+                                        value={data.start_time}
+                                        onChange={e => setData('start_time', e.target.value)}
                                         required
                                     />
-                                    {errors.time_slot && <div className="text-red-500 text-xs mt-1">{errors.time_slot}</div>}
+                                    {errors.start_time && <div className="text-red-500 text-xs mt-1">{errors.start_time}</div>}
+                                </div>
+                                <div className="w-full sm:w-32">
+                                    <label className="block text-sm font-medium text-gray-700">Selesai (HH:mm)</label>
+                                    <input
+                                        type="time"
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        value={data.end_time}
+                                        onChange={e => setData('end_time', e.target.value)}
+                                        required
+                                    />
+                                    {errors.end_time && <div className="text-red-500 text-xs mt-1">{errors.end_time}</div>}
                                 </div>
                                 <div className="w-full sm:w-auto">
                                     <button
@@ -133,59 +181,56 @@ export default function AdminSchedulesIndex({ schedulesByDate, therapists, filte
                         </div>
                     )}
 
-                    {/* Schedules List */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100 p-6">
-                        {Object.keys(schedulesByDate).length > 0 ? (
-                            <div className="space-y-8">
-                                {Object.keys(schedulesByDate).sort().map(dateStr => (
-                                    <div key={dateStr} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
-                                        <h3 className="text-lg font-bold text-gray-900 flex items-center mb-4 border-l-4 border-indigo-500 pl-3">
-                                            {format(parseISO(dateStr), 'EEEE, d MMMM yyyy', { locale: id })}
-                                        </h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {schedulesByDate[dateStr].map(schedule => {
-                                                const isBooked = schedule.bookings && schedule.bookings.length > 0;
-                                                return (
-                                                    <div key={schedule.id} className={`p-4 rounded-lg border ${isBooked ? 'bg-gray-50 border-gray-200' : 'bg-green-50/50 border-green-200'} relative group`}>
-                                                        <div className="flex justify-between items-start">
-                                                            <div>
-                                                                <span className="text-xl font-bold text-gray-900">{schedule.time_slot}</span>
-                                                                <p className="text-sm font-medium text-gray-600 mt-1">{schedule.therapist.name}</p>
-                                                            </div>
-                                                            <div>
-                                                                {isBooked ? (
-                                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                                        Terisi
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                        Kosong
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
+                    {/* Interactive Calendar Setup */}
+                    <div className="bg-white shadow-sm sm:rounded-lg border border-gray-100 p-6 print:shadow-none print:border-0 print:p-0">
+                        {/* Custom Print Styles injected here for scoping */}
+                        <style dangerouslySetEffect={{
+                            __html: `
+                            @media print {
+                                body * { visibility: hidden; }
+                                .fc, .fc * { visibility: visible; }
+                                .fc {
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    width: 100% !important;
+                                    margin: 0 !important;
+                                    padding: 0 !important;
+                                }
+                                .fc-header-toolbar { display: none !important; }
+                                .fc-scrollgrid { border: none !important; }
+                            }
+                        `}} />
 
-                                                        {!isBooked && (
-                                                            <button
-                                                                onClick={() => deleteSchedule(schedule.id)}
-                                                                className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                title="Hapus Slot"
-                                                            >
-                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                        <div className="fc-theme-standard">
+                            <FullCalendar
+                                ref={calendarRef}
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                initialView="timeGridWeek"
+                                headerToolbar={{
+                                    left: 'prev,next today',
+                                    center: 'title',
+                                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                }}
+                                locales={[idLocale]}
+                                locale="id"
+                                slotMinTime="08:00:00"
+                                slotMaxTime="22:00:00"
+                                allDaySlot={false}
+                                events={events}
+                                eventClick={handleEventClick}
+                                eventContent={(arg) => {
+                                    return (
+                                        <div className="p-1 text-xs leading-tight overflow-hidden cursor-pointer" title={arg.event.title + " (Klik untuk hapus)"}>
+                                            <div className="font-bold">{arg.timeText}</div>
+                                            <div className="truncate">{arg.event.title}</div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-12 text-gray-500">
-                                Tidak ada jadwal yang ditemukan untuk filter yang dipilih.
-                            </div>
-                        )}
+                                    )
+                                }}
+                                height="auto"
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-4 print:hidden">* Klik pada jadwal yang berwarna hijau (Kosong) untuk menghapusnya.</p>
                     </div>
 
                 </div>

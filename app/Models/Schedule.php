@@ -6,7 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Schedule extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'therapist_id',
+        'date',
+        'start_time',
+        'end_time',
+        'quota',
+        'status',
+    ];
 
     protected $casts = [
         'date' => 'date',
