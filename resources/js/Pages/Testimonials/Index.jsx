@@ -1,0 +1,224 @@
+import { Head, Link } from '@inertiajs/react';
+import React from 'react';
+import ThemeToggle from '@/Components/ThemeToggle';
+
+export default function Index({ auth }) {
+    const testimonials = [
+        {
+            id: 1,
+            name: "Budi Santoso",
+            role: "Entrepreneur",
+            category: "Anxiety",
+            content: "Setelah beberapa sesi hipnoterapi di InDepth, saya merasa jauh lebih tenang dan mampu mengelola tekanan bisnis dengan lebih baik. Trauma masa lalu yang menghambat saya kini sudah sirna.",
+            image: null,
+            rating: 5
+        },
+        {
+            id: 2,
+            name: "Siska Putri",
+            role: "Corporate Manager",
+            category: "Trauma Healing",
+            content: "Metode yang digunakan Pak Saiful sangat lembut namun efektif. Masalah trauma yang saya bawa selama bertahun-tahun bisa teratasi hanya dalam waktu singkat. Sangat merekomendasikan!",
+            image: null,
+            rating: 5
+        },
+        {
+            id: 3,
+            name: "Andi Wijaya",
+            role: "Professional",
+            category: "Self-Growth",
+            content: "Layanan Corporate Wellness dari InDepth benar-benar mengubah cara tim kami bekerja. Produktivitas meningkat dan tingkat stres menurun drastis.",
+            image: null,
+            rating: 5
+        },
+        {
+            id: 4,
+            name: "Rina Kartika",
+            role: "Ibu Rumah Tangga",
+            category: "Anxiety",
+            content: "InDepth membantu saya menemukan kembali jati diri saya. Sekarang saya lebih percaya diri dan bisa menikmati hidup tanpa rasa cemas yang berlebihan.",
+            image: null,
+            rating: 5
+        },
+        {
+            id: 5,
+            name: "Doni Pratama",
+            role: "Athlete",
+            category: "Performance",
+            content: "Blokir mental yang mengganggu performa saya di lapangan berhasil dibongkar melalui sesi Supreme State. Luar biasa dampaknya bagi karir saya.",
+            image: null,
+            rating: 5
+        },
+        {
+            id: 6,
+            name: "Maya Sari",
+            role: "Creative Director",
+            category: "Mental Health",
+            content: "Tempat yang sangat nyaman dan profesional. Terasa sekali kalau tim InDepth benar-benar peduli dengan kesembuhan kliennya.",
+            image: null,
+            rating: 4
+        }
+    ];
+
+    return (
+        <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
+            <Head title="Testimoni - InDepth Mental Wellness" />
+
+            {/* Global Background Ambient Light */}
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
+            </div>
+
+            {/* Navbar (Identical to Homepage) */}
+            <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-20">
+                        <Link href="/" className="flex-shrink-0 flex items-center group relative p-2">
+                            <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-2xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
+                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-12 w-auto object-contain block dark:hidden relative z-10" />
+                            <img src="/images/logo-white.png" alt="InDepth Logo" className="h-12 w-auto object-contain hidden dark:block relative z-10" />
+                        </Link>
+                        <div className="hidden md:flex space-x-8 items-center">
+                            <a href="/#layanan" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Layanan</a>
+                            <Link href={route('testimonials.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Testimoni</Link>
+                            <a href="/#paket" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Paket</a>
+                            <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
+                            <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
+                        </div>
+                        <div className="flex items-center space-x-4 relative z-[60]">
+                            <ThemeToggle />
+                            {auth?.user ? (
+                                <Link href={route('dashboard')} className="px-6 py-2.5 rounded-full font-semibold text-gray-900 dark:text-white bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-all">Dashboard</Link>
+                            ) : (
+                                <>
+                                    <Link href={route('login')} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold px-4 py-2 transition-colors">Log in</Link>
+                                    <Link href={route('register')} className="px-6 py-2.5 rounded-full font-semibold text-white bg-gradient-to-r from-gold-500 to-yellow-500 border border-gold-400/50 hover:from-gold-600 hover:to-yellow-600 transition-all shadow-lg hover:shadow-gold-500/20">Daftar Sekarang</Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <main className="relative z-10 pt-40 pb-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Hero Section */}
+                    <div className="text-center mb-20 animate-fade-in">
+                        <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400">
+                            <span className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                                Kisah Sukses & Transformasi
+                            </span>
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 leading-tight">
+                            Apa Kata Mereka Tentang <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600 filter drop-shadow-sm">
+                                Perubahan Mereka?
+                            </span>
+                        </h1>
+                        <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed">
+                            Ribuan klien telah menemukan kembali ketenangan batin dan potensi terbaik mereka bersama InDepth Mental Wellness.
+                        </p>
+                    </div>
+
+                    {/* Testimonials Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {testimonials.map((item) => (
+                            <div key={item.id} className="group relative bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[2.5rem] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_20px_50px_rgba(208,170,33,0.1)] hover:-translate-y-2">
+                                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-12 h-12 text-gold-500" fill="currentColor" viewBox="0 0 32 32">
+                                        <path d="M10 8c-3.3 0-6 2.7-6 6 0 2.2 1.2 4.1 3 5.1V24l5-3h1c3.3 0 6-2.7 6-6s-2.7-6-6-6z"></path>
+                                        <path d="M22 8c-3.3 0-6 2.7-6 6 0 2.2 1.2 4.1 3 5.1V24l5-3h1c3.3 0 6-2.7 6-6s-2.7-6-6-6z"></path>
+                                    </svg>
+                                </div>
+
+                                <div className="flex items-center gap-1 mb-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className={`w-4 h-4 ${i < item.rating ? 'text-gold-500' : 'text-gray-300 dark:text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
+                                </div>
+
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-8 italic">
+                                    "{item.content}"
+                                </p>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-500 to-yellow-400 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                                        {item.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-gray-900 dark:text-white">{item.name}</h4>
+                                        <p className="text-sm text-gold-600 dark:text-gold-400 font-medium">{item.role}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6">
+                                    <span className="inline-block px-3 py-1 rounded-full bg-gold-500/10 text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-wider">
+                                        {item.category}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* CTA Section */}
+                    <div className="mt-24 text-center">
+                        <div className="relative max-w-4xl mx-auto p-12 rounded-[3rem] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-900/80 dark:to-black/80 overflow-hidden shadow-2xl border border-white/10">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 relative z-10">Siap Untuk Perubahan Anda Sendiri?</h2>
+                            <p className="text-gray-400 mb-10 text-lg font-light relative z-10">Jadwalkan sesi konsultasi pertama Anda dan temukan jalan menuju ketenangan batin.</p>
+                            <Link href="/login" className="inline-flex items-center gap-2 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-xl transition-all hover:-translate-y-1 relative z-10">
+                                Mulai Konsultasi Gratis
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            {/* Footer (Consistent) */}
+            <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-20 pb-10 mt-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                        <div className="col-span-1">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white">InDepth</span>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                                Kesehatan Mental Terpadu & Profesional. Membantu Anda menemukan kembali ketenangan batin.
+                            </p>
+                        </div>
+
+                        <div className="col-span-1 md:col-span-2">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Lokasi & Kontak</h4>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-2">
+                                Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237
+                            </p>
+                            <p className="text-gray-900 dark:text-white font-bold text-sm">
+                                Telepon: 0822-2080-0034
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Navigasi</h4>
+                            <ul className="space-y-4 text-sm">
+                                <li><a href="/#layanan" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Layanan</a></li>
+                                <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
+                                <li><a href="/#paket" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Paket</a></li>
+                                <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
+                                <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            &copy; {new Date().getFullYear()} InDepth Mental Wellness. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
+}

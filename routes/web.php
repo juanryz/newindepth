@@ -7,10 +7,10 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+    'canLogin' => Route::has('login'),
+    'canRegister' => Route::has('register'),
+    'laravelVersion' => Application::VERSION,
+    'phpVersion' => PHP_VERSION,
     ]);
 });
 
@@ -19,66 +19,74 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');
 
     // Patient Routes
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(function () {
-        Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class, 'create'])->name('bookings.create');
-        Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class, 'store'])->name('bookings.store');
-        Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class, 'show'])->name('bookings.show');
+            Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class , 'create'])->name('bookings.create');
+            Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class , 'store'])->name('bookings.store');
+            Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class , 'show'])->name('bookings.show');
 
-        // Payment routes
-        Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'create'])->name('payments.create');
-        Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'store'])->name('payments.store');
-    });
+            // Payment routes
+            Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'create'])->name('payments.create');
+            Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'store'])->name('payments.store');
+        }
+        );
 
-    // Therapist Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(function () {
-        Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
-        Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
-        Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
-    });
+        // Therapist Routes
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(function () {
+            Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'index'])->name('schedules.index');
+            Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'store'])->name('schedules.store');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class , 'destroy'])->name('schedules.destroy');
+        }
+        );
 
-    // CS / Admin Routes for Transaction Validation
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
-        Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
-        Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
+        // CS / Admin Routes for Transaction Validation
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(function () {
+            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'index'])->name('transactions.index');
+            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'validatePayment'])->name('transactions.validate');
+            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'rejectPayment'])->name('transactions.reject');
 
-        // Blog CMS
-        Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
+            // Blog CMS
+            Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
 
-        // Reports & Expenses
-        Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class, 'index'])->name('reports.index');
-        Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
-        Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
-        Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+            // Reports & Expenses
+            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class , 'index'])->name('reports.index');
+            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'index'])->name('expenses.index');
+            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'store'])->name('expenses.store');
+            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class , 'destroy'])->name('expenses.destroy');
 
-        // Admin E-Learning CMS
-        Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
-        Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
-    });
+            // Admin E-Learning CMS
+            Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
+            Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
+        }
+        );
 
-    // Super Admin Only Routes (User Management, Role Management)
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-    });
+        // Super Admin Only Routes (User Management, Role Management)
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(function () {
+            Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+            Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+        }
+        );
 
-    // Affiliate Dashboard
-    Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class, 'index'])->name('affiliate.dashboard');
-});
+        // Affiliate Dashboard
+        Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class , 'index'])->name('affiliate.dashboard');    });
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
-Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class, 'index'])->name('courses.index');
-Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class, 'show'])->name('courses.show');
-Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class, 'show'])->name('lessons.show');
+Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class , 'index'])->name('courses.index');
+Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class , 'show'])->name('courses.show');
+Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class , 'show'])->name('lessons.show');
 
 // Public Blog Routes
-Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog', [\App\Http\Controllers\BlogController::class , 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class , 'show'])->name('blog.show');
+
+// Public Testimonials Route
+Route::get('/testimoni', function () {
+    return Inertia::render('Testimonials/Index');
+})->name('testimonials.index');
 
 // Dynamic XML Sitemap
 Route::get('/sitemap.xml', function () {
