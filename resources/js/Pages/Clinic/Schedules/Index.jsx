@@ -1,180 +1,229 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage, useForm, router } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 
-export default function ScheduleIndex({ schedules }) {
+export default function TherapistScheduleIndex({ bookings }) {
     const { flash, errors } = usePage().props;
 
-    const { data, setData, post, processing, reset } = useForm({
-        date: new Date().toISOString().split('T')[0],
-        start_time: '09:00',
-        end_time: '10:00',
-        quota: 1,
+    const [selectedHistoryPatient, setSelectedHistoryPatient] = useState(null);
+    const [selectedCompletingBooking, setSelectedCompletingBooking] = useState(null);
+
+    const { data: completeData, setData: setCompleteData, post: postComplete, processing: completing, reset: resetComplete, errors: completeErrors } = useForm({
+        recording_link: '',
     });
 
-    const submit = (e) => {
-        e.preventDefault();
-        post(route('schedules.store'), {
-            onSuccess: () => reset('start_time', 'end_time', 'quota'),
-        });
+    const openHistoryModal = (patient) => {
+        setSelectedHistoryPatient(patient);
     };
 
-    const handleDelete = (id) => {
-        if (confirm('Yakin ingin menghapus jadwal ini?')) {
-            router.delete(route('schedules.destroy', id));
-        }
+    const closeHistoryModal = () => {
+        setSelectedHistoryPatient(null);
+    };
+
+    const openCompleteModal = (booking) => {
+        setSelectedCompletingBooking(booking);
+        setCompleteData('recording_link', '');
+    };
+
+    const closeCompleteModal = () => {
+        setSelectedCompletingBooking(null);
+        resetComplete();
+    };
+
+    const handleCompleteSession = (e) => {
+        e.preventDefault();
+        postComplete(route('schedules.complete', selectedCompletingBooking.id), {
+            onSuccess: () => closeCompleteModal(),
+        });
     };
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Jadual Praktik</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Jadwal Praktik Saya</h2>}
         >
-            <Head title="Jadwal Praktik" />
+            <Head title="Jadwal Praktik Saya" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     {flash.success && (
-                        <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50">
+                        <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 border border-green-200">
                             {flash.success}
                         </div>
                     )}
-                    {errors.error && (
-                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">
-                            {errors.error}
+                    {errors.recording_link && (
+                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200">
+                            Gagal menyimpan: {errors.recording_link}
                         </div>
                     )}
 
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <section>
-                            <header>
-                                <h2 className="text-lg font-medium text-gray-900">Tambah Jadwal Baru</h2>
-                                <p className="mt-1 text-sm text-gray-600">
-                                    Pilih tanggal, jam mulai, jam selesai, dan kuota pasien untuk sesi ini.
-                                </p>
-                            </header>
+                    <div className="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-100">
+                        <div className="p-6 bg-white border-b border-gray-200">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Sesi Mendatang & Selesai</h3>
+                            <p className="text-gray-500 text-sm mb-6">
+                                Di sini Anda hanya dapat melihat sesi yang sudah dipesan oleh pasien. Anda diwajibkan menyertakan link rekaman (YouTube Private/Unlisted) untuk setiap sesi yang diselesaikan.
+                            </p>
 
-                            <form onSubmit={submit} className="mt-6 space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <div>
-                                        <InputLabel htmlFor="date" value="Tanggal" />
-                                        <TextInput
-                                            id="date"
-                                            type="date"
-                                            className="mt-1 block w-full"
-                                            value={data.date}
-                                            onChange={(e) => setData('date', e.target.value)}
-                                            required
-                                        />
-                                        {errors.date && <p className="text-sm text-red-600 mt-2">{errors.date}</p>}
-                                    </div>
-
-                                    <div>
-                                        <InputLabel htmlFor="start_time" value="Jam Mulai" />
-                                        <TextInput
-                                            id="start_time"
-                                            type="time"
-                                            className="mt-1 block w-full"
-                                            value={data.start_time}
-                                            onChange={(e) => setData('start_time', e.target.value)}
-                                            required
-                                        />
-                                        {errors.start_time && <p className="text-sm text-red-600 mt-2">{errors.start_time}</p>}
-                                    </div>
-
-                                    <div>
-                                        <InputLabel htmlFor="end_time" value="Jam Selesai" />
-                                        <TextInput
-                                            id="end_time"
-                                            type="time"
-                                            className="mt-1 block w-full"
-                                            value={data.end_time}
-                                            onChange={(e) => setData('end_time', e.target.value)}
-                                            required
-                                        />
-                                        {errors.end_time && <p className="text-sm text-red-600 mt-2">{errors.end_time}</p>}
-                                    </div>
-
-                                    <div>
-                                        <InputLabel htmlFor="quota" value="Kuota Pasien" />
-                                        <TextInput
-                                            id="quota"
-                                            type="number"
-                                            min="1"
-                                            className="mt-1 block w-full"
-                                            value={data.quota}
-                                            onChange={(e) => setData('quota', e.target.value)}
-                                            required
-                                        />
-                                        {errors.quota && <p className="text-sm text-red-600 mt-2">{errors.quota}</p>}
-                                    </div>
+                            {bookings.length === 0 ? (
+                                <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                    <p className="text-gray-500">Belum ada jadwal pasien yang aktif atau selesai saat ini.</p>
                                 </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {bookings.map((booking) => (
+                                        <div key={booking.id} className={`rounded-xl border shadow-sm p-5 relative overflow-hidden ${booking.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white border-indigo-100 ring-1 ring-indigo-50'}`}>
+                                            {/* Status Badge */}
+                                            <div className="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider bg-white shadow-sm border">
+                                                {booking.status === 'completed' ? (
+                                                    <span className="text-gray-500">Selesai</span>
+                                                ) : (
+                                                    <span className="text-indigo-600">Akan Datang</span>
+                                                )}
+                                            </div>
 
-                                <div className="flex items-center gap-4">
-                                    <PrimaryButton disabled={processing}>Simpan Jadwal</PrimaryButton>
-                                </div>
-                            </form>
-                        </section>
-                    </div>
+                                            <div className="mb-4 pr-24">
+                                                <h4 className="font-bold text-lg text-gray-900">{booking.patient.name}</h4>
+                                                <p className="text-sm text-gray-500">{booking.patient.email}</p>
+                                            </div>
 
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <header className="mb-6">
-                            <h2 className="text-lg font-medium text-gray-900">Jadwal Anda yang Akan Datang</h2>
-                        </header>
+                                            <div className="bg-indigo-50/50 rounded-lg p-3 mb-4 border border-indigo-100/50">
+                                                <div className="flex items-center text-sm text-indigo-900 font-medium mb-1">
+                                                    <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    {new Date(booking.schedule.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                                </div>
+                                                <div className="flex items-center text-sm text-indigo-800">
+                                                    <svg className="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    {booking.schedule.start_time.substring(0, 5)} - {booking.schedule.end_time.substring(0, 5)} WIB
+                                                </div>
+                                            </div>
 
-                        {schedules.length === 0 ? (
-                            <p className="text-gray-500">Belum ada jadwal yang didaftarkan.</p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kuota</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terisi</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {schedules.map((schedule) => (
-                                            <tr key={schedule.id}>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {new Date(schedule.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {schedule.quota} pasien
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {schedule.booked_count}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        ${schedule.status === 'available' ? 'bg-green-100 text-green-800' :
-                                                            schedule.status === 'full' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                        {schedule.status === 'available' ? 'Tersedia' : schedule.status === 'full' ? 'Penuh' : 'Dibatalkan'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button onClick={() => handleDelete(schedule.id)} className="text-red-600 hover:text-red-900" disabled={schedule.booked_count > 0}>
-                                                        Hapus
+                                            <div className="flex flex-col gap-2 mt-auto">
+                                                <button
+                                                    onClick={() => openHistoryModal(booking.patient)}
+                                                    className="w-full text-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-2 rounded-lg transition-colors"
+                                                >
+                                                    Tampilkan Riwayat Pasien
+                                                </button>
+
+                                                {booking.status === 'confirmed' && (
+                                                    <button
+                                                        onClick={() => openCompleteModal(booking)}
+                                                        className="w-full text-center text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg transition-colors shadow-sm"
+                                                    >
+                                                        Akhiri Sesi
                                                     </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
+                                                )}
+
+                                                {booking.status === 'completed' && booking.recording_link && (
+                                                    <a
+                                                        href={booking.recording_link}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="w-full text-center text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                        Buka Link Rekaman
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Modal: Patient History */}
+            <Modal show={selectedHistoryPatient !== null} onClose={closeHistoryModal} maxWidth="2xl">
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Riwayat Pasien</h2>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Nama: <span className="font-semibold text-gray-800">{selectedHistoryPatient?.name}</span> <br />
+                        Email: {selectedHistoryPatient?.email}
+                    </p>
+
+                    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                        {selectedHistoryPatient?.bookings?.map(hist => (
+                            <div key={hist.id} className={`p-4 rounded-lg border flex gap-4 ${hist.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white border-blue-100'}`}>
+                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                    {hist.status === 'completed' ? '✓' : '...'}
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 text-sm">
+                                        Tanggal: {new Date(hist.schedule?.date || '').toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </h4>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                        Terapis: <span className="font-medium">{hist.schedule?.therapist?.name}</span>
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Status: {hist.status === 'completed' ? 'Selesai' : 'Akan Datang'}
+                                    </p>
+                                    {hist.recording_link && (
+                                        <a href={hist.recording_link} target="_blank" rel="noreferrer" className="text-xs text-indigo-600 hover:underline mt-2 inline-block">
+                                            Link Rekaman Tersedia &rarr;
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        {selectedHistoryPatient?.bookings?.length === 0 && (
+                            <p className="text-gray-500 italic text-center py-4">Belum ada riwayat sesi yang tercatat.</p>
+                        )}
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeHistoryModal}>Tutup</SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Modal: Complete Session */}
+            <Modal show={selectedCompletingBooking !== null} onClose={closeCompleteModal}>
+                <form onSubmit={handleCompleteSession} className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Akhiri Sesi & Simpan Dokumentasi</h2>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Sesi dengan <strong>{selectedCompletingBooking?.patient?.name}</strong> pada {selectedCompletingBooking?.schedule?.date}. <br />
+                        Sebagai dokumentasi perusahaan, harap masukkan link Live Streaming YouTube (Private/Unlisted) untuk sesi ini.
+                    </p>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="recording_link" value="Link Rekaman YouTube" />
+                        <TextInput
+                            id="recording_link"
+                            type="url"
+                            className="mt-1 block w-full border-gray-300"
+                            placeholder="https://youtu.be/..."
+                            value={completeData.recording_link}
+                            onChange={(e) => setCompleteData('recording_link', e.target.value)}
+                            required
+                        />
+                        {completeErrors.recording_link ? (
+                            <p className="text-sm text-red-600 mt-2">{completeErrors.recording_link}</p>
+                        ) : (
+                            <p className="text-xs text-gray-400 mt-2">* URL harus valid, berawalan http:// atau https://</p>
+                        )}
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={closeCompleteModal} disabled={completing}>
+                            Batal
+                        </SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={completing}
+                            className={`inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 ${completing && 'opacity-25'}`}
+                        >
+                            Akhiri Sesi
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

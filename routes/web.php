@@ -155,3 +155,58 @@ Route::get('/setup-schedules', function () {
         return '❌ Error: ' . $e->getMessage();
     }
 });
+
+Route::get('/setup-dummy', function () {
+    try {
+        $therapist = \App\Models\User::firstOrCreate(
+            ['email' => 'therapist@dummy.com'],
+            ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
+        );
+        if (!$therapist->hasRole('therapist')) {
+            $therapist->assignRole('therapist');
+        }
+
+        $patient = \App\Models\User::firstOrCreate(
+            ['email' => 'patient@dummy.com'],
+            ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
+        );
+        if (!$patient->hasRole('patient')) {
+            $patient->assignRole('patient');
+        }
+
+        $schedule = \App\Models\Schedule::where('therapist_id', $therapist->id)->first();
+        if (!$schedule) {
+            $schedule = \App\Models\Schedule::create([
+                'therapist_id' => $therapist->id,
+                'date' => '2026-05-01',
+                'start_time' => '10:00',
+                'end_time' => '11:00',
+                'status' => 'available',
+                'quota' => 1
+            ]);
+        }
+
+        $booking = \App\Models\Booking::where('schedule_id', $schedule->id)->first();
+        if (!$booking) {
+            \App\Models\Booking::create([
+                'booking_code' => 'TEST-' . rand(1000, 9999),
+                'schedule_id' => $schedule->id,
+                'patient_id' => $patient->id,
+                'status' => 'confirmed'
+            ]);
+        }
+
+        return '✅ Created dummy users and booking.';
+    } catch (\Throwable $e) {
+        return 'EXCEPTION: ' . $e->getMessage();
+    }
+});
+
+Route::get('/login-therapist', function () {
+    $therapist = \App\Models\User::role('therapist')->first();
+    if ($therapist) {
+        auth()->login($therapist);
+        return redirect()->route('schedules.index');
+    }
+    return '❌ No therapist found.';
+});
