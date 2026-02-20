@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Patient Routes
-    Route::middleware('role:patient')->group(function () {
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(function () {
         Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class, 'create'])->name('bookings.create');
         Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class, 'store'])->name('bookings.store');
         Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class, 'show'])->name('bookings.show');
@@ -35,14 +35,14 @@ Route::middleware('auth')->group(function () {
     });
 
     // Therapist Routes
-    Route::middleware('role:therapist')->group(function () {
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(function () {
         Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
         Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
         Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
     });
 
     // CS / Admin Routes for Transaction Validation
-    Route::middleware('role:cs|admin|super_admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
         Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
         Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
@@ -55,6 +55,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
         Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+        // Admin E-Learning CMS
+        Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
+        Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
+    });
+
+    // Super Admin Only Routes (User Management, Role Management)
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
     });
 
     // Affiliate Dashboard

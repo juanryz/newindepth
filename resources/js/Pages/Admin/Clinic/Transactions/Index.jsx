@@ -12,9 +12,11 @@ export default function TransactionsIndex({ transactions }) {
         rejection_reason: '',
     });
 
+    const { post: validatePost } = useForm();
+
     const handleValidate = (id) => {
         if (confirm('Validasi pembayaran ini dan konfirmasi admin/booking?')) {
-            useForm().post(route('admin.transactions.validate', id));
+            validatePost(route('admin.transactions.validate', id));
         }
     };
 

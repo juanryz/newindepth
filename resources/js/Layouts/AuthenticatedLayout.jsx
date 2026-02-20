@@ -8,6 +8,11 @@ import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const roles = user?.roles?.map(r => r.name) ?? [];
+    const isAdmin = roles.some(r => ['admin', 'super_admin', 'cs'].includes(r));
+    const isSuperAdmin = roles.includes('super_admin');
+    const isTherapist = roles.includes('therapist');
+    const isPatient = roles.includes('patient');
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -35,14 +40,64 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                    className="dark:text-gray-300 dark:hover:text-gold-400 dark:focus:text-gold-400"
-                                >
+                            <div className="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex text-sm">
+                                <NavLink href={route('dashboard')} active={route().current('dashboard')} className="dark:text-gray-300 dark:hover:text-gold-400">
                                     Dashboard
                                 </NavLink>
+
+                                {/* Admin Links */}
+                                {isAdmin && (
+                                    <>
+                                        <NavLink href={route('admin.transactions.index')} active={route().current('admin.transactions.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            Pembayaran
+                                        </NavLink>
+                                        <NavLink href={route('admin.reports.index')} active={route().current('admin.reports.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            Laporan
+                                        </NavLink>
+                                        <NavLink href={route('admin.blog.index')} active={route().current('admin.blog.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            Blog CMS
+                                        </NavLink>
+                                        <NavLink href={route('admin.expenses.index')} active={route().current('admin.expenses.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            Pengeluaran
+                                        </NavLink>
+                                    </>
+                                )}
+
+                                {/* Super Admin Links */}
+                                {isSuperAdmin && (
+                                    <>
+                                        <NavLink href={route('admin.users.index')} active={route().current('admin.users.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            User
+                                        </NavLink>
+                                        <NavLink href={route('admin.roles.index')} active={route().current('admin.roles.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                            Roles
+                                        </NavLink>
+                                    </>
+                                )}
+
+                                {/* Therapist Links */}
+                                {isTherapist && (
+                                    <NavLink href={route('schedules.index')} active={route().current('schedules.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                        Jadwal Saya
+                                    </NavLink>
+                                )}
+
+                                {/* Patient Links */}
+                                {isPatient && (
+                                    <NavLink href={route('bookings.create')} active={route().current('bookings.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                        Buat Janji
+                                    </NavLink>
+                                )}
+
+                                {/* Shared */}
+                                <NavLink href={route('courses.index')} active={route().current('courses.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                    E-Learning
+                                </NavLink>
+                                {!isSuperAdmin && (
+                                    <NavLink href={route('affiliate.dashboard')} active={route().current('affiliate.*')} className="dark:text-gray-300 dark:hover:text-gold-400">
+                                        Afiliasi
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -147,12 +202,25 @@ export default function AuthenticatedLayout({ header, children }) {
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
+                        {isAdmin && (
+                            <>
+                                <ResponsiveNavLink href={route('admin.transactions.index')}>Validasi Pembayaran</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.reports.index')}>Laporan Keuangan</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.blog.index')}>Blog CMS</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('admin.expenses.index')}>Pengeluaran</ResponsiveNavLink>
+                            </>
+                        )}
+                        {isTherapist && (
+                            <ResponsiveNavLink href={route('schedules.index')}>Jadwal Saya</ResponsiveNavLink>
+                        )}
+                        {isPatient && (
+                            <ResponsiveNavLink href={route('bookings.create')}>Buat Janji</ResponsiveNavLink>
+                        )}
+                        <ResponsiveNavLink href={route('courses.index')}>E-Learning</ResponsiveNavLink>
+                        {!isSuperAdmin && (
+                            <ResponsiveNavLink href={route('affiliate.dashboard')}>Afiliasi</ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-white/40 pb-1 pt-4 dark:border-gray-700/50">

@@ -19,12 +19,18 @@ export default function GuestLayout({ children }) {
 
             <div className="relative z-10 w-full sm:max-w-md mt-6">
                 <div className="flex justify-center mb-6">
-                    <Link href="/" className="inline-flex gap-2 items-center group">
-                        <div className="relative w-12 h-12 bg-gradient-to-tr from-gold-600 to-yellow-400 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] border border-gold-300/30">
-                            H
-                            <div className="absolute inset-0 bg-gold-400 blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-300 rounded-xl z-[-1]"></div>
-                        </div>
-                        <span className="font-extrabold text-3xl tracking-tight text-gray-900 dark:text-white">Hypno<span className="text-gold-500 dark:text-gold-400">Care</span></span>
+                    <Link href="/" className="inline-flex items-center justify-center group">
+                        {/* Logo — color for light mode, white for dark mode */}
+                        <img
+                            src="/images/logo-color.png"
+                            alt="InDepth Mental Wellness"
+                            className="h-20 w-auto object-contain block dark:hidden group-hover:opacity-90 transition-opacity duration-300"
+                        />
+                        <img
+                            src="/images/logo-white.png"
+                            alt="InDepth Mental Wellness"
+                            className="h-20 w-auto object-contain hidden dark:block group-hover:opacity-90 transition-opacity duration-300"
+                        />
                     </Link>
                 </div>
 
