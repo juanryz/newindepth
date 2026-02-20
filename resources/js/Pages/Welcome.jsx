@@ -67,13 +67,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         href={route('login')}
                                         className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold px-4 py-2 transition-colors relative z-[60]"
                                     >
-                                        Log in
+                                        Masuk
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="px-6 py-2.5 rounded-full font-semibold text-white bg-gradient-to-r from-gold-500 to-yellow-500 border border-gold-400/50 hover:from-gold-600 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 dark:focus:ring-offset-gray-950 transition-all shadow-[0_4px_20px_rgba(208,170,33,0.3)] hover:shadow-[0_8px_30px_rgba(208,170,33,0.5)] hover:-translate-y-0.5 relative z-[60]"
+                                        className="rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold px-6 py-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-md relative z-[60]"
                                     >
-                                        Daftar Sekarang
+                                        Mulai Sekarang
                                     </Link>
                                 </>
                             )}
@@ -102,8 +102,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-6">
-                        <Link href="/login" className="px-8 py-4 text-lg font-semibold rounded-full text-white bg-gradient-to-r from-gold-500 to-yellow-500 hover:from-gold-600 hover:to-yellow-600 shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all hover:-translate-y-1 border border-gold-400/50">
-                            Jadwalkan Konsultasi Gratis
+                        <Link
+                            href={route('therapists.index')}
+                            className="inline-flex items-center px-8 py-4 border border-transparent text-base font-semibold rounded-full text-gray-900 bg-gold-400 hover:bg-gold-500 shadow-lg shadow-gold-400/30 transition-all hover:scale-105"
+                        >
+                            Lihat Jadwal Terapis
                         </Link>
                         <a href="#layanan" className="px-8 py-4 text-lg font-semibold rounded-full text-gray-800 dark:text-white bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/60 dark:hover:bg-gray-700/60 shadow-lg transition-all hover:-translate-y-1">
                             Pelajari Lebih Lanjut

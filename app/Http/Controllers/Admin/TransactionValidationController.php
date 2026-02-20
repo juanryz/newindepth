@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Events\Clinic\TransactionPaid;
+use App\Notifications\BookingConfirmed;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -32,6 +33,10 @@ class TransactionValidationController extends Controller
         if ($transaction->transactionable_type === \App\Models\Booking::class) {
             $transaction->transactionable->update(['status' => 'confirmed']);
             \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($transaction->transactionable));
+
+            // Send In-App Notification to Patient
+            $transaction->user->notify(new BookingConfirmed($transaction->transactionable));
+
         } else if ($transaction->transactionable_type === \App\Models\Course::class) {
             // Enroll user to course
             $transaction->transactionable->users()->attach($transaction->user_id, [

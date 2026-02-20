@@ -1,8 +1,19 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
+import {
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    BarChart, Bar, PieChart, Pie, Cell, Legend
+} from 'recharts';
 
-export default function ReportsIndex({ stats, recentTransactions, filters }) {
+const PIE_COLORS = {
+    'pending': '#f59e0b', // amber-500
+    'confirmed': '#3b82f6', // blue-500
+    'done': '#10b981', // emerald-500
+    'cancelled': '#ef4444' // red-500
+};
+
+export default function ReportsIndex({ stats, recentTransactions, filters, charts }) {
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -14,7 +25,27 @@ export default function ReportsIndex({ stats, recentTransactions, filters }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Laporan Keuangan Klinik</h2>}
+            header={
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">Laporan Keuangan Klinik</h2>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => window.print()}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 bg-white dark:bg-gray-800"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            Cetak Laporan
+                        </button>
+                        <a
+                            href={route('admin.reports.export-csv', filters)}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest bg-green-600 hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Export CSV
+                        </a>
+                    </div>
+                </div>
+            }
         >
             <Head title="Laporan Keuangan" />
 
@@ -65,6 +96,89 @@ export default function ReportsIndex({ stats, recentTransactions, filters }) {
                         <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 bg-green-50">
                             <p className="text-sm font-medium text-green-800 uppercase tracking-wider mb-1">Laba Bersih (Net Income)</p>
                             <h4 className="text-3xl font-extrabold text-green-700">Rp {Number(stats.netIncome).toLocaleString('id-ID')}</h4>
+                        </div>
+                    </div>
+
+                    {/* Charts Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                        {/* Revenue Trend - Line Chart */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Tren Pendapatan (12 Bulan)</h3>
+                            <div className="h-72">
+                                {charts?.revenueByMonth?.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={charts.revenueByMonth}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                                            <XAxis dataKey="month_year" tick={{ fontSize: 12, fill: '#6b7280' }} />
+                                            <YAxis
+                                                tickFormatter={(value) => `Rp ${(value / 1000000).toFixed(0)}M`}
+                                                tick={{ fontSize: 12, fill: '#6b7280' }}
+                                                width={80}
+                                            />
+                                            <Tooltip
+                                                formatter={(value) => [`Rp ${Number(value).toLocaleString('id-ID')}`, 'Pendapatan']}
+                                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                            />
+                                            <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4, fill: '#4f46e5' }} activeDot={{ r: 6 }} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center text-gray-400">Belum ada data pendapatan.</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Booking Status - Pie Chart */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-900 mb-2">Status Sesi ({filters.month}/{filters.year})</h3>
+                                <div className="h-64">
+                                    {charts?.bookingsByStatus?.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={charts.bookingsByStatus}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    paddingAngle={5}
+                                                    dataKey="count"
+                                                    nameKey="status"
+                                                >
+                                                    {charts.bookingsByStatus.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[entry.status] || '#9ca3af'} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip formatter={(value, name) => [value, name.toUpperCase()]} />
+                                                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-100 rounded">Belum ada sesi di periode ini.</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Top Therapists - Bar Chart */}
+                            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-900 mb-2">Top Terapis ({filters.month}/{filters.year})</h3>
+                                <div className="h-64">
+                                    {charts?.topTherapists?.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={charts.topTherapists} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                                                <XAxis type="number" tick={{ fontSize: 10 }} />
+                                                <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} />
+                                                <Tooltip formatter={(value) => [value, 'Sesi Selesai']} />
+                                                <Bar dataKey="bookings" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-100 rounded">Belum ada sesi selesai.</div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
