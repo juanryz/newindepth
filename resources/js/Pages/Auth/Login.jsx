@@ -29,10 +29,10 @@ export default function Login({ status, canResetPassword }) {
             <Head title="Log in" />
 
             <div id="auth-card-title" className="mb-8 text-center">
-                <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-500 uppercase tracking-widest">
+                <h2 className="text-3xl font-extrabold text-black dark:text-white uppercase tracking-widest">
                     Sign In
                 </h2>
-                <div className="h-1 w-12 bg-gold-500 mx-auto mt-2 rounded-full"></div>
+                <div className="h-1 w-12 bg-black dark:bg-white mx-auto mt-2 rounded-full"></div>
             </div>
 
             {status && (
@@ -128,7 +128,7 @@ export default function Login({ status, canResetPassword }) {
                     </div>
 
                     <div className="flex justify-center mt-6">
-                        <PrimaryButton className="px-8 py-2.5 text-base" disabled={processing}>
+                        <PrimaryButton className="px-8 py-2.5 text-base bg-black hover:bg-gray-900 dark:bg-black dark:hover:bg-gray-950 border-none" disabled={processing}>
                             Sign In
                         </PrimaryButton>
                     </div>
