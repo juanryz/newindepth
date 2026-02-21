@@ -52,14 +52,16 @@ export default function Welcome({ auth, articles, courses }) {
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-6">
-                        <Link
-                            href={route('therapists.index')}
+                        <a
+                            href="https://wa.me/6282220800034"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center px-8 py-4 border border-transparent text-base font-semibold rounded-full text-gray-900 bg-gold-400 hover:bg-gold-500 shadow-lg shadow-gold-400/30 transition-all hover:scale-105"
                         >
-                            Lihat Jadwal Terapis
-                        </Link>
+                            Hubungi Kami
+                        </a>
                         <a href="#layanan" className="px-8 py-4 text-lg font-semibold rounded-full text-gray-800 dark:text-white bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/60 dark:hover:bg-gray-700/60 shadow-lg transition-all hover:-translate-y-1">
-                            Pelajari Lebih Lanjut
+                            Layanan Kami
                         </a>
                     </div>
                 </div>
