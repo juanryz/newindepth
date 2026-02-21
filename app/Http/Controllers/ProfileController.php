@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,6 +39,54 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    /**
+     * Update patient documents: KTP and Emergency Contacts.
+     */
+    public function updateDocuments(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'ktp_photo' => ['nullable', 'image', 'max:5120'], // Max 5MB
+            'emergency_contact_name' => ['required', 'string', 'max:255'],
+            'emergency_contact_phone' => ['required', 'string', 'max:20'],
+            'emergency_contact_relation' => ['required', 'string', 'max:100'],
+        ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('ktp_photo')) {
+            // Delete old KTP if exists
+            if ($user->ktp_photo && Storage::disk('public')->exists($user->ktp_photo)) {
+                Storage::disk('public')->delete($user->ktp_photo);
+            }
+            $path = $request->file('ktp_photo')->store('ktp', 'public');
+            $user->ktp_photo = $path;
+        }
+
+        $user->emergency_contact_name = $request->emergency_contact_name;
+        $user->emergency_contact_phone = $request->emergency_contact_phone;
+        $user->emergency_contact_relation = $request->emergency_contact_relation;
+        $user->save();
+
+        return Redirect::back()->with('status', 'documents-updated');
+    }
+
+    /**
+     * Update digital signature and mark agreement as signed.
+     */
+    public function updateAgreement(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'digital_signature' => ['required', 'string'],
+        ]);
+
+        $user = $request->user();
+        $user->digital_signature = $request->digital_signature;
+        $user->agreement_signed_at = now();
+        $user->save();
+
+        return Redirect::back()->with('status', 'agreement-signed');
     }
 
     /**

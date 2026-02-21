@@ -25,6 +25,8 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/documents', [ProfileController::class, 'updateDocuments'])->name('profile.documents.update');
+    Route::post('/profile/agreement', [ProfileController::class, 'updateAgreement'])->name('profile.agreement.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Screening
@@ -241,7 +243,7 @@ Route::get('/setup-dummy', function () {
 Route::get('/login-therapist', function () {
     $therapist = \App\Models\User::role('therapist')->first();
     if ($therapist) {
-        auth()->login($therapist);
+        \Illuminate\Support\Facades\Auth::login($therapist);
         return redirect()->route('schedules.index');
     }
     return '❌ No therapist found.';
