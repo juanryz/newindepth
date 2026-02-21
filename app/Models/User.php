@@ -43,6 +43,17 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\CustomResetPassword($token));
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -105,12 +116,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'therapist_id');
+        return $this->hasMany(Schedule::class , 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'patient_id');
+        return $this->hasMany(Booking::class , 'patient_id');
     }
 
     public function transactions()
@@ -120,7 +131,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class, 'affiliate_user_id');
+        return $this->hasMany(Commission::class , 'affiliate_user_id');
     }
 
     public function courses()
@@ -166,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $totalCount = count($fields);
 
         return [
-            'percentage' => (int) round(($completedCount / $totalCount) * 100),
+            'percentage' => (int)round(($completedCount / $totalCount) * 100),
             'fields' => $fields,
             'completed_count' => $completedCount,
             'total_count' => $totalCount,

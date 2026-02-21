@@ -19,10 +19,21 @@ export default function ForgotPassword({ status }) {
         <GuestLayout backLink="/login" backText="Kembali ke Login">
             <Head title="Forgot Password" />
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that will
-                allow you to choose a new one.
+            <div className="mb-12 text-center relative">
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-400/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <h2 className="text-[2.75rem] font-black text-gray-950 dark:text-white tracking-[-0.04em] leading-tight transition-colors duration-1000">
+                    Recover
+                </h2>
+                <p className="mt-3 text-[11px] text-gray-400 dark:text-gray-500 font-black tracking-[0.2em] uppercase opacity-80">
+                    Reset kata sandi Anda
+                </p>
+                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
+            </div>
+
+            <div className="mb-8 text-center px-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                    Lupa kata sandi? Jangan khawatir. Cukup masukkan alamat email Anda dan kami akan mengirimkan tautan reset kata sandi melalui email.
+                </p>
             </div>
 
             {status && (
