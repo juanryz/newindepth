@@ -7,116 +7,116 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+    'canLogin' => Route::has('login'),
+    'canRegister' => Route::has('register'),
+    'laravelVersion' => Application::VERSION,
+    'phpVersion' => PHP_VERSION,
     ]);
 });
 
 // Socialite Routes
-Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
+Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class , 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class , 'handleGoogleCallback']);
 
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class , 'index'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');
 
     // Screening
-    Route::get('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'show'])->name('screening.show');
-    Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'store'])->name('screening.store');
-    Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class, 'chatMessage'])->name('screening.chat');
+    Route::get('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class , 'show'])->name('screening.show');
+    Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class , 'store'])->name('screening.store');
+    Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class , 'chatMessage'])->name('screening.chat');
 
     // Agreement
-    Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'show'])->name('agreement.show');
-    Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'store'])->name('agreement.store');
+    Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'show'])->name('agreement.show');
+    Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'store'])->name('agreement.store');
 
 
     // Patient Routes
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(
         function () {
-            Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class, 'create'])->name('bookings.create');
-            Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class, 'store'])->name('bookings.store');
-            Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class, 'show'])->name('bookings.show');
+            Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class , 'create'])->name('bookings.create');
+            Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class , 'store'])->name('bookings.store');
+            Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class , 'show'])->name('bookings.show');
 
             // Payment routes
-            Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'create'])->name('payments.create');
-            Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'store'])->name('payments.store');
+            Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'create'])->name('payments.create');
+            Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'store'])->name('payments.store');
         }
-    );
+        );
 
-    // Therapist Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(
-        function () {
-            Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
-            Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
-            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
-            Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeSession'])->name('schedules.complete');
+        // Therapist Routes
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(
+            function () {
+            Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'index'])->name('schedules.index');
+            Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'store'])->name('schedules.store');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class , 'destroy'])->name('schedules.destroy');
+            Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class , 'completeSession'])->name('schedules.complete');
         }
-    );
+        );
 
-    // CS / Admin Routes for Transaction Validation
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(
-        function () {
-            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
-            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
-            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
+        // CS / Admin Routes for Transaction Validation
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(
+            function () {
+            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'index'])->name('transactions.index');
+            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'validatePayment'])->name('transactions.validate');
+            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'rejectPayment'])->name('transactions.reject');
 
             // Blog CMS
             Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
 
             // Reports & Expenses
-            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class, 'index'])->name('reports.index');
-            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class, 'exportCsv'])->name('reports.export-csv');
-            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
-            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
-            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class , 'index'])->name('reports.index');
+            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class , 'exportCsv'])->name('reports.export-csv');
+            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'index'])->name('expenses.index');
+            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'store'])->name('expenses.store');
+            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class , 'destroy'])->name('expenses.destroy');
 
             // Admin E-Learning CMS
             Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
             Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
 
             // Admin Bookings
-            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'index'])->name('bookings.index');
-            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
+            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class , 'index'])->name('bookings.index');
+            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class , 'assignTherapist'])->name('bookings.assign-therapist');
 
             // Admin Schedule Management
-            Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');
-            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
-            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
+            Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'index'])->name('schedules.index');
+            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'store'])->name('schedules.store');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'destroy'])->name('schedules.destroy');
         }
-    );
+        );
 
-    // Super Admin Only Routes (User Management, Role Management)
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(
-        function () {
+        // Super Admin Only Routes (User Management, Role Management)
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(
+            function () {
             Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
             Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
         }
-    );
+        );
 
-    // Affiliate Dashboard
-    Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class, 'index'])->name('affiliate.dashboard');
+        // Affiliate Dashboard
+        Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class , 'index'])->name('affiliate.dashboard');
 
-    // Notifications
-    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
-});
+        // Notifications
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class , 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class , 'markAllAsRead'])->name('notifications.readAll');
+    });
 
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
-Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class, 'index'])->name('courses.index');
-Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class, 'show'])->name('courses.show');
-Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class, 'show'])->name('lessons.show');
+Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class , 'index'])->name('courses.index');
+Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class , 'show'])->name('courses.show');
+Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class , 'show'])->name('lessons.show');
 
 // Public Blog Routes
-Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog', [\App\Http\Controllers\BlogController::class , 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class , 'show'])->name('blog.show');
 
 // Public Testimonials Route
 Route::get('/testimoni', function () {
@@ -129,8 +129,8 @@ Route::get('/metode', function () {
 })->name('methods.index');
 
 // Public Therapist Routes
-Route::get('/therapists', [\App\Http\Controllers\TherapistController::class, 'index'])->name('therapists.index');
-Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class, 'show'])->name('therapists.show');
+Route::get('/therapists', [\App\Http\Controllers\TherapistController::class , 'index'])->name('therapists.index');
+Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class , 'show'])->name('therapists.show');
 
 // Dynamic XML Sitemap
 Route::get('/sitemap.xml', function () {
@@ -167,7 +167,8 @@ Route::get('/setup-notifications', function () {
         \Illuminate\Support\Facades\Artisan::call('make:notifications-table');
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return '✅ Notifications table created and migrated!';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -176,7 +177,8 @@ Route::get('/setup-schedules', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return '✅ Schedules migration completed!';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -184,16 +186,16 @@ Route::get('/setup-schedules', function () {
 Route::get('/setup-dummy', function () {
     try {
         $therapist = \App\Models\User::firstOrCreate(
-            ['email' => 'therapist@dummy.com'],
-            ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
+        ['email' => 'therapist@dummy.com'],
+        ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
         );
         if (!$therapist->hasRole('therapist')) {
             $therapist->assignRole('therapist');
         }
 
         $patient = \App\Models\User::firstOrCreate(
-            ['email' => 'patient@dummy.com'],
-            ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
+        ['email' => 'patient@dummy.com'],
+        ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
         );
         if (!$patient->hasRole('patient')) {
             $patient->assignRole('patient');
@@ -222,7 +224,8 @@ Route::get('/setup-dummy', function () {
         }
 
         return '✅ Created dummy users and booking.';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return 'EXCEPTION: ' . $e->getMessage();
     }
 });

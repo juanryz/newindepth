@@ -27,11 +27,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                         </Link>
                     </div>
 
-                    {isAuthPage ? (
-                        <div className="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
-                            <span className="text-xl font-bold text-gray-900 dark:text-white">{title}</span>
-                        </div>
-                    ) : (
+                    {!isAuthPage && (
                         <div className="hidden md:flex space-x-8 items-center">
                             <Link
                                 href="/"
@@ -61,11 +57,6 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                     )}
 
                     <div className="flex items-center space-x-4 relative z-[60]">
-                        {isAuthPage && (
-                            <div className="sm:hidden block mr-2">
-                                <span className="text-lg font-bold text-gray-900 dark:text-white">{title}</span>
-                            </div>
-                        )}
                         <ThemeToggle />
                         {!isAuthPage && (
                             user ? (
@@ -79,13 +70,13 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                 <>
                                     <Link
                                         href={route('login')}
-                                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold px-4 py-2 transition-colors relative z-[60]"
+                                        className="text-black dark:text-white hover:text-gold-600 dark:hover:text-gold-400 font-bold px-4 py-2 transition-colors relative z-[60]"
                                     >
                                         Masuk
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="rounded-full bg-gold-500 hover:bg-gold-600 text-white font-semibold px-6 py-2 transition-colors shadow-md relative z-[60]"
+                                        className="rounded-full bg-black hover:bg-gray-800 text-white font-bold px-6 py-2 transition-colors shadow-md relative z-[60]"
                                     >
                                         Daftar
                                     </Link>

@@ -2,8 +2,10 @@ import { Head, Link } from '@inertiajs/react';
 import React, { useEffect } from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
+import VisionMissionSection from '@/Components/VisionMissionSection';
 
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
+export default function Welcome({ auth, articles, courses }) {
 
     // Smooth scroll for anchor links
     useEffect(() => {
@@ -115,6 +117,31 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     </div>
                 </div>
             </div>
+            {/* Extended Method Section */}
+            <div className="py-24 relative z-10 overflow-hidden bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-4">Metodologi Kami</h2>
+                        <h3 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-8">Metode InDepth Terintegrasi</h3>
+
+                        <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl p-10 md:p-14 rounded-[3rem] border border-gold-500/30 shadow-2xl text-gray-800 dark:text-gray-200 relative overflow-hidden group hover:shadow-gold-500/10 transition-all duration-500">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gold-400/10 rounded-bl-full -mr-32 -mt-32 transition-transform group-hover:scale-125 duration-1000 ease-out pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-400/5 rounded-tr-full -ml-24 -mb-24 transition-transform group-hover:scale-125 duration-1000 ease-out pointer-events-none"></div>
+
+                            <p className="text-lg md:text-2xl leading-relaxed font-light text-left md:text-center relative z-10">
+                                Kami menggunakan sistem terstruktur mulai dari pelepasan akar masalah dengan <strong className="text-gray-900 dark:text-white font-bold decoration-gold-500/30 decoration-4 underline-offset-4">InDepth Trance State</strong>, pengendalian masalah kronis dengan <strong className="text-gray-900 dark:text-white font-bold decoration-gold-500/30 decoration-4 underline-offset-4">Supreme Trance State</strong>, hingga pencarian solusi spesifik versi terbaik Anda melalui <strong className="text-gray-900 dark:text-white font-bold decoration-gold-500/30 decoration-4 underline-offset-4">InDepth Solution</strong>.
+                            </p>
+
+                            <div className="mt-10 flex flex-wrap justify-center gap-4 text-sm font-bold uppercase tracking-widest text-gold-600 dark:text-gold-400 opacity-60">
+                                <span className="px-4 py-2 bg-gold-500/10 rounded-full">Explore</span>
+                                <span className="px-4 py-2 bg-gold-500/10 rounded-full">Heal</span>
+                                <span className="px-4 py-2 bg-gold-500/10 rounded-full">Transform</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Packages Section (Premium Pricing) */}
             <div id="paket" className="py-24 relative z-10 overflow-hidden">
                 {/* Background ambient glow for this section */}
@@ -122,6 +149,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center mb-16">
+
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Paket Layanan</h2>
                         <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                             Pilih Program Transformasi Anda
@@ -130,16 +158,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             Investasi terbaik adalah untuk kesehatan mental dan ketenangan batin Anda.
                         </p>
 
-                        <div className="mt-8 max-w-3xl mx-auto p-6 bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-2xl border border-gold-500/20 shadow-sm text-gray-700 dark:text-gray-300">
-                            <p className="font-medium text-lg mb-2 text-gold-600 dark:text-gold-400">Metode InDepth Terintegrasi</p>
-                            <p className="text-sm md:text-base leading-relaxed">
-                                Kami menggunakan sistem terstruktur mulai dari pelepasan akar masalah dengan <strong>InDepth Trance State</strong>, pengendalian masalah kronis dengan <strong>Supreme Trance State</strong>, hingga pencarian solusi spesifik versi terbaik Anda melalui <strong>InDepth Solution</strong>.
-                            </p>
-                        </div>
 
-                        <div className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)] animate-pulse">
-                            <span className="text-xl">🎉</span>
-                            <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
+                        <div className="mt-8 flex flex-col items-center gap-3 animate-pulse">
+                            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)]">
+                                <span className="text-xl">🎉</span>
+                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
+                            </div>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                *Pada tanggal 21 Mei 2026 harganya kembali normal
+                            </p>
                         </div>
                     </div>
 
@@ -406,6 +433,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     </div>
                 </div>
             </div>
+            <VisionMissionSection />
 
             {/* CTA Section (Refined Glass Variant) */}
             <div className="relative mt-20 z-10">
@@ -450,64 +478,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 </div>
             </div>
 
-            {/* Footer ("Header Bawah") */}
-            <footer className="relative z-10 border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-20 pb-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        {/* Brand Column */}
-                        <div className="col-span-1 md:col-span-1">
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className="font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white">InDepth</span>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                                Kesehatan Mental Terpadu & Profesional. Membantu Anda menemukan kembali ketenangan batin.
-                            </p>
-                            <div className="mt-6 flex space-x-4">
-                                <a href="https://www.instagram.com/indepth.co.id?igsh=MTg5NXZpdnV0NzFucg==" target="_blank" className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-pink-500 hover:text-white transition-all shadow-sm">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Updated Semarang Location Column */}
-                        <div className="col-span-1 md:col-span-2">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Lokasi & Kontak</h4>
-                            <a href="https://maps.app.goo.gl/KUmgnva1hi9vvrNP7" target="_blank" className="group block">
-                                <p className="text-gray-900 dark:text-white font-bold mb-1 group-hover:text-gold-600 transition-colors">
-                                    InDepth Mental Wellness Semarang
-                                </p>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                                    Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237
-                                </p>
-                                <p className="text-gray-900 dark:text-white font-bold text-sm mb-4">
-                                    Telepon: 0822-2080-0034
-                                </p>
-                                <span className="text-gold-600 dark:text-gold-400 font-bold text-sm flex items-center gap-1 group-hover:underline">
-                                    Buka di Google Maps
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                                </span>
-                            </a>
-                        </div>
-
-                        {/* Quick links */}
-                        <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Navigasi</h4>
-                            <ul className="space-y-4 text-sm">
-                                <li><a href="#layanan" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Layanan</a></li>
-                                <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
-                                <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
-                                <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                            &copy; {new Date().getFullYear()} InDepth Mental Wellness. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

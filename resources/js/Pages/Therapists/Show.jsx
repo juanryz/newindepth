@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import GuestLayout from '@/Layouts/GuestLayout';
+import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
 import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -9,7 +9,8 @@ export default function TherapistShow({ therapist, schedules }) {
     const availableDates = Object.keys(schedules).sort();
 
     return (
-        <GuestLayout>
+        <div className="min-h-screen bg-white dark:bg-gray-950">
+            <Navbar auth={null} />
             <Head title={`Profil Terapis - ${therapist.name}`} />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -201,6 +202,7 @@ export default function TherapistShow({ therapist, schedules }) {
                     }
                 }
             `}</style>
-        </GuestLayout>
+            <Footer />
+        </div>
     );
 }

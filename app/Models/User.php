@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\CustomVerifyEmail);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -71,12 +81,12 @@ class User extends Authenticatable
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'therapist_id');
+        return $this->hasMany(Schedule::class , 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'patient_id');
+        return $this->hasMany(Booking::class , 'patient_id');
     }
 
     public function transactions()
@@ -86,7 +96,7 @@ class User extends Authenticatable
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class, 'affiliate_user_id');
+        return $this->hasMany(Commission::class , 'affiliate_user_id');
     }
 
     public function courses()

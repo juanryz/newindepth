@@ -1,10 +1,11 @@
-import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import GuestLayout from '@/Layouts/GuestLayout';
+import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
 
 export default function TherapistsIndex({ therapists }) {
     return (
-        <GuestLayout>
+        <div className="min-h-screen bg-white dark:bg-gray-950">
+            <Navbar auth={null} />
             <Head title="Tim Terapis Kami" />
 
             <div className="py-12 bg-white dark:bg-gray-900">
@@ -75,6 +76,7 @@ export default function TherapistsIndex({ therapists }) {
                     )}
                 </div>
             </div>
-        </GuestLayout>
+            <Footer />
+        </div>
     );
 }

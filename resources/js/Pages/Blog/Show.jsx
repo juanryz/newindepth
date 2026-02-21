@@ -1,5 +1,6 @@
-import React from 'react';
 import { Head, Link } from '@inertiajs/react';
+import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
 
 export default function PublicBlogShow({ post }) {
 
@@ -41,17 +42,7 @@ export default function PublicBlogShow({ post }) {
                 </script>
             </Head>
 
-            {/* Header/Nav (Simplified/Placeholder for Public facing page) */}
-            <header className="bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <Link href="/" className="flex items-center">
-                        <img src="/images/logo-black.png" alt="InDepth Mental Wellness" className="h-9 w-auto object-contain" />
-                    </Link>
-                    <Link href={route('blog.index')} className="text-gray-500 hover:text-indigo-600 flex items-center gap-1 font-medium">
-                        &larr; <span className="hidden sm:inline">Kembali ke Blog</span>
-                    </Link>
-                </div>
-            </header>
+            <Navbar auth={null} />
 
             <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
                 <header className="text-center mb-16">
@@ -84,15 +75,7 @@ export default function PublicBlogShow({ post }) {
                     dangerouslySetInnerHTML={{ __html: post.body }}
                 />
 
-                <footer className="mt-20 border-t border-gray-200 pt-10 text-center">
-                    <div className="inline-flex flex-col items-center bg-gray-50 rounded-2xl p-8 border border-gray-100">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Punya masalah yang ingin diselesaikan?</h3>
-                        <p className="text-gray-600 mb-6 max-w-md text-center">Jangan tunda lagi perbaikan hidup Anda. Konsultasikan bersama tim profesional InDepth Mental Wellness untuk perjalanan pemulihan Anda.</p>
-                        <Link href="/login" className="px-8 py-3 w-full sm:w-auto text-center border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg transition-colors shadow-sm">
-                            Buat Jadwal Konsultasi &rarr;
-                        </Link>
-                    </div>
-                </footer>
+                <Footer />
             </article>
         </div>
     );

@@ -27,8 +27,15 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout title="Sign Up">
+        <GuestLayout>
             <Head title="Register" />
+
+            <div id="auth-card-title" className="mb-8 text-center">
+                <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-500 uppercase tracking-widest">
+                    Sign Up
+                </h2>
+                <div className="h-1 w-12 bg-gold-500 mx-auto mt-2 rounded-full"></div>
+            </div>
 
             <form onSubmit={submit}>
                 <div>
