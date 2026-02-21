@@ -10,8 +10,13 @@ export default function UsersIndex({ users, filters }) {
     });
 
     const handleDelete = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-            destroy(route('admin.users.destroy', id));
+        if (window.confirm('Apakah Anda yakin ingin menghapus user ini?')) {
+            destroy(route('admin.users.destroy', id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Berhasil dihapus
+                }
+            });
         }
     };
 
@@ -84,7 +89,7 @@ export default function UsersIndex({ users, filters }) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                                                 <Link href={route('admin.users.edit', user.id)} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">Edit</Link>
-                                                <button onClick={() => handleDelete(user.id)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Hapus</button>
+                                                <button type="button" onClick={() => handleDelete(user.id)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Hapus</button>
                                             </td>
                                         </tr>
                                     ))}
