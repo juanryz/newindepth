@@ -66,6 +66,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'emergency_contact_name',
         'emergency_contact_phone',
         'emergency_contact_relation',
+        'age',
+        'gender',
     ];
 
     /**
@@ -100,12 +102,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class , 'therapist_id');
+        return $this->hasMany(Schedule::class, 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class , 'patient_id');
+        return $this->hasMany(Booking::class, 'patient_id');
     }
 
     public function transactions()
@@ -115,7 +117,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class , 'affiliate_user_id');
+        return $this->hasMany(Commission::class, 'affiliate_user_id');
     }
 
     public function courses()

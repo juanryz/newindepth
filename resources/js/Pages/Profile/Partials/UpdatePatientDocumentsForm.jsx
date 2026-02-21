@@ -63,7 +63,8 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
                         ref={fileInputRef}
                         onChange={handlePhotoChange}
                         accept="image/*"
-                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:text-gray-400 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                        capture="environment"
+                        className="mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 border border-gray-400 dark:border-gray-500 rounded-xl bg-white/50 dark:bg-gray-900/50 shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300 transition-all duration-300"
                     />
                     <InputError className="mt-2" message={errors.ktp_photo} />
                 </div>
