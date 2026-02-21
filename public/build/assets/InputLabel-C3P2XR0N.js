@@ -1,1 +1,0 @@
-import{j as c}from"./app-RhsxsvPH.js";function o({value:t,className:e="",children:a,...r}){return c.jsx("label",{...r,className:"block text-[11px] font-black uppercase tracking-[0.15em] text-gray-950 dark:text-white opacity-80 "+e,children:t||a})}export{o as I};
