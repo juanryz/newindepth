@@ -543,6 +543,14 @@ Route::get('/setup-clear-cache', function () {
     }
 });
 
+Route::get('/setup-check-config', function () {
+    return [
+        'MAIL_MAILER' => config('mail.default'),
+        'mailers' => array_keys(config('mail.mailers')),
+        'resend_config' => config('mail.mailers.resend-http'),
+    ];
+});
+
 Route::get('/setup-test-email', function () {
     try {
         $to = request('to', Auth::user()?->email ?? 'test@example.com');
