@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
 
-export default function PublicBlogIndex({ posts, auth }) {
+export default function BlogIndex({ articles, auth }) {
     // Smooth scroll for anchor links
     useEffect(() => {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
