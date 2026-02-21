@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 
-export default function GuestLayout({ children, title }) {
+export default function GuestLayout({ children, title, backLink = '/', backText = 'Kembali ke Beranda' }) {
     return (
         <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#f4f7f6] dark:bg-gray-950 transition-colors duration-500 overflow-hidden relative">
 
@@ -20,13 +20,13 @@ export default function GuestLayout({ children, title }) {
                 {/* Back Button Positioned Above Form */}
                 <div className="mb-6 flex justify-start">
                     <Link
-                        href="/"
+                        href={backLink}
                         className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
                     >
                         <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Kembali ke Beranda
+                        {backText}
                     </Link>
                 </div>
 
