@@ -3,7 +3,7 @@ import Footer from '@/Components/Footer';
 import { Head, Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 
-export default function LmsIndex({ courses, auth }) {
+export default function LmsIndex({ courses, auth, isMyCourses = false }) {
     // Smooth scroll for anchor links
     useEffect(() => {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -22,8 +22,8 @@ export default function LmsIndex({ courses, auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
-                <title>E-Learning - InDepth Mental Wellness</title>
-                <meta name="description" content="Katalog kelas self-therapy dari InDepth Mental Wellness. Pelajari teknik self-therapy yang bisa Anda lakukan kapan saja, di mana saja." />
+                <title>{isMyCourses ? 'Koleksi Saya' : 'E-Learning'} - InDepth Mental Wellness</title>
+                <meta name="description" content={isMyCourses ? 'Koleksi kelas self-therapy Anda.' : 'Katalog kelas self-therapy dari InDepth Mental Wellness. Pelajari teknik self-therapy yang bisa Anda lakukan kapan saja, di mana saja.'} />
             </Head>
 
             {/* Global Background Ambient Light */}
@@ -46,10 +46,13 @@ export default function LmsIndex({ courses, auth }) {
                             </span>
                         </div>
                         <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
-                            E-Learning <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">Video & Materi</span>
+                            {isMyCourses ? 'Koleksi' : 'E-Learning'} <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">{isMyCourses ? 'Kelas Saya' : 'Video & Materi'}</span>
                         </h2>
                         <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300 font-light">
-                            Pelajari kelas dan metode self-therapy yang bisa Anda praktikkan secara mandiri di mana saja, kapan saja.
+                            {isMyCourses
+                                ? 'Akses semua materi kelas self-therapy yang telah Anda miliki untuk dibaca atau ditonton kembali.'
+                                : 'Pelajari kelas dan metode self-therapy yang bisa Anda praktikkan secara mandiri di mana saja, kapan saja.'
+                            }
                         </p>
                     </div>
 
@@ -60,7 +63,12 @@ export default function LmsIndex({ courses, auth }) {
                                 <svg className="w-16 h-16 text-gold-500/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.754 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
-                                <p className="text-xl text-gray-500 dark:text-gray-400 font-light">Belum ada kelas yang dipublikasikan saat ini, nantikan update selanjutnya.</p>
+                                <p className="text-xl text-gray-500 dark:text-gray-400 font-light">
+                                    {isMyCourses
+                                        ? 'Anda belum memiliki kelas aktif. Silakan pilih kelas di katalog E-Learning.'
+                                        : 'Belum ada kelas yang dipublikasikan saat ini, nantikan update selanjutnya.'
+                                    }
+                                </p>
                             </div>
                         ) : (
                             courses.map(course => (
@@ -92,9 +100,15 @@ export default function LmsIndex({ courses, auth }) {
                                             </p>
                                         </Link>
                                         <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                                            <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">
-                                                Rp {Number(course.price).toLocaleString('id-ID')}
-                                            </span>
+                                            {isMyCourses ? (
+                                                <span className="text-sm font-semibold text-gold-600 dark:text-gold-400 bg-gold-500/10 px-3 py-1 rounded-full">
+                                                    Sudah Dimiliki
+                                                </span>
+                                            ) : (
+                                                <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">
+                                                    Rp {Number(course.price).toLocaleString('id-ID')}
+                                                </span>
+                                            )}
                                             <Link href={route('courses.show', course.slug)} className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-600 dark:text-gold-400 hover:bg-gold-500 hover:text-white transition-all transform group-hover:translate-x-1">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                             </Link>

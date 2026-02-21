@@ -20,7 +20,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Buat Janji Temu Hipnoterapi</h2>}
+            header={<h2 className="font-bold text-xl text-gray-900 dark:text-white leading-tight">Buat Janji Temu Hipnoterapi</h2>}
         >
             <Head title="Booking Hipnoterapi" />
 
@@ -29,17 +29,17 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
 
                     {/* Screening Results Section */}
                     {screeningResult && (
-                        <div className="bg-white shadow sm:rounded-lg overflow-hidden border border-gold-100">
-                            <div className="p-6 bg-gradient-to-r from-gold-50 to-white">
-                                <h3 className="text-lg font-medium text-gold-800 mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl overflow-hidden border border-gold-100 dark:border-gold-900/30">
+                            <div className="p-6 bg-gradient-to-r from-gold-50/50 to-white/30 dark:from-gold-900/20 dark:to-transparent">
+                                <h3 className="text-lg font-bold text-gold-800 dark:text-gold-300 mb-4 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     Hasil Analisis Skrining Anda
                                 </h3>
                                 <div className="space-y-4">
-                                    <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold-100 text-gold-800 border border-gold-200">
+                                    <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold-100/80 dark:bg-gold-900/40 text-gold-800 dark:text-gold-300 border border-gold-200 dark:border-gold-800/50">
                                         Tingkat Keparahan: {screeningResult.severity_label}
                                     </div>
-                                    <p className="text-gray-700 leading-relaxed italic border-l-4 border-gold-400 pl-4 py-1">
+                                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed italic border-l-4 border-gold-400 dark:border-gold-600 pl-4 py-1">
                                         "{screeningResult.ai_summary}"
                                     </p>
                                 </div>
@@ -48,20 +48,20 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                     )}
 
                     {/* Package Selection */}
-                    <div className="bg-white shadow sm:rounded-lg overflow-hidden">
-                        <div className="p-6 border-b border-gray-100">
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Pilih Program Terapi</h3>
+                    <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/50">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700/50">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Pilih Program Terapi</h3>
                             {packageOptions.is_vip_only ? (
-                                <p className="text-sm text-amber-600 font-medium">
+                                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
                                     ⚠️ Berdasarkan hasil skrining, kondisi Anda memerlukan penanganan intensif dan prioritas penjadwalan. Anda hanya dapat memilih Paket VIP.
                                 </p>
                             ) : (
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
                                     Silakan pilih paket terapi yang sesuai dengan kebutuhan Anda. Kami merekomendasikan Paket Reguler berdasarkan hasil skrining Anda.
                                 </p>
                             )}
                         </div>
-                        <div className="p-6 bg-gray-50 leading-relaxed">
+                        <div className="p-6 bg-gray-50/50 dark:bg-gray-900/30 leading-relaxed">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {Object.values(packageOptions.packages).map((pkg) => {
                                     const isRecommended = packageOptions.recommended === pkg.id;
@@ -72,10 +72,10 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                         <div
                                             key={pkg.id}
                                             className={`relative rounded-2xl border-2 p-6 transition-all duration-300 cursor-pointer flex flex-col ${isSelected
-                                                ? 'border-gold-500 bg-gold-50/30 shadow-lg transform -translate-y-1'
+                                                ? 'border-gold-500 bg-gold-50/50 dark:bg-gold-900/30 shadow-lg transform -translate-y-1'
                                                 : isDisabled
-                                                    ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
-                                                    : 'border-gray-200 bg-white hover:border-gold-300 hover:shadow-md hover:-translate-y-0.5'
+                                                    ? 'border-gray-200 dark:border-gray-700/50 bg-gray-100/50 dark:bg-gray-800/30 opacity-60 cursor-not-allowed'
+                                                    : 'border-gray-200 dark:border-gray-700/50 bg-white/40 dark:bg-gray-800/40 hover:border-gold-300 dark:hover:border-gold-600 hover:shadow-md hover:-translate-y-0.5'
                                                 }`}
                                             onClick={() => !isDisabled && setData('package_type', pkg.id)}
                                         >
@@ -94,10 +94,10 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                             )}
 
                                             <div className="flex justify-between items-start mb-4">
-                                                <h4 className={`font-bold text-lg leading-tight ${isSelected ? 'text-gray-900' : 'text-gray-800'}`}>
+                                                <h4 className={`font-bold text-lg leading-tight ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-800 dark:text-gray-200'}`}>
                                                     {pkg.name}
                                                 </h4>
-                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-gold-500 bg-white' : 'border-gray-300'}`}>
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-gold-500 bg-white dark:bg-gray-800' : 'border-gray-300 dark:border-gray-600'}`}>
                                                     {isSelected && <div className="w-3 h-3 rounded-full bg-gold-500" />}
                                                 </div>
                                             </div>
@@ -113,7 +113,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                 </p>
                                             </div>
 
-                                            <p className="text-sm text-gray-600 flex-grow font-medium">
+                                            <p className={`text-sm flex-grow font-medium ${isSelected ? 'text-gray-700 dark:text-gray-300' : 'text-gray-600 dark:text-gray-400'}`}>
                                                 {pkg.description}
                                             </p>
                                         </div>
@@ -131,8 +131,8 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                     )}
 
                     <form onSubmit={submit}>
-                        <div className="p-6 bg-white shadow sm:rounded-lg">
-                            <h3 className="text-lg font-medium text-gray-900 mb-6">Pilih Waktu Konsultasi</h3>
+                        <div className="p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Pilih Waktu Konsultasi</h3>
 
                             <TimeSlotPicker
                                 schedules={schedules}

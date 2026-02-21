@@ -18,6 +18,18 @@ class CourseController extends Controller
         ]);
     }
 
+    public function myCourses()
+    {
+        $courses = auth()->user()->courses()
+            ->where('is_published', true)
+            ->get();
+
+        return Inertia::render('Lms/Courses/Index', [
+            'courses' => $courses,
+            'isMyCourses' => true,
+        ]);
+    }
+
     public function show(Course $course)
     {
         if (!$course->is_published) {

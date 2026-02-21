@@ -34,13 +34,8 @@ class BookingService
                 throw new Exception('Maaf, slot ini baru saja penuh. Silakan pilih slot lain.');
             }
 
-            // Increment booked count
-            $schedule->increment('booked_count');
-
-            // Update status if quota reached
-            if ($schedule->booked_count >= $schedule->quota) {
-                $schedule->update(['status' => 'full']);
-            }
+            // We no longer increment booked_count here. 
+            // Slots will be reduced only when transaction is marked as 'paid'.
 
             // Create booking
             $booking = Booking::create([

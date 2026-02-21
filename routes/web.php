@@ -126,6 +126,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/my-courses', [\App\Http\Controllers\Lms\CourseController::class, 'myCourses'])->name('courses.my');
+});
+
 Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class, 'index'])->name('courses.index');
 Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class, 'show'])->name('courses.show');
 Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class, 'show'])->name('lessons.show');

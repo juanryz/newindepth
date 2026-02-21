@@ -30,15 +30,15 @@ export default function Register() {
         <GuestLayout title="Sign Up">
             <Head title="Sign Up" />
 
-            <div className="mb-12 text-center relative">
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-400/10 rounded-full blur-[100px] pointer-events-none"></div>
-                <h2 className="text-[2.75rem] font-black text-gray-950 dark:text-white tracking-[-0.04em] leading-tight transition-colors duration-1000">
+            <div className="mb-10 text-center relative">
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 bg-gold-400/20 rounded-full blur-3xl pointer-events-none"></div>
+                <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-900 via-gold-700 to-gray-950 dark:from-white dark:via-gold-400 dark:to-white tracking-tighter leading-tight">
                     Sign Up
                 </h2>
-                <p className="mt-3 text-[11px] text-gray-400 dark:text-gray-500 font-black tracking-[0.2em] uppercase opacity-80">
+                <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 font-bold tracking-wide uppercase opacity-90">
                     Mulai perjalanan transformasi Anda
                 </p>
-                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
+                <div className="h-1 w-16 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 mx-auto mt-6 rounded-full shadow-[0_2px_10px_rgba(208,170,33,0.3)]"></div>
             </div>
 
             <form onSubmit={submit} className="space-y-6">

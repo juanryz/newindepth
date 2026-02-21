@@ -63,6 +63,15 @@ class TransactionValidationController extends Controller
                 'therapist_id' => $therapistId,
             ]);
 
+            // Reduction of quota happens here upon confirmation/payment
+            $schedule = $booking->schedule;
+            if ($schedule) {
+                $schedule->increment('booked_count');
+                if ($schedule->booked_count >= $schedule->quota) {
+                    $schedule->update(['status' => 'full']);
+                }
+            }
+
             \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
 
             // Send In-App Notification to Patient

@@ -119,8 +119,8 @@ export default function ServiceAgreementForm({ className = '' }) {
                 <table className="w-full mb-6">
                     <tbody>
                         <tr><td className="w-1/3 py-1">Nama Lengkap</td><td className="w-2/3 py-1">: {user.name}</td></tr>
-                        <tr><td className="py-1">Usia</td><td className="py-1">: - Tahun</td></tr>
-                        <tr><td className="py-1">Jenis Kelamin</td><td className="py-1">: -</td></tr>
+                        <tr><td className="py-1">Usia</td><td className="py-1">: {user.age || '-'} Tahun</td></tr>
+                        <tr><td className="py-1">Jenis Kelamin</td><td className="py-1">: {user.gender || '-'}</td></tr>
                         <tr><td className="py-1">Nomor Handphone Aktif</td><td className="py-1">: {user.phone || '-'}</td></tr>
                         <tr><td className="py-1">Email</td><td className="py-1">: {user.email}</td></tr>
                         <tr><td className="py-1">Nama Kontak Darurat</td><td className="py-1">: {user.emergency_contact_name || '-'}</td></tr>

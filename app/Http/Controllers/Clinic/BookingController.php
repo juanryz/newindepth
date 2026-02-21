@@ -49,16 +49,30 @@ class BookingController extends Controller
             ->where('status', 'available')
             ->withCount([
                 'bookings' => function ($query) {
-                    $query->whereNotIn('status', ['failed', 'cancelled']);
+                    $query->where('status', 'confirmed');
                 }
             ])
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
 
+        // Buffer: 1 hour (Wait, we move this logic to the frontend to allow 'disabled' state)
+        // Ensure we fetch from today (Asia/Jakarta)
+        $now = \Illuminate\Support\Carbon::now('Asia/Jakarta');
+
         // Hapus duplikasi berdasarkan tanggal dan waktu mulai
-        $schedules = $rawSchedules->unique(function ($item) {
-            return $item->date . '_' . $item->start_time;
+        $schedules = $rawSchedules->filter(function ($item) {
+            // Safety: hide if already full with confirmed bookings
+            if ($item->bookings_count >= $item->quota) {
+                return false;
+            }
+            return true;
+        })->unique(function ($item) {
+            $date = $item->date;
+            if (!$date instanceof \DateTimeInterface) {
+                $date = \Illuminate\Support\Carbon::parse($date);
+            }
+            return $date->format('Y-m-d') . '_' . $item->start_time;
         })->values();
 
         // Tentukan aturan pilihan paket
@@ -172,16 +186,18 @@ class BookingController extends Controller
                 ->withErrors(['error' => 'Pesanan yang sudah dikonfirmasi tidak dapat dibatalkan.']);
         }
 
-        $booking->update(['status' => 'cancelled']);
-
-        // Free the schedule slot back up if it was locked
-        $schedule = $booking->schedule;
-        if ($schedule) {
-            $schedule->decrement('booked_count');
-            if ($schedule->status === 'full') {
-                $schedule->update(['status' => 'available']);
+        // Free the schedule slot back up if it was previously confirmed
+        if ($booking->status === 'confirmed') {
+            $schedule = $booking->schedule;
+            if ($schedule) {
+                $schedule->decrement('booked_count');
+                if ($schedule->status === 'full') {
+                    $schedule->update(['status' => 'available']);
+                }
             }
         }
+
+        $booking->update(['status' => 'cancelled']);
 
         return redirect()->route('dashboard')
             ->with('success', 'Pesanan berhasil dibatalkan.');

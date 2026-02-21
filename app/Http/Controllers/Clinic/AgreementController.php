@@ -17,7 +17,7 @@ class AgreementController extends Controller
             return redirect()->route('screening.show')->with('error', 'Silakan selesaikan skrining terlebih dahulu.');
         }
 
-        $usia = $user->screening_answers['usia'] ?? null;
+        $usia = ($user->screening_answers['usia'] ?? null) ?: ($user->screening_answers['age'] ?? null);
 
         return Inertia::render('Clinic/InitialAgreement', [
             'userAge' => $usia !== null ? (int) $usia : null,
