@@ -66,8 +66,8 @@ return [
             'transport' => 'resend',
         ],
 
-        'resend-http' => [
-            'transport' => 'resend-http',
+        'resendapi' => [
+            'transport' => 'resendapi',
         ],
 
         'sendmail' => [
