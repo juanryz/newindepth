@@ -17,9 +17,10 @@ class AgreementController extends Controller
             return redirect()->route('screening.show')->with('error', 'Silakan selesaikan skrining terlebih dahulu.');
         }
 
-        // We can pass user info to prefill age checking or just rely on form
+        $usia = $user->screening_answers['usia'] ?? null;
+
         return Inertia::render('Clinic/InitialAgreement', [
-            'userAge' => $user->age ?? null,
+            'userAge' => $usia !== null ? (int) $usia : null,
         ]);
     }
 

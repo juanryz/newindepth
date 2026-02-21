@@ -18,7 +18,7 @@ class BookingController extends Controller
         $user = $request->user();
 
         // Must complete screening first
-        if (!$user->hasCompletedScreening() || !$user->isPackageLocked()) {
+        if (!$user->hasCompletedScreening()) {
             return redirect()->route('screening.show');
         }
 
@@ -42,7 +42,7 @@ class BookingController extends Controller
             ->get();
 
         // Tentukan aturan pilihan paket
-        $recommended = $user->recommended_package;
+        $recommended = $user->recommended_package ?? 'hipnoterapi';
         $isVipOnly = in_array($recommended, ['vip']);
 
         $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
@@ -92,7 +92,7 @@ class BookingController extends Controller
 
         $user = $request->user();
 
-        if (!$user->hasCompletedScreening() || !$user->isPackageLocked()) {
+        if (!$user->hasCompletedScreening()) {
             return redirect()->route('screening.show')->withErrors(['error' => 'Selesaikan skrining terlebih dahulu.']);
         }
 

@@ -44,11 +44,25 @@ class PaymentController extends Controller
 
         $path = $request->file('payment_proof')->store('payments', 'public');
 
-        $amount = $booking->package_type === 'vip' ? 8000000 : 2000000;
+        $transaction = $booking->transaction;
 
-        $transaction = $booking->transaction()->updateOrCreate(
-            ['user_id' => auth()->id()],
-            [
+        if ($transaction) {
+            $transaction->update([
+                'payment_method' => $request->payment_method,
+                'payment_bank' => $request->payment_bank,
+                'payment_proof' => $path,
+                'payment_proof_uploaded_at' => now(),
+                'status' => 'pending',
+            ]);
+        } else {
+            // Fallback just in case
+            $amount = match ($booking->package_type) {
+                'vip' => 8000000,
+                'upgrade' => 1500000,
+                default => 1000000,
+            };
+            $transaction = $booking->transaction()->create([
+                'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
                 'amount' => $amount,
                 'payment_method' => $request->payment_method,
@@ -56,8 +70,8 @@ class PaymentController extends Controller
                 'payment_proof' => $path,
                 'payment_proof_uploaded_at' => now(),
                 'status' => 'pending',
-            ]
-        );
+            ]);
+        }
 
         $booking->update(['status' => 'pending_validation']);
 
