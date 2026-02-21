@@ -8,8 +8,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-            $table->dropUnique(['therapist_id', 'date', 'start_time']);
             $table->dropForeign(['therapist_id']);
+            $table->dropUnique(['therapist_id', 'date', 'start_time']);
             $table->dropColumn('therapist_id');
         });
     }
