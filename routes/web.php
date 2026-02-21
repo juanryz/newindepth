@@ -47,6 +47,11 @@ Route::middleware('auth')->group(function () {
             // Payment routes
             Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'create'])->name('payments.create');
             Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'store'])->name('payments.store');
+
+            // Voucher routes
+            Route::get('/vouchers', [\App\Http\Controllers\Clinic\VoucherController::class, 'index'])->name('vouchers.index');
+            Route::post('/vouchers/claim', [\App\Http\Controllers\Clinic\VoucherController::class, 'claim'])->name('vouchers.claim');
+            Route::post('/vouchers/apply', [\App\Http\Controllers\Clinic\VoucherController::class, 'apply'])->name('vouchers.apply');
         }
     );
 
@@ -89,6 +94,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');
             Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
+
+            // Admin Pricing — Vouchers
+            Route::get('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class, 'index'])->name('pricing.vouchers.index');
+            Route::post('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class, 'store'])->name('pricing.vouchers.store');
+            Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class, 'update'])->name('pricing.vouchers.update');
+            Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class, 'destroy'])->name('pricing.vouchers.destroy');
         }
     );
 

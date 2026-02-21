@@ -18,6 +18,7 @@ class Booking extends Model
         'notes',
         'recording_link',
         'package_type',
+        'user_voucher_id',
     ];
 
     protected $casts = [

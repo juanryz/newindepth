@@ -7,7 +7,7 @@ import TextInput from '@/Components/TextInput';
 export default function InitialAgreement({ userAge }) {
     const isUnder17 = userAge !== null && userAge < 17;
 
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, transform, errors } = useForm({
         // Bagian 1
         cond_data_benar: false,
         cond_bukan_pengganti_medis: false,
@@ -95,8 +95,17 @@ export default function InitialAgreement({ userAge }) {
             return;
         }
 
+        transform((data) => ({
+            agreement_data: data,
+        }));
+
         post(route('agreement.store'), {
-            agreement_data: data
+            onError: (errs) => {
+                console.error("Backend validation failed:", errs);
+                if (errs && errs.agreement_data) {
+                    setMissingFields([errs.agreement_data]);
+                }
+            }
         });
     };
 

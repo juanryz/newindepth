@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Schedule;
 use App\Models\ScreeningForm;
+use App\Models\UserVoucher;
 use App\Services\BookingService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -119,10 +120,24 @@ class BookingController extends Controller
             abort(403);
         }
 
-        $booking->load(['schedule.therapist', 'transaction']);
+        $booking->load(['schedule.therapist', 'transaction', 'userVoucher.voucher']);
+
+        // Pass user's active vouchers so the frontend can offer applying one
+        $userVouchers = UserVoucher::with('voucher')
+            ->where('user_id', auth()->id())
+            ->active()
+            ->get()
+            ->map(fn($uv) => [
+                'id' => $uv->id,
+                'code' => $uv->voucher->code,
+                'description' => $uv->voucher->description,
+                'discount_amount' => $uv->voucher->discount_amount,
+                'is_active' => true,
+            ]);
 
         return Inertia::render('Clinic/Bookings/Show', [
             'booking' => $booking,
+            'userVouchers' => $userVouchers,
         ]);
     }
 
@@ -144,18 +159,23 @@ class BookingController extends Controller
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             foreach ($slotsArray as $slot) {
-                $schedule = Schedule::firstOrCreate([
-                    'date' => $date->format('Y-m-d'),
-                    'start_time' => $slot['start'],
-                    'end_time' => $slot['end'],
-                    'schedule_type' => 'consultation',
-                ], [
-                    'quota' => $quota,
-                    'status' => 'available',
-                ]);
+                $existing = Schedule::whereDate('date', $date->format('Y-m-d'))
+                    ->where('start_time', $slot['start'])
+                    ->where('end_time', $slot['end'])
+                    ->where('schedule_type', 'consultation')
+                    ->first();
 
-                if ($schedule->quota !== $quota) {
-                    $schedule->update(['quota' => $quota]);
+                if (!$existing) {
+                    Schedule::create([
+                        'date' => $date->format('Y-m-d'),
+                        'start_time' => $slot['start'],
+                        'end_time' => $slot['end'],
+                        'schedule_type' => 'consultation',
+                        'quota' => $quota,
+                        'status' => 'available',
+                    ]);
+                } else if ($existing->quota !== $quota) {
+                    $existing->update(['quota' => $quota]);
                 }
             }
         }

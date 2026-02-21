@@ -300,6 +300,13 @@ export default function Dashboard() {
                                     iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                                     color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
                                 />
+                                <QuickCard
+                                    href={route('admin.pricing.vouchers.index')}
+                                    title="Manajemen Harga"
+                                    description="Kelola voucher diskon dan promo untuk pasien"
+                                    iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                    color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                />
                                 {!isSuperAdmin && (
                                     <QuickCard
                                         href={route('affiliate.dashboard')}
@@ -347,6 +354,13 @@ export default function Dashboard() {
                                         iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
                                         color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
                                         disabled={!hasScreening}
+                                    />
+                                    <QuickCard
+                                        href={route('vouchers.index')}
+                                        title="Voucher Saya"
+                                        description="Lihat & klaim voucher diskon yang tersedia"
+                                        iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                        color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                     />
                                     <QuickCard
                                         href={route('affiliate.dashboard')}
