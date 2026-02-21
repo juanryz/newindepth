@@ -19,11 +19,10 @@ class CustomVerifyEmail extends VerifyEmail
         $verificationUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Verifikasi Email InDepth Kamu – Mulai Perjalanan Healing')
-            ->greeting('Halo, ' . $notifiable->name)
-            ->line('Selamat datang di InDepth Healing. Langkah pertama untuk memulai perjalanan healing kamu adalah dengan memverifikasi alamat email ini.')
-            ->action('Verifikasi Email Saya', $verificationUrl)
-            ->line('Jika kamu tidak melakukan pendaftaran ini, silakan abaikan email ini.')
-            ->salutation(new HtmlString('Salam hangat,<br><strong>Tim InDepth Healing</strong>'));
+            ->subject('Verifikasi Email InDepth Kamu')
+            ->markdown('emails.verify-email', [
+            'name' => $notifiable->name,
+            'url' => $verificationUrl,
+        ]);
     }
 }
