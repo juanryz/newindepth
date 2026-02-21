@@ -181,77 +181,110 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         <p className="mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-400 mx-auto font-light">
                             Investasi terbaik adalah untuk kesehatan mental dan ketenangan batin Anda.
                         </p>
+                        <div className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)] animate-pulse">
+                            <span className="text-xl">🎉</span>
+                            <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span> Semua Paket!</span>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-                        {/* Reguler Package */}
-                        <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[3rem] p-10 shadow-xl hover:shadow-2xl transition-all duration-500 group relative">
-                            <div className="mb-8">
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Paket Reguler</h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-extrabold text-gray-900 dark:text-white">Rp 2.000.000</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                        {/* Hipnoterapi Package */}
+                        <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 group relative flex flex-col">
+                            <div className="mb-6 flex-grow-0">
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Hipnoterapi</h3>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 4.000.000</span>
+                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 2.000.000</span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Sesi / Treatment</p>
                             </div>
 
-                            <ul className="space-y-4 mb-10">
+                            <ul className="space-y-4 mb-8 flex-grow">
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Sesi Terapi Standar
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Terapi Hipnotis Klinis
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                                     Konsultasi Awal
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Teknik Relaksasi Dasar
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Relaksasi Pikiran Bawah Sadar
                                 </li>
                             </ul>
 
-                            <Link href="/register?package=reguler" className="block text-center py-4 px-8 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300">
-                                Pilih Paket Reguler
+                            <Link href="/register?package=hipnoterapi" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
+                                Pilih Hipnoterapi
+                            </Link>
+                        </div>
+
+                        {/* Upgrade Package */}
+                        <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 group relative flex flex-col">
+                            <div className="mb-6 flex-grow-0">
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upgrade <span className="text-sm font-normal text-gray-500">(Pengembangan Diri)</span></h3>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 6.000.000</span>
+                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 3.000.000</span>
+                                </div>
+                                <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Paket Program</p>
+                            </div>
+
+                            <ul className="space-y-4 mb-8 flex-grow">
+                                <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Pemrograman Ulang Mindset
+                                </li>
+                                <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Peningkatan Percaya Diri
+                                </li>
+                                <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Teknik NLP Praktis
+                                </li>
+                            </ul>
+
+                            <Link href="/register?package=upgrade" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
+                                Pilih Upgrade
                             </Link>
                         </div>
 
                         {/* VIP Package */}
-                        <div className="relative bg-gray-900/90 dark:bg-black/40 backdrop-blur-2xl border-2 border-gold-500/50 rounded-[3rem] p-10 shadow-[0_20px_50px_rgba(208,170,33,0.15)] hover:shadow-[0_30px_60px_rgba(208,170,33,0.25)] transition-all duration-500 group scale-105">
+                        <div className="relative bg-gray-900/90 dark:bg-black/40 backdrop-blur-2xl border-2 border-gold-500/50 rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(208,170,33,0.15)] hover:shadow-[0_30px_60px_rgba(208,170,33,0.25)] transition-all duration-500 group flex flex-col md:-translate-y-4">
                             {/* VIP Badge */}
-                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-gold-500 to-yellow-500 rounded-full text-white text-sm font-bold shadow-lg uppercase tracking-widest">
-                                Khusus Kasus Kronis
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-gold-500 to-yellow-500 rounded-full text-white text-xs font-bold shadow-lg uppercase tracking-widest whitespace-nowrap">
+                                Intensive Care
                             </div>
 
-                            <div className="mb-8">
+                            <div className="mb-6 flex-grow-0 pt-2">
                                 <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
                                     Paket VIP
-                                    <svg className="w-6 h-6 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-gold-500/50 line-through decoration-red-500/50 decoration-2">Rp 16.000.000</span>
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
                                 </div>
-                                <p className="text-gold-500/80 mt-2 font-medium">Intensive Care / Chronic Cases</p>
+                                <p className="text-gold-500/80 mt-2 font-medium">Prioritas & Kasus Kompleks</p>
                             </div>
 
-                            <ul className="space-y-4 mb-10">
+                            <ul className="space-y-4 mb-8 flex-grow">
                                 <li className="flex items-center gap-3 text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                                     Prioritas Jadwal Utama
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Terapi Kasus Kompleks/Kronis
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Terapi Kasus Kompleks
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg className="w-5 h-5 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                                     Pendampingan Eksklusif
-                                </li>
-                                <li className="flex items-center gap-3 text-gray-300">
-                                    <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Metode Jessica V.3 Advanced
                                 </li>
                             </ul>
 
-                            <Link href="/register?package=vip" className="block text-center py-5 px-8 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold text-lg shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1">
+                            <Link href="/register?package=vip" className="block text-center py-4 px-6 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1 mt-auto">
                                 Ambil Paket VIP
                             </Link>
                         </div>
