@@ -3,13 +3,13 @@ import Navbar from '@/Components/Navbar';
 
 export default function GuestLayout({ children, title, backLink = '/', backText = 'Kembali ke Beranda' }) {
     return (
-        <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#f4f7f6] dark:bg-gray-950 transition-colors duration-500 overflow-hidden relative">
+        <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#fdfdfd] dark:bg-[#050505] transition-colors duration-700 overflow-hidden relative">
 
             {/* Global Background Ambient Light (Liquid Glass foundation) */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gold-400/30 dark:bg-gold-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
-                <div className="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-teal-300/30 dark:bg-teal-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" style={{ animationDelay: '2s' }}></div>
-                <div className="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-rose-300/30 dark:bg-rose-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" style={{ animationDelay: '4s' }}></div>
+                <div className="absolute top-[-15%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[150px] animate-blob mix-blend-soft-light"></div>
+                <div className="absolute top-[20%] right-[-15%] w-[50vw] h-[50vw] rounded-full bg-teal-400/20 dark:bg-teal-600/10 blur-[150px] animate-blob mix-blend-soft-light" style={{ animationDelay: '3s' }}></div>
+                <div className="absolute bottom-[-20%] left-[10%] w-[70vw] h-[70vw] rounded-full bg-rose-400/15 dark:bg-rose-600/10 blur-[150px] animate-blob mix-blend-soft-light" style={{ animationDelay: '6s' }}></div>
             </div>
 
             {/* Navbar for Guest */}
@@ -21,7 +21,7 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                 <div className="mb-6 flex justify-start">
                     <Link
                         href={backLink}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
+                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400 transition-all group"
                     >
                         <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -31,11 +31,12 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                 </div>
 
                 {/* Liquid Glassmorphism Card */}
-                <div className="w-full overflow-hidden bg-white/40 dark:bg-gray-900/40 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 dark:border-gray-700/50 px-6 py-8 shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] sm:rounded-[2rem] relative z-20 transition-all duration-300">
-                    {/* Inner subtle edge highlight */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 dark:via-white/20 to-transparent"></div>
-                    {/* Inner subtle glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/10 rounded-bl-[4rem] pointer-events-none blur-2xl"></div>
+                <div className="w-full overflow-hidden bg-white/60 dark:bg-gray-900/60 backdrop-blur-[40px] backdrop-saturate-[1.8] border border-white/80 dark:border-white/10 px-8 py-10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] sm:rounded-[2.5rem] relative z-20 group transition-all duration-500 hover:shadow-[0_25px_60px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.6)]">
+                    {/* Inner Glass Shine */}
+                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/10 via-transparent to-white/5 opacity-50"></div>
+
+                    {/* Corner Accent Glow */}
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-gold-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                     <div className="relative z-10">
                         {children}
