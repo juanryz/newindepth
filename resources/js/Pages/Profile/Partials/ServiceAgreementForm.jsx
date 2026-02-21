@@ -97,7 +97,7 @@ export default function ServiceAgreementForm({ className = '' }) {
                     Surat Perjanjian Layanan Hipnoterapi
                 </h2>
                 {!isSigned && (
-                    <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md mb-6 border border-amber-200">
+                    <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md mb-6 border border-amber-200 dark:border-amber-900/30">
                         Mohon baca dan tanda tangani surat perjanjian ini untuk dapat menggunakan layanan.
                     </p>
                 )}
@@ -106,7 +106,7 @@ export default function ServiceAgreementForm({ className = '' }) {
             <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 sm:p-8 rounded-lg text-sm text-gray-800 dark:text-gray-300 max-h-[500px] overflow-y-auto font-serif leading-relaxed mb-6 shadow-inner relative">
 
                 {isSigned && (
-                    <div className="absolute top-4 right-4 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-300">
+                    <div className="absolute top-4 right-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-300 dark:border-green-800">
                         DITANDATANGANI PADA {signDate}
                     </div>
                 )}
@@ -227,7 +227,7 @@ export default function ServiceAgreementForm({ className = '' }) {
             <form onSubmit={submit} className="space-y-6">
 
                 {!isSigned ? (
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                         <p className="font-bold mb-4">PASAL 14 - PERNYATAAN AKHIR</p>
 
                         <div className="space-y-3 mb-6">
@@ -251,7 +251,7 @@ export default function ServiceAgreementForm({ className = '' }) {
                                 <p className="mb-2">Lokasi: InDepth Mental Wellness</p>
                                 <p className="mb-2 font-bold mt-4 border-t pt-4">Tanda Tangan Klien:</p>
 
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-1 bg-gray-50 relative group mx-auto" style={{ width: 300, height: 150 }}>
+                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-1 bg-gray-50 dark:bg-gray-700 relative group mx-auto" style={{ width: 300, height: 150 }}>
                                     <canvas
                                         ref={canvasRef}
                                         width={290}
@@ -263,10 +263,10 @@ export default function ServiceAgreementForm({ className = '' }) {
                                         onTouchStart={startDrawing}
                                         onTouchMove={draw}
                                         onTouchEnd={stopDrawing}
-                                        className="cursor-crosshair w-full h-full touch-none"
+                                        className="cursor-crosshair w-full h-full touch-none dark:invert"
                                     />
                                     {!hasDrawn && (
-                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
+                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-400 pointer-events-none">
                                             Tanda tangan di sini
                                         </div>
                                     )}
@@ -284,8 +284,8 @@ export default function ServiceAgreementForm({ className = '' }) {
 
                                 <div className="flex items-center justify-center h-[150px]">
                                     {/* Simulated digital signature stamp */}
-                                    <div className="transform -rotate-6 border-4 border-indigo-200 p-2 rounded-lg opacity-80 mix-blend-multiply">
-                                        <span className="font-['Brush_Script_MT',cursive] text-4xl text-indigo-600 block">S. Anam</span>
+                                    <div className="transform -rotate-6 border-4 border-indigo-200 dark:border-indigo-800 p-2 rounded-lg opacity-80 mix-blend-multiply dark:mix-blend-normal">
+                                        <span className="font-['Brush_Script_MT',cursive] text-4xl text-indigo-600 dark:text-indigo-400 block">S. Anam</span>
                                     </div>
                                 </div>
                                 <p className="mt-4 font-semibold underline">Saiful Anam</p>
@@ -302,17 +302,17 @@ export default function ServiceAgreementForm({ className = '' }) {
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
-                        <div className="flex items-center gap-3 text-green-700 mb-6 font-bold pb-4 border-b">
+                    <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 rounded-lg text-gray-900 dark:text-gray-100">
+                        <div className="flex items-center gap-3 text-green-700 dark:text-green-500 mb-6 font-bold pb-4 border-b dark:border-gray-700">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Perjanjian Telah Ditandatangani
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center text-gray-800">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center text-gray-800 dark:text-gray-300">
                             <div>
                                 <p className="mb-2 font-bold">Tanda Tangan Klien:</p>
                                 <div className="flex justify-center h-[150px] items-center">
-                                    <img src={user.digital_signature} alt="Tanda Tangan Klien" className="max-h-full mix-blend-multiply" />
+                                    <img src={user.digital_signature} alt="Tanda Tangan Klien" className="max-h-full mix-blend-multiply dark:invert dark:mix-blend-screen" />
                                 </div>
                                 <p className="mt-3 font-semibold underline">{user.name}</p>
                             </div>
@@ -320,8 +320,8 @@ export default function ServiceAgreementForm({ className = '' }) {
                             <div>
                                 <p className="mb-2 font-bold">Tanda Tangan Perwakilan InDepth:</p>
                                 <div className="flex items-center justify-center h-[150px]">
-                                    <div className="transform -rotate-6 border-4 border-indigo-200 p-2 rounded-lg opacity-80 mix-blend-multiply">
-                                        <span className="font-['Brush_Script_MT',cursive] text-4xl text-indigo-600 block">S. Anam</span>
+                                    <div className="transform -rotate-6 border-4 border-indigo-200 dark:border-indigo-800 p-2 rounded-lg opacity-80 mix-blend-multiply dark:mix-blend-normal">
+                                        <span className="font-['Brush_Script_MT',cursive] text-4xl text-indigo-600 dark:text-indigo-400 block">S. Anam</span>
                                     </div>
                                 </div>
                                 <p className="mt-4 font-semibold underline">Saiful Anam</p>
