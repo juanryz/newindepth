@@ -120,21 +120,6 @@ const VisionMissionSection = () => {
                     </motion.div>
                 </div>
 
-                {/* Final CTA link */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-16 text-center"
-                >
-                    <Link
-                        href="/contact"
-                        className="inline-flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold hover:gap-4 transition-all"
-                    >
-                        Bergabunglah dalam perjalanan optimalisasi potensi mental <ArrowRight className="w-5 h-5" />
-                    </Link>
-                </motion.div>
             </div>
         </section>
     );
