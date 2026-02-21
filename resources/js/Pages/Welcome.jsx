@@ -193,8 +193,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <div className="mb-6 flex-grow-0">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Hipnoterapi</h3>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 4.000.000</span>
-                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 2.000.000</span>
+                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 2.000.000</span>
+                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 1.000.000</span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Sesi / Treatment</p>
                             </div>
@@ -224,8 +224,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <div className="mb-6 flex-grow-0">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upgrade <span className="text-sm font-normal text-gray-500">(Pengembangan Diri)</span></h3>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 6.000.000</span>
-                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 3.000.000</span>
+                                    <span className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2">Rp 3.000.000</span>
+                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 1.500.000</span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Paket Program</p>
                             </div>
@@ -263,8 +263,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </h3>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-gold-500/50 line-through decoration-red-500/50 decoration-2">Rp 16.000.000</span>
-                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
+                                    <span className="text-sm text-gold-500/50 line-through decoration-red-500/50 decoration-2">Rp 8.000.000</span>
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 4.000.000</span>
                                 </div>
                                 <p className="text-gold-500/80 mt-2 font-medium">Prioritas & Kasus Kompleks</p>
                             </div>
