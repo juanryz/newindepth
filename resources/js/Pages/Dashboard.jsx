@@ -303,6 +303,7 @@ export default function Dashboard() {
     const isSuperAdmin = roles.includes('super_admin');
     const isTherapist = roles.includes('therapist');
     const isPatient = roles.includes('patient');
+    const isProfileComplete = profileProgress ? profileProgress.is_complete : true;
 
     const hasScreening = !!screeningResult;
 
@@ -462,7 +463,7 @@ export default function Dashboard() {
                                             description="Pilih jadwal dan terapis yang tersedia"
                                             iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
                                             color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
-                                            disabled={!is_complete}
+                                            disabled={!isProfileComplete}
                                         />
                                         <QuickCard
                                             href={route('vouchers.index')}
@@ -470,7 +471,7 @@ export default function Dashboard() {
                                             description="Lihat & klaim voucher diskon yang tersedia"
                                             iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                            disabled={!is_complete}
+                                            disabled={!isProfileComplete}
                                         />
                                         <QuickCard
                                             href={route('bookings.history')}
