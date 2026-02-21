@@ -247,9 +247,94 @@ Route::get('/setup-log', function () {
     $logFile = storage_path('logs/laravel.log');
     if (!file_exists($logFile))
         return 'No log file found.';
-    $lines = file($logFile);
-    $lastLines = array_slice($lines, -50);
-    return '<pre>' . htmlspecialchars(implode('', $lastLines)) . '</pre>';
+    $content = file_get_contents($logFile);
+    // Get last 5000 chars to find error messages
+    $tail = substr($content, -5000);
+    // Find error lines
+    preg_match_all('/\[[\d\-\s:]+\]\s+\w+\.ERROR:.*/', $tail, $matches);
+    if (!empty($matches[0])) {
+        return '<pre>' . htmlspecialchars(implode("\n\n", array_slice($matches[0], -5))) . '</pre>';
+    }
+    return '<pre>' . htmlspecialchars($tail) . '</pre>';
+});
+
+Route::get('/setup-db-fix', function () {
+    $output = [];
+    $schema = \Illuminate\Support\Facades\Schema::class;
+
+    // Check and add missing columns to users table
+    $columns = [
+        'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL AFTER email",
+        'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL AFTER phone",
+        'avatar' => "ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL AFTER google_id",
+        'recommended_package' => "ALTER TABLE users ADD COLUMN recommended_package VARCHAR(50) NULL",
+        'ktp_photo' => "ALTER TABLE users ADD COLUMN ktp_photo VARCHAR(255) NULL",
+        'emergency_contact_name' => "ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(255) NULL",
+        'emergency_contact_phone' => "ALTER TABLE users ADD COLUMN emergency_contact_phone VARCHAR(255) NULL",
+        'emergency_contact_relation' => "ALTER TABLE users ADD COLUMN emergency_contact_relation VARCHAR(255) NULL",
+        'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
+        'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
+        'signature_data' => "ALTER TABLE users ADD COLUMN signature_data TEXT NULL",
+    ];
+
+    foreach ($columns as $col => $sql) {
+        if (!$schema::hasColumn('users', $col)) {
+            try {
+                \Illuminate\Support\Facades\DB::statement($sql);
+                $output[] = "✅ Added column: $col";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed $col: " . $e->getMessage();
+            }
+        } else {
+            $output[] = "⏭️ Column exists: $col";
+        }
+    }
+
+    // Check bookings columns
+    $bookingCols = [
+        'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
+        'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
+        'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
+        'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
+    ];
+
+    foreach ($bookingCols as $col => $sql) {
+        if (!$schema::hasColumn('bookings', $col)) {
+            try {
+                \Illuminate\Support\Facades\DB::statement($sql);
+                $output[] = "✅ Added bookings.$col";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
+            }
+        } else {
+            $output[] = "⏭️ Bookings column exists: $col";
+        }
+    }
+
+    // Check schedules columns
+    if ($schema::hasTable('schedules') && !$schema::hasColumn('schedules', 'type')) {
+        try {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NOT NULL DEFAULT 'consultation'");
+            $output[] = "✅ Added schedules.type";
+        } catch (\Throwable $e) {
+            $output[] = "❌ Failed schedules.type: " . $e->getMessage();
+        }
+    }
+
+    // Ensure roles exist
+    $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient'];
+    foreach ($roles as $role) {
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+    }
+    $output[] = "✅ All roles ensured";
+
+    // Check tables
+    $tables = ['vouchers', 'user_vouchers', 'screening_results'];
+    foreach ($tables as $t) {
+        $output[] = $schema::hasTable($t) ? "⏭️ Table exists: $t" : "⚠️ Table missing: $t";
+    }
+
+    return '<pre>' . implode("\n", $output) . '</pre>';
 });
 
 Route::get('/setup-super-admin', function () {
