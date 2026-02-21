@@ -43,9 +43,14 @@ class BookingController extends Controller
 
         $this->ensureGenericSchedulesExist();
 
+        // Buffer: 1 hour (Wait, we move this logic to the frontend to allow 'disabled' state)
+        // Ensure we fetch from today (Asia/Jakarta)
+        $now = \Illuminate\Support\Carbon::now('Asia/Jakarta');
+        $toDate = $now->copy()->addDays(14);
+
         $rawSchedules = Schedule::where('schedule_type', 'consultation')
-            ->where('date', '>=', now()->toDateString())
-            ->where('date', '<=', now()->addDays(14)->toDateString())
+            ->whereDate('date', '>=', $now->toDateString())
+            ->whereDate('date', '<=', $toDate->toDateString())
             ->where('status', 'available')
             ->withCount([
                 'bookings' => function ($query) {
@@ -56,10 +61,6 @@ class BookingController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        // Buffer: 1 hour (Wait, we move this logic to the frontend to allow 'disabled' state)
-        // Ensure we fetch from today (Asia/Jakarta)
-        $now = \Illuminate\Support\Carbon::now('Asia/Jakarta');
-
         // Hapus duplikasi berdasarkan tanggal dan waktu mulai
         $schedules = $rawSchedules->filter(function ($item) {
             // Safety: hide if already full with confirmed bookings
@@ -68,11 +69,7 @@ class BookingController extends Controller
             }
             return true;
         })->unique(function ($item) {
-            $date = $item->date;
-            if (!$date instanceof \DateTimeInterface) {
-                $date = \Illuminate\Support\Carbon::parse($date);
-            }
-            return $date->format('Y-m-d') . '_' . $item->start_time;
+            return $item->date->format('Y-m-d') . '_' . $item->start_time;
         })->values();
 
         // Tentukan aturan pilihan paket
@@ -216,30 +213,26 @@ class BookingController extends Controller
             ['start' => '18:00:00', 'end' => '20:00:00'],
         ];
 
-        $startDate = now();
-        $endDate = now()->addDays(14);
+        // Always work with Jakarta time
+        $startDate = \Illuminate\Support\Carbon::now('Asia/Jakarta')->startOfDay();
+        $endDate = $startDate->copy()->addDays(14);
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             foreach ($slotsArray as $slot) {
-                $existing = Schedule::where('date', $date->format('Y-m-d'))
-                    ->where('start_time', $slot['start'])
-                    ->where('end_time', $slot['end'])
-                    ->where('schedule_type', 'consultation')
-                    ->whereNull('therapist_id')
-                    ->first();
-
-                if (!$existing) {
-                    Schedule::create([
-                        'date' => $date->format('Y-m-d'),
+                \Illuminate\Support\Facades\DB::table('schedules')->updateOrInsert(
+                    [
+                        'date' => $date->toDateString(),
                         'start_time' => $slot['start'],
-                        'end_time' => $slot['end'],
                         'schedule_type' => 'consultation',
+                    ],
+                    [
+                        'end_time' => $slot['end'],
                         'quota' => $quota,
                         'status' => 'available',
-                    ]);
-                } else if ($existing->quota !== $quota) {
-                    $existing->update(['quota' => $quota]);
-                }
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
             }
         }
     }

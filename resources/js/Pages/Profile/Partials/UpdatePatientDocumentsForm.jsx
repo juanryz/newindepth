@@ -83,7 +83,7 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                <h2 className="text-xl font-black tracking-tight text-gray-950 dark:text-white">
                     Dokumen & Kontak Darurat
                 </h2>
 
@@ -107,10 +107,10 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
 
                     {fileWarning && (
                         <div className={`mt-2 mb-4 text-sm px-4 py-3 rounded-xl flex items-start gap-3 border shadow-sm ${fileWarning.includes('Gagal')
-                                ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30'
-                                : fileWarning.includes('berhasil')
-                                    ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30'
-                                    : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-900/30'
+                            ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30'
+                            : fileWarning.includes('berhasil')
+                                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30'
+                                : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-900/30'
                             }`}>
                             {isCompressing ? (
                                 <svg className="animate-spin h-5 w-5 text-current shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

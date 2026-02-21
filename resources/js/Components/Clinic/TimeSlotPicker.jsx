@@ -86,14 +86,31 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                 const count = slot.bookings_count ?? 0;
 
                                 // Buffer: 1 hour prevention (Jakarta Time)
-                                const idnNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
-                                const oneHourFromNow = new Date(idnNow.getTime() + 60 * 60 * 1000);
+                                // We use a more robust way to compare Jakarta time without browser local offset interference
+                                const now = new Date();
+                                const formatter = new Intl.DateTimeFormat('en-US', {
+                                    timeZone: 'Asia/Jakarta',
+                                    year: 'numeric', month: '2-digit', day: '2-digit',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                    hour12: false
+                                });
 
-                                // Slot start time comparison (Jakarta)
-                                const slotStart = new Date(`${slot.date.substring(0, 10)}T${slot.start_time}`);
+                                const parts = formatter.formatToParts(now).reduce((acc, part) => {
+                                    acc[part.type] = part.value;
+                                    return acc;
+                                }, {});
+
+                                // Current Jakarta time as a comparable UTC object
+                                const idnNow = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second));
+                                const bufferTime = new Date(idnNow.getTime() + 60 * 60 * 1000);
+
+                                // Slot start time construction (UTC-normalized for comparison)
+                                const [sh, sm, ss] = slot.start_time.split(':');
+                                const sd = new Date(slot.date);
+                                const slotStart = new Date(Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate(), sh, sm, ss));
 
                                 const isFull = slot.status === 'full' || count >= slot.quota;
-                                const isPast = slotStart < oneHourFromNow;
+                                const isPast = slotStart < bufferTime;
                                 const isDisabled = isFull || isPast;
 
                                 return (
