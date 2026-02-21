@@ -12,6 +12,11 @@ class AgreementController extends Controller
     {
         $user = $request->user();
 
+        // Redirect if already signed or completed in session
+        if ($user->agreement_signed_at || session()->has('initial_agreement_completed')) {
+            return redirect()->route('bookings.create');
+        }
+
         // Ensure user has completed screening but hasn't booked or fully agreed yet if we want to restrict
         if (!$user->hasCompletedScreening()) {
             return redirect()->route('screening.show')->with('error', 'Silakan selesaikan skrining terlebih dahulu.');

@@ -264,7 +264,7 @@ function ActiveBookingCard({ booking }) {
 
                     <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                         <p><strong className="text-gray-900 dark:text-gray-200">Kode Booking:</strong> #{booking_code}</p>
-                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)} WIB)</p>
+                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} - {schedule.end_time?.substring(0, 5) || '--:--'} WIB)</p>
                         <p><strong className="text-gray-900 dark:text-gray-200">Terapis:</strong> {therapist?.name || <span className="italic text-gray-500">Akan diinfokan...</span>}</p>
                     </div>
                 </div>

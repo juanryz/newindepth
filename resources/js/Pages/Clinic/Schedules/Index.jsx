@@ -103,7 +103,7 @@ export default function TherapistScheduleIndex({ bookings }) {
                                                 </div>
                                                 <div className="flex items-center text-sm text-indigo-800">
                                                     <svg className="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                    {booking.schedule.start_time.substring(0, 5)} - {booking.schedule.end_time.substring(0, 5)} WIB
+                                                    {booking.schedule.start_time?.substring(0, 5) || '--:--'} - {booking.schedule.end_time?.substring(0, 5) || '--:--'} WIB
                                                 </div>
                                             </div>
 
@@ -239,7 +239,7 @@ export default function TherapistScheduleIndex({ bookings }) {
                             className="mt-1 block w-full border-gray-300"
                             placeholder="https://youtu.be/..."
                             value={completeData.recording_link}
-                            onChange={(e) => setData('recording_link', e.target.value)}
+                            onChange={(e) => setCompleteData('recording_link', e.target.value)}
                             required
                         />
                         <p className="text-xs text-gray-400 mt-1">* URL harus valid (YouTube Private/Unlisted)</p>
@@ -253,7 +253,7 @@ export default function TherapistScheduleIndex({ bookings }) {
                             rows="2"
                             placeholder="Tuliskan homework, ringkasan sesi, atau motivasi singkat untuk pasien..."
                             value={completeData.patient_visible_notes}
-                            onChange={(e) => setData('patient_visible_notes', e.target.value)}
+                            onChange={(e) => setCompleteData('patient_visible_notes', e.target.value)}
                         ></textarea>
                     </div>
 
@@ -265,7 +265,7 @@ export default function TherapistScheduleIndex({ bookings }) {
                             rows="4"
                             placeholder="Tuliskan perkembangan klinis, metode, dan rencana tindak lanjut..."
                             value={completeData.therapist_notes}
-                            onChange={(e) => setData('therapist_notes', e.target.value)}
+                            onChange={(e) => setCompleteData('therapist_notes', e.target.value)}
                         ></textarea>
                     </div>
 

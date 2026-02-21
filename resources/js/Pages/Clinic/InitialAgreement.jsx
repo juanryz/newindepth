@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import InputError from '@/Components/InputError';
 
 export default function InitialAgreement({ userAge }) {
     const isUnder17 = userAge !== null && userAge < 17;
@@ -32,7 +33,59 @@ export default function InitialAgreement({ userAge }) {
 
         // Bagian 6
         konfirmasi_akhir: false,
+        signature: '',
     });
+
+    const canvasRef = useRef(null);
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [hasDrawn, setHasDrawn] = useState(false);
+
+    // Canvas drawing logic
+    const startDrawing = (e) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        ctx.beginPath();
+        ctx.moveTo(clientX - rect.left, clientY - rect.top);
+        setIsDrawing(true);
+        setHasDrawn(true);
+    };
+
+    const draw = (e) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        ctx.lineTo(clientX - rect.left, clientY - rect.top);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
+
+    const stopDrawing = () => {
+        setIsDrawing(false);
+        const canvas = canvasRef.current;
+        if (canvas && hasDrawn) {
+            setData('signature', canvas.toDataURL('image/png'));
+        }
+    };
+
+    const clearCanvas = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        setHasDrawn(false);
+        setData('signature', '');
+    };
 
     const [allChecked, setAllChecked] = useState(false);
     const [missingFields, setMissingFields] = useState([]);
@@ -82,21 +135,23 @@ export default function InitialAgreement({ userAge }) {
         const lastSection = isUnder17 ? '6' : '5';
         if (!data.konfirmasi_akhir) missing.push(`${lastSection}. Konfirmasi Akhir`);
 
-        setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid);
+        const signatureSection = isUnder17 ? '7' : '6';
+        if (!hasDrawn) missing.push(`${signatureSection}. Tanda Tangan Digital`);
+
+        setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid && hasDrawn);
         setMissingFields(missing);
-    }, [data, isUnder17]);
+    }, [data, isUnder17, hasDrawn]);
 
     const submit = (e) => {
         e.preventDefault();
 
-        if (!allChecked) {
-            // Prevent submission if not checked, but allow the button to be clicked so users
-            // see that it's intentionally blocked by validation, rather than a completely dead button.
+        if (!allChecked || !hasDrawn) {
             return;
         }
 
         transform((data) => ({
             agreement_data: data,
+            signature: data.signature,
         }));
 
         post(route('agreement.store'), {
@@ -295,6 +350,46 @@ export default function InitialAgreement({ userAge }) {
                                         checked={data.konfirmasi_akhir}
                                         onChange={(val) => setData('konfirmasi_akhir', val)}
                                     />
+                                </div>
+                            </section>
+
+                            {/* Bagian 6 / 7 — Tanda Tangan Digital */}
+                            <section>
+                                <h4 className="text-lg font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 flex items-center justify-center text-sm">{isUnder17 ? '7' : '6'}</span>
+                                    Tanda Tangan Digital
+                                </h4>
+                                <div className="pl-8">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        Silakan bubuhkan tanda tangan Anda di area bawah ini sebagai bentuk verifikasi digital (Sesuai UU ITE).
+                                    </p>
+
+                                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-1 bg-gray-50 dark:bg-gray-900 shadow-inner relative group mx-auto md:mx-0" style={{ maxWidth: 400, height: 180 }}>
+                                        <canvas
+                                            ref={canvasRef}
+                                            width={390}
+                                            height={170}
+                                            onMouseDown={startDrawing}
+                                            onMouseMove={draw}
+                                            onMouseUp={stopDrawing}
+                                            onMouseOut={stopDrawing}
+                                            onTouchStart={startDrawing}
+                                            onTouchMove={draw}
+                                            onTouchEnd={stopDrawing}
+                                            className="cursor-crosshair w-full h-full touch-none dark:invert"
+                                        />
+                                        {!hasDrawn && (
+                                            <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none text-xs font-medium uppercase tracking-widest">
+                                                Tanda tangan di sini
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="mt-2">
+                                        <button type="button" onClick={clearCanvas} className="text-xs text-red-600 font-bold hover:text-red-800 underline transition-colors">
+                                            Hapus & Ulangi Tanda Tangan
+                                        </button>
+                                    </div>
+                                    <InputError message={errors.signature} className="mt-2" />
                                 </div>
                             </section>
 

@@ -24,7 +24,7 @@ export default function LmsShow({ course, isEnrolled, auth }) {
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
                 <title>{course.title} - InDepth Mental Wellness</title>
-                <meta name="description" content={course.description.substring(0, 160)} />
+                <meta name="description" content={(course.description || "").substring(0, 160)} />
             </Head>
 
             {/* Global Background Ambient Light */}
