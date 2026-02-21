@@ -83,43 +83,235 @@ export default function Index({ auth }) {
 
             <main className="relative z-10 pt-40 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {/* Hero Section */}
-                <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
+                <div className="text-center max-w-4xl mx-auto mb-20 animate-fade-in-up">
                     <span className="inline-block px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 font-semibold text-sm tracking-widest uppercase mb-6 shadow-sm backdrop-blur-md">
-                        Pendekatan InDepth
+                        Metode Eksklusif
                     </span>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight mb-6">
-                        Metode Terapi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">Premium</span>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight mb-8">
+                        Sistem Terapi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">InDepth</span>
                     </h1>
-                    <p className="text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed">
-                        Kami menggabungkan teknik psikoterapi modern dan hipnoterapi klinis untuk memberikan hasil transformasi emosional yang cepat, efektif, dan permanen.
+                    <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-200 font-medium leading-relaxed mb-4">
+                        Di InDepth Mental Wellness, kami tidak sekadar melakukan hipnoterapi.
+                    </p>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
+                        Kami menggunakan <strong>sistem metodologi terstruktur</strong> yang dirancang untuk mengakses akar masalah, bukan hanya meredakan gejala. Tiga metode utama kami dirancang untuk memberikan pendekatan yang presisi, terarah, dan sesuai kebutuhan individu.
                     </p>
                 </div>
 
-                {/* Methods Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-                    {methods.map((method, index) => (
-                        <div key={method.id} className="group relative bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_20px_50px_rgba(208,170,33,0.1)] hover:-translate-y-2 flex flex-col items-center text-center">
-                            <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                {/* Methods Stack */}
+                <div className="space-y-24 mb-32">
 
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold-500/10 to-yellow-500/5 border border-gold-500/20 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-8 group-hover:scale-110 transition-transform duration-500">
-                                {method.icon}
+                    {/* Method 1: InDepth Trance State */}
+                    <div className="flex flex-col lg:flex-row items-center gap-12 group">
+                        <div className="lg:w-1/2 order-2 lg:order-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold mb-6">
+                                <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                                Metode 01
                             </div>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">InDepth Trance State</h2>
+                            <p className="text-xl text-gold-600 dark:text-gold-400 font-medium mb-6">Mengakses Akar Masalah dari Dalam</p>
 
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                {method.title}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                                {method.description}
+                            <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                                InDepth Trance State adalah kondisi hipnotik mendalam yang memungkinkan klien mengakses lapisan bawah sadar dan kecerdasan tubuh <em>(somatic mind)</em>.
+                                <br /><br />
+                                <strong>Bukan sekadar relaksasi. Bukan sekadar sugesti.</strong>
+                                <br /><br />
+                                Metode ini membawa klien ke kondisi <em>trans-hypnosleep</em> yang stabil, di mana:
                             </p>
 
-                            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 w-full">
-                                <span className="text-sm font-semibold text-gold-600 dark:text-gold-500 flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
-                                    Pelajari Lebih Lanjut
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                                </span>
+                            <ul className="space-y-3 mb-8">
+                                {[
+                                    'Emosi tertahan dapat diidentifikasi',
+                                    'Trauma lama dapat dilepaskan',
+                                    'Keyakinan yang membatasi dapat diperbarui',
+                                    'Sumber masalah psikosomatis dapat ditemukan'
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                                        <svg className="w-6 h-6 text-gold-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-md rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
+                                    Kelebihan Utama:
+                                </h4>
+                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Fokus pada akar masalah</li>
+                                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Minim resistensi pikiran sadar</li>
+                                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Efektif untuk trauma & fobia</li>
+                                    <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Aktivasi komunikasi internal</li>
+                                </ul>
                             </div>
                         </div>
-                    ))}
+                        <div className="lg:w-1/2 order-1 lg:order-2 w-full">
+                            <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/20 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.15)] transition-all duration-700">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gold-500/20 blur-[100px] rounded-full group-hover:bg-gold-500/30 transition-colors duration-700"></div>
+                                <div className="relative z-10 w-32 h-32 rounded-3xl bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-white/20 dark:border-white/10 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-700 shadow-2xl">
+                                    <svg className="w-16 h-16 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Method 2: Supreme Trance State */}
+                    <div className="flex flex-col lg:flex-row items-center gap-12 group">
+                        <div className="lg:w-1/2 w-full">
+                            <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-bl from-gray-900/10 to-transparent border border-gray-900/10 dark:border-white/10 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:group-hover:shadow-[0_20px_60px_rgba(255,255,255,0.05)] transition-all duration-700">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 dark:opacity-30"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gray-900/10 dark:bg-white/10 blur-[100px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+                                <div className="relative z-10 w-32 h-32 rounded-[2.5rem] bg-gray-900/5 dark:bg-white/5 backdrop-blur-xl border border-gray-900/10 dark:border-white/10 flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 shadow-xl">
+                                    <svg className="w-16 h-16 text-gray-800 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="lg:w-1/2">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-900/5 dark:bg-white/10 border border-gray-900/10 dark:border-white/20 text-gray-900 dark:text-white text-sm font-bold mb-6">
+                                <span className="w-2 h-2 rounded-full bg-gray-900 dark:bg-white animate-pulse"></span>
+                                Metode 02
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Supreme Trance State</h2>
+                            <p className="text-xl text-gray-700 dark:text-gray-300 font-medium mb-6">Kedalaman Maksimal dengan Kendali Penuh</p>
+
+                            <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                                Supreme Trance State adalah pengembangan lanjutan dari InDepth Trance State. Pada metode ini, klien tidak hanya masuk ke kedalaman bawah sadar, tetapi juga mempertahankan kesadaran tinggi secara simultan.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                                <div className="flex-1 bg-white/40 dark:bg-black/20 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center">
+                                    <p className="font-bold text-gray-900 dark:text-white text-lg">Kedalaman</p>
+                                    <p className="text-sm text-gray-500">Tetap Tercapai</p>
+                                </div>
+                                <div className="flex-1 bg-white/40 dark:bg-black/20 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center">
+                                    <p className="font-bold text-gray-900 dark:text-white text-lg">Kesadaran</p>
+                                    <p className="text-sm text-gray-500">Tetap Aktif</p>
+                                </div>
+                                <div className="flex-1 bg-white/40 dark:bg-black/20 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 text-center">
+                                    <p className="font-bold text-gray-900 dark:text-white text-lg">Kendali</p>
+                                    <p className="text-sm text-gray-500">Tetap Stabil</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider">Cocok Untuk:</h4>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full bg-gray-400"></div> Kasus kompleks & kronis</li>
+                                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full bg-gray-400"></div> Gangguan jangka panjang</li>
+                                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full bg-gray-400"></div> Rekonstruksi masa lalu</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-sm uppercase tracking-wider">Keunggulan:</h4>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full bg-gold-500"></div> Gabungan kontrol sadar</li>
+                                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full bg-gold-500"></div> Rekonstruksi sangat terstruktur</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 inline-block px-4 py-2 bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-semibold rounded-lg border border-red-500/20">
+                                ⚠️ Eksklusif hanya dilakukan oleh hipnoterapis senior InDepth.
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Method 3: InDepth Solution */}
+                    <div className="flex flex-col lg:flex-row items-center gap-12 group">
+                        <div className="lg:w-1/2 order-2 lg:order-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold mb-6">
+                                <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                                Metode 03
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">InDepth Solution</h2>
+                            <p className="text-xl text-gold-600 dark:text-gold-400 font-medium mb-6">Solusi Versi Tubuh Anda Sendiri</p>
+
+                            <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                                Pendekatan sistematis untuk menggali solusi terbaik berdasarkan kecerdasan tubuh klien sendiri.
+                                Dalam kondisi InDepth Trance State, dilakukan wawancara terstruktur dengan <em>somatic mind</em> untuk mengetahui:
+                            </p>
+
+                            <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl p-6 border border-white/60 dark:border-gray-800/50 shadow-sm mb-8">
+                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {[
+                                        'Apakah kondisi ini dapat diselesaikan?',
+                                        'Berapa waktu tercepat yang realistis?',
+                                        'Syarat apa yang harus dipenuhi?',
+                                        'Pantangan apa yang dihindari?'
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300 font-medium text-sm">
+                                            <div className="w-6 h-6 rounded-full bg-gold-500/20 text-gold-600 dark:text-gold-400 flex items-center justify-center shrink-0 mt-[-2px] text-xs">?</div>
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 dark:border-gray-800 pt-8">
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white mb-4">Hasil Solusi 100%:</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="px-3 py-1 bg-gold-500/10 border border-gold-500/20 rounded-lg text-gold-700 dark:text-gold-400 text-sm font-medium">Personal</span>
+                                        <span className="px-3 py-1 bg-gold-500/10 border border-gold-500/20 rounded-lg text-gold-700 dark:text-gold-400 text-sm font-medium">Spesifik</span>
+                                        <span className="px-3 py-1 bg-gold-500/10 border border-gold-500/20 rounded-lg text-gold-700 dark:text-gold-400 text-sm font-medium">Tidak Generik</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white mb-3">Sangat Efektif Untuk:</h4>
+                                    <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div> Masalah medis tak terjelaskan (psikosomatis)</li>
+                                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div> Kebuntuan terapi sebelumnya</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="lg:w-1/2 order-1 lg:order-2 w-full">
+                            <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-tr from-gold-500/20 to-transparent border border-gold-500/30 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.2)] transition-all duration-700">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/connected.png')] opacity-15"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-gold-400/20 dark:bg-gold-500/20 blur-[120px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+                                <div className="relative z-10 w-32 h-32 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-2xl border border-white/40 dark:border-white/20 flex flex-col items-center justify-center transform group-hover:scale-110 transition-transform duration-700 shadow-[0_0_40px_rgba(208,170,33,0.3)]">
+                                    <div className="w-12 h-12 rounded-full bg-gold-500 animate-pulse border-4 border-white/50 dark:border-black/50"></div>
+                                    <svg className="absolute w-24 h-24 text-gold-500/50 animate-spin-slow" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" /></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Why InDepth Selection */}
+                <div className="relative rounded-[3rem] overflow-hidden bg-white/50 dark:bg-gray-900/50 backdrop-blur-2xl border border-gold-500/20 shadow-2xl p-10 md:p-16 mb-24 text-center group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gold-500/5 via-transparent to-transparent"></div>
+                    <div className="relative z-10">
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">Mengapa InDepth Berbeda?</h2>
+                        <p className="text-xl text-gray-600 dark:text-gray-300 font-light max-w-2xl mx-auto mb-12">
+                            Banyak layanan hipnoterapi berfokus pada sugesti belaka. <strong className="text-gold-600 dark:text-gold-400 font-bold">InDepth berfokus pada sistem.</strong>
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+                            {[
+                                { title: 'Metodologi', desc: 'Terstruktur' },
+                                { title: 'Dokumentasi', desc: 'Transparan' },
+                                { title: 'Standar Legal', desc: 'Sangat Jelas' },
+                                { title: 'Pendekatan', desc: 'Komunikasi Bawah Sadar' }
+                            ].map((item, i) => (
+                                <div key={i} className="bg-white/60 dark:bg-black/40 border border-gold-500/20 rounded-2xl p-6 group-hover:-translate-y-1 transition-transform">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.title}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white text-lg">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-xl font-bold text-gray-900 dark:text-white">
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Pendekatan Presisi</span>
+                            <span className="hidden md:block w-2 h-2 rounded-full bg-gold-500/50"></span>
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Proses Terstruktur</span>
+                            <span className="hidden md:block w-2 h-2 rounded-full bg-gold-500/50"></span>
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Solusi Mendalam</span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* CTA Section */}
