@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { format, parseISO, isSameDay } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 export default function TherapistShow({ therapist, schedules }) {
@@ -99,8 +99,8 @@ export default function TherapistShow({ therapist, schedules }) {
                                                         key={dateStr}
                                                         onClick={() => setSelectedDate(dateStr)}
                                                         className={`flex-shrink-0 flex flex-col items-center justify-center p-3 rounded-xl w-20 transition-all ${isSelected
-                                                                ? 'bg-gradient-to-br from-gold-500 to-yellow-500 text-white shadow-lg shadow-gold-500/30 scale-105'
-                                                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-md'
+                                                            ? 'bg-gradient-to-br from-gold-500 to-yellow-500 text-white shadow-lg shadow-gold-500/30 scale-105'
+                                                            : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-md'
                                                             }`}
                                                     >
                                                         <span className={`text-xs font-medium uppercase ${isSelected ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
