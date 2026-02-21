@@ -180,6 +180,29 @@ Route::get('/sitemap.xml', function () {
     return response($xml)->header('Content-Type', 'text/xml');
 });
 
+Route::get('/setup-sync-slots', function () {
+    try {
+        $schedules = \App\Models\Schedule::withCount([
+            'bookings' => function ($query) {
+                $query->where('status', 'confirmed');
+            }
+        ])->get();
+
+        $updated = 0;
+        foreach ($schedules as $schedule) {
+            $schedule->update([
+                'booked_count' => $schedule->bookings_count,
+                'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
+            ]);
+            $updated++;
+        }
+
+        return "✅ Synced $updated schedules with confirmed bookings count.";
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
 require __DIR__ . '/auth.php';
 
 Route::get('/setup-notifications', function () {

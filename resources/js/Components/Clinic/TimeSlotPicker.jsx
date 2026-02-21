@@ -83,7 +83,7 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {slots.map((slot) => {
                                 const isSelected = selectedScheduleId === slot.id;
-                                const count = slot.bookings_count ?? slot.booked_count ?? 0;
+                                const count = slot.bookings_count ?? 0;
 
                                 // Buffer: 1 hour prevention (Jakarta Time)
                                 const idnNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
