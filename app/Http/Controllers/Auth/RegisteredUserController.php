@@ -51,7 +51,12 @@ class RegisteredUserController extends Controller
 
         $user->assignRole('patient');
 
-        event(new Registered($user));
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            // Silently fail if email cannot be sent — don't block registration
+            \Illuminate\Support\Facades\Log::warning('Failed to send registration email: ' . $e->getMessage());
+        }
 
         Auth::login($user);
 
