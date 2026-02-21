@@ -1,5 +1,7 @@
 @component('mail::message')
-# ![InDepth](https://indepth.co.id/images/logo-color.png)
+<div style="text-align: center; margin-bottom: 2rem;">
+    <img src="https://indepth.co.id/images/logo-color.png" alt="InDepth" style="height: 50px;">
+</div>
 
 # Halo!
 
@@ -7,7 +9,7 @@ Kamu menerima email ini karena kami menerima permintaan reset kata sandi untuk a
 
 @component('mail::button', ['url' => $url])
 Reset Kata Sandi
-@end component
+@endcomponent
 
 Tautan reset kata sandi ini akan kedaluwarsa dalam 60 menit.
 

@@ -1,5 +1,7 @@
 @component('mail::message')
-# ![InDepth](https://indepth.co.id/images/logo-color.png)
+<div style="text-align: center; margin-bottom: 2rem;">
+    <img src="https://indepth.co.id/images/logo-color.png" alt="InDepth" style="height: 50px;">
+</div>
 
 # Halo, {{ $name }}
 
@@ -9,7 +11,7 @@ Langkah pertama untuk memulai perjalanan transformasi kamu adalah dengan memveri
 
 @component('mail::button', ['url' => $url])
 Verifikasi Email Saya
-@end component
+@endcomponent
 
 Jika kamu tidak melakukan pendaftaran ini, silakan abaikan email ini.
 
