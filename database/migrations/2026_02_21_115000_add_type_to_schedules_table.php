@@ -8,7 +8,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('schedules', function (Blueprint $table) {
-            $table->string('schedule_type')->default('consultation')->after('therapist_id'); // 'consultation' or 'class'
+            if (!Schema::hasColumn('schedules', 'schedule_type')) {
+                $table->string('schedule_type')->default('consultation')->after('therapist_id'); // 'consultation' or 'class'
+            }
         });
     }
 
