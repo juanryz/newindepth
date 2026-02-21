@@ -54,7 +54,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                             user ? (
                                 <Link
                                     href={route('dashboard')}
-                                    className="px-5 py-2 rounded-lg text-xs font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 shadow-[0_4px_12px_rgba(208,170,33,0.3)] hover:shadow-[0_6px_18px_rgba(208,170,33,0.4)] hover:-translate-y-0.5 transition-all duration-300 border border-gold-300/40"
+                                    className="px-5 py-2 rounded-2xl text-xs font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 shadow-[0_4px_12px_rgba(208,170,33,0.3)] hover:shadow-[0_6px_18px_rgba(208,170,33,0.4)] hover:-translate-y-0.5 transition-all duration-300 border border-gold-300/40"
                                 >
                                     Dashboard
                                 </Link>
@@ -62,13 +62,13 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href={route('login')}
-                                        className="text-gray-700 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 text-xs font-bold px-4 py-2 transition-colors rounded-lg hover:bg-gold-500/10"
+                                        className="text-gray-700 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 text-xs font-bold px-4 py-2 transition-colors rounded-2xl hover:bg-gold-500/10"
                                     >
                                         Masuk
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-gray-900 text-xs font-bold px-5 py-2 transition-all duration-300 shadow-[0_4px_12px_rgba(208,170,33,0.3)] hover:shadow-[0_6px_18px_rgba(208,170,33,0.4)] hover:-translate-y-0.5 border border-gold-300/40"
+                                        className="rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-gray-900 text-xs font-bold px-5 py-2 transition-all duration-300 shadow-[0_4px_12px_rgba(208,170,33,0.3)] hover:shadow-[0_6px_18px_rgba(208,170,33,0.4)] hover:-translate-y-0.5 border border-gold-300/40"
                                     >
                                         Daftar
                                     </Link>
