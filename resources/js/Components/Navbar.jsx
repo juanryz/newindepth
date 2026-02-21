@@ -36,8 +36,8 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                     key={item.key}
                                     href={item.href}
                                     className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${active === item.key
-                                            ? 'bg-white dark:bg-gray-800 text-gold-600 dark:text-gold-400 shadow-sm'
-                                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10'
+                                        ? 'bg-white dark:bg-gray-800 text-gold-600 dark:text-gold-400 shadow-sm'
+                                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10'
                                         }`}
                                 >
                                     {item.name}
@@ -54,21 +54,21 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                             user ? (
                                 <Link
                                     href={route('dashboard')}
-                                    className="px-5 py-2 rounded-full text-sm font-semibold text-white bg-gold-600 hover:bg-gold-700 transition-all shadow-md"
+                                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 shadow-[0_4px_15px_rgba(208,170,33,0.4)] hover:shadow-[0_8px_25px_rgba(208,170,33,0.5)] hover:-translate-y-0.5 transition-all duration-300 border border-gold-300/50"
                                 >
                                     Dashboard
                                 </Link>
                             ) : (
-                                <div className="flex items-center space-x-1 bg-black/5 dark:bg-white/5 p-1 rounded-full">
+                                <div className="flex items-center gap-2">
                                     <Link
                                         href={route('login')}
-                                        className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-xs font-bold px-4 py-2 transition-colors"
+                                        className="text-gray-700 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 text-xs font-bold px-4 py-2.5 transition-colors rounded-xl hover:bg-gold-500/10"
                                     >
                                         Masuk
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="rounded-full bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold px-5 py-2 transition-all shadow-sm"
+                                        className="rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-gray-900 text-xs font-bold px-5 py-2.5 transition-all duration-300 shadow-[0_4px_15px_rgba(208,170,33,0.4)] hover:shadow-[0_8px_25px_rgba(208,170,33,0.5)] hover:-translate-y-0.5 border border-gold-300/50"
                                     >
                                         Daftar
                                     </Link>
