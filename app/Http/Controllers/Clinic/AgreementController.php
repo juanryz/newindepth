@@ -12,6 +12,11 @@ class AgreementController extends Controller
     {
         $user = $request->user();
 
+        // Redirect if already signed or completed in session
+        if ($user->agreement_signed_at || session()->has('initial_agreement_completed')) {
+            return redirect()->route('bookings.create');
+        }
+
         // Ensure user has completed screening but hasn't booked or fully agreed yet if we want to restrict
         if (!$user->hasCompletedScreening()) {
             return redirect()->route('screening.show')->with('error', 'Silakan selesaikan skrining terlebih dahulu.');
@@ -28,16 +33,19 @@ class AgreementController extends Controller
     {
         $validated = $request->validate([
             'agreement_data' => 'required|array',
+            'signature' => 'nullable|string', // Capture the base64 signature if available
         ]);
 
-        // You may want to store this in an `agreements` table, a JSON column on `users`, 
-        // or just consider it as a pre-requisite step for session flow.
-        // For now, we will mark it in the session to allow proceeding to booking.
+        $user = $request->user();
+
+        // Mark it as completed in session for immediate feedback
         session()->put('initial_agreement_completed', true);
 
-        // Optionally store the agreement data in the user profile if needed
-        // $user = $request->user();
-        // $user->update(['initial_agreement' => $validated['agreement_data']]);
+        // Persist to database to update profile completion stats
+        $user->update([
+            'agreement_signed_at' => now(),
+            'digital_signature' => $request->input('signature') ?? $validated['agreement_data']['signature'] ?? null,
+        ]);
 
         return redirect()->route('bookings.create')->with('success', 'Persyaratan awal disetujui, silakan pilih jadwal.');
     }

@@ -96,7 +96,7 @@ export default function LmsIndex({ courses, auth, isMyCourses = false }) {
                                                 {course.title}
                                             </h3>
                                             <p className="text-gray-600 dark:text-gray-400 line-clamp-3 font-light leading-relaxed mb-6">
-                                                {course.description.replace(/(<([^>]+)>)/gi, "").substring(0, 120)}...
+                                                {(course.description || "").replace(/(<([^>]+)>)/gi, "").substring(0, 120)}...
                                             </p>
                                         </Link>
                                         <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">

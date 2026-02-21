@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import AiChatPopup from '@/Components/AiChatPopup';
 
 export default function Navbar({ auth, active = 'home', isAuthPage = false, title = '' }) {
     const user = auth?.user ?? null;
+    const [isChatOpen, setIsChatOpen] = useState(false);
+
+    const navLinks = [
+        { name: 'Home', href: '/', key: 'home' },
+        { name: 'Metode', href: route('methods.index'), key: 'methods' },
+        { name: 'Artikel', href: route('blog.index'), key: 'blog' },
+        { name: 'E-Learning', href: route('courses.index'), key: 'courses' }
+    ];
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 dark:bg-black/20 backdrop-blur-2xl border-b border-white/20 dark:border-gray-800/20 shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-500">
@@ -26,12 +35,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
 
                     {!isAuthPage && (
                         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center space-x-1 bg-white/10 dark:bg-white/5 backdrop-blur-md px-2 py-1.5 rounded-full border border-white/10">
-                            {[
-                                { name: 'Home', href: '/', key: 'home' },
-                                { name: 'Metode', href: route('methods.index'), key: 'methods' },
-                                { name: 'Artikel', href: route('blog.index'), key: 'blog' },
-                                { name: 'E-Learning', href: route('courses.index'), key: 'courses' }
-                            ].map((item) => (
+                            {navLinks.map((item) => (
                                 <Link
                                     key={item.key}
                                     href={item.href}
@@ -43,6 +47,12 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                     {item.name}
                                 </Link>
                             ))}
+                            <button
+                                onClick={() => setIsChatOpen(true)}
+                                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10`}
+                            >
+                                Contact Us
+                            </button>
                         </div>
                     )}
 
@@ -78,6 +88,8 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                     </div>
                 </div>
             </div>
+
+            <AiChatPopup isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </nav>
     );
 }

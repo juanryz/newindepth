@@ -146,7 +146,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        if ($booking->patient_id != auth()->id() && !auth()->user()->isStaff()) {
+        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -173,7 +173,7 @@ class BookingController extends Controller
 
     public function cancel(Booking $booking, Request $request)
     {
-        if ($booking->patient_id !== $request->user()->id) {
+        if ((int) $booking->patient_id !== (int) $request->user()->id && !$request->user()->isStaff()) {
             abort(403);
         }
 

@@ -52,6 +52,8 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profil</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skrining</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Sesi</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terapis</th>
@@ -68,15 +70,64 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                                 <div className="text-xs text-gray-500">{booking.patient?.email}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div className="flex flex-col">
+                                                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1 max-w-[100px]">
+                                                        <div
+                                                            className={`h-1.5 rounded-full ${booking.patient_profile_stats?.percentage === 100 ? 'bg-green-600' : 'bg-yellow-500'}`}
+                                                            style={{ width: `${booking.patient_profile_stats?.percentage || 0}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-xs font-semibold">{booking.patient_profile_stats?.percentage || 0}% Lengkap</span>
+                                                    {booking.patient?.agreement_signed_at ? (
+                                                        <span className="text-[10px] text-green-600 font-bold uppercase mt-1">✓ Perjanjian TTD</span>
+                                                    ) : (
+                                                        <span className="text-[10px] text-red-500 font-bold uppercase mt-1">✗ Belum TTD</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {booking.patient?.screening_completed_at ? (
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs text-green-700 font-medium">Selesai: {new Date(booking.patient.screening_completed_at).toLocaleDateString('id-ID')}</span>
+                                                        <span className="text-xs italic text-gray-500 truncate max-w-[150px]">
+                                                            Pesan: {booking.patient.recommended_package || '-'}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-red-400 italic">Belum skrining</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {booking.schedule ? (
                                                     <>
                                                         <div>{new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                                                        <div className="text-xs">{booking.schedule.start_time.substring(0, 5)} - {booking.schedule.end_time.substring(0, 5)}</div>
+                                                        <div className="text-xs">{booking.schedule.start_time?.substring(0, 5) || '--:--'} - {booking.schedule.end_time?.substring(0, 5) || '--:--'}</div>
                                                     </>
                                                 ) : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {getStatusBadge(booking.status)}
+                                                <div className="flex flex-col gap-1">
+                                                    {getStatusBadge(booking.status)}
+                                                    {booking.status === 'completed' && (
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            {booking.recording_link && (
+                                                                <a href={booking.recording_link} target="_blank" title="Ada Rekaman" className="text-purple-600">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                                </a>
+                                                            )}
+                                                            {booking.therapist_notes && (
+                                                                <span title="Ada Catatan Klinis" className="text-gray-400">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                                </span>
+                                                            )}
+                                                            {booking.patient_visible_notes && (
+                                                                <span title="Ada Pesan untuk Pasien" className="text-blue-500">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {editingBooking === booking.id ? (
@@ -127,7 +178,7 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                     ))}
                                     {bookings.length === 0 && (
                                         <tr>
-                                            <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                                            <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
                                                 Belum ada booking pasien.
                                             </td>
                                         </tr>

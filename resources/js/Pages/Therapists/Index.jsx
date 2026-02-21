@@ -37,7 +37,7 @@ export default function TherapistsIndex({ therapists }) {
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-gradient-to-br from-gold-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                                                    {therapist.name.charAt(0)}
+                                                    {therapist.name?.charAt(0) || '?'}
                                                 </div>
                                             )}
                                         </div>

@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
@@ -58,7 +59,7 @@ export default function TherapistShow({ therapist, schedules }) {
                                             <img src={`/storage/${therapist.avatar}`} alt={therapist.name} className="h-full w-full object-cover z-10" />
                                         ) : (
                                             <span className="text-4xl font-bold bg-gradient-to-br from-gold-400 to-yellow-600 bg-clip-text text-transparent z-10">
-                                                {therapist.name.charAt(0)}
+                                                {therapist.name?.charAt(0) || '?'}
                                             </span>
                                         )}
                                     </div>

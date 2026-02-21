@@ -17,9 +17,24 @@ class EnforcePatientCompletion
     {
         $user = $request->user();
 
+        // Skip if not a patient or accessing profile edit pages
+        if ($request->routeIs('profile.*')) {
+            return $next($request);
+        }
+
         if ($user && $user->hasRole('patient')) {
             if (!$user->isProfileComplete()) {
-                return redirect()->route('dashboard')->with('error', 'Silakan lengkapi profil dan selesaikan skrining terlebih dahulu untuk dapat memesan layanan.');
+                $stats = $user->getProfileCompletionStats();
+                $missingLabels = [];
+                foreach ($stats['fields'] as $field) {
+                    if (!$field['filled']) {
+                        $missingLabels[] = $field['label'];
+                    }
+                }
+
+                $message = 'Mohon lengkapi profil Anda (' . implode(', ', $missingLabels) . ') sebelum melakukan pemesanan.';
+
+                return redirect()->route('dashboard')->with('error', $message);
             }
         }
 

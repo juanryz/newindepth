@@ -21,21 +21,26 @@ class ResendHttpTransport extends AbstractTransport
 
     protected function doSend(SentMessage $message): void
     {
-        $email = MessageConverter::toEmail($message->getOriginalMessage());
+        try {
+            $email = MessageConverter::toEmail($message->getOriginalMessage());
 
-        $payload = [
-            'from' => $this->from,
-            'to' => collect($email->getTo())->map(fn($recipient) => $recipient->getAddress())->all(),
-            'subject' => $email->getSubject(),
-            'html' => $email->getHtmlBody(),
-            'text' => $email->getTextBody(),
-        ];
+            $payload = [
+                'from' => $this->from,
+                'to' => collect($email->getTo())->map(fn($recipient) => $recipient->getAddress())->all(),
+                'subject' => $email->getSubject(),
+                'html' => $email->getHtmlBody(),
+                'text' => $email->getTextBody(),
+            ];
 
-        $response = Http::withToken($this->key)
-            ->post('https://api.resend.com/emails', $payload);
+            $response = Http::withToken($this->key)
+                ->timeout(10)
+                ->post('https://api.resend.com/emails', $payload);
 
-        if (!$response->successful()) {
-            throw new \Exception('Resend API Error: ' . $response->body());
+            if (!$response->successful()) {
+                \Illuminate\Support\Facades\Log::error('Resend API Error: ' . $response->body());
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Resend Transport Exception: ' . $e->getMessage());
         }
     }
 

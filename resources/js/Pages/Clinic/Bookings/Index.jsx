@@ -70,7 +70,7 @@ export default function BookingIndex({ bookings }) {
                                                                 {booking.schedule ? new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                                                             </div>
                                                             <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-                                                                {booking.schedule ? `${booking.schedule.start_time.substring(0, 5)} - ${booking.schedule.end_time.substring(0, 5)} WIB` : '-'}
+                                                                {booking.schedule ? `${booking.schedule.start_time?.substring(0, 5) || '--:--'} - ${booking.schedule.end_time?.substring(0, 5) || '--:--'} WIB` : '-'}
                                                             </div>
                                                         </td>
                                                         <td className="py-4 px-4 align-top font-semibold text-gray-700 dark:text-gray-300">

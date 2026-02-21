@@ -5,6 +5,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// AI Chat Routes
+Route::post('/api/ai-chat', [App\Http\Controllers\AiChatController::class , 'chat'])->name('ai-chat');
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
     'canLogin' => Route::has('login'),
@@ -190,6 +193,7 @@ Route::get('/setup-sync-slots', function () {
 
             $updated = 0;
             foreach ($schedules as $schedule) {
+                /** @var \App\Models\Schedule $schedule */
                 $schedule->update([
                     'booked_count' => $schedule->bookings_count,
                     'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
@@ -319,6 +323,8 @@ Route::get('/setup-db-fix', function () {
         'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
         'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
         'screening_answers' => "ALTER TABLE users ADD COLUMN screening_answers JSON NULL",
+        'age' => "ALTER TABLE users ADD COLUMN age INT NULL",
+        'gender' => "ALTER TABLE users ADD COLUMN gender VARCHAR(20) NULL",
     ];
 
     foreach ($columns as $col => $sql) {
@@ -418,9 +424,9 @@ Route::get('/setup-db-fix', function () {
     }
     else {
         $schedCols = [
-            'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL AFTER id",
-            'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation' AFTER status",
-            'booked_count' => "ALTER TABLE schedules ADD COLUMN booked_count INT NOT NULL DEFAULT 0 AFTER quota",
+            'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
+            'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation'",
+            'booked_count' => "ALTER TABLE schedules ADD COLUMN booked_count INT NOT NULL DEFAULT 0",
             'type' => "ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NULL",
         ];
         foreach ($schedCols as $col => $sql) {
@@ -469,6 +475,8 @@ Route::get('/setup-db-fix', function () {
             'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
             'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
             'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
+            'therapist_notes' => "ALTER TABLE bookings ADD COLUMN therapist_notes TEXT NULL",
+            'patient_visible_notes' => "ALTER TABLE bookings ADD COLUMN patient_visible_notes TEXT NULL",
         ];
         foreach ($bookCols as $col => $sql) {
             if (!$schema::hasColumn('bookings', $col)) {

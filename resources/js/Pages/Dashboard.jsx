@@ -166,6 +166,66 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
 }
 
 
+function LastSessionCard({ booking }) {
+    if (!booking) return null;
+
+    const { schedule, therapist, recording_link, patient_visible_notes } = booking;
+
+    return (
+        <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm overflow-hidden mb-8">
+            <div className="bg-emerald-500/10 px-6 py-3 border-b border-emerald-100 dark:border-emerald-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <h3 className="text-sm font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Sesi Terakhir Anda</h3>
+                </div>
+                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                    {new Date(schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                </span>
+            </div>
+            <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Catatan & Homework</p>
+                        <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100/50 dark:border-emerald-800/30">
+                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed italic">
+                                "{patient_visible_notes || 'Terapis Anda tidak meninggalkan catatan khusus untuk sesi ini. Tetap semangat melakukan yang terbaik!'}"
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col justify-between">
+                        <div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rekaman Sesi</p>
+                            {recording_link ? (
+                                <a
+                                    href={recording_link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="group flex items-center gap-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30 hover:bg-indigo-100 transition-all"
+                                >
+                                    <div className="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-indigo-900 dark:text-indigo-300">Tonton Ulang Sesi</p>
+                                        <p className="text-[10px] text-indigo-600 truncate">Klik untuk membuka link YouTube</p>
+                                    </div>
+                                </a>
+                            ) : (
+                                <div className="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700/50 text-center">
+                                    <p className="text-xs text-gray-500 italic">Rekaman tidak tersedia untuk sesi ini.</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+                            <span className="font-bold">Terapis:</span> {therapist?.name}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function ActiveBookingCard({ booking }) {
     if (!booking) return null;
 
@@ -204,7 +264,7 @@ function ActiveBookingCard({ booking }) {
 
                     <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                         <p><strong className="text-gray-900 dark:text-gray-200">Kode Booking:</strong> #{booking_code}</p>
-                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)} WIB)</p>
+                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} - {schedule.end_time?.substring(0, 5) || '--:--'} WIB)</p>
                         <p><strong className="text-gray-900 dark:text-gray-200">Terapis:</strong> {therapist?.name || <span className="italic text-gray-500">Akan diinfokan...</span>}</p>
                     </div>
                 </div>
@@ -232,7 +292,7 @@ function ActiveBookingCard({ booking }) {
 }
 
 export default function Dashboard() {
-    const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking } = usePage().props;
+    const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking } = usePage().props;
     const user = auth.user;
     const roles = user.roles?.map(r => r.name) ?? [];
 
@@ -387,6 +447,7 @@ export default function Dashboard() {
                     {isPatient && (
                         <>
                             {activeBooking && <ActiveBookingCard booking={activeBooking} />}
+                            {latestCompletedBooking && <LastSessionCard booking={latestCompletedBooking} />}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Menu cards */}
                                 <section className="lg:col-span-2">

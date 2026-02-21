@@ -9,6 +9,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
     const isPendingScreening = booking.status === 'pending_screening';
     const isPendingValidation = booking.status === 'pending_validation';
     const isConfirmed = booking.status === 'confirmed';
+    const isCompleted = booking.status === 'completed';
     const isCancelled = booking.status === 'cancelled';
     const canCancel = isPendingPayment || isPendingValidation;
     const hasAppliedVoucher = !!booking.user_voucher_id;
@@ -45,6 +46,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                     {/* Status Banner */}
                     <div className={`p-4 rounded-lg shadow-sm border-l-4 
                         ${isConfirmed ? 'bg-green-50 border-green-500 text-green-800' : ''}
+                        ${isCompleted ? 'bg-purple-50 border-purple-500 text-purple-800 font-bold shadow-md' : ''}
                         ${isPendingPayment ? 'bg-yellow-50 border-yellow-500 text-yellow-800' : ''}
                         ${isPendingValidation ? 'bg-blue-50 border-blue-500 text-blue-800' : ''}
                         ${isPendingScreening ? 'bg-gray-50 border-gray-500 text-gray-800' : ''}
@@ -54,6 +56,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                             <div>
                                 <h3 className="font-bold text-lg">
                                     {isConfirmed && 'Pendaftaran Dikonfirmasi!'}
+                                    {isCompleted && 'Sesi Telah Selesai'}
                                     {isPendingPayment && 'Menunggu Pembayaran'}
                                     {isPendingValidation && 'Menunggu Validasi Admin'}
                                     {isPendingScreening && 'Menunggu Evaluasi Skrining'}
@@ -61,6 +64,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 </h3>
                                 <p className="text-sm mt-1">
                                     {isConfirmed && 'Sesi Anda dengan terapis sudah dijadwalkan. Silakan datang tepat waktu.'}
+                                    {isCompleted && 'Rekaman dan catatan sesi Anda kini tersedia di bawah ini.'}
                                     {isPendingPayment && 'Terapis telah menyetujui skrining Anda. Silakan lanjutkan ke pembayaran.'}
                                     {isPendingValidation && 'Bukti pembayaran Anda sedang diverifikasi oleh tim kami.'}
                                     {isPendingScreening && 'Admin/Terapis sedang meninjau form skrining Anda.'}
@@ -68,6 +72,37 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                             </div>
                         </div>
                     </div>
+
+                    {isCompleted && (
+                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border-2 border-purple-100">
+                            <div className="p-6 text-gray-900">
+                                <h3 className="text-lg font-bold border-b pb-4 mb-4 flex items-center gap-2 text-purple-800">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                    Dokumentasi Sesi
+                                </h3>
+                                <div className="space-y-6">
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Link Rekaman Sesi</p>
+                                        <a
+                                            href={booking.recording_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-purple-200"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                            Tonton Rekaman Sesi
+                                        </a>
+                                    </div>
+                                    <div className="bg-purple-50 p-5 rounded-2xl border border-purple-100">
+                                        <p className="text-sm font-semibold text-purple-800 mb-2 uppercase tracking-wider">Pesan / Summary dari Terapis</p>
+                                        <div className="text-gray-700 whitespace-pre-wrap leading-relaxed font-medium">
+                                            {booking.patient_visible_notes || 'Terapis tidak menyertakan catatan tambahan.'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">

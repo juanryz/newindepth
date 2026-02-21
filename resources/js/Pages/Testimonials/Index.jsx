@@ -120,7 +120,7 @@ export default function Index({ auth }) {
 
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-500 to-yellow-400 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                                        {item.name.charAt(0)}
+                                        {item.name?.charAt(0) || '?'}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-gray-900 dark:text-white">{item.name}</h4>

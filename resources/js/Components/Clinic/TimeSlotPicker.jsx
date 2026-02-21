@@ -127,7 +127,7 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                     `}
                                     >
                                         <span className="font-bold text-sm text-center">
-                                            {slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                                            {slot.start_time?.substring(0, 5) || '--:--'} - {slot.end_time?.substring(0, 5) || '--:--'}
                                         </span>
                                         <span className="text-xs mt-1">
                                             {isFull ? 'Penuh' : isPast ? 'Lewat' : `${slot.quota - count} slot sisa`}
