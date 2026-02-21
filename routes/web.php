@@ -243,6 +243,15 @@ Route::get('/setup-dummy', function () {
     }
 });
 
+Route::get('/setup-log', function () {
+    $logFile = storage_path('logs/laravel.log');
+    if (!file_exists($logFile))
+        return 'No log file found.';
+    $lines = file($logFile);
+    $lastLines = array_slice($lines, -50);
+    return '<pre>' . htmlspecialchars(implode('', $lastLines)) . '</pre>';
+});
+
 Route::get('/setup-super-admin', function () {
     try {
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
