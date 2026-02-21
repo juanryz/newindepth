@@ -54,6 +54,9 @@ class UserController extends Controller
             'phone' => $request->phone,
         ]);
 
+        // Auto-verify email for admin-created users
+        $user->markEmailAsVerified();
+
         if ($request->filled('roles')) {
             $user->syncRoles($request->roles);
         }

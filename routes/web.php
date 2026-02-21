@@ -543,24 +543,6 @@ Route::get('/setup-clear-cache', function () {
     }
 });
 
-Route::get('/setup-check-config', function () {
-    return [
-        'MAIL_MAILER' => config('mail.default'),
-        'mailers' => array_keys(config('mail.mailers')),
-        'resend_config' => config('mail.mailers.resend-http'),
-    ];
-});
-
-Route::get('/setup-test-email', function () {
-    try {
-        $to = request('to', Auth::user()?->email ?? 'test@example.com');
-        \Illuminate\Support\Facades\Mail::to($to)->send(new \App\Mail\TestResendMail());
-        return "✅ Test email sent to $to! Check your inbox and Resend dashboard.";
-    } catch (\Throwable $e) {
-        return "❌ Error sending test email: " . $e->getMessage();
-    }
-});
-
 Route::get('/login-therapist', function () {
     $therapist = \App\Models\User::role('therapist')->first();
     if ($therapist) {
