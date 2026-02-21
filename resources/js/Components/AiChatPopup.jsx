@@ -36,26 +36,29 @@ export default function AiChatPopup({ isOpen, onClose }) {
         if (!messageText || !messageText.trim() || isThinking) return;
 
         const userMsg = { role: 'user', content: messageText.trim() };
-        setMessages(prev => [...prev, userMsg]);
+        setMessages(prev => [...(prev || []), userMsg]);
         setInput('');
         setIsThinking(true);
 
         try {
-            // Use route helper only if available, otherwise fallback to direct path
-            const apiUrl = typeof window.route === 'function' ? window.route('ai-chat') : '/api/ai-chat';
+            const apiUrl = (window.route && typeof window.route === 'function')
+                ? window.route('ai-chat')
+                : '/api/ai-chat';
 
             const response = await axios.post(apiUrl, {
-                history: [...messages, userMsg].map(m => ({ role: m.role, content: m.content }))
+                history: (messages || []).map(m => ({ role: m.role, content: m.content }))
             });
 
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: response.data.reply,
-                redirect_whatsapp: response.data.redirect_whatsapp
-            }]);
+            if (response.data && response.data.reply) {
+                setMessages(prev => [...(prev || []), {
+                    role: 'assistant',
+                    content: response.data.reply,
+                    redirect_whatsapp: !!response.data.redirect_whatsapp
+                }]);
+            }
         } catch (error) {
             console.error("AI Chat Error:", error);
-            setMessages(prev => [...prev, {
+            setMessages(prev => [...(prev || []), {
                 role: 'assistant',
                 content: 'Mohon maaf, terjadi gangguan koneksi. Silakan hubungi kami di WhatsApp.',
                 redirect_whatsapp: true
@@ -66,7 +69,7 @@ export default function AiChatPopup({ isOpen, onClose }) {
     };
 
     const handleFormSubmit = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         handleSend();
     };
 
@@ -141,7 +144,7 @@ export default function AiChatPopup({ isOpen, onClose }) {
                         ref={scrollRef}
                         className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50/50 dark:bg-gray-950/30"
                     >
-                        {messages && messages.map((msg, i) => (
+                        {(messages || []).map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`
                                     max-w-[85%] p-4 rounded-3xl text-sm leading-relaxed
@@ -160,7 +163,6 @@ export default function AiChatPopup({ isOpen, onClose }) {
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold transition-all shadow-lg active:scale-95"
                                             >
-                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.025 3.012l-.02.041L6.41 18.275l3.414-.895.14.073c.613.321 1.341.488 2.067.489 3.18 0 5.766-2.586 5.767-5.766.001-3.18-2.585-5.766-5.767-5.766zm3.375 8.203c-.147.412-.733.845-1.022.933-.29.088-.569.132-1.22-.126-.731-.29-1.896-.734-2.603-1.442-.622-.621-1.042-1.341-1.233-1.666-.191-.325-.015-.503.146-.664.148-.148.326-.379.488-.569.163-.19.214-.325.326-.541.111-.217.056-.406-.028-.569-.084-.162-.733-1.748-.999-2.399-.26-.635-.526-.548-.733-.559-.204-.01-.43-.012-.66-.012-.224 0-.589.083-.895.421-.304.338-1.164 1.139-1.164 2.774 0 1.635 1.189 3.214 1.353 3.441.165.226 2.339 3.573 5.666 5.013.792.341 1.411.545 1.894.70.795.253 1.517.217 2.09.131.637-.095 1.964-.803 2.24-1.579.278-.775.278-1.441.196-1.577-.083-.136-.304-.217-.638-.38z" /></svg>
                                                 Chat WhatsApp
                                             </a>
                                         </div>
