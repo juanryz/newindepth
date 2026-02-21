@@ -273,7 +273,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
                                 <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
                                     <div className="absolute inset-0">
-                                        <img src="/images/saiful-anam.png" alt="Saiful Anam" className="w-full h-full object-cover" />
+                                        <img src="/images/saiful-anam.png" alt="Saiful Anam" className="w-full h-full object-cover object-top" />
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
                                         <h3 className="text-2xl font-bold text-white mb-1">Saiful Anam</h3>
