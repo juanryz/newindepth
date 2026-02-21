@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'store'])->name('screening.store');
     Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class, 'chatMessage'])->name('screening.chat');
 
+    // Agreement
+    Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'show'])->name('agreement.show');
+    Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'store'])->name('agreement.store');
+
 
     // Patient Routes
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(
@@ -76,6 +80,10 @@ Route::middleware('auth')->group(function () {
             // Admin E-Learning CMS
             Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
             Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
+
+            // Admin Bookings
+            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'index'])->name('bookings.index');
+            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
 
             // Admin Schedule Management
             Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');

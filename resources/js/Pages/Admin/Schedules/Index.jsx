@@ -9,12 +9,18 @@ import idLocale from '@fullcalendar/core/locales/id';
 
 export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        therapist_id: '',
         schedule_type: 'consultation',
         date: '',
-        start_time: '',
-        end_time: '',
+        session: '',
     });
+
+    const SESSIONS = [
+        { id: '1', name: 'Sesi 1 (08:00 - 10:00)', start: '08:00', end: '10:00' },
+        { id: '2', name: 'Sesi 2 (10:00 - 12:00)', start: '10:00', end: '12:00' },
+        { id: '3', name: 'Sesi 3 (13:00 - 15:00)', start: '13:00', end: '15:00' },
+        { id: '4', name: 'Sesi 4 (17:00 - 19:00)', start: '17:00', end: '19:00' },
+        { id: '5', name: 'Sesi 5 (19:00 - 21:00)', start: '19:00', end: '21:00' },
+    ];
 
     const [isAdding, setIsAdding] = useState(false);
     const calendarRef = useRef(null);
@@ -29,7 +35,17 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
 
     const submit = (e) => {
         e.preventDefault();
+
+        const selectedSession = SESSIONS.find(s => s.id === data.session);
+        if (!selectedSession) return;
+
         post(route('admin.schedules.store'), {
+            data: {
+                schedule_type: data.schedule_type,
+                date: data.date,
+                start_time: selectedSession.start,
+                end_time: selectedSession.end,
+            },
             onSuccess: () => {
                 reset();
                 setIsAdding(false);
@@ -128,22 +144,7 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                         <div className="bg-indigo-50 p-6 shadow-sm sm:rounded-lg border border-indigo-100 print:hidden">
                             <h3 className="text-lg font-bold text-indigo-900 mb-4">Tambah Slot Jadwal Baru</h3>
                             <form onSubmit={submit} className="flex flex-col sm:flex-row gap-4 items-end flex-wrap">
-                                <div className="w-full sm:w-64">
-                                    <label className="block text-sm font-medium text-gray-700">Terapis</label>
-                                    <select
-                                        name="therapist_id"
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        value={data.therapist_id}
-                                        onChange={e => setData('therapist_id', e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Pilih Terapis...</option>
-                                        {therapists.map(t => (
-                                            <option key={t.id} value={t.id}>{t.name}</option>
-                                        ))}
-                                    </select>
-                                    {errors.therapist_id && <div className="text-red-500 text-xs mt-1">{errors.therapist_id}</div>}
-                                </div>
+
                                 <div className="w-full sm:w-48">
                                     <label className="block text-sm font-medium text-gray-700">Jenis Jadwal</label>
                                     <select
@@ -170,27 +171,21 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                     />
                                     {errors.date && <div className="text-red-500 text-xs mt-1">{errors.date}</div>}
                                 </div>
-                                <div className="w-full sm:w-32">
-                                    <label className="block text-sm font-medium text-gray-700">Mulai (HH:mm)</label>
-                                    <input
-                                        type="time"
+                                <div className="w-full sm:w-64">
+                                    <label className="block text-sm font-medium text-gray-700">Sesi Waktu</label>
+                                    <select
+                                        name="session"
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        value={data.start_time}
-                                        onChange={e => setData('start_time', e.target.value)}
+                                        value={data.session}
+                                        onChange={e => setData('session', e.target.value)}
                                         required
-                                    />
+                                    >
+                                        <option value="">Pilih Sesi...</option>
+                                        {SESSIONS.map(s => (
+                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                        ))}
+                                    </select>
                                     {errors.start_time && <div className="text-red-500 text-xs mt-1">{errors.start_time}</div>}
-                                </div>
-                                <div className="w-full sm:w-32">
-                                    <label className="block text-sm font-medium text-gray-700">Selesai (HH:mm)</label>
-                                    <input
-                                        type="time"
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        value={data.end_time}
-                                        onChange={e => setData('end_time', e.target.value)}
-                                        required
-                                    />
-                                    {errors.end_time && <div className="text-red-500 text-xs mt-1">{errors.end_time}</div>}
                                 </div>
                                 <div className="w-full sm:w-auto">
                                     <button

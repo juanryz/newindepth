@@ -5,11 +5,12 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TimeSlotPicker from '@/Components/Clinic/TimeSlotPicker';
 import ScreeningFormRenderer from '@/Components/Clinic/ScreeningFormRenderer';
 
-export default function BookingCreate({ schedules, packageInfo }) {
+export default function BookingCreate({ schedules, packageOptions, screeningResult }) {
     const { flash, errors: pageErrors } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
         schedule_id: '',
+        package_type: packageOptions.recommended,
     });
 
     const submit = (e) => {
@@ -24,24 +25,102 @@ export default function BookingCreate({ schedules, packageInfo }) {
             <Head title="Booking Hipnoterapi" />
 
             <div className="py-12">
-                <div className="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div className="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                    {/* Package Info */}
-                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-6">
-                        <div className="flex items-start">
-                            <div className="flex-shrink-0 mt-1">
-                                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {/* Screening Results Section */}
+                    {screeningResult && (
+                        <div className="bg-white shadow sm:rounded-lg overflow-hidden border border-gold-100">
+                            <div className="p-6 bg-gradient-to-r from-gold-50 to-white">
+                                <h3 className="text-lg font-medium text-gold-800 mb-4 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Hasil Analisis Skrining Anda
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold-100 text-gold-800 border border-gold-200">
+                                        Tingkat Keparahan: {screeningResult.severity_label}
+                                    </div>
+                                    <p className="text-gray-700 leading-relaxed italic border-l-4 border-gold-400 pl-4 py-1">
+                                        "{screeningResult.ai_summary}"
+                                    </p>
+                                </div>
                             </div>
-                            <div className="ml-4">
-                                <h3 className="text-lg font-bold text-indigo-900">Rekomendasi Program Terkunci: {packageInfo?.name}</h3>
-                                <p className="mt-1 text-sm text-indigo-700">{packageInfo?.description}</p>
-                                <p className="mt-2 font-semibold text-indigo-900">
-                                    Total Biaya: Rp {new Intl.NumberFormat('id-ID').format(packageInfo?.price)}
+                        </div>
+                    )}
+
+                    {/* Package Selection */}
+                    <div className="bg-white shadow sm:rounded-lg overflow-hidden">
+                        <div className="p-6 border-b border-gray-100">
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Pilih Program Terapi</h3>
+                            {packageOptions.is_vip_only ? (
+                                <p className="text-sm text-amber-600 font-medium">
+                                    ⚠️ Berdasarkan hasil skrining, kondisi Anda memerlukan penanganan intensif dan prioritas penjadwalan. Anda hanya dapat memilih Paket VIP.
                                 </p>
-                                <p className="mt-1 text-xs text-indigo-600 italic">
-                                    *Berdasarkan hasil skrining, ini adalah paket yang paling sesuai dan aman untuk kondisi Anda. Paket ini tidak dapat diubah.
+                            ) : (
+                                <p className="text-sm text-gray-500">
+                                    Silakan pilih paket terapi yang sesuai dengan kebutuhan Anda. Kami merekomendasikan Paket Reguler berdasarkan hasil skrining Anda.
                                 </p>
+                            )}
+                        </div>
+                        <div className="p-6 bg-gray-50 leading-relaxed">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {Object.values(packageOptions.packages).map((pkg) => {
+                                    const isRecommended = packageOptions.recommended === pkg.id;
+                                    const isDisabled = packageOptions.is_vip_only && pkg.id !== 'vip';
+                                    const isSelected = data.package_type === pkg.id;
+
+                                    return (
+                                        <div
+                                            key={pkg.id}
+                                            className={`relative rounded-2xl border-2 p-6 transition-all duration-300 cursor-pointer flex flex-col ${isSelected
+                                                ? 'border-gold-500 bg-gold-50/30 shadow-lg transform -translate-y-1'
+                                                : isDisabled
+                                                    ? 'border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed'
+                                                    : 'border-gray-200 bg-white hover:border-gold-300 hover:shadow-md hover:-translate-y-0.5'
+                                                }`}
+                                            onClick={() => !isDisabled && setData('package_type', pkg.id)}
+                                        >
+                                            {/* Wajib Dipilih Badge */}
+                                            {packageOptions.is_vip_only && pkg.id === 'vip' && (
+                                                <div className="absolute -top-3 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-pulse">
+                                                    Wajib Dipilih
+                                                </div>
+                                            )}
+
+                                            {/* Rekomendasi Awal Badge */}
+                                            {!packageOptions.is_vip_only && isRecommended && (
+                                                <div className="absolute -top-3 right-4 bg-gradient-to-r from-gold-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                                                    Rekomendasi Utama
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h4 className={`font-bold text-lg leading-tight ${isSelected ? 'text-gray-900' : 'text-gray-800'}`}>
+                                                    {pkg.name}
+                                                </h4>
+                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-gold-500 bg-white' : 'border-gray-300'}`}>
+                                                    {isSelected && <div className="w-3 h-3 rounded-full bg-gold-500" />}
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-5">
+                                                {pkg.original_price && (
+                                                    <div className="text-sm text-gray-400 line-through decoration-red-500/50 decoration-2 mb-1">
+                                                        Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
+                                                    </div>
+                                                )}
+                                                <p className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 select-none">
+                                                    Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}
+                                                </p>
+                                            </div>
+
+                                            <p className="text-sm text-gray-600 flex-grow font-medium">
+                                                {pkg.description}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
                             </div>
+                            {errors.package_type && <p className="text-sm font-medium text-red-600 mt-4 px-2">{errors.package_type}</p>}
                         </div>
                     </div>
 
@@ -63,7 +142,13 @@ export default function BookingCreate({ schedules, packageInfo }) {
 
                             {errors.schedule_id && <p className="text-sm text-red-600 mt-2">{errors.schedule_id}</p>}
 
-                            <div className="mt-8 flex justify-end">
+                            <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
+                                <p className="text-sm text-red-800 dark:text-red-400 font-medium">
+                                    <span className="font-bold uppercase">Perhatian:</span> Maksimal keterlambatan adalah 1 jam. Bila terjadi, maka klien/pasien dianggap tidak hadir. Hipnoterapis dianggap sudah menjalankan tugas, sesi terapi selesai, dan uang klien/pasien hangus.
+                                </p>
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
                                 <PrimaryButton type="submit" disabled={!data.schedule_id || processing}>
                                     Konfirmasi Booking & Lanjut Pembayaran
                                 </PrimaryButton>

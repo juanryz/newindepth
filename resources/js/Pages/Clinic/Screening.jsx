@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 
 // ── Crisis Keywords (client-side) ─────────────────────────────────────────────
@@ -105,13 +105,26 @@ const USAHA_OPTIONS = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Screening() {
+    const { prefill = {} } = usePage().props;
+
     const [step, setStep] = useState(1);
-    const [stepData, setStepData] = useState({});
+    const [stepData, setStepData] = useState({
+        nama: prefill.nama || '',
+        email: prefill.email || '',
+        wa: prefill.wa || '',
+    });
     const [chatHistory, setChatHistory] = useState([]);
     const [aiTyping, setAiTyping] = useState(false);
     const [aiMessages, setAiMessages] = useState({});   // { step: [{ role, content }] }
     const [isHighRisk, setIsHighRisk] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+
+    // Track which fields were auto-filled
+    const autofilled = {
+        nama: !!prefill.nama,
+        email: !!prefill.email,
+        wa: !!prefill.wa,
+    };
 
     const chatEndRef = useRef(null);
 
@@ -210,7 +223,7 @@ export default function Screening() {
                 return stepData.nama && stepData.gender && stepData.usia && stepData.wa && stepData.email
                     && (!(parseInt(stepData.usia) < 17) || stepData.izin_wali);
             case 2:
-                return Array.isArray(stepData.masalah_utama) && stepData.masalah_utama.length > 0;
+                return !!stepData.masalah_utama;
             case 3:
                 return stepData.skala != null;
             case 4:
@@ -222,7 +235,7 @@ export default function Screening() {
             case 7:
                 return !!stepData.status_perawatan;
             case 8:
-                return Array.isArray(stepData.usaha) && stepData.usaha.length > 0;
+                return !!stepData.usaha;
             case 9:
                 return !!stepData.detail_masalah;
             case 10:
@@ -233,7 +246,7 @@ export default function Screening() {
     };
 
     const needsObesitasStep = () =>
-        Array.isArray(stepData.masalah_utama) && stepData.masalah_utama.includes('Obesitas');
+        stepData.masalah_utama === 'Obesitas';
 
     const getNextStep = (current) => {
         if (current === 4 && !needsObesitasStep()) return 6;
@@ -274,14 +287,14 @@ export default function Screening() {
 
                 {/* Step-specific input */}
                 <div className="mt-4">
-                    {step === 1 && <Step1 data={stepData} update={update} />}
-                    {step === 2 && <Step2 data={stepData} toggle={toggleMulti} />}
+                    {step === 1 && <Step1 data={stepData} update={update} autofilled={autofilled} />}
+                    {step === 2 && <Step2 data={stepData} update={update} />}
                     {step === 3 && <Step3 data={stepData} update={update} />}
                     {step === 4 && <Step4 data={stepData} update={update} />}
                     {step === 5 && <Step5 data={stepData} update={update} />}
                     {step === 6 && <Step6 data={stepData} update={update} />}
                     {step === 7 && <Step7 data={stepData} update={update} />}
-                    {step === 8 && <Step8 data={stepData} toggle={toggleMulti} />}
+                    {step === 8 && <Step8 data={stepData} update={update} />}
                     {step === 9 && <Step9 data={stepData} update={update} onSendAi={(t) => sendAiMessage(t, 'detail_masalah')} />}
                     {step === 10 && <Step10 data={stepData} update={update} onSendAi={(t) => sendAiMessage(t, 'outcome')} />}
                 </div>
@@ -364,6 +377,33 @@ function InputField({ label, type = 'text', value, onChange, required }) {
     );
 }
 
+function AutofillInputField({ label, type = 'text', value, onChange, required, autoFilled = false }) {
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}{required && ' *'}</label>
+                {autoFilled && (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        otomatis
+                    </span>
+                )}
+            </div>
+            <input
+                type={type}
+                value={value || ''}
+                onChange={e => onChange(e.target.value)}
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${autoFilled
+                    ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
+                    : 'border-gray-200 dark:border-gray-600'
+                    }`}
+            />
+        </div>
+    );
+}
+
 function RadioGroup({ options, value, onChange }) {
     return (
         <div className="space-y-2">
@@ -371,8 +411,8 @@ function RadioGroup({ options, value, onChange }) {
                 <label
                     key={opt}
                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all text-sm ${value === opt
-                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
-                            : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
                         }`}
                 >
                     <input type="radio" checked={value === opt} onChange={() => onChange(opt)} className="text-indigo-600 accent-indigo-600" />
@@ -391,8 +431,8 @@ function CheckboxGroup({ options, values, toggle }) {
                 <label
                     key={opt}
                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all text-sm ${arr.includes(opt)
-                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
-                            : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
                         }`}
                 >
                     <input type="checkbox" checked={arr.includes(opt)} onChange={() => toggle(opt)} className="accent-indigo-600 rounded" />
@@ -404,11 +444,27 @@ function CheckboxGroup({ options, values, toggle }) {
 }
 
 // STEP 1 — Identitas
-function Step1({ data, update }) {
+function Step1({ data, update, autofilled = {} }) {
     const under17 = data.usia && parseInt(data.usia) < 17;
     return (
         <div className="space-y-4">
-            <InputField label="Nama Lengkap" value={data.nama} onChange={v => update('nama', v)} required />
+            {/* Auto-fill notice */}
+            {(autofilled.nama || autofilled.email || autofilled.wa) && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/50 text-xs text-green-700 dark:text-green-400">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Beberapa data telah diisi otomatis dari akun Anda. Silakan periksa dan ubah jika diperlukan.
+                </div>
+            )}
+
+            <AutofillInputField
+                label="Nama Lengkap"
+                value={data.nama}
+                onChange={v => update('nama', v)}
+                autoFilled={autofilled.nama}
+                required
+            />
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Kelamin *</label>
                 <div className="flex gap-3">
@@ -417,8 +473,8 @@ function Step1({ data, update }) {
                             key={g} type="button"
                             onClick={() => update('gender', g)}
                             className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-all ${data.gender === g
-                                    ? 'border-indigo-500 bg-indigo-500 text-white'
-                                    : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-300'
+                                ? 'border-indigo-500 bg-indigo-500 text-white'
+                                : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-300'
                                 }`}
                         >{g}</button>
                     ))}
@@ -431,15 +487,29 @@ function Step1({ data, update }) {
                     Saya mendapat izin dari orang tua / wali untuk mengikuti skrining ini *
                 </label>
             )}
-            <InputField label="Nomor WhatsApp" type="tel" value={data.wa} onChange={v => update('wa', v)} required />
-            <InputField label="Email" type="email" value={data.email} onChange={v => update('email', v)} required />
+            <AutofillInputField
+                label="Nomor WhatsApp"
+                type="tel"
+                value={data.wa}
+                onChange={v => update('wa', v)}
+                autoFilled={autofilled.wa}
+                required
+            />
+            <AutofillInputField
+                label="Email"
+                type="email"
+                value={data.email}
+                onChange={v => update('email', v)}
+                autoFilled={autofilled.email}
+                required
+            />
         </div>
     );
 }
 
 // STEP 2 — Masalah Utama
-function Step2({ data, toggle }) {
-    return <CheckboxGroup options={MASALAH_OPTIONS} values={data.masalah_utama} toggle={(opt) => toggle('masalah_utama', opt)} />;
+function Step2({ data, update }) {
+    return <RadioGroup options={MASALAH_OPTIONS} value={data.masalah_utama} onChange={(opt) => update('masalah_utama', opt)} />;
 }
 
 // STEP 3 — Skala Gangguan
@@ -531,36 +601,82 @@ function Step7({ data, update }) {
 }
 
 // STEP 8 — Upaya Sebelumnya
-function Step8({ data, toggle }) {
-    return <CheckboxGroup options={USAHA_OPTIONS} values={data.usaha} toggle={(opt) => toggle('usaha', opt)} />;
+function Step8({ data, update }) {
+    return <RadioGroup options={USAHA_OPTIONS} value={data.usaha} onChange={(opt) => update('usaha', opt)} />;
 }
 
 // STEP 9 — Detail Masalah (+ AI Chat)
 function Step9({ data, update, onSendAi }) {
-    const [sent, setSent] = useState(false);
-    const handleSend = () => {
-        if (data.detail_masalah && !sent) {
-            onSendAi(data.detail_masalah);
-            setSent(true);
-        }
+    const [chatStarted, setChatStarted] = useState(false);
+    const [followUp, setFollowUp] = useState('');
+
+    const handleStart = () => {
+        if (!data.detail_masalah?.trim()) return;
+        onSendAi(data.detail_masalah);
+        setChatStarted(true);
     };
+
+    const handleSend = () => {
+        if (!followUp.trim()) return;
+        onSendAi(followUp);
+        setFollowUp('');
+    };
+
     return (
         <div className="space-y-3">
             <textarea
                 rows={5}
                 value={data.detail_masalah || ''}
-                onChange={e => { update('detail_masalah', e.target.value); setSent(false); }}
+                onChange={e => update('detail_masalah', e.target.value)}
                 placeholder="Ceritakan apa yang Anda rasakan, kapan bermula, dan bagaimana kondisi ini memengaruhi hidup Anda..."
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
             />
-            {data.detail_masalah && !sent && (
-                <button
-                    type="button"
-                    onClick={handleSend}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-                >
-                    Kirim ke AI untuk mendapat respons empatik →
-                </button>
+
+            {/* Invitation card — shown before chat starts */}
+            {!chatStarted && data.detail_masalah?.trim() && (
+                <div className="flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700/50">
+                    <div className="flex items-center gap-3">
+                        <span className="text-2xl leading-none">💬</span>
+                        <div>
+                            <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">Yuk ngobrol dengan Agent kami</p>
+                            <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">untuk memahami dirimu lebih lanjut</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleStart}
+                        className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Mulai Ngobrol
+                    </button>
+                </div>
+            )}
+
+            {/* Follow-up chat input — shown after chat started */}
+            {chatStarted && (
+                <div className="flex gap-2 items-end pt-1">
+                    <input
+                        type="text"
+                        value={followUp}
+                        onChange={e => setFollowUp(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                        placeholder="Ketik pesan lanjutan..."
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={!followUp.trim()}
+                        className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl transition-colors shadow"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
             )}
         </div>
     );
@@ -568,30 +684,76 @@ function Step9({ data, update, onSendAi }) {
 
 // STEP 10 — Outcome (+ AI Chat)
 function Step10({ data, update, onSendAi }) {
-    const [sent, setSent] = useState(false);
-    const handleSend = () => {
-        if (data.outcome && !sent) {
-            onSendAi(data.outcome);
-            setSent(true);
-        }
+    const [chatStarted, setChatStarted] = useState(false);
+    const [followUp, setFollowUp] = useState('');
+
+    const handleStart = () => {
+        if (!data.outcome?.trim()) return;
+        onSendAi(data.outcome);
+        setChatStarted(true);
     };
+
+    const handleSend = () => {
+        if (!followUp.trim()) return;
+        onSendAi(followUp);
+        setFollowUp('');
+    };
+
     return (
         <div className="space-y-3">
             <textarea
                 rows={4}
                 value={data.outcome || ''}
-                onChange={e => { update('outcome', e.target.value); setSent(false); }}
+                onChange={e => update('outcome', e.target.value)}
                 placeholder="Apa yang ingin Anda capai setelah program terapi? Seperti apa kondisi ideal yang Anda impikan?"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
             />
-            {data.outcome && !sent && (
-                <button
-                    type="button"
-                    onClick={handleSend}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
-                >
-                    Kirim ke AI untuk mendapat respons empatik →
-                </button>
+
+            {/* Invitation card — shown before chat starts */}
+            {!chatStarted && data.outcome?.trim() && (
+                <div className="flex items-center justify-between gap-4 px-4 py-3.5 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50">
+                    <div className="flex items-center gap-3">
+                        <span className="text-2xl leading-none">🌟</span>
+                        <div>
+                            <p className="text-sm font-semibold text-purple-800 dark:text-purple-300">Yuk ngobrol dengan Agent kami</p>
+                            <p className="text-xs text-purple-600 dark:text-purple-400 mt-0.5">untuk memahami harapanmu lebih lanjut</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleStart}
+                        className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl transition-colors shadow"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Mulai Ngobrol
+                    </button>
+                </div>
+            )}
+
+            {/* Follow-up chat input — shown after chat started */}
+            {chatStarted && (
+                <div className="flex gap-2 items-end pt-1">
+                    <input
+                        type="text"
+                        value={followUp}
+                        onChange={e => setFollowUp(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                        placeholder="Ketik pesan lanjutan..."
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={!followUp.trim()}
+                        className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white rounded-xl transition-colors shadow"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
             )}
         </div>
     );

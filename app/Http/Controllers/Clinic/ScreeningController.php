@@ -14,12 +14,18 @@ class ScreeningController extends Controller
     {
         $user = $request->user();
 
-        // Jika sudah pernah skrining, redirect ke booking
+        // Jika sudah pernah skrining, redirect ke agreement/booking
         if ($user->hasCompletedScreening()) {
-            return redirect()->route('bookings.create');
+            return redirect()->route('agreement.show');
         }
 
-        return Inertia::render('Clinic/Screening');
+        return Inertia::render('Clinic/Screening', [
+            'prefill' => [
+                'nama' => $user->name ?? '',
+                'email' => $user->email ?? '',
+                'wa' => $user->phone ?? '',
+            ],
+        ]);
     }
 
     /**
@@ -50,7 +56,7 @@ class ScreeningController extends Controller
         $user = $request->user();
 
         if ($user->hasCompletedScreening()) {
-            return redirect()->route('bookings.create')->with('info', 'Anda sudah menyelesaikan skrining.');
+            return redirect()->route('agreement.show')->with('info', 'Anda sudah menyelesaikan skrining.');
         }
 
         $request->validate([
@@ -84,11 +90,11 @@ class ScreeningController extends Controller
         $user->update([
             'screening_answers' => $stepData,
             'screening_completed_at' => now(),
-            'recommended_package' => in_array($recommendedPackage, ['reguler', 'vip']) ? $recommendedPackage : 'reguler',
+            'recommended_package' => in_array($recommendedPackage, ['hipnoterapi', 'upgrade', 'vip']) ? $recommendedPackage : 'hipnoterapi',
         ]);
 
-        return redirect()->route('bookings.create')
-            ->with('success', 'Skrining berhasil. Kami telah merekomendasikan program terbaik untuk Anda.');
+        return redirect()->route('agreement.show')
+            ->with('success', 'Skrining berhasil. Harap lengkapi persetujuan awal sebelum memilih jadwal.');
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -96,7 +102,7 @@ class ScreeningController extends Controller
     // ─────────────────────────────────────────────────────────────────────
     private function runDecisionEngine(array $stepData, array $chatHistory): array
     {
-        $masalahUtama = $stepData['masalah_utama'] ?? [];     // Step 2 array
+        $masalahUtama = $stepData['masalah_utama'] ?? '';     // Step 2 string
         $skala = (int) ($stepData['skala'] ?? 0);      // Step 3 int
         $durasi = $stepData['durasi'] ?? '';             // Step 4 string
         $obesitasKg = $stepData['obesitas_kg'] ?? null;     // Step 5 string|null
@@ -114,7 +120,7 @@ class ScreeningController extends Controller
         }
 
         // ── VIP Rules ─────────────────────────────────────────────────
-        if (in_array('Halusinasi / gangguan persepsi', $masalahUtama)) {
+        if ($masalahUtama === 'Halusinasi / gangguan persepsi') {
             $isHighRisk = true;
             $isVip = true;
         }
@@ -143,16 +149,17 @@ class ScreeningController extends Controller
         }
 
         // ── Package Decision ──────────────────────────────────────────
-        if ($isVip) {
+        // Jika High Risk atau sudah vonis VIP rules
+        if ($isVip || in_array($severityLabel, ['High Risk', 'Berat Kronis', 'Berat Akut'])) {
             $package = 'vip';
         } elseif (
-            count($masalahUtama) === 1
-            && in_array('Pengembangan diri', $masalahUtama)
+            $masalahUtama === 'Pengembangan diri'
             && $skala <= 6
         ) {
-            $package = 'reguler_pengembangan';
+            $package = 'upgrade';
         } else {
-            $package = 'reguler';
+            // Default reguler, tapi user nanti bisa pilih upgrade VIP di form
+            $package = 'hipnoterapi';
         }
 
         return [$package, $severityLabel, $isHighRisk];

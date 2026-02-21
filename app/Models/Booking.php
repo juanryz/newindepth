@@ -10,6 +10,7 @@ class Booking extends Model
         'booking_code',
         'patient_id',
         'schedule_id',
+        'therapist_id',
         'screening_form_id',
         'screening_answers',
         'status',
@@ -26,6 +27,11 @@ class Booking extends Model
     public function patient()
     {
         return $this->belongsTo(User::class, 'patient_id');
+    }
+
+    public function therapist()
+    {
+        return $this->belongsTo(User::class, 'therapist_id');
     }
 
     public function schedule()

@@ -26,7 +26,8 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {slots.map((slot) => {
                             const isSelected = selectedScheduleId === slot.id;
-                            const isFull = slot.status === 'full' || slot.booked_count >= slot.quota;
+                            const count = slot.bookings_count ?? slot.booked_count ?? 0;
+                            const isFull = slot.status === 'full' || count >= slot.quota;
 
                             return (
                                 <button
@@ -41,9 +42,11 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                         ${!isFull && !isSelected ? 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300 hover:shadow-sm' : ''}
                                     `}
                                 >
-                                    <span className="font-bold text-lg">{slot.start_time.substring(0, 5)}</span>
+                                    <span className="font-bold text-sm text-center">
+                                        {slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                                    </span>
                                     <span className="text-xs mt-1">
-                                        {isFull ? 'Penuh' : `${slot.quota - slot.booked_count} slot sisa`}
+                                        {isFull ? 'Penuh' : `${slot.quota - count} slot sisa`}
                                     </span>
                                 </button>
                             );

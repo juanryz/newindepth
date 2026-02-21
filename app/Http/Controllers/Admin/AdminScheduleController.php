@@ -58,7 +58,6 @@ class AdminScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'therapist_id' => 'required|exists:users,id',
             'schedule_type' => 'required|in:consultation,class',
             'date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
@@ -72,22 +71,19 @@ class AdminScheduleController extends Controller
         // Normalize the date too (strip the time portion SQLite may have stored)
         $date = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
 
-        // Check for any overlapping schedules for this therapist on this date.
-        // Use SUBSTR to normalize stored times to HH:mm:ss for reliable string comparison.
-        $overlap = Schedule::where('therapist_id', $request->therapist_id)
-            ->whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
-            ->whereRaw("SUBSTR(start_time, 1, 8) < ?", [$newEnd])
-            ->whereRaw("SUBSTR(end_time,   1, 8) > ?", [$newStart])
+        // Check if exact same schedule slot exists to avoid duplicates
+        $overlap = Schedule::whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
+            ->whereRaw("SUBSTR(start_time, 1, 8) = ?", [$newStart])
+            ->whereRaw("SUBSTR(end_time,   1, 8) = ?", [$newEnd])
             ->exists();
 
         if ($overlap) {
             return back()->withErrors([
-                'start_time' => 'Terapis sudah memiliki jadwal lain yang bertabrakan di waktu tersebut.',
+                'start_time' => 'Slot jadwal ini sudah tersedia di tanggal tersebut.',
             ]);
         }
 
         Schedule::create([
-            'therapist_id' => $request->therapist_id,
             'schedule_type' => $request->schedule_type,
             'date' => $date,
             'start_time' => $newStart,

@@ -3,8 +3,8 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 function QuickCard({ href, title, description, iconPath, color, disabled = false }) {
     const cls = `group flex gap-4 items-start p-6 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all duration-200 ${disabled
-            ? 'opacity-50 cursor-not-allowed pointer-events-none select-none'
-            : 'hover:shadow-lg hover:-translate-y-0.5'
+        ? 'opacity-50 cursor-not-allowed pointer-events-none select-none'
+        : 'hover:shadow-lg hover:-translate-y-0.5'
         }`;
 
     if (disabled) {
@@ -233,6 +233,13 @@ export default function Dashboard() {
                                 Manajemen Admin
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <QuickCard
+                                    href={route('bookings.index')}
+                                    title="Booking Pasien"
+                                    description="Assign terapis dan kelola appointment"
+                                    iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                                />
                                 <QuickCard
                                     href={route('admin.transactions.index')}
                                     title="Validasi Pembayaran"
