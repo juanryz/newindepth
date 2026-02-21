@@ -52,7 +52,6 @@ export default function Index({ auth }) {
                         <div className="hidden md:flex space-x-8 items-center">
                             <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Home</Link>
                             <Link href={route('methods.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Metode</Link>
-                            <a href="/#paket" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Paket</a>
                             <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
                             <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
                         </div>
@@ -150,9 +149,7 @@ export default function Index({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/20 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.15)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gold-500/20 blur-[100px] rounded-full group-hover:bg-gold-500/30 transition-colors duration-700"></div>
-                                <div className="relative z-10 w-32 h-32 rounded-3xl bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-white/20 dark:border-white/10 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-700 shadow-2xl">
-                                    <svg className="w-16 h-16 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                </div>
+                                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" alt="InDepth Trance State" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                     </div>
@@ -163,9 +160,7 @@ export default function Index({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-bl from-gray-900/10 to-transparent border border-gray-900/10 dark:border-white/10 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)] dark:group-hover:shadow-[0_20px_60px_rgba(255,255,255,0.05)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 dark:opacity-30"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gray-900/10 dark:bg-white/10 blur-[100px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
-                                <div className="relative z-10 w-32 h-32 rounded-[2.5rem] bg-gray-900/5 dark:bg-white/5 backdrop-blur-xl border border-gray-900/10 dark:border-white/10 flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-700 shadow-xl">
-                                    <svg className="w-16 h-16 text-gray-800 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                                </div>
+                                <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop" alt="Supreme Trance State" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                         <div className="lg:w-1/2">
@@ -272,10 +267,7 @@ export default function Index({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-tr from-gold-500/20 to-transparent border border-gold-500/30 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.2)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/connected.png')] opacity-15"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-gold-400/20 dark:bg-gold-500/20 blur-[120px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
-                                <div className="relative z-10 w-32 h-32 rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-2xl border border-white/40 dark:border-white/20 flex flex-col items-center justify-center transform group-hover:scale-110 transition-transform duration-700 shadow-[0_0_40px_rgba(208,170,33,0.3)]">
-                                    <div className="w-12 h-12 rounded-full bg-gold-500 animate-pulse border-4 border-white/50 dark:border-black/50"></div>
-                                    <svg className="absolute w-24 h-24 text-gold-500/50 animate-spin-slow" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" /></svg>
-                                </div>
+                                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800&auto=format&fit=crop" alt="InDepth Solution" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                     </div>
@@ -352,7 +344,6 @@ export default function Index({ auth }) {
                             <ul className="space-y-4 text-sm">
                                 <li><Link href="/" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Home</Link></li>
                                 <li><Link href={route('methods.index')} className="text-gold-600 font-bold transition-colors">Metode</Link></li>
-                                <li><a href="/#paket" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Paket Layanan</a></li>
                                 <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
                             </ul>
                         </div>

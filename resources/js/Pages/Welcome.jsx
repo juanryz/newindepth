@@ -48,7 +48,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         <div className="hidden md:flex space-x-8 items-center">
                             <Link href="/" className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Home</Link>
                             <Link href={route('methods.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</Link>
-                            <a href="#paket" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Paket</a>
                             <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
                             <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
                         </div>
@@ -183,7 +182,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </p>
                         <div className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)] animate-pulse">
                             <span className="text-xl">🎉</span>
-                            <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span> Semua Paket!</span>
+                            <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
                         </div>
                     </div>
 
@@ -263,8 +262,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </h3>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-gold-500/50 line-through decoration-red-500/50 decoration-2">Rp 8.000.000</span>
-                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 4.000.000</span>
+                                    <span className="text-sm text-transparent select-none" aria-hidden="true">-</span>
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
                                 </div>
                                 <p className="text-gold-500/80 mt-2 font-medium">Prioritas & Kasus Kompleks</p>
                             </div>
@@ -474,7 +473,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <ul className="space-y-4 text-sm">
                                 <li><a href="#layanan" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Layanan</a></li>
                                 <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
-                                <li><a href="#paket" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Paket</a></li>
                                 <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
                                 <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
                             </ul>
