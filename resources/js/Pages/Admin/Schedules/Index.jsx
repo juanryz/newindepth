@@ -10,6 +10,7 @@ import idLocale from '@fullcalendar/core/locales/id';
 export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         therapist_id: '',
+        schedule_type: 'consultation',
         date: '',
         start_time: '',
         end_time: '',
@@ -47,14 +48,23 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
     // Format events for FullCalendar
     const events = schedules.map(schedule => {
         const isBooked = schedule.bookings && schedule.bookings.length > 0;
+        const isClass = schedule.schedule_type === 'class';
+        let bg, border, text;
+        if (isBooked) {
+            bg = '#f3f4f6'; border = '#e5e7eb'; text = '#374151';
+        } else if (isClass) {
+            bg = '#6366f1'; border = '#4f46e5'; text = '#ffffff'; // indigo for class
+        } else {
+            bg = '#10b981'; border = '#059669'; text = '#ffffff'; // emerald for consultation
+        }
         return {
             id: schedule.id,
-            title: `${schedule.therapist.name} ${isBooked ? '(Terisi)' : ''}`,
+            title: `${schedule.therapist?.name || ''} — ${isClass ? '🎓 Kelas' : '👤 Konsultasi'} ${isBooked ? '(Terisi)' : ''}`,
             start: `${schedule.formatted_date || schedule.date.split(' ')[0]}T${schedule.formatted_start || schedule.start_time}`,
             end: `${schedule.formatted_date || schedule.date.split(' ')[0]}T${schedule.formatted_end || schedule.end_time}`,
-            backgroundColor: isBooked ? '#f3f4f6' : '#10b981',
-            borderColor: isBooked ? '#e5e7eb' : '#059669',
-            textColor: isBooked ? '#374151' : '#ffffff',
+            backgroundColor: bg,
+            borderColor: border,
+            textColor: text,
             extendedProps: { ...schedule, isBooked }
         };
     });
@@ -133,6 +143,20 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                         ))}
                                     </select>
                                     {errors.therapist_id && <div className="text-red-500 text-xs mt-1">{errors.therapist_id}</div>}
+                                </div>
+                                <div className="w-full sm:w-48">
+                                    <label className="block text-sm font-medium text-gray-700">Jenis Jadwal</label>
+                                    <select
+                                        name="schedule_type"
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        value={data.schedule_type}
+                                        onChange={e => setData('schedule_type', e.target.value)}
+                                        required
+                                    >
+                                        <option value="consultation">👤 Konsultasi Pasien</option>
+                                        <option value="class">🎓 Kelas / Kelompok</option>
+                                    </select>
+                                    {errors.schedule_type && <div className="text-red-500 text-xs mt-1">{errors.schedule_type}</div>}
                                 </div>
                                 <div className="w-full sm:w-48">
                                     <label className="block text-sm font-medium text-gray-700">Tanggal</label>
@@ -230,7 +254,18 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                 height="auto"
                             />
                         </div>
-                        <p className="text-xs text-gray-500 mt-4 print:hidden">* Klik pada jadwal yang berwarna hijau (Kosong) untuk menghapusnya.</p>
+                        <p className="text-xs text-gray-500 mt-3 print:hidden">* Klik pada jadwal yang kosong untuk menghapusnya.</p>
+                        <div className="flex items-center gap-4 mt-2 print:hidden">
+                            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+                                <span className="inline-block w-3 h-3 rounded-full bg-emerald-500"></span> Konsultasi Tersedia
+                            </span>
+                            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+                                <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span> Kelas Tersedia
+                            </span>
+                            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+                                <span className="inline-block w-3 h-3 rounded-full bg-gray-300"></span> Sudah Terisi
+                            </span>
+                        </div>
                     </div>
 
                 </div>

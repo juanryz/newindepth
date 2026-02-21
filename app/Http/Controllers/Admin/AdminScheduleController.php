@@ -59,26 +59,39 @@ class AdminScheduleController extends Controller
     {
         $request->validate([
             'therapist_id' => 'required|exists:users,id',
+            'schedule_type' => 'required|in:consultation,class',
             'date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        // Check if therapist already has this slot
-        $exists = Schedule::where('therapist_id', $request->therapist_id)
-            ->where('date', $request->date)
-            ->where('start_time', $request->start_time)
+        // Normalize new times to HH:mm:ss for consistent comparison
+        $newStart = \Carbon\Carbon::createFromFormat('H:i', $request->start_time)->format('H:i:s');
+        $newEnd = \Carbon\Carbon::createFromFormat('H:i', $request->end_time)->format('H:i:s');
+
+        // Normalize the date too (strip the time portion SQLite may have stored)
+        $date = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+
+        // Check for any overlapping schedules for this therapist on this date.
+        // Use SUBSTR to normalize stored times to HH:mm:ss for reliable string comparison.
+        $overlap = Schedule::where('therapist_id', $request->therapist_id)
+            ->whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
+            ->whereRaw("SUBSTR(start_time, 1, 8) < ?", [$newEnd])
+            ->whereRaw("SUBSTR(end_time,   1, 8) > ?", [$newStart])
             ->exists();
 
-        if ($exists) {
-            return back()->withErrors(['start_time' => 'Jadwal ini sudah ada untuk terapis tersebut.']);
+        if ($overlap) {
+            return back()->withErrors([
+                'start_time' => 'Terapis sudah memiliki jadwal lain yang bertabrakan di waktu tersebut.',
+            ]);
         }
 
         Schedule::create([
             'therapist_id' => $request->therapist_id,
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
+            'schedule_type' => $request->schedule_type,
+            'date' => $date,
+            'start_time' => $newStart,
+            'end_time' => $newEnd,
         ]);
 
         return back()->with('success', 'Jadwal berhasil ditambahkan.');
