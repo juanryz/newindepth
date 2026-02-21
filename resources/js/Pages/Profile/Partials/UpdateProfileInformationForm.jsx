@@ -30,12 +30,12 @@ export default function UpdateProfileInformation({
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    Profile Information
+                <h2 className="text-xl font-black tracking-tight text-gray-950 dark:text-white">
+                    Informasi Profil
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Update your account's profile information and email address.
+                    Perbarui informasi profil akun dan alamat email Anda.
                 </p>
             </header>
 

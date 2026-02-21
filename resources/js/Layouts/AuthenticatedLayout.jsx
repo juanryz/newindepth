@@ -21,13 +21,14 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 transition-colors duration-500 overflow-x-hidden relative">
 
-            {/* Global Background Ambient Light (Liquid Glass foundation) */}
+            {/* Global Background Ambient Light (Apple Liquid Glass foundation) */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
+                <div className="absolute top-[-20%] left-[-15%] w-[70vw] h-[70vw] rounded-full bg-blue-100/30 dark:bg-blue-900/10 blur-[180px] animate-blob mix-blend-multiply dark:mix-blend-screen"></div>
+                <div className="absolute top-[10%] right-[-20%] w-[60vw] h-[60vw] rounded-full bg-gold-200/20 dark:bg-gold-800/5 blur-[180px] animate-blob mix-blend-multiply dark:mix-blend-screen" style={{ animationDelay: '4s' }}></div>
+                <div className="absolute bottom-[-25%] left-[5%] w-[80vw] h-[80vw] rounded-full bg-rose-100/20 dark:bg-rose-900/10 blur-[180px] animate-blob mix-blend-multiply dark:mix-blend-screen" style={{ animationDelay: '8s' }}></div>
             </div>
 
-            <nav className="relative z-50 border-b border-white/40 dark:border-gray-800/50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
+            <nav className="relative z-50 border-b border-white/40 dark:border-white/[0.08] bg-white/20 dark:bg-white/[0.03] backdrop-blur-[60px] backdrop-saturate-[1.8] transition-all duration-500">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">

@@ -13,7 +13,7 @@ export default function ProfileProgressCard({ profileProgress, showLink = true }
             : 'bg-green-500';
 
     return (
-        <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm p-6 h-full">
+        <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
             <div className="flex items-center justify-between mb-1">
                 <h3 className="font-bold text-gray-900 dark:text-white">Kelengkapan Profil</h3>
                 <span className={`text-lg font-extrabold ${percentage === 100 ? 'text-green-500' : 'text-gray-700 dark:text-gray-300'}`}>

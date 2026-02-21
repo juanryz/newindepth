@@ -23,7 +23,7 @@ export default function Edit({ mustVerifyEmail, status, profileProgress }) {
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Main Forms */}
                         <div className="flex-1 space-y-6">
-                            <div className="bg-white/60 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/80 sm:rounded-2xl sm:p-8 dark:bg-gray-800/40 dark:border-gray-700/50 p-4">
+                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <UpdateProfileInformationForm
                                     mustVerifyEmail={mustVerifyEmail}
                                     status={status}
@@ -31,19 +31,19 @@ export default function Edit({ mustVerifyEmail, status, profileProgress }) {
                                 />
                             </div>
 
-                            <div className="bg-white/60 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/80 sm:rounded-2xl sm:p-8 dark:bg-gray-800/40 dark:border-gray-700/50 p-4">
+                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <UpdatePatientDocumentsForm className="max-w-2xl" />
                             </div>
 
-                            <div className="bg-white/60 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/80 sm:rounded-2xl sm:p-8 dark:bg-gray-800/40 dark:border-gray-700/50 p-4">
+                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <ServiceAgreementForm className="max-w-4xl" />
                             </div>
 
-                            <div className="bg-white/60 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/80 sm:rounded-2xl sm:p-8 dark:bg-gray-800/40 dark:border-gray-700/50 p-4">
+                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <UpdatePasswordForm className="max-w-xl" />
                             </div>
 
-                            <div className="bg-white/60 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] border border-white/80 sm:rounded-2xl sm:p-8 dark:bg-gray-800/40 dark:border-gray-700/50 p-4">
+                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <DeleteUserForm className="max-w-xl" />
                             </div>
                         </div>
