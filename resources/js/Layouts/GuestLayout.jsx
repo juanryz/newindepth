@@ -15,7 +15,7 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
             {/* Navbar for Guest */}
             <Navbar auth={{ user: null }} active="" isAuthPage={true} title={title} />
 
-            <div className="relative z-10 w-full sm:max-w-md mt-32">
+            <div className="relative z-10 w-full sm:max-w-md mt-28 px-4 sm:px-0">
 
                 {/* Back Button Positioned Above Form */}
                 <div className="mb-6 flex justify-start">
