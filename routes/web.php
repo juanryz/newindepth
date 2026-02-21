@@ -247,15 +247,15 @@ Route::get('/setup-log', function () {
     $logFile = storage_path('logs/laravel.log');
     if (!file_exists($logFile))
         return 'No log file found.';
-    $content = file_get_contents($logFile);
-    // Get last 5000 chars to find error messages
-    $tail = substr($content, -5000);
-    // Find error lines
-    preg_match_all('/\[[\d\-\s:]+\]\s+\w+\.ERROR:.*/', $tail, $matches);
-    if (!empty($matches[0])) {
-        return '<pre>' . htmlspecialchars(implode("\n\n", array_slice($matches[0], -5))) . '</pre>';
+
+    // Get last 100 lines
+    $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+    if (!$content) {
+        $content = file_get_contents($logFile);
+        $content = substr($content, -10000); // Last 10KB as fallback
     }
-    return '<pre>' . htmlspecialchars($tail) . '</pre>';
+
+    return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . htmlspecialchars($content) . '</pre>';
 });
 
 Route::get('/setup-db-fix', function () {
