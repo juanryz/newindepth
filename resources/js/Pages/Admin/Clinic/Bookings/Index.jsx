@@ -52,6 +52,8 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profil</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skrining</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Sesi</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terapis</th>
@@ -66,6 +68,34 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <div className="font-medium text-gray-900">{booking.patient?.name}</div>
                                                 <div className="text-xs text-gray-500">{booking.patient?.email}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div className="flex flex-col">
+                                                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1 max-w-[100px]">
+                                                        <div
+                                                            className={`h-1.5 rounded-full ${booking.patient_profile_stats?.percentage === 100 ? 'bg-green-600' : 'bg-yellow-500'}`}
+                                                            style={{ width: `${booking.patient_profile_stats?.percentage || 0}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-xs font-semibold">{booking.patient_profile_stats?.percentage || 0}% Lengkap</span>
+                                                    {booking.patient?.agreement_signed ? (
+                                                        <span className="text-[10px] text-green-600 font-bold uppercase mt-1">✓ Perjanjian TTD</span>
+                                                    ) : (
+                                                        <span className="text-[10px] text-red-500 font-bold uppercase mt-1">✗ Belum TTD</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {booking.patient?.screening_completed_at ? (
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs text-green-700 font-medium">Selesai: {new Date(booking.patient.screening_completed_at).toLocaleDateString('id-ID')}</span>
+                                                        <span className="text-xs italic text-gray-500 truncate max-w-[150px]">
+                                                            Pesan: {booking.patient.recommended_package || '-'}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-red-400 italic">Belum skrining</span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {booking.schedule ? (

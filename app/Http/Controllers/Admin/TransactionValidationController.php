@@ -32,62 +32,72 @@ class TransactionValidationController extends Controller
             'therapist_id' => 'nullable|exists:users,id',
         ]);
 
-        $transaction->update([
-            'status' => 'paid',
-            'validated_by' => auth()->id(),
-            'validated_at' => now(),
-        ]);
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $transaction) {
+                $transaction->update([
+                    'status' => 'paid',
+                    'validated_by' => auth()->id(),
+                    'validated_at' => now(),
+                ]);
 
-        if ($transaction->transactionable_type === \App\Models\Booking::class) {
-            $booking = $transaction->transactionable;
+                if ($transaction->transactionable_type === \App\Models\Booking::class) {
+                    $booking = $transaction->transactionable;
 
-            // Determine therapist: use admin's choice, or auto-assign randomly
-            $therapistId = $request->therapist_id;
-            if (!$therapistId) {
-                // Collect therapists already booked for this slot
-                $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
-                    ->whereNotIn('status', ['failed', 'cancelled'])
-                    ->whereNotNull('therapist_id')
-                    ->pluck('therapist_id')
-                    ->toArray();
+                    // Determine therapist: use admin's choice, or auto-assign randomly
+                    $therapistId = $request->therapist_id;
+                    if (!$therapistId) {
+                        // Collect therapists already booked for this slot
+                        $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
+                            ->whereNotIn('status', ['failed', 'cancelled'])
+                            ->whereNotNull('therapist_id')
+                            ->pluck('therapist_id')
+                            ->toArray();
 
-                $available = User::role('therapist')
-                    ->whereNotIn('id', $bookedIds)
-                    ->get();
+                        $available = User::role('therapist')
+                            ->whereNotIn('id', $bookedIds)
+                            ->get();
 
-                $therapistId = $available->count() > 0 ? $available->random()->id : null;
-            }
+                        $therapistId = $available->count() > 0 ? $available->random()->id : null;
+                    }
 
-            $booking->update([
-                'status' => 'confirmed',
-                'therapist_id' => $therapistId,
-            ]);
+                    $booking->update([
+                        'status' => 'confirmed',
+                        'therapist_id' => $therapistId,
+                    ]);
 
-            // Reduction of quota happens here upon confirmation/payment
-            $schedule = $booking->schedule;
-            if ($schedule) {
-                $schedule->increment('booked_count');
-                if ($schedule->booked_count >= $schedule->quota) {
-                    $schedule->update(['status' => 'full']);
+                    // Reduction of quota happens here upon confirmation/payment
+                    $schedule = $booking->schedule;
+                    if ($schedule) {
+                        $schedule->increment('booked_count');
+                        if ($schedule->booked_count >= $schedule->quota) {
+                            $schedule->update(['status' => 'full']);
+                        }
+                    }
+
+                    // Attempt to send mail and notification, but don't crash if they fail
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
+                        $transaction->user->notify(new BookingConfirmed($booking));
+                    } catch (\Throwable $m) {
+                        \Illuminate\Support\Facades\Log::error('Notification Failure during validation: ' . $m->getMessage());
+                    }
+
+                } else if ($transaction->transactionable_type === \App\Models\Course::class) {
+                    // Enroll user to course
+                    $transaction->transactionable->users()->attach($transaction->user_id, [
+                        'transaction_id' => $transaction->id,
+                        'enrolled_at' => now(),
+                    ]);
                 }
-            }
 
-            \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
+                event(new TransactionPaid($transaction));
+            });
 
-            // Send In-App Notification to Patient
-            $transaction->user->notify(new BookingConfirmed($booking));
-
-        } else if ($transaction->transactionable_type === \App\Models\Course::class) {
-            // Enroll user to course
-            $transaction->transactionable->users()->attach($transaction->user_id, [
-                'transaction_id' => $transaction->id,
-                'enrolled_at' => now(),
-            ]);
+            return redirect()->back()->with('success', 'Transaksi berhasil divalidasi.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Validation Error: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Gagal memvalidasi transaksi: ' . $e->getMessage()]);
         }
-
-        event(new TransactionPaid($transaction));
-
-        return redirect()->back()->with('success', 'Transaksi berhasil divalidasi.');
     }
 
     public function rejectPayment(Request $request, Transaction $transaction)

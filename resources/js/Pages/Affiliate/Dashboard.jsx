@@ -69,9 +69,10 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                     <tr>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Referred User</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item / Status</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Harga Transaksi</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Komisi Anda</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status Pembayaran</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
@@ -82,6 +83,18 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
                                                 {comm.referred_user?.name || 'User Tersembunyi'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">
+                                                        {comm.transaction?.transactionable_type?.includes('Booking') ? 'Sesi Terapi' : 'Kelas Online'}
+                                                    </span>
+                                                    <span className={`text-[10px] uppercase font-bold mt-1 ${comm.transaction?.transactionable?.status === 'completed' || comm.transaction?.transactionable?.status === 'confirmed'
+                                                            ? 'text-green-600' : 'text-amber-500'
+                                                        }`}>
+                                                        • {comm.transaction?.transactionable?.status || 'Active'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                 Rp {Number(comm.transaction_amount).toLocaleString('id-ID')}

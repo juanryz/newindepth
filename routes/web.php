@@ -315,6 +315,8 @@ Route::get('/setup-db-fix', function () {
         'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
         'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
         'screening_answers' => "ALTER TABLE users ADD COLUMN screening_answers JSON NULL",
+        'age' => "ALTER TABLE users ADD COLUMN age INT NULL",
+        'gender' => "ALTER TABLE users ADD COLUMN gender VARCHAR(20) NULL",
     ];
 
     foreach ($columns as $col => $sql) {
@@ -457,6 +459,8 @@ Route::get('/setup-db-fix', function () {
             'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
             'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
             'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
+            'therapist_notes' => "ALTER TABLE bookings ADD COLUMN therapist_notes TEXT NULL",
+            'patient_visible_notes' => "ALTER TABLE bookings ADD COLUMN patient_visible_notes TEXT NULL",
         ];
         foreach ($bookCols as $col => $sql) {
             if (!$schema::hasColumn('bookings', $col)) {

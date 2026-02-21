@@ -15,6 +15,8 @@ export default function TherapistScheduleIndex({ bookings }) {
 
     const { data: completeData, setData: setCompleteData, post: postComplete, processing: completing, reset: resetComplete, errors: completeErrors } = useForm({
         recording_link: '',
+        therapist_notes: '',
+        patient_visible_notes: '',
     });
 
     const openHistoryModal = (patient) => {
@@ -27,7 +29,11 @@ export default function TherapistScheduleIndex({ bookings }) {
 
     const openCompleteModal = (booking) => {
         setSelectedCompletingBooking(booking);
-        setCompleteData('recording_link', '');
+        setCompleteData({
+            recording_link: booking.recording_link || '',
+            therapist_notes: booking.therapist_notes || '',
+            patient_visible_notes: booking.patient_visible_notes || '',
+        });
     };
 
     const closeCompleteModal = () => {
@@ -143,12 +149,40 @@ export default function TherapistScheduleIndex({ bookings }) {
             <Modal show={selectedHistoryPatient !== null} onClose={closeHistoryModal} maxWidth="2xl">
                 <div className="p-6">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">Riwayat Pasien</h2>
-                    <p className="text-sm text-gray-500 mb-6">
-                        Nama: <span className="font-semibold text-gray-800">{selectedHistoryPatient?.name}</span> <br />
-                        Email: {selectedHistoryPatient?.email}
-                    </p>
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                        <h3 className="text-sm font-bold text-gray-700 mb-2">Data & Skrining Pasien</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <p className="text-gray-500">Kelengkapan Profil:</p>
+                                <p className="font-semibold text-gray-800">{selectedHistoryPatient?.patient_profile_stats?.percentage || 0}% Lengkap</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-500">Hasil Skrining:</p>
+                                <p className="font-semibold text-indigo-700">{selectedHistoryPatient?.recommended_package || 'Belum ada data'}</p>
+                            </div>
+                            <div className="sm:col-span-2 mt-2 pt-2 border-t border-gray-100">
+                                <p className="text-gray-500 font-medium">Partisipasi Kelas (Course):</p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                    {selectedHistoryPatient?.courses?.length > 0 ? (
+                                        selectedHistoryPatient.courses.map(course => (
+                                            <span key={course.id} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                                                {course.title}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-gray-400 italic">Belum terdaftar di kelas manapun.</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="sm:col-span-2 mt-2">
+                                <p className="text-gray-500">Pesan Admin (Skrining):</p>
+                                <p className="italic text-gray-600">{selectedHistoryPatient?.screening_results?.[0]?.admin_notes || 'Tidak ada catatan admin.'}</p>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <h3 className="text-sm font-bold text-gray-700 mb-2 px-1">Riwayat Sesi</h3>
+                    <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                         {selectedHistoryPatient?.bookings?.map(hist => (
                             <div key={hist.id} className={`p-4 rounded-lg border flex gap-4 ${hist.status === 'completed' ? 'bg-gray-50 border-gray-200' : 'bg-white border-blue-100'}`}>
                                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
@@ -159,14 +193,19 @@ export default function TherapistScheduleIndex({ bookings }) {
                                         Tanggal: {new Date(hist.schedule?.date || '').toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                                     </h4>
                                     <p className="text-xs text-gray-600 mt-1">
-                                        Terapis: <span className="font-medium">{hist.schedule?.therapist?.name}</span>
+                                        Terapis: <span className="font-medium text-emerald-700">{hist.schedule?.therapist?.name}</span>
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <div className="mt-2 text-xs bg-white p-2 rounded border border-gray-100 text-gray-700">
+                                        <strong>Catatan Terapis:</strong>
+                                        <p className="mt-1 whitespace-pre-wrap">{hist.therapist_notes || 'Tidak ada catatan.'}</p>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-2">
                                         Status: {hist.status === 'completed' ? 'Selesai' : 'Akan Datang'}
                                     </p>
                                     {hist.recording_link && (
-                                        <a href={hist.recording_link} target="_blank" rel="noreferrer" className="text-xs text-indigo-600 hover:underline mt-2 inline-block">
-                                            Link Rekaman Tersedia &rarr;
+                                        <a href={hist.recording_link} target="_blank" rel="noreferrer" className="text-xs font-bold text-indigo-600 hover:underline mt-2 inline-block flex items-center gap-1">
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                            Link Rekaman Sesi
                                         </a>
                                     )}
                                 </div>
@@ -200,14 +239,34 @@ export default function TherapistScheduleIndex({ bookings }) {
                             className="mt-1 block w-full border-gray-300"
                             placeholder="https://youtu.be/..."
                             value={completeData.recording_link}
-                            onChange={(e) => setCompleteData('recording_link', e.target.value)}
+                            onChange={(e) => setData('recording_link', e.target.value)}
                             required
                         />
-                        {completeErrors.recording_link ? (
-                            <p className="text-sm text-red-600 mt-2">{completeErrors.recording_link}</p>
-                        ) : (
-                            <p className="text-xs text-gray-400 mt-2">* URL harus valid, berawalan http:// atau https://</p>
-                        )}
+                        <p className="text-xs text-gray-400 mt-1">* URL harus valid (YouTube Private/Unlisted)</p>
+                    </div>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="patient_visible_notes" value="Pesan/Summary untuk Pasien (Muncul di Dashboard Pasien)" />
+                        <textarea
+                            id="patient_visible_notes"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                            rows="2"
+                            placeholder="Tuliskan homework, ringkasan sesi, atau motivasi singkat untuk pasien..."
+                            value={completeData.patient_visible_notes}
+                            onChange={(e) => setData('patient_visible_notes', e.target.value)}
+                        ></textarea>
+                    </div>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="therapist_notes" value="Catatan Klinis (Hanya untuk Terapis/Admin)" />
+                        <textarea
+                            id="therapist_notes"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            rows="4"
+                            placeholder="Tuliskan perkembangan klinis, metode, dan rencana tindak lanjut..."
+                            value={completeData.therapist_notes}
+                            onChange={(e) => setData('therapist_notes', e.target.value)}
+                        ></textarea>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">

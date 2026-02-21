@@ -48,6 +48,12 @@ class DashboardController extends Controller
                 })
                 ->latest()
                 ->first();
+
+            $latestCompletedBooking = \App\Models\Booking::with(['schedule.therapist', 'therapist'])
+                ->where('patient_id', $user->id)
+                ->where('status', 'completed')
+                ->latest('updated_at')
+                ->first();
         }
 
         return Inertia::render('Dashboard', [
@@ -56,6 +62,7 @@ class DashboardController extends Controller
             'canTakeScreening' => $canTakeScreening,
             'daysUntilNextScreening' => $daysUntilNextScreening,
             'activeBooking' => $activeBooking,
+            'latestCompletedBooking' => $latestCompletedBooking ?? null,
         ]);
     }
 }

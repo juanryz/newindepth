@@ -16,9 +16,9 @@ class Booking extends Model
         'status',
         'affiliate_ref_code',
         'notes',
-        'recording_link',
-        'package_type',
         'user_voucher_id',
+        'therapist_notes',
+        'patient_visible_notes',
     ];
 
     protected $casts = [

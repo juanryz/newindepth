@@ -15,15 +15,23 @@ class ScheduleController extends Controller
     {
         $bookings = Booking::with([
             'schedule',
+            'patient.screeningResults',
+            'patient.courses',
             'patient.bookings' => function ($query) {
                 $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
             }
         ])
             ->whereHas('schedule', function ($query) use ($request) {
-                $query->where('therapist_id', $request->user()->id);
+                $query->where('therapist_id', (int) $request->user()->id);
             })
             ->whereIn('status', ['confirmed', 'completed']) // Show active and past sessions
             ->get()
+            ->map(function ($booking) {
+                if ($booking->patient) {
+                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+                }
+                return $booking;
+            })
             ->sortBy('schedule.date')
             ->values();
 
@@ -41,14 +49,18 @@ class ScheduleController extends Controller
 
         $request->validate([
             'recording_link' => 'required|url',
+            'therapist_notes' => 'nullable|string',
+            'patient_visible_notes' => 'nullable|string',
         ]);
 
         $booking->update([
             'status' => 'completed',
             'recording_link' => $request->recording_link,
+            'therapist_notes' => $request->therapist_notes,
+            'patient_visible_notes' => $request->patient_visible_notes,
         ]);
 
-        return redirect()->back()->with('success', 'Sesi berhasil diselesaikan dan link rekaman telah disimpan.');
+        return redirect()->back()->with('success', 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');
     }
 
     public function store(Request $request)

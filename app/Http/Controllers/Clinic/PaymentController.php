@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function create(Booking $booking)
     {
-        if ($booking->patient_id != auth()->id() && !auth()->user()->isStaff()) {
+        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -32,7 +32,7 @@ class PaymentController extends Controller
 
     public function store(Request $request, Booking $booking)
     {
-        if ($booking->patient_id != auth()->id() && !auth()->user()->isStaff()) {
+        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -76,8 +76,12 @@ class PaymentController extends Controller
         $booking->update(['status' => 'pending_validation']);
 
         // Notify Admins & CS
-        $admins = User::role(['cs', 'admin', 'super_admin'])->get();
-        Notification::send($admins, new NewPaymentReceived($transaction));
+        try {
+            $admins = User::role(['cs', 'admin', 'super_admin'])->get();
+            Notification::send($admins, new NewPaymentReceived($transaction));
+        } catch (\Throwable $n) {
+            \Illuminate\Support\Facades\Log::error('Admin Notification Failure: ' . $n->getMessage());
+        }
 
         return redirect()->route('bookings.show', $booking->id)->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu validasi admin.');
     }

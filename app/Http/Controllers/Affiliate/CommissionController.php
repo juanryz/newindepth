@@ -13,7 +13,7 @@ class CommissionController extends Controller
     {
         $user = $request->user();
 
-        $commissions = Commission::with('referredUser')
+        $commissions = Commission::with(['referredUser', 'transaction.transactionable'])
             ->where('affiliate_user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
