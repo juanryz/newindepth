@@ -18,5 +18,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         Booking::observe(BookingObserver::class);
+
+        // Register Custom Resend HTTP Driver
+        \Illuminate\Support\Facades\Mail::extend('resend-http', function (array $config) {
+            return new \App\Mail\ResendHttpTransport(
+                config('services.resend.key'),
+                config('mail.from.address')
+            );
+        });
     }
 }
