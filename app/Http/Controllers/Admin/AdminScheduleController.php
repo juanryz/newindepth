@@ -31,11 +31,18 @@ class AdminScheduleController extends Controller
             $query->where('date', '<=', \Carbon\Carbon::parse($endDate)->format('Y-m-d'));
         }
 
-        $schedules = $query->get();
+        $schedules = $query->get()->map(function ($schedule) {
+            $data = $schedule->toArray();
+            $data['formatted_date'] = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
+            $data['formatted_start'] = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
+            $data['formatted_end'] = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+            $data['therapist'] = $schedule->therapist ? $schedule->therapist->toArray() : null;
+            $data['bookings'] = $schedule->bookings ? $schedule->bookings->toArray() : [];
+            return $data;
+        });
 
         // Get all therapists for the filter dropdown
         $therapists = User::role('therapist')
-            ->where('status', 'active')
             ->select('id', 'name')
             ->get();
 

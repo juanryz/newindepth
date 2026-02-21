@@ -4,12 +4,13 @@ import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#f8f9fa] dark:bg-gray-950 transition-colors duration-500 overflow-hidden relative">
+        <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#f4f7f6] dark:bg-gray-950 transition-colors duration-500 overflow-hidden relative">
 
             {/* Global Background Ambient Light (Liquid Glass foundation) */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gold-400/30 dark:bg-gold-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob"></div>
+                <div className="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-teal-300/30 dark:bg-teal-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-rose-300/30 dark:bg-rose-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" style={{ animationDelay: '4s' }}></div>
             </div>
 
             {/* Theme Toggle Positioned Top Right */}
@@ -34,10 +35,12 @@ export default function GuestLayout({ children }) {
                     </Link>
                 </div>
 
-                {/* Glassmorphism Card */}
-                <div className="w-full overflow-hidden bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 px-6 py-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] sm:rounded-[2rem] relative">
+                {/* Liquid Glassmorphism Card */}
+                <div className="w-full overflow-hidden bg-white/40 dark:bg-gray-900/40 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 dark:border-gray-700/50 px-6 py-8 shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] sm:rounded-[2rem] relative z-20 transition-all duration-300">
+                    {/* Inner subtle edge highlight */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 dark:via-white/20 to-transparent"></div>
                     {/* Inner subtle glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/5 rounded-bl-[4rem] pointer-events-none"></div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/10 rounded-bl-[4rem] pointer-events-none blur-2xl"></div>
 
                     <div className="relative z-10">
                         {children}

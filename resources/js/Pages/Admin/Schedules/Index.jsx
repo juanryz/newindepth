@@ -50,8 +50,8 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
         return {
             id: schedule.id,
             title: `${schedule.therapist.name} ${isBooked ? '(Terisi)' : ''}`,
-            start: `${schedule.date}T${schedule.start_time}`,
-            end: `${schedule.date}T${schedule.end_time}`,
+            start: `${schedule.formatted_date || schedule.date.split(' ')[0]}T${schedule.formatted_start || schedule.start_time}`,
+            end: `${schedule.formatted_date || schedule.date.split(' ')[0]}T${schedule.formatted_end || schedule.end_time}`,
             backgroundColor: isBooked ? '#f3f4f6' : '#10b981',
             borderColor: isBooked ? '#e5e7eb' : '#059669',
             textColor: isBooked ? '#374151' : '#ffffff',

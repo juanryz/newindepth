@@ -54,7 +54,7 @@ class SocialiteController extends Controller
             Auth::login($user);
 
             // Redirect logic: if phone is missing or screening is incomplete, force them through screening/profile
-            if (!$user->phone || !$user->hasCompletedScreening()) {
+            if ($user->hasRole('patient') && (!$user->phone || !$user->hasCompletedScreening())) {
                 // You could redirect to a profile completion page for phone, 
                 // but for now, redirect to screening, the screening might need it or they can update in dashboard.
                 // Redirect to screening directly is part of the flow

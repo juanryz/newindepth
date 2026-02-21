@@ -185,7 +185,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {header && (
                 <header className="relative z-40 border-b border-white/20 dark:border-gray-800/30 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg shadow-[0_4px_30px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {!route().current('dashboard') && (
+                        {!route().current('dashboard') && !route().current('admin.blog.create') && !route().current('admin.blog.edit') && (
                             <Link href={route('dashboard')} className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-600 dark:text-gold-400 hover:text-gold-700 dark:hover:text-gold-300 transition-colors mb-3">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                                 Kembali ke Dashboard
