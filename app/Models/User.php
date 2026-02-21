@@ -125,6 +125,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Course::class)->withPivot('transaction_id', 'enrolled_at');
     }
 
+    public function hasVerifiedEmail(): bool
+    {
+        if ($this->isStaff()) {
+            return true;
+        }
+        return !is_null($this->email_verified_at);
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'admin', 'cs', 'therapist']);
+    }
+
     public function hasCompletedScreening(): bool
     {
         return !is_null($this->screening_completed_at);
