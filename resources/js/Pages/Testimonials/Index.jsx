@@ -80,8 +80,7 @@ export default function Index({ auth }) {
                             <img src="/images/logo-white.png" alt="InDepth Logo" className="h-12 w-auto object-contain hidden dark:block relative z-10" />
                         </Link>
                         <div className="hidden md:flex space-x-8 items-center">
-                            <a href="/#layanan" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Layanan</a>
-                            <Link href={route('testimonials.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Testimoni</Link>
+                            <a href="/#metode" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</a>
                             <a href="/#paket" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Paket</a>
                             <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
                             <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
