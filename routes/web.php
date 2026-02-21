@@ -272,9 +272,9 @@ Route::get('/setup-db-fix', function () {
 
     // 1. Check and add missing columns to users table
     $columns = [
-        'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL AFTER email",
-        'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL AFTER phone",
-        'avatar' => "ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL AFTER google_id",
+        'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL",
+        'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL",
+        'avatar' => "ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL",
         'recommended_package' => "ALTER TABLE users ADD COLUMN recommended_package VARCHAR(50) NULL",
         'ktp_photo' => "ALTER TABLE users ADD COLUMN ktp_photo VARCHAR(255) NULL",
         'emergency_contact_name' => "ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(255) NULL",
@@ -282,6 +282,7 @@ Route::get('/setup-db-fix', function () {
         'emergency_contact_relation' => "ALTER TABLE users ADD COLUMN emergency_contact_relation VARCHAR(255) NULL",
         'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
         'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
+        'digital_signature' => "ALTER TABLE users ADD COLUMN digital_signature LONGTEXT NULL",
         'signature_data' => "ALTER TABLE users ADD COLUMN signature_data TEXT NULL",
         'referral_code' => "ALTER TABLE users ADD COLUMN referral_code VARCHAR(255) NULL UNIQUE",
         'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",

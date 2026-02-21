@@ -16,6 +16,7 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            phone: user.phone || '',
             age: user.age || '',
             gender: user.gender || '',
         });
@@ -71,7 +72,22 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div>
+                        <InputLabel htmlFor="phone" value="Nomor HP" />
+
+                        <TextInput
+                            id="phone"
+                            type="text"
+                            className="mt-1 block w-full"
+                            value={data.phone}
+                            onChange={(e) => setData('phone', e.target.value)}
+                            placeholder="Contoh: 0812..."
+                        />
+
+                        <InputError className="mt-2" message={errors.phone} />
+                    </div>
+
                     <div>
                         <InputLabel htmlFor="age" value="Usia" />
 
