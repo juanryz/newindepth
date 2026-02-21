@@ -16,7 +16,7 @@ export default function ForgotPassword({ status }) {
     };
 
     return (
-        <GuestLayout backLink="/register" backText="Kembali ke Daftar">
+        <GuestLayout backLink="/login" backText="Kembali ke Login">
             <Head title="Forgot Password" />
 
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
