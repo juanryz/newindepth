@@ -33,6 +33,10 @@ class User extends Authenticatable
         'recommended_package',
         'screening_answers',
         'screening_completed_at',
+        'ktp_photo',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'emergency_contact_relation',
     ];
 
     /**
@@ -58,6 +62,11 @@ class User extends Authenticatable
             'screening_answers' => 'json',
             'screening_completed_at' => 'datetime',
         ];
+    }
+
+    public function screeningResults()
+    {
+        return $this->hasMany(ScreeningResult::class);
     }
 
     public function schedules()
