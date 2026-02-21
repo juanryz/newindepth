@@ -39,14 +39,34 @@ class TransactionValidationController extends Controller
         ]);
 
         if ($transaction->transactionable_type === \App\Models\Booking::class) {
-            $transaction->transactionable->update([
+            $booking = $transaction->transactionable;
+
+            // Determine therapist: use admin's choice, or auto-assign randomly
+            $therapistId = $request->therapist_id;
+            if (!$therapistId) {
+                // Collect therapists already booked for this slot
+                $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
+                    ->whereNotIn('status', ['failed', 'cancelled'])
+                    ->whereNotNull('therapist_id')
+                    ->pluck('therapist_id')
+                    ->toArray();
+
+                $available = User::role('therapist')
+                    ->whereNotIn('id', $bookedIds)
+                    ->get();
+
+                $therapistId = $available->count() > 0 ? $available->random()->id : null;
+            }
+
+            $booking->update([
                 'status' => 'confirmed',
-                'therapist_id' => $request->therapist_id ?? $transaction->transactionable->therapist_id,
+                'therapist_id' => $therapistId,
             ]);
-            \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($transaction->transactionable));
+
+            \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
 
             // Send In-App Notification to Patient
-            $transaction->user->notify(new BookingConfirmed($transaction->transactionable));
+            $transaction->user->notify(new BookingConfirmed($booking));
 
         } else if ($transaction->transactionable_type === \App\Models\Course::class) {
             // Enroll user to course
