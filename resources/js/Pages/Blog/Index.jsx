@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import Navbar from '@/Components/Navbar';
 
 export default function PublicBlogIndex({ posts, auth }) {
     // Smooth scroll for anchor links
@@ -31,60 +32,8 @@ export default function PublicBlogIndex({ posts, auth }) {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
             </div>
 
-            {/* Navbar (Liquid Glass) */}
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
-                        <Link href="/" className="flex-shrink-0 flex items-center group relative p-2">
-                            {/* Logo Background/Glow for visibility */}
-                            <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-2xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
-                            {/* Logo — color for light mode, white for dark mode */}
-                            <img
-                                src="/images/logo-color.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain block dark:hidden relative z-10"
-                            />
-                            <img
-                                src="/images/logo-white.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain hidden dark:block relative z-10"
-                            />
-                        </Link>
-                        <div className="hidden md:flex space-x-8 items-center">
-                            <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Home</Link>
-                            <Link href={route('methods.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</Link>
-                            <Link href={route('blog.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Artikel</Link>
-                            <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
-                        </div>
-                        <div className="flex items-center space-x-4 relative z-[60]">
-                            <ThemeToggle />
-                            {auth?.user ? (
-                                <Link
-                                    href={route('dashboard')}
-                                    className="px-6 py-2.5 rounded-full font-semibold text-gray-900 dark:text-white bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 dark:focus:ring-offset-gray-950 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)]"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={route('login')}
-                                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold px-4 py-2 transition-colors relative z-[60]"
-                                    >
-                                        Log in
-                                    </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="px-6 py-2.5 rounded-full font-semibold text-white bg-gradient-to-r from-gold-500 to-yellow-500 border border-gold-400/50 hover:from-gold-600 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 dark:focus:ring-offset-gray-950 transition-all shadow-[0_4px_20px_rgba(208,170,33,0.3)] hover:shadow-[0_8px_30px_rgba(208,170,33,0.5)] hover:-translate-y-0.5 relative z-[60]"
-                                    >
-                                        Daftar Sekarang
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {/* Navbar (Unified) */}
+            <Navbar auth={auth} active="blog" />
 
             <main className="relative z-10 pt-32 pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

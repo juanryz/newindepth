@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import React, { useEffect } from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import Navbar from '@/Components/Navbar';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
@@ -26,60 +27,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
             </div>
 
-            {/* Navbar (Liquid Glass) */}
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
-                        <div className="flex-shrink-0 flex items-center cursor-pointer group relative p-2" onClick={() => window.scrollTo(0, 0)}>
-                            {/* Logo Background/Glow for visibility */}
-                            <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-2xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
-                            {/* Logo — color for light mode, white for dark mode */}
-                            <img
-                                src="/images/logo-color.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain block dark:hidden relative z-10"
-                            />
-                            <img
-                                src="/images/logo-white.png"
-                                alt="InDepth Mental Wellness"
-                                className="h-12 w-auto object-contain hidden dark:block relative z-10"
-                            />
-                        </div>
-                        <div className="hidden md:flex space-x-8 items-center">
-                            <Link href="/" className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Home</Link>
-                            <Link href={route('methods.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</Link>
-                            <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
-                            <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
-                        </div>
-                        <div className="flex items-center space-x-4 relative z-[60]">
-                            <ThemeToggle />
-                            {auth.user ? (
-                                <Link
-                                    href={route('dashboard')}
-                                    className="px-6 py-2.5 rounded-full font-semibold text-gray-900 dark:text-white bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 dark:focus:ring-offset-gray-950 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)]"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={route('login')}
-                                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold px-4 py-2 transition-colors relative z-[60]"
-                                    >
-                                        Masuk
-                                    </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold px-6 py-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shadow-md relative z-[60]"
-                                    >
-                                        Mulai Sekarang
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {/* Navbar (Unified) */}
+            <Navbar auth={auth} active="home" />
 
             {/* Hero Section */}
             <main className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32">
@@ -180,6 +129,14 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         <p className="mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-400 mx-auto font-light">
                             Investasi terbaik adalah untuk kesehatan mental dan ketenangan batin Anda.
                         </p>
+
+                        <div className="mt-8 max-w-3xl mx-auto p-6 bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-2xl border border-gold-500/20 shadow-sm text-gray-700 dark:text-gray-300">
+                            <p className="font-medium text-lg mb-2 text-gold-600 dark:text-gold-400">Metode InDepth Terintegrasi</p>
+                            <p className="text-sm md:text-base leading-relaxed">
+                                Kami menggunakan sistem terstruktur mulai dari pelepasan akar masalah dengan <strong>InDepth Trance State</strong>, pengendalian masalah kronis dengan <strong>Supreme Trance State</strong>, hingga pencarian solusi spesifik versi terbaik Anda melalui <strong>InDepth Solution</strong>.
+                            </p>
+                        </div>
+
                         <div className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)] animate-pulse">
                             <span className="text-xl">🎉</span>
                             <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
@@ -286,6 +243,71 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             <Link href="/register?package=vip" className="block text-center py-4 px-6 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1 mt-auto">
                                 Ambil Paket VIP
                             </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Testimonials Section (Below Packages) */}
+            <div className="py-20 relative z-10 bg-white/30 dark:bg-gray-900/20 backdrop-blur-lg border-y border-white/50 dark:border-gray-800/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Kisah Nyata</h2>
+                        <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                            Apa Kata Klien Kami
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Testimonial 1 */}
+                        <div className="bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl p-8 shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                            <div className="flex text-gold-500 mb-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                ))}
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 italic mb-6">"Setelah bertahun-tahun mengalami serangan panik, metode Supreme Trance InDepth benar-benar memberikan kendali penuh pada pikiran saya. Saya kembali produktif dalam 2 sesi."</p>
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-lg">A</div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white">Andi S.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Pengusaha</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Testimonial 2 */}
+                        <div className="bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl p-8 shadow-lg hover:-translate-y-2 transition-transform duration-300 transform md:-translate-y-4">
+                            <div className="flex text-gold-500 mb-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                ))}
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 italic mb-6">"Paket Upgrade membantu saya merobohkan mental block dalam hal finansial. Pendekatan NLP-nya luar biasa praktis dan terstruktur. Terima kasih InDepth!"</p>
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-lg">M</div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white">Maya P.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Karyawan Swasta</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Testimonial 3 */}
+                        <div className="bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-3xl p-8 shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                            <div className="flex text-gold-500 mb-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                ))}
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 italic mb-6">"Saya ambil Paket VIP untuk kasus trauma masa kecil yang kompleks. Pendampingannya sangat eksklusif. Saya menemukan hidup baru di sini."</p>
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-lg">D</div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white">dr. Dimas</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Tenaga Medis</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -450,7 +472,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         {/* Updated Semarang Location Column */}
                         <div className="col-span-1 md:col-span-2">
                             <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Lokasi & Kontak</h4>
-                            <a href="https://share.google/NtOQpAGwlAfChYbxP" target="_blank" className="group block">
+                            <a href="https://maps.app.goo.gl/KUmgnva1hi9vvrNP7" target="_blank" className="group block">
                                 <p className="text-gray-900 dark:text-white font-bold mb-1 group-hover:text-gold-600 transition-colors">
                                     InDepth Mental Wellness Semarang
                                 </p>

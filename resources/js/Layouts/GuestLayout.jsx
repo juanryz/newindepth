@@ -1,8 +1,7 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
-import ThemeToggle from '@/Components/ThemeToggle';
+import Navbar from '@/Components/Navbar';
 
-export default function GuestLayout({ children }) {
+export default function GuestLayout({ children, title }) {
     return (
         <div className="flex min-h-screen flex-col items-center pt-6 sm:justify-center sm:pt-0 bg-[#f4f7f6] dark:bg-gray-950 transition-colors duration-500 overflow-hidden relative">
 
@@ -13,25 +12,21 @@ export default function GuestLayout({ children }) {
                 <div className="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-rose-300/30 dark:bg-rose-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" style={{ animationDelay: '4s' }}></div>
             </div>
 
-            {/* Theme Toggle Positioned Top Right */}
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50">
-                <ThemeToggle />
-            </div>
+            {/* Navbar for Guest */}
+            <Navbar auth={{ user: null }} active="" isAuthPage={true} title={title} />
 
-            <div className="relative z-10 w-full sm:max-w-md mt-6">
-                <div className="flex justify-center mb-6">
-                    <Link href="/" className="inline-flex items-center justify-center group">
-                        {/* Logo — color for light mode, white for dark mode */}
-                        <img
-                            src="/images/logo-color.png"
-                            alt="InDepth Mental Wellness"
-                            className="h-20 w-auto object-contain block dark:hidden group-hover:opacity-90 transition-opacity duration-300"
-                        />
-                        <img
-                            src="/images/logo-white.png"
-                            alt="InDepth Mental Wellness"
-                            className="h-20 w-auto object-contain hidden dark:block group-hover:opacity-90 transition-opacity duration-300"
-                        />
+            <div className="relative z-10 w-full sm:max-w-md mt-32">
+
+                {/* Back Button Positioned Above Form */}
+                <div className="mb-6 flex justify-start">
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
+                    >
+                        <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali ke Beranda
                     </Link>
                 </div>
 

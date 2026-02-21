@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import React from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import Navbar from '@/Components/Navbar';
 
 export default function Index({ auth }) {
     const methods = [
@@ -40,45 +41,8 @@ export default function Index({ auth }) {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
             </div>
 
-            {/* Navbar */}
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/40 dark:border-gray-800/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.3)] transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
-                        <Link href="/" className="flex-shrink-0 flex items-center group relative p-2">
-                            <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-2xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
-                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-12 w-auto object-contain block dark:hidden relative z-10" />
-                            <img src="/images/logo-white.png" alt="InDepth Logo" className="h-12 w-auto object-contain hidden dark:block relative z-10" />
-                        </Link>
-                        <div className="hidden md:flex space-x-8 items-center">
-                            <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Home</Link>
-                            <Link href={route('methods.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Metode</Link>
-                            <Link href={route('blog.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Artikel</Link>
-                            <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
-                        </div>
-                        <div className="flex items-center space-x-4 relative z-[60]">
-                            <ThemeToggle />
-                            {auth?.user ? (
-                                <Link
-                                    href={route('dashboard')}
-                                    className="px-6 py-2.5 rounded-full font-semibold text-gray-900 dark:text-white bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-white/60 dark:border-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-all shadow-sm hover:shadow-md"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <Link
-                                    href={route('login')}
-                                    className="px-6 py-2.5 rounded-full font-semibold outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 bg-gradient-to-r from-gold-500 to-yellow-500 hover:from-gold-400 hover:to-yellow-400 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group"
-                                >
-                                    <span className="relative z-10 flex items-center gap-2">
-                                        Masuk
-                                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                    </span>
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {/* Navbar (Unified) */}
+            <Navbar auth={auth} active="methods" />
 
             <main className="relative z-10 pt-40 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {/* Hero Section */}
@@ -267,7 +231,7 @@ export default function Index({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-tr from-gold-500/20 to-transparent border border-gold-500/30 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.2)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/connected.png')] opacity-15"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-gold-400/20 dark:bg-gold-500/20 blur-[120px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
-                                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800&auto=format&fit=crop" alt="InDepth Solution" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
+                                <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800&auto=format&fit=crop" alt="InDepth Solution - Somatic Mind & Trance State" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                     </div>
@@ -336,7 +300,7 @@ export default function Index({ auth }) {
                                 <img src="/images/logo-white.png" alt="InDepth Logo" className="h-14 hidden dark:block mb-6" />
                             </Link>
                             <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light max-w-md">
-                                Klinik Hipnoterapi & Psikoterapi Premium di Jakarta. Menyediakan layanan kesehatan mental terpadu dengan pendekatan personal dan profesional.
+                                Klinik Hipnoterapi & Psikoterapi Premium di Semarang. Menyediakan layanan kesehatan mental terpadu dengan pendekatan personal dan profesional.
                             </p>
                         </div>
                         <div>
@@ -352,7 +316,7 @@ export default function Index({ auth }) {
                             <ul className="space-y-4 text-sm text-gray-500 dark:text-gray-400">
                                 <li className="flex items-start gap-3">
                                     <svg className="w-5 h-5 text-gold-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    <a href="https://share.google/NtOQpAGwlAfChYbxP" target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors">Semarang</a>
+                                    <a href="https://maps.app.goo.gl/KUmgnva1hi9vvrNP7" target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors">Semarang</a>
                                 </li>
                                 <li className="flex items-center gap-3">
                                     <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>

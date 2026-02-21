@@ -25,7 +25,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout title="Sign In">
             <Head title="Log in" />
 
             {status && (
@@ -101,30 +101,32 @@ export default function Login({ status, canResetPassword }) {
                     </label>
                 </div>
 
-                <div className="mt-6 flex flex-col space-y-4">
-                    <div className="flex items-center justify-end">
+                <div className="mt-6 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
                         <Link
                             href={route('register')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800 me-auto"
+                            className="text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                         >
-                            Belum punya akun? Daftar
+                            Belum punya akun? Sign Up
                         </Link>
 
                         {canResetPassword && (
                             <Link
                                 href={route('password.request')}
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                                className="text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                             >
                                 Lupa password?
                             </Link>
                         )}
+                    </div>
 
-                        <PrimaryButton className="ms-4" disabled={processing}>
-                            Log in
+                    <div className="flex justify-center mt-6">
+                        <PrimaryButton className="px-8 py-2.5 text-base" disabled={processing}>
+                            Sign In
                         </PrimaryButton>
                     </div>
 
-                    <div className="flex w-full items-center">
+                    <div className="flex w-full items-center mt-8 mb-4">
                         <div className="flex-grow border-t border-gray-300"></div>
                         <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Atau masuk dengan</span>
                         <div className="flex-grow border-t border-gray-300"></div>
