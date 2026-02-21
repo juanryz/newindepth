@@ -5,6 +5,7 @@ import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePatientDocumentsForm from './Partials/UpdatePatientDocumentsForm';
 import ServiceAgreementForm from './Partials/ServiceAgreementForm';
+import ProfileProgressCard from '@/Components/ProfileProgressCard';
 
 export default function Edit({ mustVerifyEmail, status, profileProgress }) {
     return (
