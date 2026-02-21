@@ -336,13 +336,58 @@ Route::get('/setup-db-fix', function () {
     }
     $output[] = "✅ All roles ensured";
 
-    // Check tables
-    $tables = ['vouchers', 'user_vouchers', 'screening_results'];
-    foreach ($tables as $t) {
-        $output[] = $schema::hasTable($t) ? "⏭️ Table exists: $t" : "⚠️ Table missing: $t";
+    // Check tables and create if missing
+    $tables = [
+        'screening_results' => "CREATE TABLE screening_results (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            user_id BIGINT UNSIGNED NOT NULL,
+            step_data JSON NOT NULL,
+            chat_history JSON NULL,
+            severity_label VARCHAR(50) NULL,
+            recommended_package VARCHAR(50) NULL,
+            ai_summary TEXT NULL,
+            is_high_risk TINYINT(1) NOT NULL DEFAULT 0,
+            completed_at TIMESTAMP NULL,
+            created_at TIMESTAMP NULL,
+            updated_at TIMESTAMP NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )",
+        'vouchers' => "CREATE TABLE vouchers (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            code VARCHAR(50) UNIQUE NOT NULL,
+            type ENUM('fixed', 'percentage') NOT NULL,
+            value DECIMAL(10,2) NOT NULL,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            expires_at TIMESTAMP NULL,
+            created_at TIMESTAMP NULL,
+            updated_at TIMESTAMP NULL
+        )",
+        'user_vouchers' => "CREATE TABLE user_vouchers (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            user_id BIGINT UNSIGNED NOT NULL,
+            voucher_id BIGINT UNSIGNED NOT NULL,
+            used_at TIMESTAMP NULL,
+            created_at TIMESTAMP NULL,
+            updated_at TIMESTAMP NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE CASCADE
+        )"
+    ];
+
+    foreach ($tables as $table => $sql) {
+        if (!$schema::hasTable($table)) {
+            try {
+                \Illuminate\Support\Facades\DB::statement($sql);
+                $output[] = "✅ Created table: $table";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed table $table: " . $e->getMessage();
+            }
+        } else {
+            $output[] = "⏭️ Table exists: $table";
+        }
     }
 
-    return '<pre>' . implode("\n", $output) . '</pre>';
+    return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
 });
 
 Route::get('/setup-super-admin', function () {
