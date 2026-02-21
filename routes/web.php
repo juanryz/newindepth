@@ -243,16 +243,24 @@ Route::get('/setup-dummy', function () {
     }
 });
 
+Route::get('/setup-phpinfo', function () {
+    return phpinfo();
+});
+
 Route::get('/setup-log', function () {
     $logFile = storage_path('logs/laravel.log');
     if (!file_exists($logFile))
         return 'No log file found.';
 
     // Get last 100 lines
-    $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+    $content = '';
+    if (function_exists('shell_exec')) {
+        $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+    }
+
     if (!$content) {
         $content = file_get_contents($logFile);
-        $content = substr($content, -10000); // Last 10KB as fallback
+        $content = substr($content, -15000); // Last 15KB
     }
 
     return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . htmlspecialchars($content) . '</pre>';
