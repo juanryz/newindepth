@@ -36,68 +36,62 @@ export default function ResetPassword({ token, email }) {
                 <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
             </div>
 
-            <form onSubmit={submit} className="space-y-6">
-                <div className="group">
-                    <InputLabel htmlFor="email" value="Email" className="ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" />
-
+            <form onSubmit={submit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="group relative transition-all duration-500 hover:-translate-y-1">
+                    <InputLabel htmlFor="email" value="Email" className="ml-2 mb-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 group-focus-within:text-gold-500 transition-colors" />
                     <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full px-4 py-3.5"
+                        className="block w-full px-5 py-3.5 rounded-2xl bg-white/20 dark:bg-gray-900/20 backdrop-blur-xl border-white/40 dark:border-gray-800/40 focus:ring-gold-500/20 focus:border-gold-500/40 transition-all duration-500 opacity-60"
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         readOnly
                     />
-
-                    <InputError message={errors.email} className="mt-2 ml-1" />
+                    <InputError message={errors.email} className="mt-2 ml-2" />
                 </div>
 
-                <div className="group">
-                    <InputLabel htmlFor="password" value="Kata Sandi Baru" className="ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" />
-
+                <div className="group relative transition-all duration-500 hover:-translate-y-1">
+                    <InputLabel htmlFor="password" value="Kata Sandi Baru" className="ml-2 mb-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 group-focus-within:text-gold-500 transition-colors" />
                     <TextInput
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full px-4 py-3.5"
+                        className="block w-full px-5 py-3.5 rounded-2xl bg-white/20 dark:bg-gray-900/20 backdrop-blur-xl border-white/40 dark:border-gray-800/40 focus:ring-gold-500/20 focus:border-gold-500/40 transition-all duration-500"
                         autoComplete="new-password"
                         isFocused={true}
                         onChange={(e) => setData('password', e.target.value)}
                     />
-
-                    <InputError message={errors.password} className="mt-2 ml-1" />
+                    <InputError message={errors.password} className="mt-2 ml-2" />
                 </div>
 
-                <div className="group">
+                <div className="group relative transition-all duration-500 hover:-translate-y-1">
                     <InputLabel
                         htmlFor="password_confirmation"
                         value="Konfirmasi Kata Sandi"
-                        className="ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400"
+                        className="ml-2 mb-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-gray-400 group-focus-within:text-gold-500 transition-colors"
                     />
-
                     <TextInput
                         type="password"
                         id="password_confirmation"
                         name="password_confirmation"
                         value={data.password_confirmation}
-                        className="mt-1 block w-full px-4 py-3.5"
+                        className="block w-full px-5 py-3.5 rounded-2xl bg-white/20 dark:bg-gray-900/20 backdrop-blur-xl border-white/40 dark:border-gray-800/40 focus:ring-gold-500/20 focus:border-gold-500/40 transition-all duration-500"
                         autoComplete="new-password"
                         onChange={(e) =>
                             setData('password_confirmation', e.target.value)
                         }
                     />
-
                     <InputError
                         message={errors.password_confirmation}
-                        className="mt-2 ml-1"
+                        className="mt-2 ml-2"
                     />
                 </div>
 
                 <div className="pt-2">
-                    <PrimaryButton className="w-full" disabled={processing}>
+                    <PrimaryButton className="w-full shadow-lg shadow-gold-500/10" disabled={processing}>
                         Reset Password
                     </PrimaryButton>
                 </div>

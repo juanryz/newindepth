@@ -25,38 +25,45 @@ export default function ForgotPassword({ status }) {
                     Recover
                 </h2>
                 <p className="mt-3 text-[11px] text-gray-400 dark:text-gray-500 font-black tracking-[0.2em] uppercase opacity-80">
-                    Reset kata sandi Anda
+                    Satu langkah untuk kembali
                 </p>
                 <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
             </div>
 
-            <div className="mb-8 text-center px-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                    Lupa kata sandi? Jangan khawatir. Cukup masukkan alamat email Anda dan kami akan mengirimkan tautan reset kata sandi melalui email.
+            <div className="mb-10 text-center px-4">
+                <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                    Lupa kata sandi? Masukkan email Anda dan kami akan mengirimkan tautan untuk memulai kembali perjalanan Anda.
                 </p>
             </div>
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
-                    {status}
+            <form onSubmit={submit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                {status && (
+                    <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-sm font-bold text-green-600 dark:text-green-400 text-center flex items-center justify-center gap-2 animate-pulse">
+                        <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {status}
+                    </div>
+                )}
+
+                <div className="group relative transition-all duration-500 hover:-translate-y-1">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-gold-500/0 via-gold-500/5 to-gold-500/0 rounded-[2.5rem] opacity-0 group-focus-within:opacity-100 transition-opacity duration-1000 blur-xl"></div>
+                    <TextInput
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={data.email}
+                        className="relative block w-full px-6 py-4 rounded-2xl bg-white/20 dark:bg-gray-900/20 backdrop-blur-xl border-white/40 dark:border-gray-800/40 focus:ring-gold-500/20 focus:border-gold-500/40 placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all duration-500"
+                        autoComplete="username"
+                        placeholder="Alamat Email Anda"
+                        isFocused={true}
+                        onChange={(e) => setData('email', e.target.value)}
+                    />
+                    <InputError message={errors.email} className="mt-3 ml-2" />
                 </div>
-            )}
 
-            <form onSubmit={submit}>
-                <TextInput
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={data.email}
-                    className="mt-1 block w-full"
-                    isFocused={true}
-                    onChange={(e) => setData('email', e.target.value)}
-                />
-
-                <InputError message={errors.email} className="mt-2" />
-
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                <div className="pt-2">
+                    <PrimaryButton className="w-full shadow-lg shadow-gold-500/10" disabled={processing}>
                         Email Password Reset Link
                     </PrimaryButton>
                 </div>

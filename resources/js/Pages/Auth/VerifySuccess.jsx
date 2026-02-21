@@ -54,14 +54,21 @@ export default function VerifySuccess() {
                 </div>
 
                 <div className="space-y-4">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gold-400 to-gold-600 dark:from-gold-300 dark:to-gold-500 tracking-tight"
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="mb-8 text-center relative"
                     >
-                        Verifikasi Berhasil!
-                    </motion.h2>
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-400/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <h2 className="text-[2.75rem] font-black text-gray-950 dark:text-white tracking-[-0.04em] leading-tight transition-colors duration-1000">
+                            Success
+                        </h2>
+                        <p className="mt-3 text-[11px] text-gray-400 dark:text-gray-500 font-black tracking-[0.2em] uppercase opacity-80">
+                            Email Anda telah diverifikasi
+                        </p>
+                        <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
+                    </motion.div>
 
                     <motion.p
                         initial={{ opacity: 0 }}

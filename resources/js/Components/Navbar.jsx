@@ -14,12 +14,12 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                             <img
                                 src="/images/logo-color.png"
                                 alt="InDepth"
-                                className="h-10 w-auto object-contain block dark:hidden relative z-10"
+                                className="h-14 w-auto object-contain block dark:hidden relative z-10"
                             />
                             <img
                                 src="/images/logo-white.png"
                                 alt="InDepth"
-                                className="h-10 w-auto object-contain hidden dark:block relative z-10"
+                                className="h-14 w-auto object-contain hidden dark:block relative z-10"
                             />
                         </Link>
                     </div>

@@ -73,34 +73,31 @@ export default function VerifyEmail({ status }) {
                 <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
             </div>
 
-            <div className="mb-8 text-center px-2">
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-light">
-                    Terima kasih telah bergabung! Silakan verifikasi alamat email kamu melalui tautan yang baru saja kami kirimkan.
+            <div className="mb-10 text-center px-4 animate-in fade-in duration-1000">
+                <p className="text-[15px] text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                    Terima kasih telah bergabung! Silakan verifikasi alamat email Anda melalui tautan yang baru saja kami kirimkan untuk mengaktifkan akun Anda.
                 </p>
-                {attempts < MAX_ATTEMPTS && (
-                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400 italic">
-                        Belum menerima email? Kamu bisa minta kirim ulang di bawah.
-                    </p>
-                )}
             </div>
 
-            {status === 'verification-link-sent' && (
-                <div className="mb-8 p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-sm font-bold text-green-600 dark:text-green-400 text-center animate-pulse flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                    Tautan verifikasi baru telah dikirimkan!
-                </div>
-            )}
+            <form onSubmit={submit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+                {status === 'verification-link-sent' && (
+                    <div className="p-4 rounded-2xl bg-green-500/10 border border-green-500/20 text-sm font-bold text-green-600 dark:text-green-400 text-center flex items-center justify-center gap-2 animate-pulse">
+                        <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Tautan verifikasi baru telah dikirim!
+                    </div>
+                )}
 
-            {attempts >= MAX_ATTEMPTS && (
-                <div className="mb-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm font-bold text-red-600 dark:text-red-400 text-center">
-                    Batas percobaan tercapai. Silakan coba lagi nanti atau hubungi bantuan.
-                </div>
-            )}
+                {attempts >= MAX_ATTEMPTS && (
+                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm font-bold text-red-600 dark:text-red-400 text-center">
+                        Batas percobaan tercapai. Silakan coba lagi nanti.
+                    </div>
+                )}
 
-            <form onSubmit={submit}>
-                <div className="space-y-6">
+                <div className="relative group transition-all duration-500 hover:-translate-y-1">
                     <PrimaryButton
-                        className="w-full"
+                        className="w-full shadow-lg shadow-gold-500/10 py-4"
                         disabled={processing || timeLeft > 0 || attempts >= MAX_ATTEMPTS}
                     >
                         {timeLeft > 0
@@ -109,25 +106,25 @@ export default function VerifyEmail({ status }) {
                                 ? 'Batas Tercapai'
                                 : 'Kirim Ulang Email Verifikasi'}
                     </PrimaryButton>
+                </div>
 
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="flex items-center gap-4 w-full">
-                            <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-                                Sisa Percobaan: {MAX_ATTEMPTS - attempts}
-                            </span>
-                            <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
-                        </div>
-
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="text-sm font-bold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors underline underline-offset-4 decoration-2 decoration-gray-200 dark:decoration-gray-800"
-                        >
-                            Log Out
-                        </Link>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="flex items-center gap-4 w-full">
+                        <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                            Percobaan: {attempts} / {MAX_ATTEMPTS}
+                        </span>
+                        <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
                     </div>
+
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="text-xs font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors uppercase tracking-[0.1em] underline underline-offset-8 decoration-gray-200 dark:decoration-gray-800"
+                    >
+                        Keluar dari Sesi
+                    </Link>
                 </div>
             </form>
         </GuestLayout>
