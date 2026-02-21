@@ -243,6 +243,41 @@ Route::get('/setup-dummy', function () {
     }
 });
 
+Route::get('/setup-super-admin', function () {
+    try {
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'admin@indepth.co.id'],
+            ['name' => 'Super Admin', 'password' => bcrypt('Anakanak12')]
+        );
+        $user->assignRole('super_admin');
+        return '✅ Super Admin created: ' . $user->email;
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/setup-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return '✅ Migration completed! ' . \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/setup-clear-cache', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        return '✅ All caches cleared!';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
 Route::get('/login-therapist', function () {
     $therapist = \App\Models\User::role('therapist')->first();
     if ($therapist) {
