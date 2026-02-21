@@ -3,129 +3,166 @@
 namespace App\Http\Controllers\Clinic;
 
 use App\Http\Controllers\Controller;
+use App\Models\ScreeningResult;
+use App\Services\OpenAIScreeningService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ScreeningController extends Controller
 {
-    private $questions = [
-        [
-            'id' => 'q1',
-            'text' => 'Berapa lama Anda telah mengalami keluhan atau masalah ini?',
-            'options' => [
-                'Kurang dari 1 bulan' => 1,
-                '1 - 6 bulan' => 2,
-                'Lebih dari 6 bulan (Kronis)' => 5, // Kronis -> VIP
-            ],
-        ],
-        [
-            'id' => 'q2',
-            'text' => 'Seberapa besar masalah ini mengganggu aktivitas sehari-hari Anda?',
-            'options' => [
-                'Sedikit mengganggu' => 1,
-                'Cukup mengganggu' => 2,
-                'Sangat mengganggu (Tidak bisa beraktivitas normal)' => 4,
-            ],
-        ],
-        [
-            'id' => 'q3',
-            'text' => 'Apakah Anda pernah menjalani terapi psikologis atau pengobatan psikiatri sebelumnya untuk masalah yang sama?',
-            'options' => [
-                'Belum pernah' => 1,
-                'Pernah, tapi tidak tuntas' => 3,
-                'Pernah dan tuntas, tapi kambuh lagi' => 4, // Kambuh -> VIP
-            ],
-        ],
-        [
-            'id' => 'q4',
-            'text' => 'Centang gejala yang paling sering Anda alami (bisa lebih dari satu):',
-            'options' => [
-                'Sulit tidur / Insomnia' => 1,
-                'Cemas berlebihan / Overthinking' => 1,
-                'Trauma masa lalu yang terus teringat' => 3,
-                'Fobia spesifik memengaruhi karir/' => 2,
-                'Depresi berat / Kehilangan minat hidup' => 5, // Severe -> VIP
-                'Serangan panik (Panic attack)' => 4,
-            ],
-        ]
-    ];
-
     public function show(Request $request)
     {
         $user = $request->user();
 
-        // If already screened, redirect to booking
+        // Jika sudah pernah skrining, redirect ke booking
         if ($user->hasCompletedScreening()) {
             return redirect()->route('bookings.create');
         }
 
-        return Inertia::render('Clinic/Screening', [
-            'questions' => $this->questions,
-        ]);
+        return Inertia::render('Clinic/Screening');
     }
 
+    /**
+     * Endpoint AJAX untuk AI Chat (Step 9 & 10)
+     */
+    public function chatMessage(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string|max:2000',
+            'history' => 'array',
+        ]);
+
+        $service = new OpenAIScreeningService();
+
+        $result = $service->chat(
+            history: $request->input('history', []),
+            userMessage: $request->input('message'),
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * Submit screening lengkap (10 step)
+     */
     public function store(Request $request)
     {
         $user = $request->user();
 
-        // Prevent resubmission
         if ($user->hasCompletedScreening()) {
             return redirect()->route('bookings.create')->with('info', 'Anda sudah menyelesaikan skrining.');
         }
 
-        $validated = $request->validate([
-            'answers' => 'required|array',
+        $request->validate([
+            'step_data' => 'required|array',
+            'chat_history' => 'nullable|array',
         ]);
 
-        $answers = $validated['answers'];
-        $totalScore = 0;
+        $stepData = $request->input('step_data');
+        $chatHistory = $request->input('chat_history', []);
 
-        // Calculate score
-        foreach ($this->questions as $q) {
-            $answer = $answers[$q['id']] ?? null;
+        // ── Decision Engine ──────────────────────────────────────────
+        [$recommendedPackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, $chatHistory);
 
-            if ($answer) {
-                if (is_array($answer)) {
-                    // Checkbox
-                    foreach ($answer as $selected) {
-                        $totalScore += $q['options'][$selected] ?? 0;
-                    }
-                } else {
-                    // Radio
-                    $totalScore += $q['options'][$answer] ?? 0;
-                }
-            }
-        }
+        // ── Generate AI Summary ───────────────────────────────────────
+        $service = new OpenAIScreeningService();
+        $aiSummary = $service->generateSummary($stepData, $chatHistory);
 
-        // Logic: Score >= 10 OR specifically selected kronis/severe symptoms -> VIP
+        // ── Simpan ke screening_results ───────────────────────────────
+        ScreeningResult::create([
+            'user_id' => $user->id,
+            'step_data' => $stepData,
+            'chat_history' => $chatHistory,
+            'severity_label' => $severityLabel,
+            'recommended_package' => $recommendedPackage,
+            'ai_summary' => $aiSummary,
+            'is_high_risk' => $isHighRisk,
+            'completed_at' => now(),
+        ]);
+
+        // ── Update user table (backward compat) ───────────────────────
+        $user->update([
+            'screening_answers' => $stepData,
+            'screening_completed_at' => now(),
+            'recommended_package' => in_array($recommendedPackage, ['reguler', 'vip']) ? $recommendedPackage : 'reguler',
+        ]);
+
+        return redirect()->route('bookings.create')
+            ->with('success', 'Skrining berhasil. Kami telah merekomendasikan program terbaik untuk Anda.');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // DECISION ENGINE
+    // ─────────────────────────────────────────────────────────────────────
+    private function runDecisionEngine(array $stepData, array $chatHistory): array
+    {
+        $masalahUtama = $stepData['masalah_utama'] ?? [];     // Step 2 array
+        $skala = (int) ($stepData['skala'] ?? 0);      // Step 3 int
+        $durasi = $stepData['durasi'] ?? '';             // Step 4 string
+        $obesitasKg = $stepData['obesitas_kg'] ?? null;     // Step 5 string|null
+        $chatText = $this->extractChatText($chatHistory);
+
+        $isHighRisk = false;
         $isVip = false;
 
-        // Auto VIP conditions from specific answers
-        $q1Ans = $answers['q1'] ?? '';
-        $q3Ans = $answers['q3'] ?? '';
-        $q4Ans = $answers['q4'] ?? [];
-
-        if ($q1Ans === 'Lebih dari 6 bulan (Kronis)')
-            $isVip = true;
-        if ($q3Ans === 'Pernah dan tuntas, tapi kambuh lagi')
-            $isVip = true;
-        if (is_array($q4Ans) && in_array('Depresi berat / Kehilangan minat hidup', $q4Ans))
-            $isVip = true;
-        if (is_array($q4Ans) && in_array('Serangan panik (Panic attack)', $q4Ans))
-            $isVip = true;
-
-        if ($totalScore >= 10) {
+        // ── Deteksi Keyword Krisis ────────────────────────────────────
+        $service = new OpenAIScreeningService();
+        $allText = ($stepData['detail_masalah'] ?? '') . ' ' . ($stepData['outcome'] ?? '') . ' ' . $chatText;
+        if ($service->detectCrisis($allText)) {
+            $isHighRisk = true;
             $isVip = true;
         }
 
-        $recommendedPackage = $isVip ? 'vip' : 'reguler';
+        // ── VIP Rules ─────────────────────────────────────────────────
+        if (in_array('Halusinasi / gangguan persepsi', $masalahUtama)) {
+            $isHighRisk = true;
+            $isVip = true;
+        }
 
-        $user->update([
-            'screening_answers' => $answers,
-            'screening_completed_at' => now(),
-            'recommended_package' => $recommendedPackage,
-        ]);
+        if ($skala >= 9 && in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas'])) {
+            $isVip = true;
+        }
 
-        return redirect()->route('bookings.create')->with('success', 'Skrining berhasil. Kami telah merekomendasikan paket terbaik untuk Anda.');
+        if ($obesitasKg === '> 20 kg') {
+            $isVip = true;
+        }
+
+        // ── Severity Label ────────────────────────────────────────────
+        $durasiKronis = in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas', '6–12 bulan']);
+
+        if ($isHighRisk) {
+            $severityLabel = 'High Risk';
+        } elseif ($skala >= 7 && $durasiKronis) {
+            $severityLabel = 'Berat Kronis';
+        } elseif ($skala >= 7) {
+            $severityLabel = 'Berat Akut';
+        } elseif ($skala >= 4) {
+            $severityLabel = 'Sedang';
+        } else {
+            $severityLabel = 'Ringan';
+        }
+
+        // ── Package Decision ──────────────────────────────────────────
+        if ($isVip) {
+            $package = 'vip';
+        } elseif (
+            count($masalahUtama) === 1
+            && in_array('Pengembangan diri', $masalahUtama)
+            && $skala <= 6
+        ) {
+            $package = 'reguler_pengembangan';
+        } else {
+            $package = 'reguler';
+        }
+
+        return [$package, $severityLabel, $isHighRisk];
+    }
+
+    private function extractChatText(array $chatHistory): string
+    {
+        return collect($chatHistory)
+            ->where('role', 'user')
+            ->pluck('content')
+            ->implode(' ');
     }
 }
