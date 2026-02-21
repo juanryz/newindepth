@@ -35,7 +35,7 @@ class ScheduleController extends Controller
     public function completeSession(Request $request, Booking $booking)
     {
         // Ensure the current therapist owns this booking's schedule
-        if ($booking->schedule->therapist_id !== $request->user()->id) {
+        if ($booking->schedule->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
             abort(403);
         }
 
@@ -69,7 +69,7 @@ class ScheduleController extends Controller
 
     public function destroy(Schedule $schedule)
     {
-        if ($schedule->therapist_id !== auth()->id()) {
+        if ($schedule->therapist_id != auth()->id() && !auth()->user()->hasAnyRole(['admin', 'super_admin'])) {
             abort(403);
         }
 

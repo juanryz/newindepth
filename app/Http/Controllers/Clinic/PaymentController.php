@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function create(Booking $booking)
     {
-        if ($booking->patient_id !== auth()->id()) {
+        if ($booking->patient_id != auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -32,7 +32,7 @@ class PaymentController extends Controller
 
     public function store(Request $request, Booking $booking)
     {
-        if ($booking->patient_id !== auth()->id()) {
+        if ($booking->patient_id != auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
