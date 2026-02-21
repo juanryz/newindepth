@@ -49,6 +49,8 @@ class RegisteredUserController extends Controller
             'recommended_package' => $recommendedPackage, // Optional pre-fill from URL param if available
         ]);
 
+        // Ensure 'patient' role exists before assignment
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'patient', 'guard_name' => 'web']);
         $user->assignRole('patient');
 
         try {

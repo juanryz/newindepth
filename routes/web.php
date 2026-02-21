@@ -246,16 +246,24 @@ Route::get('/setup-dummy', function () {
     }
 });
 
+Route::get('/setup-phpinfo', function () {
+    return phpinfo();
+});
+
 Route::get('/setup-log', function () {
     $logFile = storage_path('logs/laravel.log');
     if (!file_exists($logFile))
         return 'No log file found.';
 
     // Get last 100 lines
-    $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+    $content = '';
+    if (function_exists('shell_exec')) {
+        $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+    }
+
     if (!$content) {
         $content = file_get_contents($logFile);
-        $content = substr($content, -10000); // Last 10KB as fallback
+        $content = substr($content, -15000); // Last 15KB
     }
 
     return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . htmlspecialchars($content) . '</pre>';
@@ -265,7 +273,7 @@ Route::get('/setup-db-fix', function () {
     $output = [];
     $schema = \Illuminate\Support\Facades\Schema::class;
 
-    // Check and add missing columns to users table
+    // 1. Check and add missing columns to users table
     $columns = [
         'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL AFTER email",
         'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL AFTER phone",
@@ -278,71 +286,175 @@ Route::get('/setup-db-fix', function () {
         'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
         'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
         'signature_data' => "ALTER TABLE users ADD COLUMN signature_data TEXT NULL",
+        'referral_code' => "ALTER TABLE users ADD COLUMN referral_code VARCHAR(255) NULL UNIQUE",
+        'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
+        'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
+        'screening_answers' => "ALTER TABLE users ADD COLUMN screening_answers JSON NULL",
     ];
 
     foreach ($columns as $col => $sql) {
         if (!$schema::hasColumn('users', $col)) {
             try {
                 \Illuminate\Support\Facades\DB::statement($sql);
-                $output[] = "✅ Added column: $col";
+                $output[] = "✅ Added user column: $col";
             }
             catch (\Throwable $e) {
-                $output[] = "❌ Failed $col: " . $e->getMessage();
+                $output[] = "❌ Failed user column $col: " . $e->getMessage();
             }
-        }
-        else {
-            $output[] = "⏭️ Column exists: $col";
         }
     }
 
-    // Check bookings columns
-    $bookingCols = [
-        'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
-        'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
-        'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
-        'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
-    ];
-
-    foreach ($bookingCols as $col => $sql) {
-        if (!$schema::hasColumn('bookings', $col)) {
-            try {
-                \Illuminate\Support\Facades\DB::statement($sql);
-                $output[] = "✅ Added bookings.$col";
-            }
-            catch (\Throwable $e) {
-                $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
-            }
-        }
-        else {
-            $output[] = "⏭️ Bookings column exists: $col";
-        }
-    }
-
-    // Check schedules columns
-    if ($schema::hasTable('schedules') && !$schema::hasColumn('schedules', 'type')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NOT NULL DEFAULT 'consultation'");
-            $output[] = "✅ Added schedules.type";
-        }
-        catch (\Throwable $e) {
-            $output[] = "❌ Failed schedules.type: " . $e->getMessage();
-        }
-    }
-
-    // Ensure roles exist
+    // 2. Ensure roles exist
     $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient'];
     foreach ($roles as $role) {
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
     }
     $output[] = "✅ All roles ensured";
 
-    // Check tables
-    $tables = ['vouchers', 'user_vouchers', 'screening_results'];
-    foreach ($tables as $t) {
-        $output[] = $schema::hasTable($t) ? "⏭️ Table exists: $t" : "⚠️ Table missing: $t";
+    // 3. Screening Results table
+    if (!$schema::hasTable('screening_results')) {
+        try {
+            \Illuminate\Support\Facades\DB::statement("CREATE TABLE screening_results (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                user_id BIGINT UNSIGNED NOT NULL,
+                step_data JSON NOT NULL,
+                chat_history JSON NULL,
+                severity_label VARCHAR(50) NULL,
+                recommended_package VARCHAR(50) NULL,
+                ai_summary TEXT NULL,
+                is_high_risk TINYINT(1) NOT NULL DEFAULT 0,
+                completed_at TIMESTAMP NULL,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )");
+            $output[] = "✅ Created table: screening_results";
+        }
+        catch (\Throwable $e) {
+            $output[] = "❌ Failed screening_results: " . $e->getMessage();
+        }
     }
 
-    return '<pre>' . implode("\n", $output) . '</pre>';
+    // 4. Schedules table
+    if (!$schema::hasTable('schedules')) {
+        try {
+            \Illuminate\Support\Facades\DB::statement("CREATE TABLE schedules (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                therapist_id BIGINT UNSIGNED NULL,
+                date DATE NOT NULL,
+                start_time TIME NOT NULL,
+                end_time TIME NOT NULL,
+                quota INT NOT NULL DEFAULT 1,
+                booked_count INT NOT NULL DEFAULT 0,
+                status VARCHAR(20) NOT NULL DEFAULT 'available',
+                schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation',
+                type VARCHAR(20) NULL,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
+            )");
+            $output[] = "✅ Created table: schedules";
+        }
+        catch (\Throwable $e) {
+            $output[] = "❌ Failed schedules: " . $e->getMessage();
+        }
+    }
+    else {
+        $schedCols = [
+            'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL AFTER id",
+            'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation' AFTER status",
+            'booked_count' => "ALTER TABLE schedules ADD COLUMN booked_count INT NOT NULL DEFAULT 0 AFTER quota",
+            'type' => "ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NULL",
+        ];
+        foreach ($schedCols as $col => $sql) {
+            if (!$schema::hasColumn('schedules', $col)) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement($sql);
+                    $output[] = "✅ Added schedules.$col";
+                }
+                catch (\Throwable $e) {
+                    $output[] = "❌ Failed schedules.$col: " . $e->getMessage();
+                }
+            }
+        }
+    }
+
+    // 5. Bookings table
+    if (!$schema::hasTable('bookings')) {
+        try {
+            \Illuminate\Support\Facades\DB::statement("CREATE TABLE bookings (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                booking_code VARCHAR(255) UNIQUE NOT NULL,
+                patient_id BIGINT UNSIGNED NOT NULL,
+                schedule_id BIGINT UNSIGNED NULL,
+                therapist_id BIGINT UNSIGNED NULL,
+                screening_answers JSON NULL,
+                status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                notes TEXT NULL,
+                recording_link VARCHAR(255) NULL,
+                package_type VARCHAR(50) NULL,
+                user_voucher_id BIGINT UNSIGNED NULL,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL,
+                FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
+            )");
+            $output[] = "✅ Created table: bookings";
+        }
+        catch (\Throwable $e) {
+            $output[] = "❌ Failed bookings: " . $e->getMessage();
+        }
+    }
+    else {
+        $bookCols = [
+            'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
+            'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
+            'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
+            'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
+        ];
+        foreach ($bookCols as $col => $sql) {
+            if (!$schema::hasColumn('bookings', $col)) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement($sql);
+                    $output[] = "✅ Added bookings.$col";
+                }
+                catch (\Throwable $e) {
+                    $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
+                }
+            }
+        }
+    }
+
+    // 6. Transactions table
+    if (!$schema::hasTable('transactions')) {
+        try {
+            \Illuminate\Support\Facades\DB::statement("CREATE TABLE transactions (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                user_id BIGINT UNSIGNED NOT NULL,
+                transactionable_type VARCHAR(255) NOT NULL,
+                transactionable_id BIGINT UNSIGNED NOT NULL,
+                amount DECIMAL(15,2) NOT NULL,
+                status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                payment_method VARCHAR(50) NULL,
+                payment_proof VARCHAR(255) NULL,
+                payment_proof_uploaded_at TIMESTAMP NULL,
+                validated_at TIMESTAMP NULL,
+                validated_by BIGINT UNSIGNED NULL,
+                admin_notes TEXT NULL,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (validated_by) REFERENCES users(id) ON DELETE SET NULL
+            )");
+            $output[] = "✅ Created table: transactions";
+        }
+        catch (\Throwable $e) {
+            $output[] = "❌ Failed transactions: " . $e->getMessage();
+        }
+    }
+
+    return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
 });
 
 Route::get('/setup-super-admin', function () {

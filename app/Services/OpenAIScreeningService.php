@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class OpenAIScreeningService
 {
-    private string $apiKey;
+    private ?string $apiKey;
     private string $model;
     private string $systemPrompt;
 
@@ -73,6 +73,13 @@ PROMPT;
                 $messages[] = ['role' => 'user', 'content' => $userMessage];
             }
 
+            if (!$this->apiKey) {
+                return [
+                    'reply' => 'Terima kasih sudah berbagi. Kami mendengar Anda dan akan membantu sebaik mungkin.',
+                    'is_high_risk' => $this->detectCrisis($userMessage ?? ''),
+                ];
+            }
+
             $response = Http::withToken($this->apiKey)
                 ->timeout(30)
                 ->post('https://api.openai.com/v1/chat/completions', [
@@ -126,6 +133,10 @@ PROMPT;
     {
         try {
             $dataText = json_encode($stepData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+            if (!$this->apiKey) {
+                return 'Skrining berhasil diselesaikan.';
+            }
 
             $response = Http::withToken($this->apiKey)
                 ->timeout(30)
