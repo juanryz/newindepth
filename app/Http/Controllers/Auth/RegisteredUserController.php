@@ -32,8 +32,8 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'phone' => 'required|string|max:20|unique:' . User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class ,
+            'phone' => 'required|string|max:20|unique:' . User::class ,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -55,13 +55,14 @@ class RegisteredUserController extends Controller
 
         try {
             event(new Registered($user));
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             // Silently fail if email cannot be sent — don't block registration
             \Illuminate\Support\Facades\Log::warning('Failed to send registration email: ' . $e->getMessage());
         }
 
         Auth::login($user);
 
-        return redirect(route('screening.show', absolute: false));
+        return redirect()->route('verification.notice');
     }
 }
