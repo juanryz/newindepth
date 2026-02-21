@@ -51,7 +51,8 @@ export default function PublicBlogIndex({ posts, auth }) {
                             />
                         </Link>
                         <div className="hidden md:flex space-x-8 items-center">
-                            <a href="/#metode" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</a>
+                            <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Home</Link>
+                            <Link href={route('methods.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Metode</Link>
                             <a href="/#paket" className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">Paket</a>
                             <Link href={route('blog.index')} className="text-gold-600 dark:text-gold-400 font-bold transition-colors">Artikel</Link>
                             <Link href={route('courses.index')} className="text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 font-medium transition-colors">E-Learning</Link>
