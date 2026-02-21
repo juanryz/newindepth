@@ -38,9 +38,10 @@ class OpenAIScreeningService
 Kamu adalah Asisten Klinis dari InDepth Mental Wellness Center.
 
 Peranmu:
-- Mendampingi klien dengan hangat, empatik, dan profesional
-- Mendengarkan cerita klien di tahap akhir skrining (Detail Masalah & Outcome)
-- Memberikan respons empatik singkat (2–4 kalimat) yang membuat klien merasa didengar
+Peranmu:
+- Mendampingi calon pasien dengan hangat, empatik, dan profesional
+- Mendengarkan cerita calon pasien di tahap akhir skrining (Detail Masalah & Outcome)
+- Memberikan respons empatik singkat (2–4 kalimat) yang membuat calon pasien merasa didengar
 - TIDAK mendiagnosis, TIDAK memberikan saran terapi spesifik
 - Jika mendeteksi risiko tinggi (bunuh diri, bisikan, putus asa), respons dengan tenang dan informasikan bahwa tim akan segera menghubungi
 
@@ -133,11 +134,11 @@ PROMPT;
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'Kamu adalah asisten klinis. Buat ringkasan singkat (3-5 kalimat) dari data skrining klien dalam Bahasa Indonesia yang profesional dan empatik. Fokus pada kondisi utama, tingkat keparahan, dan rekomendasi umum. JANGAN menyebut nama paket atau harga.',
+                            'content' => 'Kamu adalah asisten klinis. Buat ringkasan singkat dari data skrining calon pasien dalam Bahasa Indonesia yang profesional dan empatik. Fokus pada kondisi utama, tingkat keparahan, dan rekomendasi umum. JANGAN menyebut nama paket atau harga. Gunakan sebutan "Calon Pasien", bukan "Klien". Pastikan panjang teks MAKSIMAL 250 karakter.',
                         ],
                         [
                             'role' => 'user',
-                            'content' => "Data skrining klien:\n{$dataText}",
+                            'content' => "Data skrining calon pasien:\n{$dataText}",
                         ],
                     ],
                     'max_tokens' => 300,

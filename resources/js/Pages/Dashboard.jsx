@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -53,7 +54,9 @@ const severityColors = {
     'High Risk': 'bg-red-200 text-red-900 dark:bg-red-900/60 dark:text-red-200',
 };
 
-function ScreeningBanner({ screeningResult }) {
+function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScreening }) {
+    const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+
     if (!screeningResult) {
         /* Belum screening */
         return (
@@ -118,7 +121,42 @@ function ScreeningBanner({ screeningResult }) {
                         )}
                     </div>
                     {screeningResult.ai_summary && (
-                        <p className="text-sm text-green-800 dark:text-green-300 mt-2 line-clamp-2">{screeningResult.ai_summary}</p>
+                        <div className="mt-3 border-l-2 border-green-300 dark:border-green-700 pl-3">
+                            <p className={`text-sm text-green-800 dark:text-green-300 leading-relaxed ${!isSummaryExpanded ? 'line-clamp-3' : ''}`}>
+                                {screeningResult.ai_summary}
+                            </p>
+                            {screeningResult.ai_summary.length > 200 && (
+                                <button
+                                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                                    className="text-xs font-bold text-green-700 dark:text-green-400 mt-1 hover:text-green-900 dark:hover:text-green-200 transition-colors focus:outline-none"
+                                >
+                                    {isSummaryExpanded ? 'Sembunyikan' : 'Baca selengkapnya...'}
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-shrink-0 mt-4 sm:mt-0 flex flex-col items-end justify-center">
+                    {canTakeScreening ? (
+                        <Link
+                            href={route('screening.show')}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 dark:text-amber-400 text-sm font-semibold transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Mulai Screening Ulang
+                        </Link>
+                    ) : (
+                        <div className="text-right">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed" title="Screening ulang dapat dilakukan setiap 15 hari">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Screening ulang dalam {daysUntilNextScreening} hari
+                            </span>
+                        </div>
                     )}
                 </div>
             </div>
@@ -191,8 +229,73 @@ function ProfileProgressCard({ profileProgress }) {
     );
 }
 
+function ActiveBookingCard({ booking }) {
+    if (!booking) return null;
+
+    const { schedule, therapist, status, booking_code } = booking;
+
+    const statusLabels = {
+        'pending_payment': 'Menunggu Pembayaran',
+        'pending_validation': 'Menunggu Validasi Admin',
+        'confirmed': 'Jadwal Dikonfirmasi',
+    };
+
+    const statusColors = {
+        'pending_payment': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+        'pending_validation': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+        'confirmed': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    };
+
+    const formatGoogleCalDate = (date, time) => {
+        return date.replace(/-/g, '') + 'T' + time.replace(/:/g, '');
+    };
+
+    const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sesi+Hipnoterapi+-+InDepth&dates=${formatGoogleCalDate(schedule.date, schedule.start_time)}/${formatGoogleCalDate(schedule.date, schedule.end_time)}&details=Sesi+Hipnoterapi+bersama+Terapis:+${therapist?.name || 'Akan diinfokan'}`;
+
+    return (
+        <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/20 dark:to-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 shadow-sm p-6 mb-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-bold text-lg text-indigo-900 dark:text-indigo-300">Jadwal Aktif Anda</h3>
+                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+                            {statusLabels[status] || status}
+                        </span>
+                    </div>
+
+                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <p><strong className="text-gray-900 dark:text-gray-200">Kode Booking:</strong> #{booking_code}</p>
+                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time.substring(0, 5)} - {schedule.end_time.substring(0, 5)} WIB)</p>
+                        <p><strong className="text-gray-900 dark:text-gray-200">Terapis:</strong> {therapist?.name || <span className="italic text-gray-500">Akan diinfokan...</span>}</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+                    <Link
+                        href={route('bookings.show', booking.id)}
+                        className="inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 text-sm font-semibold rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors shadow-sm"
+                    >
+                        Lihat Detail
+                    </Link>
+                    <a
+                        href={gcalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Tambahkan ke Kalender
+                    </a>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function Dashboard() {
-    const { auth, screeningResult, profileProgress } = usePage().props;
+    const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking } = usePage().props;
     const user = auth.user;
     const roles = user.roles?.map(r => r.name) ?? [];
 
@@ -223,7 +326,11 @@ export default function Dashboard() {
 
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
                     {isPatient && (
-                        <ScreeningBanner screeningResult={screeningResult} />
+                        <ScreeningBanner
+                            screeningResult={screeningResult}
+                            canTakeScreening={canTakeScreening}
+                            daysUntilNextScreening={daysUntilNextScreening}
+                        />
                     )}
 
                     {/* ============== ADMIN / CS SECTION ============== */}
@@ -340,53 +447,63 @@ export default function Dashboard() {
 
                     {/* ============== PATIENT SECTION (menu + progress) ============== */}
                     {isPatient && (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {/* Menu cards */}
-                            <section className="lg:col-span-2">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                    Menu Pasien
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <QuickCard
-                                        href={route('bookings.create')}
-                                        title="Buat Janji Baru"
-                                        description="Pilih jadwal dan terapis yang tersedia"
-                                        iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
-                                        disabled={!hasScreening}
-                                    />
-                                    <QuickCard
-                                        href={route('vouchers.index')}
-                                        title="Voucher Saya"
-                                        description="Lihat & klaim voucher diskon yang tersedia"
-                                        iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                        color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                    />
-                                    <QuickCard
-                                        href={route('affiliate.dashboard')}
-                                        title="Afiliasi Saya"
-                                        description="Lihat referral link dan komisi yang terkumpul"
-                                        iconPath="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                                        color="bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400"
-                                    />
-                                    <QuickCard
-                                        href={route('courses.index')}
-                                        title="E-Learning"
-                                        description="Akses kelas online dan video pembelajaran"
-                                        iconPath="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                                    />
-                                </div>
-                            </section>
+                        <>
+                            {activeBooking && <ActiveBookingCard booking={activeBooking} />}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Menu cards */}
+                                <section className="lg:col-span-2">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                        Menu Pasien
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <QuickCard
+                                            href={route('agreement.show')}
+                                            title="Buat Janji Baru"
+                                            description="Pilih jadwal dan terapis yang tersedia"
+                                            iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
+                                            disabled={!hasScreening}
+                                        />
+                                        <QuickCard
+                                            href={route('vouchers.index')}
+                                            title="Voucher Saya"
+                                            description="Lihat & klaim voucher diskon yang tersedia"
+                                            iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                            color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                        />
+                                        <QuickCard
+                                            href={route('bookings.history')}
+                                            title="Riwayat Transaksi"
+                                            description="Pantau pembayaran dan upload bukti transfer"
+                                            iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                            color="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400"
+                                        />
+                                        <QuickCard
+                                            href={route('affiliate.dashboard')}
+                                            title="Afiliasi Saya"
+                                            description="Lihat referral link dan komisi yang terkumpul"
+                                            iconPath="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                                            color="bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400"
+                                        />
+                                        <QuickCard
+                                            href={route('courses.index')}
+                                            title="E-Learning"
+                                            description="Akses kelas online dan video pembelajaran"
+                                            iconPath="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                                        />
+                                    </div>
+                                </section>
 
-                            {/* Profile Progress */}
-                            <section className="lg:col-span-1">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                    Profil Saya
-                                </h3>
-                                {profileProgress && <ProfileProgressCard profileProgress={profileProgress} />}
-                            </section>
-                        </div>
+                                {/* Profile Progress */}
+                                <section className="lg:col-span-1">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                        Profil Saya
+                                    </h3>
+                                    {profileProgress && <ProfileProgressCard profileProgress={profileProgress} />}
+                                </section>
+                            </div>
+                        </>
                     )}
 
                     {/* ============== SHARED QUICK LINKS ============== */}

@@ -14,6 +14,20 @@ use Exception;
 
 class BookingController extends Controller
 {
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $bookings = Booking::with(['schedule.therapist', 'transaction', 'userVoucher.voucher'])
+            ->where('patient_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return Inertia::render('Clinic/Bookings/Index', [
+            'bookings' => $bookings,
+        ]);
+    }
+
     public function create(Request $request)
     {
         $user = $request->user();
@@ -29,7 +43,7 @@ class BookingController extends Controller
 
         $this->ensureGenericSchedulesExist();
 
-        $schedules = Schedule::where('schedule_type', 'consultation')
+        $rawSchedules = Schedule::where('schedule_type', 'consultation')
             ->where('date', '>=', now()->toDateString())
             ->where('date', '<=', now()->addDays(14)->toDateString())
             ->where('status', 'available')
@@ -41,6 +55,11 @@ class BookingController extends Controller
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
+
+        // Hapus duplikasi berdasarkan tanggal dan waktu mulai
+        $schedules = $rawSchedules->unique(function ($item) {
+            return $item->date . '_' . $item->start_time;
+        })->values();
 
         // Tentukan aturan pilihan paket
         $recommended = $user->recommended_package ?? 'hipnoterapi';
@@ -141,6 +160,33 @@ class BookingController extends Controller
         ]);
     }
 
+    public function cancel(Booking $booking, Request $request)
+    {
+        if ($booking->patient_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        // Only allow cancel before booking is confirmed
+        if ($booking->status === 'confirmed') {
+            return redirect()->route('bookings.show', $booking->id)
+                ->withErrors(['error' => 'Pesanan yang sudah dikonfirmasi tidak dapat dibatalkan.']);
+        }
+
+        $booking->update(['status' => 'cancelled']);
+
+        // Free the schedule slot back up if it was locked
+        $schedule = $booking->schedule;
+        if ($schedule) {
+            $schedule->decrement('booked_count');
+            if ($schedule->status === 'full') {
+                $schedule->update(['status' => 'available']);
+            }
+        }
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
     private function ensureGenericSchedulesExist()
     {
         $therapistCount = \App\Models\User::role('therapist')->count();
@@ -159,10 +205,11 @@ class BookingController extends Controller
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             foreach ($slotsArray as $slot) {
-                $existing = Schedule::whereDate('date', $date->format('Y-m-d'))
+                $existing = Schedule::where('date', $date->format('Y-m-d'))
                     ->where('start_time', $slot['start'])
                     ->where('end_time', $slot['end'])
                     ->where('schedule_type', 'consultation')
+                    ->whereNull('therapist_id')
                     ->first();
 
                 if (!$existing) {

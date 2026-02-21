@@ -42,9 +42,12 @@ Route::middleware('auth')->group(function () {
     // Patient Routes
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(
         function () {
+            // Booking Management
+            Route::get('/bookings/history', [\App\Http\Controllers\Clinic\BookingController::class, 'index'])->name('bookings.history');
             Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class, 'create'])->name('bookings.create');
             Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class, 'store'])->name('bookings.store');
             Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class, 'show'])->name('bookings.show');
+            Route::delete('/bookings/{booking}/cancel', [\App\Http\Controllers\Clinic\BookingController::class, 'cancel'])->name('bookings.cancel');
 
             // Payment routes
             Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'create'])->name('payments.create');

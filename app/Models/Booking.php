@@ -49,4 +49,9 @@ class Booking extends Model
     {
         return $this->morphOne(Transaction::class, 'transactionable');
     }
+
+    public function userVoucher()
+    {
+        return $this->belongsTo(UserVoucher::class);
+    }
 }
