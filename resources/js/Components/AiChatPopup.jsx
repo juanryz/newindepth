@@ -29,7 +29,8 @@ export default function AiChatPopup({ isOpen, onClose }) {
         }
     }, [messages, isThinking]);
 
-    if (!isOpen || !mounted) return null;
+    // All hooks must be called before any conditional return (Rules of Hooks)
+    if (!isOpen || !mounted || typeof document === 'undefined' || !document.body) return null;
 
     const handleSend = async (textToSend) => {
         const messageText = typeof textToSend === 'string' ? textToSend : input;
@@ -227,5 +228,10 @@ export default function AiChatPopup({ isOpen, onClose }) {
         </div>
     );
 
-    return createPortal(chatContent, document.body);
+    try {
+        return createPortal(chatContent, document.body);
+    } catch (e) {
+        console.error('[AiChatPopup] createPortal error:', e);
+        return null;
+    }
 }

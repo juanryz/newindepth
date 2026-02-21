@@ -5,27 +5,40 @@ namespace App\Http\Controllers\Lms;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::where('is_published', true)->get();
+        try {
+            $courses = Course::where('is_published', true)->get();
+        }
+        catch (\Throwable $e) {
+            Log::error('[CourseController] index error: ' . $e->getMessage());
+            $courses = collect([]);
+        }
 
         return Inertia::render('Lms/Courses/Index', [
-            'courses' => $courses,
+            'courses' => $courses->values(),
         ]);
     }
 
     public function myCourses()
     {
-        $courses = auth()->user()->courses()
-            ->where('is_published', true)
-            ->get();
+        try {
+            $courses = auth()->user()->courses()
+                ->where('is_published', true)
+                ->get();
+        }
+        catch (\Throwable $e) {
+            Log::error('[CourseController] myCourses error: ' . $e->getMessage());
+            $courses = collect([]);
+        }
 
         return Inertia::render('Lms/Courses/Index', [
-            'courses' => $courses,
+            'courses' => $courses->values(),
             'isMyCourses' => true,
         ]);
     }
@@ -36,15 +49,25 @@ class CourseController extends Controller
             abort(404);
         }
 
-        $course->load([
-            'lessons' => function ($query) {
+        try {
+            $course->load([
+                'lessons' => function ($query) {
                 $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview');
             }
-        ]);
+            ]);
+        }
+        catch (\Throwable $e) {
+            Log::error('[CourseController] show load error: ' . $e->getMessage());
+        }
 
         $isEnrolled = false;
         if (auth()->check()) {
-            $isEnrolled = auth()->user()->courses()->where('course_id', $course->id)->exists();
+            try {
+                $isEnrolled = auth()->user()->courses()->where('course_id', $course->id)->exists();
+            }
+            catch (\Throwable $e) {
+                Log::error('[CourseController] isEnrolled check error: ' . $e->getMessage());
+            }
         }
 
         return Inertia::render('Lms/Courses/Show', [

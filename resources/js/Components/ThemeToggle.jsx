@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
-    // Check local storage or system preference on initial load
-    const [theme, setTheme] = useState(
-        localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    );
+    // Safely read localStorage and window - these can be unavailable in SSR
+    const [theme, setTheme] = useState(() => {
+        try {
+            if (typeof window === 'undefined') return 'light';
+            return localStorage.getItem('theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch {
+            return 'light';
+        }
+    });
 
     useEffect(() => {
         const root = window.document.documentElement;
