@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Events\Clinic\TransactionPaid;
 use App\Notifications\BookingConfirmed;
 use Illuminate\Http\Request;
@@ -13,17 +14,24 @@ class TransactionValidationController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::with(['user', 'transactionable'])
+        $transactions = Transaction::with(['user', 'transactionable.therapist'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
+        $therapists = User::role('therapist')->select('id', 'name')->get();
+
         return Inertia::render('Admin/Clinic/Transactions/Index', [
             'transactions' => $transactions,
+            'therapists' => $therapists,
         ]);
     }
 
     public function validatePayment(Request $request, Transaction $transaction)
     {
+        $request->validate([
+            'therapist_id' => 'nullable|exists:users,id',
+        ]);
+
         $transaction->update([
             'status' => 'paid',
             'validated_by' => auth()->id(),
@@ -31,7 +39,10 @@ class TransactionValidationController extends Controller
         ]);
 
         if ($transaction->transactionable_type === \App\Models\Booking::class) {
-            $transaction->transactionable->update(['status' => 'confirmed']);
+            $transaction->transactionable->update([
+                'status' => 'confirmed',
+                'therapist_id' => $request->therapist_id ?? $transaction->transactionable->therapist_id,
+            ]);
             \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($transaction->transactionable));
 
             // Send In-App Notification to Patient

@@ -4,20 +4,39 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
-export default function TransactionsIndex({ transactions }) {
+export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { flash } = usePage().props;
     const [selectedReject, setSelectedReject] = useState(null);
+    const [selectedValidate, setSelectedValidate] = useState(null);
 
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject } = useForm({
         rejection_reason: '',
     });
 
-    const { post: validatePost } = useForm();
+    const { data: validateData, setData: setValidateData, post: validatePost, processing: validating, reset: resetValidate } = useForm({
+        therapist_id: '',
+    });
 
-    const handleValidate = (id) => {
-        if (confirm('Validasi pembayaran ini dan konfirmasi admin/booking?')) {
-            validatePost(route('admin.transactions.validate', id));
+    const handleValidate = (tx) => {
+        // Only booking types need therapist selection
+        if (tx.transactionable_type.includes('Booking')) {
+            setSelectedValidate(tx);
+            setValidateData('therapist_id', tx.transactionable?.therapist_id ?? '');
+        } else {
+            if (confirm('Validasi transaksi ini?')) {
+                validatePost(route('admin.transactions.validate', tx.id));
+            }
         }
+    };
+
+    const submitValidate = (e) => {
+        e.preventDefault();
+        validatePost(route('admin.transactions.validate', selectedValidate.id), {
+            onSuccess: () => {
+                setSelectedValidate(null);
+                resetValidate();
+            }
+        });
     };
 
     const submitReject = (e) => {
@@ -88,7 +107,7 @@ export default function TransactionsIndex({ transactions }) {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                                                 {tx.status === 'pending' && (
                                                     <>
-                                                        <button onClick={() => handleValidate(tx.id)} className="text-green-600 hover:text-green-900">Validasi</button>
+                                                        <button onClick={() => handleValidate(tx)} className="text-green-600 hover:text-green-900">Validasi</button>
                                                         <button onClick={() => setSelectedReject(tx)} className="text-red-600 hover:text-red-900">Tolak</button>
                                                     </>
                                                 )}
@@ -122,6 +141,38 @@ export default function TransactionsIndex({ transactions }) {
                             <div className="flex justify-end gap-3">
                                 <button type="button" onClick={() => setSelectedReject(null)} className="text-gray-600">Batal</button>
                                 <PrimaryButton type="submit" className="bg-red-600">Konfirmasi Penolakan</PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Validate — Therapist Selection */}
+            {selectedValidate && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-1">Validasi Pembayaran</h3>
+                        <p className="text-sm text-gray-500 mb-4">Invoice: {selectedValidate.invoice_number}</p>
+                        <form onSubmit={submitValidate}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Terapis (opsional)</label>
+                                <select
+                                    value={validateData.therapist_id}
+                                    onChange={e => setValidateData('therapist_id', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                >
+                                    <option value="">— Tetap / Tanpa Perubahan —</option>
+                                    {therapists.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-gray-400 mt-1">Jika tidak dipilih, terapis yang sudah ada sebelumnya akan dipertahankan.</p>
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <button type="button" onClick={() => setSelectedValidate(null)} className="text-gray-600">Batal</button>
+                                <PrimaryButton type="submit" disabled={validating}>
+                                    {validating ? 'Memvalidasi...' : 'Konfirmasi & Validasi'}
+                                </PrimaryButton>
                             </div>
                         </form>
                     </div>

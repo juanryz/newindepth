@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Booking;
 use App\Models\Schedule;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -43,28 +42,15 @@ class BookingService
                 $schedule->update(['status' => 'full']);
             }
 
-            // Collect available therapists who don't have overlapping bookings
-            $bookedTherapistIds = Booking::where('schedule_id', $schedule->id)
-                ->whereNotIn('status', ['failed', 'cancelled'])
-                ->pluck('therapist_id')
-                ->filter()
-                ->toArray();
-
-            $availableTherapists = User::role('therapist')
-                ->whereNotIn('id', $bookedTherapistIds)
-                ->get();
-
-            $assignedTherapist = $availableTherapists->count() > 0 ? $availableTherapists->random() : null;
-
             // Create booking
             $booking = Booking::create([
                 'booking_code' => $this->generateBookingCode(),
                 'patient_id' => $patientId,
                 'schedule_id' => $schedule->id,
-                'therapist_id' => $assignedTherapist?->id, // Assign randomly chosen therapist
-                'package_type' => $data['package_type'], // Using locked package from controller
-                'affiliate_ref_code' => cookie('ref_code'), // Automatically pulls from cookie
-                'status' => 'pending_payment', // Skip screening status, go straight to payment since screening is done earlier
+                // therapist_id will be assigned by admin during payment validation
+                'package_type' => $data['package_type'],
+                'affiliate_ref_code' => cookie('ref_code'),
+                'status' => 'pending_payment',
             ]);
 
             $basePrice = match ($data['package_type']) {

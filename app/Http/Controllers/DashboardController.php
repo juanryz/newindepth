@@ -55,10 +55,13 @@ class DashboardController extends Controller
         $activeBooking = null;
 
         if ($user->hasRole('patient')) {
-            // Fetch active booking (not failed or cancelled)
+            // Fetch active booking: only confirmed, and schedule date has not passed
             $activeBooking = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
                 ->where('patient_id', $user->id)
-                ->whereNotIn('status', ['failed', 'cancelled'])
+                ->where('status', 'confirmed')
+                ->whereHas('schedule', function ($q) {
+                    $q->whereDate('date', '>=', now()->toDateString());
+                })
                 ->latest()
                 ->first();
         }
