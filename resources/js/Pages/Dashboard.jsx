@@ -10,7 +10,7 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
 
     if (disabled) {
         return (
-            <div className={cls} title="Selesaikan screening terlebih dahulu">
+            <div className={cls} title="Lengkapi profil dan screening terlebih dahulu">
                 <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
@@ -21,9 +21,9 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
                     <span className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        Perlu screening dulu
+                        Lengkapi profil & screening
                     </span>
                 </div>
             </div>
@@ -165,7 +165,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
 }
 
 function ProfileProgressCard({ profileProgress }) {
-    const { percentage, fields, completed, total } = profileProgress;
+    const { percentage, fields, completed_count, total_count, is_complete } = profileProgress;
 
     const barColor = percentage < 40
         ? 'bg-red-500'
@@ -462,7 +462,7 @@ export default function Dashboard() {
                                             description="Pilih jadwal dan terapis yang tersedia"
                                             iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
                                             color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
-                                            disabled={!hasScreening}
+                                            disabled={!is_complete}
                                         />
                                         <QuickCard
                                             href={route('vouchers.index')}
@@ -470,6 +470,7 @@ export default function Dashboard() {
                                             description="Lihat & klaim voucher diskon yang tersedia"
                                             iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                            disabled={!is_complete}
                                         />
                                         <QuickCard
                                             href={route('bookings.history')}

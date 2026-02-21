@@ -68,6 +68,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'emergency_contact_relation',
         'age',
         'gender',
+        'digital_signature',
+        'agreement_signed_at',
     ];
 
     /**
@@ -92,6 +94,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'screening_answers' => 'json',
             'screening_completed_at' => 'datetime',
+            'agreement_signed_at' => 'datetime',
         ];
     }
 
@@ -141,6 +144,39 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasCompletedScreening(): bool
     {
         return !is_null($this->screening_completed_at);
+    }
+
+    public function getProfileCompletionStats(): array
+    {
+        $fields = [
+            'name' => ['label' => 'Nama Lengkap', 'filled' => filled($this->name)],
+            'email' => ['label' => 'Email', 'filled' => filled($this->email)],
+            'age' => ['label' => 'Usia', 'filled' => filled($this->age)],
+            'gender' => ['label' => 'Jenis Kelamin', 'filled' => filled($this->gender)],
+            'phone' => ['label' => 'Nomor HP', 'filled' => filled($this->phone)],
+            'ktp_photo' => ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)],
+            'emergency_contact_name' => ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)],
+            'emergency_contact_phone' => ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)],
+            'emergency_contact_relation' => ['label' => 'Hubungan Kontak Darurat', 'filled' => filled($this->emergency_contact_relation)],
+            'agreement' => ['label' => 'Tanda Tangan Perjanjian', 'filled' => !is_null($this->agreement_signed_at)],
+            'screening' => ['label' => 'Penyelesaian Skrining', 'filled' => !is_null($this->screening_completed_at)],
+        ];
+
+        $completedCount = count(array_filter(array_column($fields, 'filled')));
+        $totalCount = count($fields);
+
+        return [
+            'percentage' => (int) round(($completedCount / $totalCount) * 100),
+            'fields' => $fields,
+            'completed_count' => $completedCount,
+            'total_count' => $totalCount,
+            'is_complete' => $completedCount === $totalCount,
+        ];
+    }
+
+    public function isProfileComplete(): bool
+    {
+        return $this->getProfileCompletionStats()['is_complete'];
     }
 
     public function isPackageLocked(): bool

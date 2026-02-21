@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // Patient Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient')->group(
+    Route::middleware([\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient', 'patient.complete'])->group(
         function () {
             // Booking Management
             Route::get('/bookings/history', [\App\Http\Controllers\Clinic\BookingController::class, 'index'])->name('bookings.history');

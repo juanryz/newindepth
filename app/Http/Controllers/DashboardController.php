@@ -32,24 +32,8 @@ class DashboardController extends Controller
                 }
             }
 
-            // Hitung kelengkapan profil (5 field wajib)
-            $fields = [
-                'name' => ['label' => 'Nama Lengkap', 'filled' => filled($user->name)],
-                'ktp_photo' => ['label' => 'Foto KTP', 'filled' => filled($user->ktp_photo)],
-                'emergency_contact_name' => ['label' => 'Nama Kontak Darurat', 'filled' => filled($user->emergency_contact_name)],
-                'emergency_contact_phone' => ['label' => 'Nomor Kontak Darurat', 'filled' => filled($user->emergency_contact_phone)],
-                'emergency_contact_relation' => ['label' => 'Hubungan Kontak Darurat', 'filled' => filled($user->emergency_contact_relation)],
-            ];
-
-            $completedCount = count(array_filter(array_column($fields, 'filled')));
-            $totalCount = count($fields);
-
-            $profileProgress = [
-                'percentage' => (int) round(($completedCount / $totalCount) * 100),
-                'fields' => $fields,
-                'completed' => $completedCount,
-                'total' => $totalCount,
-            ];
+            // Hitung kelengkapan profil (11 kriteria wajib)
+            $profileProgress = $user->getProfileCompletionStats();
         }
 
         $activeBooking = null;
