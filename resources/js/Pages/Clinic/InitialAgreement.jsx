@@ -35,6 +35,7 @@ export default function InitialAgreement({ userAge }) {
     });
 
     const [allChecked, setAllChecked] = useState(false);
+    const [missingFields, setMissingFields] = useState([]);
 
     useEffect(() => {
         const isMedisSelected = data.status_medis !== '';
@@ -44,7 +45,7 @@ export default function InitialAgreement({ userAge }) {
             isWaliValid = data.izin_wali && data.nama_wali.trim() !== '' && data.telepon_wali.trim() !== '';
         }
 
-        const requiredCheckboxes = [
+        const requiredBools = [
             data.cond_data_benar,
             data.cond_bukan_pengganti_medis,
             data.cond_sadar_penuh,
@@ -54,13 +55,46 @@ export default function InitialAgreement({ userAge }) {
             data.doc_direkam,
             data.doc_hukum,
             data.konfirmasi_akhir,
-        ].every(Boolean);
+        ];
+        const requiredCheckboxes = requiredBools.every(Boolean);
+
+        const missing = [];
+        if (!data.cond_data_benar) missing.push("1. Pernyataan kebenaran data");
+        if (!data.cond_bukan_pengganti_medis) missing.push("1. Kondisi hipnoterapi bukan pengganti medis");
+        if (!data.cond_sadar_penuh) missing.push("1. Kondisi sadar penuh");
+        if (!data.cond_riwayat_penyakit) missing.push("1. Pertimbangan kondisi riwayat penyakit (Tetap wajib dicentang sebagai bentuk kesadaran risiko meskipun tidak memiliki)");
+        if (!isMedisSelected) missing.push("2. Status Perawatan Medis (Ya/Tidak)");
+
+        if (isUnder17) {
+            if (!data.izin_wali) missing.push("3. Centang izin wali");
+            if (data.nama_wali.trim() === '') missing.push("3. Kolom Nama Wali");
+            if (data.telepon_wali.trim() === '') missing.push("3. Kolom Nomor Telepon Wali");
+        }
+
+        const riskSection = isUnder17 ? '4' : '3';
+        if (!data.risk_hubungi_medis) missing.push(`${riskSection}. Pernyataan risiko medis darurat`);
+        if (!data.risk_henti_sesi) missing.push(`${riskSection}. Pernyataan penghentian sesi darurat`);
+
+        const docSection = isUnder17 ? '5' : '4';
+        if (!data.doc_direkam) missing.push(`${docSection}. Persetujuan sistem rekaman sesi`);
+        if (!data.doc_hukum) missing.push(`${docSection}. Persetujuan rekaman untuk hukum`);
+
+        const lastSection = isUnder17 ? '6' : '5';
+        if (!data.konfirmasi_akhir) missing.push(`${lastSection}. Konfirmasi Akhir`);
 
         setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid);
+        setMissingFields(missing);
     }, [data, isUnder17]);
 
     const submit = (e) => {
         e.preventDefault();
+
+        if (!allChecked) {
+            // Prevent submission if not checked, but allow the button to be clicked so users
+            // see that it's intentionally blocked by validation, rather than a completely dead button.
+            return;
+        }
+
         post(route('agreement.store'), {
             agreement_data: data
         });
@@ -200,7 +234,7 @@ export default function InitialAgreement({ userAge }) {
                                 </section>
                             )}
 
-                            {/* Bagian 4 */}
+                            {/* Bagian 3 / 4 */}
                             <section>
                                 <h4 className="text-lg font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
                                     <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 flex items-center justify-center text-sm">{isUnder17 ? '4' : '3'}</span>
@@ -220,7 +254,7 @@ export default function InitialAgreement({ userAge }) {
                                 </div>
                             </section>
 
-                            {/* Bagian 5 */}
+                            {/* Bagian 4 / 5 */}
                             <section>
                                 <h4 className="text-lg font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
                                     <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 flex items-center justify-center text-sm">{isUnder17 ? '5' : '4'}</span>
@@ -240,7 +274,7 @@ export default function InitialAgreement({ userAge }) {
                                 </div>
                             </section>
 
-                            {/* Bagian 6 */}
+                            {/* Bagian 5 / 6 */}
                             <section>
                                 <h4 className="text-lg font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
                                     <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 flex items-center justify-center text-sm">{isUnder17 ? '6' : '5'}</span>
@@ -257,14 +291,23 @@ export default function InitialAgreement({ userAge }) {
 
                             {/* Tombol Lanjut */}
                             <div className="pt-6 border-t border-gray-100 dark:border-gray-700 mt-10">
-                                {!allChecked && (
-                                    <div className="mb-4 text-center text-sm text-red-500 bg-red-50 dark:bg-red-900/20 py-3 rounded-lg">
-                                        Harap isi dan centang seluruh pernyataan di atas (termasuk status medis) untuk dapat melanjutkan.
+                                {!allChecked && missingFields.length > 0 && (
+                                    <div className="mb-6 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 p-5 rounded-xl border border-red-100 shadow-sm">
+                                        <p className="font-bold mb-2 text-base text-red-700 flex items-center gap-2">
+                                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                            Tidak dapat melanjutkan, masih ada {missingFields.length} bagian yang belum terisi/tercentang:
+                                        </p>
+                                        <ul className="list-disc list-inside space-y-1 ml-2 font-medium">
+                                            {missingFields.map((field, index) => (
+                                                <li key={index}>{field}</li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 )}
                                 <PrimaryButton
-                                    className="w-full h-14 text-lg justify-center shadow-lg"
-                                    disabled={!allChecked || processing}
+                                    type="submit"
+                                    className={`w-full h-14 text-lg justify-center shadow-lg transition-all ${allChecked ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 opacity-70 cursor-pointer'}`}
+                                    disabled={processing}
                                 >
                                     Lanjutkan ke Booking
                                 </PrimaryButton>

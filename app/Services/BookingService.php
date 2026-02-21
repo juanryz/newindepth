@@ -43,7 +43,7 @@ class BookingService
             }
 
             // Create booking
-            return Booking::create([
+            $booking = Booking::create([
                 'booking_code' => $this->generateBookingCode(),
                 'patient_id' => $patientId,
                 'schedule_id' => $schedule->id,
@@ -51,6 +51,23 @@ class BookingService
                 'affiliate_ref_code' => cookie('ref_code'), // Automatically pulls from cookie
                 'status' => 'pending_payment', // Skip screening status, go straight to payment since screening is done earlier
             ]);
+
+            $basePrice = match ($data['package_type']) {
+                'vip' => 8000000,
+                'upgrade' => 1500000,
+                default => 1000000,
+            };
+            $uniqueCode = rand(101, 999);
+            $amount = $basePrice + $uniqueCode;
+
+            $booking->transaction()->create([
+                'user_id' => $patientId,
+                'invoice_number' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(10)),
+                'amount' => $amount,
+                'status' => 'pending',
+            ]);
+
+            return $booking;
         });
     }
 

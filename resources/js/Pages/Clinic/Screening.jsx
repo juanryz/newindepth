@@ -624,13 +624,15 @@ function Step9({ data, update, onSendAi }) {
 
     return (
         <div className="space-y-3">
-            <textarea
-                rows={5}
-                value={data.detail_masalah || ''}
-                onChange={e => update('detail_masalah', e.target.value)}
-                placeholder="Ceritakan apa yang Anda rasakan, kapan bermula, dan bagaimana kondisi ini memengaruhi hidup Anda..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
-            />
+            {!chatStarted && (
+                <textarea
+                    rows={5}
+                    value={data.detail_masalah || ''}
+                    onChange={e => update('detail_masalah', e.target.value)}
+                    placeholder="Ceritakan apa yang Anda rasakan, kapan bermula, dan bagaimana kondisi ini memengaruhi hidup Anda..."
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+                />
+            )}
 
             {/* Invitation card — shown before chat starts */}
             {!chatStarted && data.detail_masalah?.trim() && (
@@ -701,13 +703,15 @@ function Step10({ data, update, onSendAi }) {
 
     return (
         <div className="space-y-3">
-            <textarea
-                rows={4}
-                value={data.outcome || ''}
-                onChange={e => update('outcome', e.target.value)}
-                placeholder="Apa yang ingin Anda capai setelah program terapi? Seperti apa kondisi ideal yang Anda impikan?"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
-            />
+            {!chatStarted && (
+                <textarea
+                    rows={4}
+                    value={data.outcome || ''}
+                    onChange={e => update('outcome', e.target.value)}
+                    placeholder="Apa yang ingin Anda capai setelah program terapi? Seperti apa kondisi ideal yang Anda impikan?"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+                />
+            )}
 
             {/* Invitation card — shown before chat starts */}
             {!chatStarted && data.outcome?.trim() && (

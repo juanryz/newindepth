@@ -76,6 +76,36 @@ export default function BookingShow({ booking }) {
                         </div>
                     </div>
 
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
+                        <div className="p-6 text-gray-900">
+                            <h3 className="text-lg font-medium border-b pb-4 mb-4">Ringkasan Pemesanan (Order Summary)</h3>
+
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center py-2">
+                                    <span className="text-gray-600">Layanan InDepth Mental Wellness</span>
+                                    <span className="font-medium truncate">
+                                        {booking.package_type === 'vip' ? 'Paket VIP (Intensive Care)' : booking.package_type === 'upgrade' ? 'Paket Upgrade (Pengembangan Diri)' : 'Paket Hipnoterapi'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-t border-gray-100">
+                                    <span className="text-lg font-bold text-gray-900">Total Pembayaran</span>
+                                    <span className="text-xl font-bold text-indigo-700">
+                                        Rp {new Intl.NumberFormat('id-ID').format(booking.transaction?.amount || 0)}
+                                    </span>
+                                </div>
+                                {isPendingPayment && (
+                                    <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-800">
+                                        <span className="font-bold flex items-center gap-2 mb-1">
+                                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            Perhatian Kode Unik
+                                        </span>
+                                        Pastikan Anda mentransfer <strong>tepat sesuai nominal di atas hingga 3 digit terakhir</strong> untuk memastikan kelancaran verifikasi sistem kami.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     {isPendingPayment && (
                         <div className="mt-6 flex justify-end">
                             <Link href={`/payments/upload/${booking.id}`}>
