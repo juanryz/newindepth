@@ -2,7 +2,9 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function BookingIndex({ bookings }) {
+export default function BookingIndex({ bookings, profileProgress }) {
+    const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
+
     return (
         <AuthenticatedLayout
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Riwayat Transaksi & Reservasi</h2>}
@@ -22,12 +24,27 @@ export default function BookingIndex({ bookings }) {
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Belum ada riwayat</h3>
                                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Anda belum pernah melakukan reservasi atau transaksi sebelumnya.</p>
                                     <div className="mt-6">
-                                        <Link
-                                            href={route('bookings.create')}
-                                            className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
-                                        >
-                                            Buat Reservasi Baru
-                                        </Link>
+                                        {isProfileComplete ? (
+                                            <Link
+                                                href={route('bookings.create')}
+                                                className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
+                                            >
+                                                Buat Reservasi Baru
+                                            </Link>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    disabled
+                                                    className="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed opacity-75"
+                                                >
+                                                    Buat Reservasi Baru
+                                                </button>
+                                                <span className="text-xs text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-md mt-1 text-center">
+                                                    Anda harus melengkapi profil hingga 100% sebelum membuat janji temu
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : (

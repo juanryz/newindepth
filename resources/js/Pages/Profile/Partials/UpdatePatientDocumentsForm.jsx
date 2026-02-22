@@ -189,12 +189,17 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
 
                     <Transition
                         show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
+                        enter="transition ease-in-out duration-300 transform"
+                        enterFrom="opacity-0 translate-y-2"
+                        enterTo="opacity-100 translate-y-0"
+                        leave="transition ease-in-out duration-300"
+                        leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Tersimpan.</p>
+                        <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 dark:bg-green-900/30 dark:text-green-400 px-4 py-2 rounded-lg border border-green-200 dark:border-green-800">
+                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span className="font-medium">Data berhasil disimpan.</span>
+                        </div>
                     </Transition>
                 </div>
             </form>

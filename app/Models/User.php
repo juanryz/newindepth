@@ -81,6 +81,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'gender',
         'digital_signature',
         'agreement_signed_at',
+        'agreement_data',
     ];
 
     /**
@@ -104,6 +105,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'screening_answers' => 'json',
+            'agreement_data' => 'json',
             'screening_completed_at' => 'datetime',
             'agreement_signed_at' => 'datetime',
         ];
@@ -116,22 +118,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class , 'therapist_id');
+        return $this->hasMany(Schedule::class, 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class , 'patient_id');
+        return $this->hasMany(Booking::class, 'patient_id');
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class , 'user_id');
+        return $this->hasMany(Transaction::class, 'user_id');
     }
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class , 'affiliate_user_id');
+        return $this->hasMany(Commission::class, 'affiliate_user_id');
     }
 
     public function courses()
@@ -157,6 +159,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return !is_null($this->screening_completed_at);
     }
 
+    public function hasValidAgreement(): bool
+    {
+        if (is_null($this->agreement_signed_at)) {
+            return false;
+        }
+
+        // Agreement expires after 1 year (365 days)
+        return $this->agreement_signed_at->diffInDays(now()) < 365;
+    }
+
     public function getProfileCompletionStats(): array
     {
         $isTherapist = $this->hasRole('therapist');
@@ -172,13 +184,12 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($isTherapist) {
             $fields['specialization'] = ['label' => 'Keahlian/Spesialisasi', 'filled' => filled($this->specialization)];
             $fields['bio'] = ['label' => 'Biografi Singkat', 'filled' => filled($this->bio)];
-        }
-        else {
+        } else {
             $fields['ktp_photo'] = ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)];
             $fields['emergency_contact_name'] = ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)];
             $fields['emergency_contact_phone'] = ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)];
             $fields['emergency_contact_relation'] = ['label' => 'Hubungan Kontak Darurat', 'filled' => filled($this->emergency_contact_relation)];
-            $fields['agreement'] = ['label' => 'Tanda Tangan Perjanjian', 'filled' => !is_null($this->agreement_signed_at)];
+            $fields['agreement'] = ['label' => 'Tanda Tangan Perjanjian', 'filled' => $this->hasValidAgreement()];
             $fields['screening'] = ['label' => 'Penyelesaian Skrining', 'filled' => !is_null($this->screening_completed_at)];
         }
 
@@ -190,7 +201,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $isComplete = count(array_filter(array_column($mandatoryFields, 'filled'))) === count($mandatoryFields);
 
         return [
-            'percentage' => (int)round(($completedCount / $totalCount) * 100),
+            'percentage' => (int) round(($completedCount / $totalCount) * 100),
             'fields' => $fields,
             'completed_count' => $completedCount,
             'total_count' => $totalCount,

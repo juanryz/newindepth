@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
+import ServiceFlowGuide from '@/Components/ServiceFlowGuide';
 
-function QuickCard({ href, title, description, iconPath, color, disabled = false }) {
-    const cls = `group flex gap-4 items-start p-6 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all duration-200 ${disabled
+function QuickCard({ href, title, description, iconPath, color, disabled = false, disabledText = 'Lengkapi profil & screening' }) {
+    const cls = `group flex gap-4 items-start p-6 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all duration-200 h-full ${disabled
         ? 'opacity-50 cursor-not-allowed pointer-events-none select-none'
         : 'hover:shadow-lg hover:-translate-y-0.5'
         }`;
@@ -30,7 +31,7 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        Lengkapi profil & screening
+                        {disabledText}
                     </span>
                 </div>
             </motion.div>
@@ -43,6 +44,7 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ y: -4, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            className="h-full"
         >
             <Link href={href} className={cls}>
                 <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
@@ -82,20 +84,11 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-bold text-amber-900 dark:text-amber-200">Anda Belum Melakukan Screening</p>
+                        <p className="font-bold text-amber-900 dark:text-amber-200">Anda Belum Melengkapi Profil</p>
                         <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">
                             Selesaikan screening kesehatan mental terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.
                         </p>
                     </div>
-                    <Link
-                        href={route('screening.show')}
-                        className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Mulai Screening
-                    </Link>
                 </div>
             </div>
         );
@@ -128,7 +121,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                                 Rekomendasi: {packageLabel}
                             </span>
                         )}
-                        {screeningResult.is_high_risk && (
+                        {screeningResult.is_high_risk && screeningResult.severity_label !== 'High Risk' && (
                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
                                 ⚠️ High Risk
                             </span>
@@ -164,7 +157,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                         </Link>
                     ) : (
                         <div className="text-right">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed" title="Screening ulang dapat dilakukan setiap 15 hari">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -313,7 +306,7 @@ export default function Dashboard() {
     const isSuperAdmin = roles.includes('super_admin');
     const isTherapist = roles.includes('therapist');
     const isPatient = roles.includes('patient');
-    const isProfileComplete = profileProgress ? profileProgress.is_complete : true;
+    const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
 
     const hasScreening = !!screeningResult;
 
@@ -337,11 +330,15 @@ export default function Dashboard() {
 
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
                     {isPatient && (
-                        <ScreeningBanner
-                            screeningResult={screeningResult}
-                            canTakeScreening={canTakeScreening}
-                            daysUntilNextScreening={daysUntilNextScreening}
-                        />
+                        <div className="space-y-6">
+                            <ScreeningBanner
+                                screeningResult={screeningResult}
+                                canTakeScreening={canTakeScreening}
+                                daysUntilNextScreening={daysUntilNextScreening}
+                            />
+
+                            <ServiceFlowGuide />
+                        </div>
                     )}
 
                     {/* ============== ADMIN / CS SECTION ============== */}
@@ -469,12 +466,34 @@ export default function Dashboard() {
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <QuickCard
-                                            href={route('agreement.show')}
+                                            href={route('bookings.create')}
                                             title="Buat Janji Baru"
                                             description="Pilih jadwal dan terapis yang tersedia"
                                             iconPath="M12 9v3m0 0v3m0-3h3m-3 0H9m12 3a9 9 0 11-18 0 9 9 0 0118 0z"
                                             color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
                                             disabled={!isProfileComplete}
+                                            disabledText="Anda harus melengkapi profil hingga 100% sebelum membuat janji temu"
+                                        />
+                                        <QuickCard
+                                            href={route('screening.show')}
+                                            title="Skrining Kesehatan"
+                                            description="Isi form analisa kesehatan awal"
+                                            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                            color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                        />
+                                        <QuickCard
+                                            href={route('profile.documents')}
+                                            title="Identitas Diri"
+                                            description="Upload KTP dan isi kontak darurat"
+                                            iconPath="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
+                                            color="bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400"
+                                        />
+                                        <QuickCard
+                                            href={route('agreement.show')}
+                                            title="Dokumen Persetujuan"
+                                            description="Tanda tangan surat perjanjian layanan"
+                                            iconPath="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            color="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400"
                                         />
                                         <QuickCard
                                             href={route('vouchers.index')}
@@ -482,7 +501,6 @@ export default function Dashboard() {
                                             description="Lihat & klaim voucher diskon yang tersedia"
                                             iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                            disabled={!isProfileComplete}
                                         />
                                         <QuickCard
                                             href={route('bookings.history')}
@@ -500,8 +518,8 @@ export default function Dashboard() {
                                         />
                                         <QuickCard
                                             href={route('courses.my')}
-                                            title="E-Learning"
-                                            description="Akses kelas online dan video pembelajaran"
+                                            title="Pelatihan Praktisi Saya"
+                                            description="Menampilkan pelatihan yang dibeli"
                                             iconPath="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                             color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
                                         />

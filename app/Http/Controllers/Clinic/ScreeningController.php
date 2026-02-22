@@ -14,12 +14,22 @@ class ScreeningController extends Controller
     {
         $user = $request->user();
 
-        // Jika sudah pernah skrining, redirect ke agreement/booking
-        if ($user->hasCompletedScreening()) {
-            return redirect()->route('agreement.show');
+        $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
+        // Only show results if it was completed within last 15 days
+        $showResults = false;
+        if ($screeningResult && $screeningResult->completed_at) {
+            $daysSinceSync = $screeningResult->completed_at->diffInDays(now());
+            if ($daysSinceSync < 15) {
+                $showResults = true;
+            }
         }
 
         return Inertia::render('Clinic/Screening', [
+            'screeningResult' => $showResults ? $screeningResult : null,
             'prefill' => [
                 'nama' => $user->name ?? '',
                 'email' => $user->email ?? '',
@@ -55,8 +65,13 @@ class ScreeningController extends Controller
     {
         $user = $request->user();
 
-        if ($user->hasCompletedScreening()) {
-            return redirect()->route('agreement.show')->with('info', 'Anda sudah menyelesaikan skrining.');
+        $lastResult = \App\Models\ScreeningResult::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
+        if ($lastResult && $lastResult->completed_at && $lastResult->completed_at->diffInDays(now()) < 15) {
+            return redirect()->route('dashboard')->with('info', 'Anda sudah menyelesaikan skrining.');
         }
 
         $request->validate([
@@ -93,8 +108,8 @@ class ScreeningController extends Controller
             'recommended_package' => in_array($recommendedPackage, ['hipnoterapi', 'upgrade', 'vip']) ? $recommendedPackage : 'hipnoterapi',
         ]);
 
-        return redirect()->route('agreement.show')
-            ->with('success', 'Skrining berhasil. Harap lengkapi persetujuan awal sebelum memilih jadwal.');
+        return redirect()->route('dashboard')
+            ->with('success', 'Skrining berhasil. Anda dapat melihat hasil ringkasannya di bawah ini.');
     }
 
     // ─────────────────────────────────────────────────────────────────────

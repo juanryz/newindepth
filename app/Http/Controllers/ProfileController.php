@@ -43,6 +43,16 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the user's documents form.
+     */
+    public function documents(Request $request): Response
+    {
+        return Inertia::render('Profile/Documents', [
+            'profileProgress' => $request->user()->getProfileCompletionStats(),
+        ]);
+    }
+
+    /**
      * Update patient documents: KTP and Emergency Contacts.
      */
     public function updateDocuments(Request $request): RedirectResponse

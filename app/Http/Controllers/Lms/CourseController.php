@@ -14,8 +14,7 @@ class CourseController extends Controller
     {
         try {
             $courses = Course::where('is_published', true)->get();
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::error('[CourseController] index error: ' . $e->getMessage());
             $courses = collect([]);
         }
@@ -31,15 +30,13 @@ class CourseController extends Controller
             $courses = auth()->user()->courses()
                 ->where('is_published', true)
                 ->get();
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::error('[CourseController] myCourses error: ' . $e->getMessage());
             $courses = collect([]);
         }
 
-        return Inertia::render('Lms/Courses/Index', [
+        return Inertia::render('Patient/MyCourses', [
             'courses' => $courses->values(),
-            'isMyCourses' => true,
         ]);
     }
 
@@ -52,11 +49,10 @@ class CourseController extends Controller
         try {
             $course->load([
                 'lessons' => function ($query) {
-                $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview');
-            }
+                    $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview');
+                }
             ]);
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::error('[CourseController] show load error: ' . $e->getMessage());
         }
 
@@ -64,8 +60,7 @@ class CourseController extends Controller
         if (auth()->check()) {
             try {
                 $isEnrolled = auth()->user()->courses()->where('course_id', $course->id)->exists();
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 Log::error('[CourseController] isEnrolled check error: ' . $e->getMessage());
             }
         }

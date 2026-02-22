@@ -24,11 +24,10 @@ class DashboardController extends Controller
                 ->first();
 
             if ($screeningResult && $screeningResult->completed_at) {
-                // Gunakan floatDiffInDays dan ceil untuk membulatkan ke atas menjadi integer
-                $daysSinceLastScreening = now()->floatDiffInDays($screeningResult->completed_at);
+                $daysSinceLastScreening = $screeningResult->completed_at->diffInDays(now());
                 if ($daysSinceLastScreening < 15) {
                     $canTakeScreening = false;
-                    $daysUntilNextScreening = (int) ceil(15 - $daysSinceLastScreening);
+                    $daysUntilNextScreening = (int) (15 - $daysSinceLastScreening);
                 }
             }
 

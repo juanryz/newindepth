@@ -44,6 +44,20 @@ class AdminBookingController extends Controller
             'therapist_id' => $request->therapist_id,
         ]);
 
-        return back()->with('success', 'Terapis berhasil diassign ke booking.');
+    }
+
+    public function updateDetails(Request $request, Booking $booking)
+    {
+        $request->validate([
+            'recording_link' => 'nullable|url',
+            'therapist_notes' => 'nullable|string',
+        ]);
+
+        $booking->update([
+            'recording_link' => $request->recording_link,
+            'therapist_notes' => $request->therapist_notes,
+        ]);
+
+        return back()->with('success', 'Detail booking berhasil diperbarui.');
     }
 }

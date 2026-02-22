@@ -11,6 +11,8 @@ export default function UpdateProfileInformation({
     className = '',
 }) {
     const user = usePage().props.auth.user;
+    const isPatient = user.roles?.some(role => role.name === 'patient');
+    const isTherapist = user.roles?.some(role => role.name === 'therapist');
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
@@ -72,56 +74,58 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div>
-                        <InputLabel htmlFor="phone" value="Nomor HP" />
+                {(isPatient || isTherapist) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                            <InputLabel htmlFor="phone" value="Nomor HP" />
 
-                        <TextInput
-                            id="phone"
-                            type="text"
-                            className="mt-1 block w-full"
-                            value={data.phone}
-                            onChange={(e) => setData('phone', e.target.value)}
-                            placeholder="Contoh: 0812..."
-                        />
+                            <TextInput
+                                id="phone"
+                                type="text"
+                                className="mt-1 block w-full"
+                                value={data.phone}
+                                onChange={(e) => setData('phone', e.target.value)}
+                                placeholder="Contoh: 0812..."
+                            />
 
-                        <InputError className="mt-2" message={errors.phone} />
+                            <InputError className="mt-2" message={errors.phone} />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="age" value="Usia" />
+
+                            <TextInput
+                                id="age"
+                                type="number"
+                                className="mt-1 block w-full"
+                                value={data.age}
+                                onChange={(e) => setData('age', e.target.value)}
+                                min="0"
+                                max="150"
+                            />
+
+                            <InputError className="mt-2" message={errors.age} />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="gender" value="Jenis Kelamin" />
+
+                            <select
+                                id="gender"
+                                className="mt-1 block w-full border border-gray-400 rounded-xl bg-white/50 shadow-sm backdrop-blur-md focus:border-gold-500 focus:ring-gold-500 focus:bg-white/80 dark:border-gray-500 dark:bg-gray-900/50 dark:text-gray-300 dark:focus:border-gold-500 dark:focus:ring-gold-500 dark:focus:bg-gray-900/80 transition-all duration-300"
+                                value={data.gender}
+                                onChange={(e) => setData('gender', e.target.value)}
+                            >
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+
+                            <InputError className="mt-2" message={errors.gender} />
+                        </div>
                     </div>
-
-                    <div>
-                        <InputLabel htmlFor="age" value="Usia" />
-
-                        <TextInput
-                            id="age"
-                            type="number"
-                            className="mt-1 block w-full"
-                            value={data.age}
-                            onChange={(e) => setData('age', e.target.value)}
-                            min="0"
-                            max="150"
-                        />
-
-                        <InputError className="mt-2" message={errors.age} />
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="gender" value="Jenis Kelamin" />
-
-                        <select
-                            id="gender"
-                            className="mt-1 block w-full border border-gray-400 rounded-xl bg-white/50 shadow-sm backdrop-blur-md focus:border-gold-500 focus:ring-gold-500 focus:bg-white/80 dark:border-gray-500 dark:bg-gray-900/50 dark:text-gray-300 dark:focus:border-gold-500 dark:focus:ring-gold-500 dark:focus:bg-gray-900/80 transition-all duration-300"
-                            value={data.gender}
-                            onChange={(e) => setData('gender', e.target.value)}
-                        >
-                            <option value="">Pilih Jenis Kelamin</option>
-                            <option value="Laki-laki">Laki-laki</option>
-                            <option value="Perempuan">Perempuan</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-
-                        <InputError className="mt-2" message={errors.gender} />
-                    </div>
-                </div>
+                )}
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>

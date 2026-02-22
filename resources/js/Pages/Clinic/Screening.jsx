@@ -1,7 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage, Link } from '@inertiajs/react';
 import axios from 'axios';
+
+const severityColors = {
+    'Ringan': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+    'Sedang': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+    'Berat Akut': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+    'Berat Kronis': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+    'High Risk': 'bg-red-200 text-red-900 dark:bg-red-900/60 dark:text-red-200',
+};
 
 // ── Crisis Keywords (client-side) ─────────────────────────────────────────────
 const CRISIS_KEYWORDS = [
@@ -105,7 +113,7 @@ const USAHA_OPTIONS = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Screening() {
-    const { prefill = {} } = usePage().props;
+    const { prefill = {}, screeningResult } = usePage().props;
 
     const [step, setStep] = useState(1);
     const [stepData, setStepData] = useState({
@@ -235,7 +243,7 @@ export default function Screening() {
             case 7:
                 return !!stepData.status_perawatan;
             case 8:
-                return !!stepData.usaha;
+                return Array.isArray(stepData.usaha) && stepData.usaha.length > 0;
             case 9:
                 return !!stepData.detail_masalah;
             case 10:
@@ -294,7 +302,7 @@ export default function Screening() {
                     {step === 5 && <Step5 data={stepData} update={update} />}
                     {step === 6 && <Step6 data={stepData} update={update} />}
                     {step === 7 && <Step7 data={stepData} update={update} />}
-                    {step === 8 && <Step8 data={stepData} update={update} />}
+                    {step === 8 && <Step8 data={stepData} toggleMulti={toggleMulti} />}
                     {step === 9 && <Step9 data={stepData} update={update} onSendAi={(t) => sendAiMessage(t, 'detail_masalah')} />}
                     {step === 10 && <Step10 data={stepData} update={update} onSendAi={(t) => sendAiMessage(t, 'outcome')} />}
                 </div>
@@ -303,6 +311,81 @@ export default function Screening() {
             </div>
         );
     };
+
+    const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+
+    if (screeningResult) {
+        const severityClass = severityColors[screeningResult.severity_label] ?? 'bg-indigo-100 text-indigo-800';
+        const packageLabel = screeningResult.recommended_package
+            ? (screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
+            : null;
+
+        return (
+            <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Hasil Skrining Klinis</h2>}>
+                <Head title="Hasil Skrining" />
+                <div className="py-12">
+                    <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
+                        <div className="bg-white dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 rounded-2xl shadow-xl overflow-hidden">
+                            <div className="p-8 sm:p-12">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-16 h-16 rounded-2xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                                        <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Skrining Selesai</h3>
+                                        <p className="text-gray-500 dark:text-gray-400">Ringkasan hasil analisis kesehatan mental Anda</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                                    <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Tingkat Keparahan</span>
+                                        <div className={`inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold ${severityClass}`}>
+                                            {screeningResult.severity_label}
+                                        </div>
+                                    </div>
+                                    <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Rekomendasi Paket</span>
+                                        <div className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                            {packageLabel || 'Hipnoterapi'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {screeningResult.ai_summary && (
+                                    <div className="mb-10">
+                                        <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                            Analisis AI InDepth
+                                        </h4>
+                                        <div className="relative p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl">
+                                            <p className={`text-gray-700 dark:text-gray-300 leading-relaxed ${!isSummaryExpanded ? 'line-clamp-6' : ''}`}>
+                                                {screeningResult.ai_summary}
+                                            </p>
+                                            {screeningResult.ai_summary.length > 400 && (
+                                                <button
+                                                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                                                    className="mt-4 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                                >
+                                                    {isSummaryExpanded ? 'Sembunyikan' : 'Baca analisis lengkap...'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
 
     const effectiveTotal = needsObesitasStep() ? 10 : 9;
     const displayStep = step > 5 && !needsObesitasStep() ? step - 1 : step;
@@ -601,8 +684,8 @@ function Step7({ data, update }) {
 }
 
 // STEP 8 — Upaya Sebelumnya
-function Step8({ data, update }) {
-    return <RadioGroup options={USAHA_OPTIONS} value={data.usaha} onChange={(opt) => update('usaha', opt)} />;
+function Step8({ data, toggleMulti }) {
+    return <CheckboxGroup options={USAHA_OPTIONS} values={data.usaha} toggle={(opt) => toggleMulti('usaha', opt)} />;
 }
 
 // STEP 9 — Detail Masalah (+ AI Chat)

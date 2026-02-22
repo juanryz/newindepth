@@ -16,7 +16,7 @@ class AdminScheduleController extends Controller
         $startDate = $request->get('start'); // FullCalendar passes 'start'
         $endDate = $request->get('end'); // FullCalendar passes 'end'
 
-        $query = Schedule::with(['therapist:id,name', 'bookings'])
+        $query = Schedule::with(['therapist:id,name', 'bookings.patient.screeningResults', 'bookings.therapist'])
             ->orderBy('date')
             ->orderBy('start_time');
 
@@ -31,11 +31,20 @@ class AdminScheduleController extends Controller
             $query->where('date', '<=', \Carbon\Carbon::parse($endDate)->format('Y-m-d'));
         }
 
-        $schedules = $query->get()->map(function ($schedule) {
+        $schedules = $query->get()->map(function (Schedule $schedule) {
             $data = $schedule->toArray();
-            $data['formatted_date'] = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
-            $data['formatted_start'] = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
-            $data['formatted_end'] = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+
+            // Format start and end for FullCalendar
+            $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
+            $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
+            $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+
+            $data['start'] = $date . 'T' . $startTime;
+            $data['end'] = $date . 'T' . $endTime;
+
+            $data['formatted_date'] = $date;
+            $data['formatted_start'] = $startTime;
+            $data['formatted_end'] = $endTime;
             $data['therapist'] = $schedule->therapist ? $schedule->therapist->toArray() : null;
             $data['bookings'] = $schedule->bookings ? $schedule->bookings->toArray() : [];
             return $data;
@@ -91,6 +100,15 @@ class AdminScheduleController extends Controller
         ]);
 
         return back()->with('success', 'Jadwal berhasil ditambahkan.');
+    }
+
+    public function show(Schedule $schedule)
+    {
+        $schedule->load(['therapist', 'bookings.patient.screeningResults', 'bookings.therapist']);
+
+        return Inertia::render('Admin/Schedules/Show', [
+            'schedule' => $schedule
+        ]);
     }
 
     public function destroy(Schedule $schedule)

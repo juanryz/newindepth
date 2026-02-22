@@ -12,26 +12,23 @@ class AgreementController extends Controller
     {
         $user = $request->user();
 
-        // Redirect if already signed or completed in session
-        if ($user->agreement_signed_at || session()->has('initial_agreement_completed')) {
-            return redirect()->route('bookings.create');
+        // If already signed and still valid, show the signed details instead of redirecting
+        if ($user->hasValidAgreement()) {
+            return Inertia::render('Clinic/AgreementDetail', [
+                'userModel' => $user,
+            ]);
         }
 
-        // Ensure user has completed screening but hasn't booked or fully agreed yet if we want to restrict
-        if (!$user->hasCompletedScreening()) {
-            return redirect()->route('screening.show')->with('error', 'Silakan selesaikan skrining terlebih dahulu.');
+        // If completed in session but not persisted yet, we might still want to show the form or redirect.
+        // But usually store() handles persistence.
+        if (session()->has('initial_agreement_completed')) {
+            return Inertia::render('Clinic/AgreementDetail', [
+                'userModel' => $user,
+            ]);
         }
-
         $usia = ($user->screening_answers['usia'] ?? null) ?: ($user->screening_answers['age'] ?? null);
-
-        $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
-            ->whereNotNull('completed_at')
-            ->latest('completed_at')
-            ->first();
-
         return Inertia::render('Clinic/InitialAgreement', [
-            'userAge' => $usia !== null ? (int)$usia : null,
-            'screeningResult' => $screeningResult,
+            'userAge' => $usia !== null ? (int) $usia : null,
         ]);
     }
 
@@ -51,8 +48,9 @@ class AgreementController extends Controller
         $user->update([
             'agreement_signed_at' => now(),
             'digital_signature' => $request->input('signature') ?? $validated['agreement_data']['signature'] ?? null,
+            'agreement_data' => json_encode($validated['agreement_data']),
         ]);
 
-        return redirect()->route('bookings.create')->with('success', 'Persyaratan awal disetujui, silakan pilih jadwal.');
+        return redirect()->route('agreement.show')->with('success', 'Persyaratan awal disetujui. Berikut adalah salinan dokumen yang telah Anda tandatangani.');
     }
 }

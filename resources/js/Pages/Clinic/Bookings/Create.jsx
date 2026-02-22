@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage, useForm } from '@inertiajs/react';
+import { Head, usePage, useForm, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TimeSlotPicker from '@/Components/Clinic/TimeSlotPicker';
 import ScreeningFormRenderer from '@/Components/Clinic/ScreeningFormRenderer';
@@ -28,24 +28,45 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                 <div className="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                     {/* Screening Results Section */}
-                    {screeningResult && (
-                        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl overflow-hidden border border-gold-100 dark:border-gold-900/30">
-                            <div className="p-6 bg-gradient-to-r from-gold-50/50 to-white/30 dark:from-gold-900/20 dark:to-transparent">
-                                <h3 className="text-lg font-bold text-gold-800 dark:text-gold-300 mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    Hasil Analisis Skrining Anda
-                                </h3>
-                                <div className="space-y-4">
-                                    <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold-100/80 dark:bg-gold-900/40 text-gold-800 dark:text-gold-300 border border-gold-200 dark:border-gold-800/50">
-                                        Tingkat Keparahan: {screeningResult.severity_label}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {screeningResult && (
+                            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl overflow-hidden border border-gold-100 dark:border-gold-900/30">
+                                <div className="p-6 bg-gradient-to-r from-gold-50/50 to-white/30 dark:from-gold-900/20 dark:to-transparent">
+                                    <h3 className="text-lg font-bold text-gold-800 dark:text-gold-300 mb-4 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-gold-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Hasil Analisis Skrining
+                                    </h3>
+                                    <div className="space-y-4">
+                                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold-100/80 dark:bg-gold-900/40 text-gold-800 dark:text-gold-300 border border-gold-200 dark:border-gold-800/50">
+                                            {screeningResult.severity_label}
+                                        </div>
+                                        <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed italic border-l-4 border-gold-400 dark:border-gold-600 pl-4 py-1 line-clamp-3">
+                                            "{screeningResult.ai_summary}"
+                                        </p>
                                     </div>
-                                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed italic border-l-4 border-gold-400 dark:border-gold-600 pl-4 py-1">
-                                        "{screeningResult.ai_summary}"
-                                    </p>
                                 </div>
                             </div>
+                        )}
+
+                        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl overflow-hidden border border-indigo-100 dark:border-indigo-900/30">
+                            <div className="p-6">
+                                <h3 className="text-lg font-bold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                    Dokumen Persetujuan Layanan
+                                </h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                    Anda telah menyetujui syarat dan ketentuan layanan InDepth Mental Wellness.
+                                </p>
+                                <Link
+                                    href={route('agreement.show')}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-xl transition-colors border border-indigo-100 dark:border-indigo-800"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Buka Dokumen Perjanjian (PDF)
+                                </Link>
+                            </div>
                         </div>
-                    )}
+                    </div>
 
                     {/* Package Selection */}
                     <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/50">

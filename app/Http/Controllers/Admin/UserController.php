@@ -40,7 +40,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['roles', 'permissions']);
+        $user->load(['roles', 'permissions', 'screeningResults']);
 
         // Load activity based on role
         $bookings = [];
@@ -61,8 +61,8 @@ class UserController extends Controller
         if ($user->hasRole('therapist')) {
             $schedules = \App\Models\Schedule::withCount('bookings')
                 ->whereHas('bookings', function ($q) use ($user) {
-                $q->where('therapist_id', $user->id);
-            })
+                    $q->where('therapist_id', $user->id);
+                })
                 ->orWhere('therapist_id', $user->id) // If legacy link exists
                 ->orderBy('date', 'desc')
                 ->get();
@@ -79,6 +79,8 @@ class UserController extends Controller
             'bookings' => $bookings,
             'transactions' => $transactions,
             'schedules' => $schedules,
+            'screeningResults' => $user->screeningResults,
+            'profileCompletion' => $user->getProfileCompletionStats()
         ]);
     }
 
@@ -155,5 +157,12 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function agreement(User $user)
+    {
+        return Inertia::render('Admin/Users/Agreement', [
+            'userModel' => $user
+        ]);
     }
 }
