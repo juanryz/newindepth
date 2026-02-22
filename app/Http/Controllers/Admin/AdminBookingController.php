@@ -16,21 +16,30 @@ class AdminBookingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
-                if ($booking->patient) {
-                    $booking->patient->append('profile_completion');
-                    // Add a custom property for easier display in the list
-                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
-                }
-                return $booking;
-            });
+            if ($booking->patient) {
+                $booking->patient->append('profile_completion');
+                // Add a custom property for easier display in the list
+                $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+            }
+            return $booking;
+        });
 
         $therapists = User::role('therapist')
             ->select('id', 'name')
             ->get();
 
+        $availableSchedules = \App\Models\Schedule::with('therapist')
+            ->where('date', '>=', now()->toDateString())
+            ->where('status', 'available')
+            ->whereColumn('booked_count', '<', 'quota')
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
         return Inertia::render('Admin/Clinic/Bookings/Index', [
             'bookings' => $bookings,
             'therapists' => $therapists,
+            'availableSchedules' => $availableSchedules,
         ]);
     }
 

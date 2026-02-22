@@ -14,7 +14,8 @@ class CourseController extends Controller
     {
         try {
             $courses = Course::where('is_published', true)->get();
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             Log::error('[CourseController] index error: ' . $e->getMessage());
             $courses = collect([]);
         }
@@ -30,7 +31,8 @@ class CourseController extends Controller
             $courses = auth()->user()->courses()
                 ->where('is_published', true)
                 ->get();
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             Log::error('[CourseController] myCourses error: ' . $e->getMessage());
             $courses = collect([]);
         }
@@ -48,11 +50,17 @@ class CourseController extends Controller
 
         try {
             $course->load([
+                'instructor',
                 'lessons' => function ($query) {
-                    $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview');
-                }
+                $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview')
+                    ->orderBy('order');
+            }
             ]);
-        } catch (\Throwable $e) {
+
+            // Ensure lessons is a sequential array for frontend .map()
+            $course->setRelation('lessons', $course->lessons->values());
+        }
+        catch (\Throwable $e) {
             Log::error('[CourseController] show load error: ' . $e->getMessage());
         }
 
@@ -60,14 +68,52 @@ class CourseController extends Controller
         if (auth()->check()) {
             try {
                 $isEnrolled = auth()->user()->courses()->where('course_id', $course->id)->exists();
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
                 Log::error('[CourseController] isEnrolled check error: ' . $e->getMessage());
             }
+        }
+
+        // Security: Hide sensitive data if not enrolled
+        if (!$isEnrolled) {
+            $course->makeHidden(['online_link']);
         }
 
         return Inertia::render('Lms/Courses/Show', [
             'course' => $course,
             'isEnrolled' => $isEnrolled,
         ]);
+    }
+
+    public function enroll(Request $request, Course $course)
+    {
+        if (!$course->is_published) {
+            abort(404);
+        }
+
+        $user = auth()->user();
+
+        // Check if already enrolled
+        if ($user->courses()->where('course_id', $course->id)->exists()) {
+            return redirect()->route('courses.my')->with('info', 'Anda sudah terdaftar di kelas ini.');
+        }
+
+        if (Number::parseFloat($course->price ?? 0) > 0) {
+            // Course is paid, redirect to checkout
+            // Currently not implemented, redirect back with error/info
+            return redirect()->route('courses.show', $course->slug)->withErrors(['error' => 'Fitur pembelian kelas berbayar sedang dikembangkan. Silakan hubungi admin.']);
+        }
+
+        // Free course -> Enroll immediately
+        try {
+            $user->courses()->attach($course->id, [
+                'enrolled_at' => now(),
+            ]);
+            return redirect()->route('courses.my')->with('success', 'Berhasil mendaftar ke kelas gratis ini!');
+        }
+        catch (\Throwable $e) {
+            Log::error('[CourseController] enroll error: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat mencoba mendaftar.']);
+        }
     }
 }

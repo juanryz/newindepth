@@ -80,6 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'age',
         'gender',
         'digital_signature',
+        'agreement_signed',
         'agreement_signed_at',
         'agreement_data',
     ];
@@ -118,22 +119,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'therapist_id');
+        return $this->hasMany(Schedule::class , 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'patient_id');
+        return $this->hasMany(Booking::class , 'patient_id');
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class, 'user_id');
+        return $this->hasMany(Transaction::class , 'user_id');
     }
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class, 'affiliate_user_id');
+        return $this->hasMany(Commission::class , 'affiliate_user_id');
     }
 
     public function courses()
@@ -184,7 +185,8 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($isTherapist) {
             $fields['specialization'] = ['label' => 'Keahlian/Spesialisasi', 'filled' => filled($this->specialization)];
             $fields['bio'] = ['label' => 'Biografi Singkat', 'filled' => filled($this->bio)];
-        } else {
+        }
+        else {
             $fields['ktp_photo'] = ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)];
             $fields['emergency_contact_name'] = ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)];
             $fields['emergency_contact_phone'] = ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)];
@@ -201,7 +203,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $isComplete = count(array_filter(array_column($mandatoryFields, 'filled'))) === count($mandatoryFields);
 
         return [
-            'percentage' => (int) round(($completedCount / $totalCount) * 100),
+            'percentage' => (int)round(($completedCount / $totalCount) * 100),
             'fields' => $fields,
             'completed_count' => $completedCount,
             'total_count' => $totalCount,
@@ -223,4 +225,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->getProfileCompletionStats();
     }
+
+    public function getKtpPhotoUrlAttribute()
+    {
+        return $this->ktp_photo ? asset('storage/' . $this->ktp_photo) : null;
+    }
+
+    protected $appends = ['profile_completion', 'ktp_photo_url'];
 }

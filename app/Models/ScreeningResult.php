@@ -17,6 +17,7 @@ class ScreeningResult extends Model
         'recommended_package',
         'ai_summary',
         'is_high_risk',
+        'admin_notes',
         'completed_at',
     ];
 

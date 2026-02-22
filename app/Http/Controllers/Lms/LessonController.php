@@ -25,9 +25,15 @@ class LessonController extends Controller
             return redirect()->route('courses.show', $course->slug)->withErrors(['error' => 'Anda harus membeli kelas ini terlebih dahulu untuk melihat materi ini.']);
         }
 
+        $course->load(['lessons' => function ($query) {
+            $query->orderBy('order_column');
+        }]);
+        $course->setRelation('lessons', $course->lessons->values());
+
         return Inertia::render('Lms/Lessons/Show', [
             'course' => $course,
             'lesson' => $lesson,
+            'isEnrolled' => $isEnrolled,
         ]);
     }
 }

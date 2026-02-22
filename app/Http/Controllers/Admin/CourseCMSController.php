@@ -12,7 +12,7 @@ class CourseCMSController extends Controller
 {
     public function index()
     {
-        $courses = Course::withCount('lessons')->latest()->get();
+        $courses = Course::with(['instructor'])->withCount('lessons')->latest()->get();
 
         return Inertia::render('Admin/Courses/Index', [
             'courses' => $courses,
@@ -31,6 +31,10 @@ class CourseCMSController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'course_type' => 'required|in:online,offline',
+            'online_platform' => 'required_if:course_type,online|nullable|string|max:255',
+            'online_link' => 'required_if:course_type,online|nullable|url',
+            'location' => 'required_if:course_type,offline|nullable|string|max:255',
             'thumbnail' => 'nullable|image|max:2048',
             'price' => 'required|numeric|min:0',
             'is_published' => 'boolean',
@@ -61,6 +65,10 @@ class CourseCMSController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'course_type' => 'required|in:online,offline',
+            'online_platform' => 'required_if:course_type,online|nullable|string|max:255',
+            'online_link' => 'required_if:course_type,online|nullable|url',
+            'location' => 'required_if:course_type,offline|nullable|string|max:255',
             'thumbnail' => 'nullable|image|max:2048',
             'price' => 'required|numeric|min:0',
             'is_published' => 'boolean',

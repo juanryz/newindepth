@@ -1,121 +1,274 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function LessonShow({ course, lesson, auth }) {
-    // Smooth scroll
-    useEffect(() => {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                if (this.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
-            });
-        });
-    }, []);
+export default function LessonShow({ course, lesson, isEnrolled, auth }) {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const lessons = course.lessons || [];
+    const currentIndex = lessons.findIndex(l => l.id === lesson.id);
+    const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
+    const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+
+    // Helper to format YouTube URLs for embedding
+    const getEmbedUrl = (url) => {
+        if (!url) return null;
+        if (url.includes('youtube.com/embed/')) return url;
+
+        let videoId = '';
+        if (url.includes('youtu.be/')) {
+            videoId = url.split('youtu.be/')[1].split('?')[0];
+        } else if (url.includes('v=')) {
+            videoId = url.split('v=')[1].split('&')[0];
+        } else if (url.includes('youtube.com/embed/')) {
+            videoId = url.split('youtube.com/embed/')[1].split('?')[0];
+        }
+
+        return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
+    };
 
     return (
-        <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
+        <div className="h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased overflow-hidden flex flex-col">
             <Head>
                 <title>{lesson.title} - {course.title}</title>
             </Head>
 
-            {/* Global Background Ambient Light */}
-            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
-            </div>
+            {/* LEARNING NAVBAR */}
+            <nav className="h-16 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl flex items-center justify-between px-6 z-50">
+                <div className="flex items-center gap-4">
+                    <Link href={route('courses.index')} className="text-gray-400 hover:text-indigo-600 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    </Link>
+                    <div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 leading-none mb-1">Learning Player</p>
+                        <h1 className="text-sm font-black uppercase text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-md leading-none">{course.title}</h1>
+                    </div>
+                </div>
 
-            {/* Minimalist Navbar for Learning Mode */}
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border-b border-white/40 dark:border-gray-800/50 shadow-sm transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-4">
-                            <Link href={route('courses.show', course.slug)} className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-gold-500/10 transition-all font-bold">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                            </Link>
-                            <div className="hidden sm:block">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-0.5">{course.title}</p>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">{lesson.title}</p>
+                <div className="flex items-center gap-4">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="p-2 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all sm:flex hidden"
+                    >
+                        <svg className={`w-5 h-5 transition-transform ${sidebarOpen ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    </button>
+                    <Link href={route('courses.show', course.slug)} className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 dark:hover:bg-indigo-400 dark:hover:text-white transition-all">
+                        Daftar Modul
+                    </Link>
+                </div>
+            </nav>
+
+            <div className="flex-1 flex overflow-hidden">
+                {/* SIDEBAR CURRICULUM */}
+                <AnimatePresence initial={false}>
+                    {sidebarOpen && (
+                        <motion.aside
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 320, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            className="bg-gray-50 dark:bg-gray-900/50 border-r border-gray-100 dark:border-gray-800 flex flex-col hidden sm:flex shrink-0"
+                        >
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Kurikulum Kelas</h3>
+                                <p className="text-xs text-gray-500 mt-1">{lessons.length} Materi Pembelajaran</p>
                             </div>
+                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                                {lessons.map((item, idx) => {
+                                    const isActive = item.id === lesson.id;
+                                    const isLocked = !isEnrolled && !item.is_preview;
+
+                                    return (
+                                        <Link
+                                            key={item.id}
+                                            href={isLocked ? '#' : route('lessons.show', [course.slug, item.id])}
+                                            className={`
+                                                w-full flex items-start gap-4 p-4 rounded-2xl transition-all group
+                                                ${isActive ? 'bg-white dark:bg-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none ring-1 ring-gray-100 dark:ring-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-800/50'}
+                                                ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}
+                                            `}
+                                        >
+                                            <div className={`
+                                                shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs border
+                                                ${isActive ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400'}
+                                            `}>
+                                                {idx + 1}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`text-xs font-black uppercase truncate ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                                    {item.title}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                                                        {item.type === 'video' ? (
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                                                        ) : (
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                        )}
+                                                        {item.type === 'video' ? 'Video' : 'Reading'}
+                                                    </span>
+                                                    {item.is_preview && (
+                                                        <span className="text-[8px] font-black bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded uppercase">Free</span>
+                                                    )}
+                                                    {isLocked && (
+                                                        <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
+
+                {/* MAIN CONTENT AREA */}
+                <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col bg-white dark:bg-gray-950">
+                    {/* VIDEO PLAYER or DOCUMENT PREVIEW */}
+                    {lesson.type === 'video' ? (
+                        <div className="aspect-w-16 aspect-h-9 bg-black w-full relative">
+                            {lesson.video_url ? (
+                                <iframe
+                                    src={getEmbedUrl(lesson.video_url)}
+                                    className="w-full h-full aspect-video"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen>
+                                </iframe>
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 bg-gray-900">
+                                    <svg className="w-20 h-20 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    <p className="font-black uppercase tracking-widest text-xs">Video Content Empty</p>
+                                </div>
+                            )}
+                        </div>
+                    ) : lesson.type === 'document' && lesson.attachment ? (
+                        <div className="bg-indigo-900/10 py-20 px-6 sm:px-12 flex flex-col items-center text-center">
+                            <div className="w-24 h-24 bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex items-center justify-center mb-6 border border-indigo-100 dark:border-gray-700">
+                                {lesson.attachment.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                    <img src={`/storage/${lesson.attachment}`} className="w-full h-full object-cover rounded-2xl" alt="Preview" />
+                                ) : (
+                                    <svg className="w-12 h-12 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                )}
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">{lesson.attachment_name || 'Materi Dokumen'}</h3>
+                            <a
+                                href={`/storage/${lesson.attachment}`}
+                                target="_blank"
+                                download
+                                className="mt-4 px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20"
+                            >
+                                Download / Buka File
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="h-40 bg-gradient-to-br from-indigo-600 to-indigo-900 flex items-center px-12 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[100px] rounded-full"></div>
+                            <h2 className="text-white text-3xl font-black uppercase tracking-tight relative z-10">{lesson.title}</h2>
+                        </div>
+                    )}
+
+                    {/* LESSON DETAILS & TEXT CONTENT */}
+                    <div className="max-w-4xl mx-auto w-full px-6 sm:px-12 py-12">
+                        {/* Attachment Section if it's not the main content but exists */}
+                        {lesson.type !== 'document' && lesson.attachment && (
+                            <div className="mb-10 p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-3xl border border-emerald-100 dark:border-emerald-800 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-emerald-500 shadow-sm">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Lampiran Materi</p>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[200px]">{lesson.attachment_name}</p>
+                                    </div>
+                                </div>
+                                <a
+                                    href={`/storage/${lesson.attachment}`}
+                                    download
+                                    className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all"
+                                >
+                                    Download
+                                </a>
+                            </div>
+                        )}
+                        <div className="flex flex-wrap items-center gap-4 mb-8">
+                            {lesson.is_preview && (
+                                <span className="bg-emerald-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg shadow-emerald-500/20">Preview Gratis</span>
+                            )}
+                            <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-gray-200 dark:border-gray-700">
+                                MODUL {currentIndex + 1}
+                            </span>
                         </div>
 
-                        <div className="flex items-center space-x-4">
-                            <ThemeToggle />
-                            {auth?.user && (
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white uppercase leading-tight mb-8">
+                            {lesson.title}
+                        </h2>
+
+                        {lesson.content ? (
+                            <div
+                                className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed font-medium selection:bg-indigo-500 selection:text-white"
+                                dangerouslySetInnerHTML={{ __html: lesson.content }}
+                            />
+                        ) : (
+                            <div className="py-20 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+                                <svg className="w-12 h-12 text-gray-200 dark:text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                <p className="text-gray-400 dark:text-gray-600 italic">Tidak ada deskripsi teks untuk materi ini.</p>
+                            </div>
+                        )}
+
+                        {/* NAVIGATION BUTTONS */}
+                        <div className="flex border-t border-gray-100 dark:border-gray-800 mt-20 pt-10 gap-4 mb-20">
+                            {prevLesson && (
                                 <Link
-                                    href={route('dashboard')}
-                                    className="px-4 py-2 rounded-full font-semibold text-xs text-gray-900 dark:text-white bg-white/50 dark:bg-gray-800/50 border border-white/60 dark:border-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-all"
+                                    href={route('lessons.show', [course.slug, prevLesson.id])}
+                                    className="flex-1 flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 hover:border-indigo-500 transition-all group"
                                 >
-                                    Dashboard
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-indigo-600 transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Sebelumnya</p>
+                                            <p className="text-sm font-black text-gray-900 dark:text-white uppercase truncate max-w-[120px] sm:max-w-none">{prevLesson.title}</p>
+                                        </div>
+                                    </div>
+                                </Link>
+                            )}
+                            {nextLesson && (
+                                <Link
+                                    href={(!isEnrolled && !nextLesson.is_preview) ? '#' : route('lessons.show', [course.slug, nextLesson.id])}
+                                    className={`
+                                        flex-1 flex items-center justify-between p-6 rounded-[2rem] transition-all group text-right
+                                        ${(!isEnrolled && !nextLesson.is_preview)
+                                            ? 'bg-gray-100 dark:bg-gray-900/50 opacity-50 cursor-not-allowed border border-gray-100 dark:border-gray-800'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-500/20'
+                                        }
+                                    `}
+                                >
+                                    <div className="flex-1">
+                                        <p className={`text-[10px] font-black uppercase tracking-widest leading-none mb-1 ${(!isEnrolled && !nextLesson.is_preview) ? 'text-gray-400' : 'text-white/60'}`}>Berikutnya</p>
+                                        <p className="text-sm font-black uppercase truncate max-w-[120px] sm:max-w-none">
+                                            {(!isEnrolled && !nextLesson.is_preview) ? 'Modul Terkunci' : nextLesson.title}
+                                        </p>
+                                    </div>
+                                    {(!isEnrolled && !nextLesson.is_preview) ? (
+                                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-400 ml-4">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        </div>
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white ml-4 group-hover:translate-x-1 transition-transform">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                                        </div>
+                                    )}
                                 </Link>
                             )}
                         </div>
                     </div>
-                </div>
-            </nav>
-
-            <main className="relative z-10 pt-24 pb-20">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-
-                    <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-2xl rounded-[3rem] border border-white/60 dark:border-gray-800/50 overflow-hidden shadow-2xl">
-
-                        {/* Video Player or Content Display */}
-                        {lesson.type === 'video' ? (
-                            <div className="aspect-w-16 aspect-h-9 bg-black relative w-full border-b border-gray-200 dark:border-gray-800" style={{ paddingBottom: '56.25%' }}>
-                                {lesson.content_url ? (
-                                    <iframe
-                                        src={lesson.content_url}
-                                        className="absolute top-0 left-0 w-full h-full"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen>
-                                    </iframe>
-                                ) : (
-                                    <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 bg-gray-100/5 dark:bg-black/50 backdrop-blur-sm">
-                                        <svg className="w-20 h-20 mb-4 text-gold-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                        <p className="font-semibold tracking-wide uppercase">Video sedang dipersiapkan</p>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="p-8 md:p-16 prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200" dangerouslySetInnerHTML={{ __html: lesson.content_text }}>
-                                {!lesson.content_text && <p className="text-gray-500 italic text-center py-20">Materi tulisan belum ditambahkan.</p>}
-                            </div>
-                        )}
-
-                        <div className="p-8 md:p-12">
-                            <div className="flex items-center gap-4 mb-4">
-                                {lesson.is_preview && (
-                                    <span className="inline-block px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-full uppercase tracking-widest shadow-sm">
-                                        Materi Preview Gratis
-                                    </span>
-                                )}
-                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-xs font-bold rounded-full uppercase tracking-widest shadow-sm">
-                                    {lesson.type === 'video' ? (
-                                        <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg> Video</>
-                                    ) : (
-                                        <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Artikel</>
-                                    )}
-                                </span>
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">{lesson.title}</h1>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-between items-center bg-transparent py-4 border-t border-gray-200 dark:border-gray-800">
-                        <Link href={route('courses.show', course.slug)} className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400 font-bold bg-white/50 dark:bg-gray-900/50 px-6 py-4 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 transition-all hover:bg-white dark:hover:bg-gray-800 hover:-translate-y-1">
-                            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                            Kembali ke Daftar Materi
-                        </Link>
-                    </div>
-
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }

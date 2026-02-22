@@ -8,7 +8,8 @@ import { useForm, usePage } from '@inertiajs/react';
 import imageCompression from 'browser-image-compression';
 
 export default function UpdatePatientDocumentsForm({ className = '' }) {
-    const user = usePage().props.auth.user;
+    const { auth, status } = usePage().props;
+    const user = auth.user;
 
     const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
         ktp_photo: null,
@@ -90,6 +91,15 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     Lengkapi identitas KTP dan data kontak darurat Anda yang bisa dihubungi dalam kondisi mendesak.
                 </p>
+
+                {status === 'profile-updated-continue-docs' && (
+                    <div className="mt-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center gap-3 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm font-medium">Profil dasar berhasil diperbarui. Silakan lengkapi Foto KTP dan Kontak Darurat di bawah ini.</span>
+                    </div>
+                )}
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
@@ -136,7 +146,6 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
                         ref={fileInputRef}
                         onChange={handlePhotoChange}
                         accept="image/*"
-                        capture="environment"
                         disabled={isCompressing}
                         className={`mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 border border-gray-400 dark:border-gray-500 rounded-xl bg-white/50 dark:bg-gray-900/50 shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300 transition-all duration-300 ${isCompressing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     />

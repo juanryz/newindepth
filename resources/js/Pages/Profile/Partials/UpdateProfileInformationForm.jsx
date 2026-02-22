@@ -86,6 +86,7 @@ export default function UpdateProfileInformation({
                                 value={data.phone}
                                 onChange={(e) => setData('phone', e.target.value)}
                                 placeholder="Contoh: 0812..."
+                                required={isPatient}
                             />
 
                             <InputError className="mt-2" message={errors.phone} />
@@ -102,6 +103,7 @@ export default function UpdateProfileInformation({
                                 onChange={(e) => setData('age', e.target.value)}
                                 min="0"
                                 max="150"
+                                required={isPatient}
                             />
 
                             <InputError className="mt-2" message={errors.age} />
@@ -115,6 +117,7 @@ export default function UpdateProfileInformation({
                                 className="mt-1 block w-full border border-gray-400 rounded-xl bg-white/50 shadow-sm backdrop-blur-md focus:border-gold-500 focus:ring-gold-500 focus:bg-white/80 dark:border-gray-500 dark:bg-gray-900/50 dark:text-gray-300 dark:focus:border-gold-500 dark:focus:ring-gold-500 dark:focus:bg-gray-900/80 transition-all duration-300"
                                 value={data.gender}
                                 onChange={(e) => setData('gender', e.target.value)}
+                                required={isPatient}
                             >
                                 <option value="">Pilih Jenis Kelamin</option>
                                 <option value="Laki-laki">Laki-laki</option>
@@ -151,17 +154,19 @@ export default function UpdateProfileInformation({
                 )}
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">SIMPAN</PrimaryButton>
+                    <PrimaryButton disabled={processing} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">
+                        {isPatient ? 'SIMPAN & LANJUT KE DOKUMEN' : 'SIMPAN'}
+                    </PrimaryButton>
 
                     <Transition
-                        show={recentlySuccessful}
+                        show={recentlySuccessful || status === 'profile-updated-continue-docs'}
                         enter="transition ease-in-out"
                         enterFrom="opacity-0"
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Saved.
+                            Profil tersimpan.
                         </p>
                     </Transition>
                 </div>

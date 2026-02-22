@@ -17,6 +17,11 @@ class Course extends Model
         return $this->hasMany(Lesson::class)->orderBy('order');
     }
 
+    public function instructor()
+    {
+        return $this->belongsTo(User::class , 'instructor_id');
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('transaction_id', 'enrolled_at');

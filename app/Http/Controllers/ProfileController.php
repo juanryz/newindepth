@@ -31,13 +31,41 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        // If patient and basic profile is complete but documents are not, redirect to documents
+        if ($user->hasRole('patient')) {
+            $basicFields = ['name', 'email', 'phone', 'age', 'gender'];
+            $isBasicComplete = true;
+            foreach ($basicFields as $field) {
+                if (empty($user->$field)) {
+                    $isBasicComplete = false;
+                    break;
+                }
+            }
+
+            if ($isBasicComplete) {
+                $docFields = ['ktp_photo', 'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation'];
+                $isDocsComplete = true;
+                foreach ($docFields as $field) {
+                    if (empty($user->$field)) {
+                        $isDocsComplete = false;
+                        break;
+                    }
+                }
+
+                if (!$isDocsComplete) {
+                    return Redirect::route('profile.documents')->with('status', 'profile-updated-continue-docs');
+                }
+            }
+        }
 
         return Redirect::route('profile.edit');
     }
@@ -58,10 +86,17 @@ class ProfileController extends Controller
     public function updateDocuments(Request $request): RedirectResponse
     {
         $request->validate([
-            'ktp_photo' => ['nullable', 'image', 'max:5120'], // Max 5MB
+            'ktp_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:10240'], // Max 10MB
             'emergency_contact_name' => ['required', 'string', 'max:255'],
-            'emergency_contact_phone' => ['required', 'string', 'max:20'],
+            'emergency_contact_phone' => ['required', 'string', 'max:50'],
             'emergency_contact_relation' => ['required', 'string', 'max:100'],
+        ], [
+            'ktp_photo.max' => 'Ukuran foto KTP maksimal 10MB.',
+            'ktp_photo.image' => 'File harus berupa gambar.',
+            'ktp_photo.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
+            'emergency_contact_name.required' => 'Nama kontak darurat wajib diisi.',
+            'emergency_contact_phone.required' => 'Nomor telepon kontak darurat wajib diisi.',
+            'emergency_contact_phone.max' => 'Nomor telepon maksimal 50 karakter.',
         ]);
 
         $user = $request->user();

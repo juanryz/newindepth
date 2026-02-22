@@ -28,7 +28,7 @@ class AgreementController extends Controller
         }
         $usia = ($user->screening_answers['usia'] ?? null) ?: ($user->screening_answers['age'] ?? null);
         return Inertia::render('Clinic/InitialAgreement', [
-            'userAge' => $usia !== null ? (int) $usia : null,
+            'userAge' => $usia !== null ? (int)$usia : null,
         ]);
     }
 
@@ -46,11 +46,28 @@ class AgreementController extends Controller
 
         // Persist to database to update profile completion stats
         $user->update([
+            'agreement_signed' => true,
             'agreement_signed_at' => now(),
             'digital_signature' => $request->input('signature') ?? $validated['agreement_data']['signature'] ?? null,
-            'agreement_data' => json_encode($validated['agreement_data']),
+            'agreement_data' => $validated['agreement_data'],
         ]);
 
         return redirect()->route('agreement.show')->with('success', 'Persyaratan awal disetujui. Berikut adalah salinan dokumen yang telah Anda tandatangani.');
+    }
+
+    public function patientAgreement(Request $request, \App\Models\User $user)
+    {
+        // Auth check: therapist must have booking or be admin
+        $hasBooking = \App\Models\Booking::where('patient_id', $user->id)
+            ->where('therapist_id', $request->user()->id)
+            ->exists();
+
+        if (!$hasBooking && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
+            abort(403);
+        }
+
+        return Inertia::render('Clinic/AgreementDetail', [
+            'userModel' => $user,
+        ]);
     }
 }

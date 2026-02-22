@@ -6,144 +6,160 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // AI Chat Routes
-Route::post('/api/ai-chat', [App\Http\Controllers\AiChatController::class, 'chat'])->name('ai-chat');
+Route::post('/api/ai-chat', [App\Http\Controllers\AiChatController::class , 'chat'])->name('ai-chat');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+    'canLogin' => Route::has('login'),
+    'canRegister' => Route::has('register'),
+    'laravelVersion' => Application::VERSION,
+    'phpVersion' => PHP_VERSION,
     ]);
 });
 
 // Socialite Routes
-Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
+Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class , 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class , 'handleGoogleCallback']);
 
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class , 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/documents', [ProfileController::class, 'documents'])->name('profile.documents');
-    Route::post('/profile/documents', [ProfileController::class, 'updateDocuments'])->name('profile.documents.update');
-    Route::post('/profile/agreement', [ProfileController::class, 'updateAgreement'])->name('profile.agreement.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
+    Route::get('/profile/documents', [ProfileController::class , 'documents'])->name('profile.documents');
+    Route::post('/profile/documents', [ProfileController::class , 'updateDocuments'])->name('profile.documents.update');
+    Route::post('/profile/agreement', [ProfileController::class , 'updateAgreement'])->name('profile.agreement.update');
+    Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');
 
     // Screening
-    Route::get('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'show'])->name('screening.show');
-    Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'store'])->name('screening.store');
-    Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class, 'chatMessage'])->name('screening.chat');
+    Route::get('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class , 'show'])->name('screening.show');
+    Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class , 'store'])->name('screening.store');
+    Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class , 'chatMessage'])->name('screening.chat');
 
     // Agreement
-    Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'show'])->name('agreement.show');
-    Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'store'])->name('agreement.store');
+    Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'show'])->name('agreement.show');
+    Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'store'])->name('agreement.store');
 
 
     // Patient Routes
     Route::middleware([\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient'])->group(
         function () {
             // Booking Management
-            Route::get('/bookings/history', [\App\Http\Controllers\Clinic\BookingController::class, 'index'])->name('bookings.history');
-            Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class, 'create'])->name('bookings.create');
-            Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class, 'store'])->name('bookings.store');
-            Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class, 'show'])->name('bookings.show');
-            Route::delete('/bookings/{booking}/cancel', [\App\Http\Controllers\Clinic\BookingController::class, 'cancel'])->name('bookings.cancel');
+            Route::get('/bookings/history', [\App\Http\Controllers\Clinic\BookingController::class , 'index'])->name('bookings.history');
+            Route::get('/bookings/create', [\App\Http\Controllers\Clinic\BookingController::class , 'create'])->name('bookings.create');
+            Route::post('/bookings', [\App\Http\Controllers\Clinic\BookingController::class , 'store'])->name('bookings.store');
+            Route::get('/bookings/{booking}', [\App\Http\Controllers\Clinic\BookingController::class , 'show'])->name('bookings.show');
+            Route::delete('/bookings/{booking}/cancel', [\App\Http\Controllers\Clinic\BookingController::class , 'cancel'])->name('bookings.cancel');
 
             // Payment routes
-            Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'create'])->name('payments.create');
-            Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class, 'store'])->name('payments.store');
+            Route::get('/payments/upload/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'create'])->name('payments.create');
+            Route::post('/payments/{booking}', [\App\Http\Controllers\Clinic\PaymentController::class , 'store'])->name('payments.store');
 
             // Voucher routes
-            Route::get('/vouchers', [\App\Http\Controllers\Clinic\VoucherController::class, 'index'])->name('vouchers.index');
-            Route::post('/vouchers/claim', [\App\Http\Controllers\Clinic\VoucherController::class, 'claim'])->name('vouchers.claim');
-            Route::post('/vouchers/apply', [\App\Http\Controllers\Clinic\VoucherController::class, 'apply'])->name('vouchers.apply');
+            Route::get('/vouchers', [\App\Http\Controllers\Clinic\VoucherController::class , 'index'])->name('vouchers.index');
+            Route::post('/vouchers/claim', [\App\Http\Controllers\Clinic\VoucherController::class , 'claim'])->name('vouchers.claim');
+            Route::post('/vouchers/apply', [\App\Http\Controllers\Clinic\VoucherController::class , 'apply'])->name('vouchers.apply');
         }
-    );
+        );
 
-    // Therapist Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist')->group(
-        function () {
-            Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
-            Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
-            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
-            Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeSession'])->name('schedules.complete');
-        }
-    );
+        // Therapist Routes
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist|admin|super_admin')->group(
+            function () {
+            Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'index'])->name('schedules.index');
+            Route::get('/schedules/patients/{user}', [\App\Http\Controllers\Clinic\ScheduleController::class , 'patientDetail'])->name('schedules.patient-detail');
+            Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class , 'store'])->name('schedules.store');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class , 'destroy'])->name('schedules.destroy');
+            Route::post('/schedules/sessions/{booking}/start', [\App\Http\Controllers\Clinic\ScheduleController::class , 'startSession'])->name('schedules.start');
+            Route::get('/schedules/sessions/{booking}', [\App\Http\Controllers\Clinic\ScheduleController::class , 'activeSession'])->name('schedules.active-session');
+            Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class , 'completeSession'])->name('schedules.complete');
+            Route::post('/schedules/sessions/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class , 'rescheduleSession'])->name('schedules.reschedule');
+            Route::post('/schedules/sessions/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class , 'markNoShow'])->name('schedules.no-show');
+            Route::get('/patients/{user}/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'patientAgreement'])->name('agreement.patient');
 
-    // CS / Admin Routes for Transaction Validation
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(
-        function () {
-            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
-            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
-            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
+            // Therapist Course Management
+            Route::name('therapist.')->prefix('therapist')->group(function () {
+                    Route::resource('courses', \App\Http\Controllers\Therapist\CourseController::class);
+                    Route::resource('courses.lessons', \App\Http\Controllers\Therapist\LessonController::class);
+                }
+                );
+            }
+            );
+
+            // CS / Admin Routes for Transaction Validation
+            Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(
+                function () {
+            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'index'])->name('transactions.index');
+            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'validatePayment'])->name('transactions.validate');
+            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class , 'rejectPayment'])->name('transactions.reject');
 
             // Blog CMS
             Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
 
             // Reports & Expenses
-            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class, 'index'])->name('reports.index');
-            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class, 'exportCsv'])->name('reports.export-csv');
-            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
-            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
-            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class , 'index'])->name('reports.index');
+            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class , 'exportCsv'])->name('reports.export-csv');
+            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'index'])->name('expenses.index');
+            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class , 'store'])->name('expenses.store');
+            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class , 'destroy'])->name('expenses.destroy');
 
             // Admin E-Learning CMS
             Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
             Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
 
             // Admin Bookings
-            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'index'])->name('bookings.index');
-            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
-            Route::get('/clinic/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'show'])->name('schedules.show');
-            Route::patch('/clinic/bookings/{booking}/details', [\App\Http\Controllers\Admin\AdminBookingController::class, 'updateDetails'])->name('bookings.update-details');
+            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class , 'index'])->name('bookings.index');
+            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class , 'assignTherapist'])->name('bookings.assign-therapist');
+            Route::get('/clinic/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'show'])->name('schedules.show');
+            Route::patch('/clinic/bookings/{booking}/details', [\App\Http\Controllers\Admin\AdminBookingController::class , 'updateDetails'])->name('bookings.update-details');
+            Route::post('/clinic/bookings/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class , 'rescheduleSession'])->name('bookings.reschedule');
+            Route::post('/clinic/bookings/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class , 'markNoShow'])->name('bookings.no-show');
 
             // Admin Schedule Management
-            Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');
-            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
-            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
+            Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'index'])->name('schedules.index');
+            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'store'])->name('schedules.store');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class , 'destroy'])->name('schedules.destroy');
 
             // Admin Pricing — Vouchers
-            Route::get('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class, 'index'])->name('pricing.vouchers.index');
-            Route::post('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class, 'store'])->name('pricing.vouchers.store');
-            Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class, 'update'])->name('pricing.vouchers.update');
-            Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class, 'destroy'])->name('pricing.vouchers.destroy');
+            Route::get('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class , 'index'])->name('pricing.vouchers.index');
+            Route::post('/pricing/vouchers', [\App\Http\Controllers\Admin\VoucherController::class , 'store'])->name('pricing.vouchers.store');
+            Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class , 'update'])->name('pricing.vouchers.update');
+            Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\VoucherController::class , 'destroy'])->name('pricing.vouchers.destroy');
         }
-    );
+        );
 
-    // Super Admin Only Routes (User Management, Role Management)
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(
-        function () {
-            Route::get('users/{user}/agreement', [\App\Http\Controllers\Admin\UserController::class, 'agreement'])->name('users.agreement');
+        // Super Admin Only Routes (User Management, Role Management)
+        Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(
+            function () {
+            Route::get('users/{user}/agreement', [\App\Http\Controllers\Admin\UserController::class , 'agreement'])->name('users.agreement');
             Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
             Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
         }
-    );
+        );
 
-    // Affiliate Dashboard
-    Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class, 'index'])->name('affiliate.dashboard');
+        // Affiliate Dashboard
+        Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class , 'index'])->name('affiliate.dashboard');
 
-    // Notifications
-    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
-});
+        // Notifications
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class , 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class , 'markAllAsRead'])->name('notifications.readAll');
+    });
 
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/my-courses', [\App\Http\Controllers\Lms\CourseController::class, 'myCourses'])->name('courses.my');
+    Route::get('/my-courses', [\App\Http\Controllers\Lms\CourseController::class , 'myCourses'])->name('courses.my');
+    Route::post('/courses/{course:slug}/enroll', [\App\Http\Controllers\Lms\CourseController::class , 'enroll'])->name('courses.enroll');
 });
 
-Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class, 'index'])->name('courses.index');
-Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class, 'show'])->name('courses.show');
-Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class, 'show'])->name('lessons.show');
+Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class , 'index'])->name('courses.index');
+Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class , 'show'])->name('courses.show');
+Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class , 'show'])->name('lessons.show');
 
 // Public Blog Routes
-Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog', [\App\Http\Controllers\BlogController::class , 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class , 'show'])->name('blog.show');
 
 // Public Testimonials Route
 Route::get('/testimoni', function () {
@@ -156,8 +172,8 @@ Route::get('/metode', function () {
 })->name('methods.index');
 
 // Public Therapist Routes
-Route::get('/therapists', [\App\Http\Controllers\TherapistController::class, 'index'])->name('therapists.index');
-Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class, 'show'])->name('therapists.show');
+Route::get('/therapists', [\App\Http\Controllers\TherapistController::class , 'index'])->name('therapists.index');
+Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class , 'show'])->name('therapists.show');
 
 // Dynamic XML Sitemap
 Route::get('/sitemap.xml', function () {
@@ -193,23 +209,24 @@ Route::get('/setup-sync-slots', function () {
             'bookings' => function ($query) {
                 $query->where('status', 'confirmed');
             }
-        ])->get();
+            ])->get();
 
-        $updated = 0;
-        foreach ($schedules as $schedule) {
-            /** @var \App\Models\Schedule $schedule */
-            $schedule->update([
-                'booked_count' => $schedule->bookings_count,
-                'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
-            ]);
-            $updated++;
+            $updated = 0;
+            foreach ($schedules as $schedule) {
+                /** @var \App\Models\Schedule $schedule */
+                $schedule->update([
+                    'booked_count' => $schedule->bookings_count,
+                    'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
+                ]);
+                $updated++;
+            }
+
+            return "✅ Synced $updated schedules with confirmed bookings count.";
         }
-
-        return "✅ Synced $updated schedules with confirmed bookings count.";
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
+        catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
 
 require __DIR__ . '/auth.php';
 
@@ -218,7 +235,8 @@ Route::get('/setup-notifications', function () {
         \Illuminate\Support\Facades\Artisan::call('make:notifications-table');
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return '✅ Notifications table created and migrated!';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -227,7 +245,8 @@ Route::get('/setup-schedules', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return '✅ Schedules migration completed!';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -235,16 +254,16 @@ Route::get('/setup-schedules', function () {
 Route::get('/setup-dummy', function () {
     try {
         $therapist = \App\Models\User::firstOrCreate(
-            ['email' => 'therapist@dummy.com'],
-            ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
+        ['email' => 'therapist@dummy.com'],
+        ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
         );
         if (!$therapist->hasRole('therapist')) {
             $therapist->assignRole('therapist');
         }
 
         $patient = \App\Models\User::firstOrCreate(
-            ['email' => 'patient@dummy.com'],
-            ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
+        ['email' => 'patient@dummy.com'],
+        ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
         );
         if (!$patient->hasRole('patient')) {
             $patient->assignRole('patient');
@@ -273,7 +292,8 @@ Route::get('/setup-dummy', function () {
         }
 
         return '✅ Created dummy users and booking.';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return 'EXCEPTION: ' . $e->getMessage();
     }
 });
@@ -318,7 +338,7 @@ Route::get('/setup-db-fix', function () {
         'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
         'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
         'digital_signature' => "ALTER TABLE users ADD COLUMN digital_signature LONGTEXT NULL",
-        'signature_data' => "ALTER TABLE users ADD COLUMN signature_data TEXT NULL",
+        'agreement_data' => "ALTER TABLE users ADD COLUMN agreement_data TEXT NULL",
         'referral_code' => "ALTER TABLE users ADD COLUMN referral_code VARCHAR(255) NULL UNIQUE",
         'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
         'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
@@ -332,7 +352,8 @@ Route::get('/setup-db-fix', function () {
             try {
                 \Illuminate\Support\Facades\DB::statement($sql);
                 $output[] = "✅ Added user column: $col";
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
                 $output[] = "❌ Failed user column $col: " . $e->getMessage();
             }
         }
@@ -367,7 +388,8 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (validated_by) REFERENCES users(id) ON DELETE SET NULL
             )");
             $output[] = "✅ Created table: transactions";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed transactions: " . $e->getMessage();
         }
     }
@@ -390,7 +412,8 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )");
             $output[] = "✅ Created table: screening_results";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed screening_results: " . $e->getMessage();
         }
     }
@@ -414,10 +437,12 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
             )");
             $output[] = "✅ Created table: schedules";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed schedules: " . $e->getMessage();
         }
-    } else {
+    }
+    else {
         $schedCols = [
             'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
             'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation'",
@@ -429,7 +454,8 @@ Route::get('/setup-db-fix', function () {
                 try {
                     \Illuminate\Support\Facades\DB::statement($sql);
                     $output[] = "✅ Added schedules.$col";
-                } catch (\Throwable $e) {
+                }
+                catch (\Throwable $e) {
                     $output[] = "❌ Failed schedules.$col: " . $e->getMessage();
                 }
             }
@@ -458,10 +484,12 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
             )");
             $output[] = "✅ Created table: bookings";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed bookings: " . $e->getMessage();
         }
-    } else {
+    }
+    else {
         $bookCols = [
             'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
             'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
@@ -475,7 +503,8 @@ Route::get('/setup-db-fix', function () {
                 try {
                     \Illuminate\Support\Facades\DB::statement($sql);
                     $output[] = "✅ Added bookings.$col";
-                } catch (\Throwable $e) {
+                }
+                catch (\Throwable $e) {
                     $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
                 }
             }
@@ -502,7 +531,8 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
             )");
             $output[] = "✅ Created table: commissions";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed commissions: " . $e->getMessage();
         }
     }
@@ -522,7 +552,8 @@ Route::get('/setup-db-fix', function () {
                 updated_at TIMESTAMP NULL
             )");
             $output[] = "✅ Created table: courses";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed courses: " . $e->getMessage();
         }
     }
@@ -540,7 +571,8 @@ Route::get('/setup-db-fix', function () {
                 FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
             )");
             $output[] = "✅ Created table: course_user";
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             $output[] = "❌ Failed course_user: " . $e->getMessage();
         }
     }
@@ -552,12 +584,13 @@ Route::get('/setup-super-admin', function () {
     try {
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $user = \App\Models\User::firstOrCreate(
-            ['email' => 'admin@indepth.co.id'],
-            ['name' => 'Super Admin', 'password' => bcrypt('Anakanak12')]
+        ['email' => 'admin@indepth.co.id'],
+        ['name' => 'Super Admin', 'password' => bcrypt('Anakanak12')]
         );
         $user->assignRole('super_admin');
         return '✅ Super Admin created: ' . $user->email;
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -566,7 +599,8 @@ Route::get('/setup-migrate', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         return '✅ Migration completed! ' . \Illuminate\Support\Facades\Artisan::output();
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });
@@ -578,7 +612,8 @@ Route::get('/setup-clear-cache', function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         \Illuminate\Support\Facades\Artisan::call('route:clear');
         return '✅ All caches cleared!';
-    } catch (\Throwable $e) {
+    }
+    catch (\Throwable $e) {
         return '❌ Error: ' . $e->getMessage();
     }
 });

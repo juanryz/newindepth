@@ -46,7 +46,9 @@ export default function CoursesIndex({ courses }) {
                                 <thead className="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Thumbnail</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Instruktur</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Judul Kelas</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipe</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Harga</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Jumlah Materi</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status Publish</th>
@@ -63,10 +65,30 @@ export default function CoursesIndex({ courses }) {
                                                     <div className="h-10 w-16 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xs text-gray-500">No Image</div>
                                                 )}
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {course.instructor ? (
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold text-gray-700 dark:text-gray-300">{course.instructor.name}</span>
+                                                        <span className="text-[10px]">{course.instructor.email}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="italic text-gray-400">Administrator</span>
+                                                )}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                                 <a href={route('courses.show', course.slug)} target="_blank" rel="noreferrer" className="hover:underline hover:text-indigo-600">
                                                     {course.title}
                                                 </a>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${course.course_type === 'online' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
+                                                    {course.course_type}
+                                                </span>
+                                                {course.course_type === 'online' ? (
+                                                    <div className="text-[10px] text-gray-400 mt-0.5">{course.online_platform}</div>
+                                                ) : (
+                                                    <div className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[100px]">{course.location}</div>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                 {course.price > 0 ? `Rp ${parseInt(course.price).toLocaleString('id-ID')}` : <span className="text-green-600 font-semibold bg-green-100 px-2 py-0.5 rounded-full text-xs">GRATIS</span>}
@@ -96,7 +118,7 @@ export default function CoursesIndex({ courses }) {
                                     ))}
                                     {courses.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada kelas E-Learning. Silakan buat baru.</td>
+                                            <td colSpan="8" className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada kelas E-Learning. Silakan buat baru.</td>
                                         </tr>
                                     )}
                                 </tbody>

@@ -27,7 +27,7 @@ class DashboardController extends Controller
                 $daysSinceLastScreening = $screeningResult->completed_at->diffInDays(now());
                 if ($daysSinceLastScreening < 15) {
                     $canTakeScreening = false;
-                    $daysUntilNextScreening = (int) (15 - $daysSinceLastScreening);
+                    $daysUntilNextScreening = (int)(15 - $daysSinceLastScreening);
                 }
             }
 
@@ -38,13 +38,13 @@ class DashboardController extends Controller
         $activeBooking = null;
 
         if ($user->hasRole('patient')) {
-            // Fetch active booking: only confirmed, and schedule date has not passed
+            // Fetch active booking: including pending ones requiring action
             $activeBooking = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
                 ->where('patient_id', $user->id)
-                ->where('status', 'confirmed')
+                ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed'])
                 ->whereHas('schedule', function ($q) {
-                    $q->whereDate('date', '>=', now()->toDateString());
-                })
+                $q->whereDate('date', '>=', now()->toDateString());
+            })
                 ->latest()
                 ->first();
 
@@ -55,6 +55,55 @@ class DashboardController extends Controller
                 ->first();
         }
 
+        $therapistUpcomingSessions = [];
+        $therapistActiveSessions = [];
+        $therapistPastSessions = [];
+        $therapistStats = [];
+
+        if ($user->hasRole('therapist') || $user->hasAnyRole(['admin', 'super_admin'])) {
+            $baseBookingQuery = \App\Models\Booking::query();
+            $baseCourseQuery = \App\Models\Course::query();
+
+            // If not admin, filter by therapist_id
+            if (!$user->hasAnyRole(['admin', 'super_admin'])) {
+                $baseBookingQuery->where('therapist_id', $user->id);
+                $baseCourseQuery->where('instructor_id', $user->id);
+            }
+
+            // Upcoming sessions
+            $therapistUpcomingSessions = (clone $baseBookingQuery)
+                ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
+                ->select('bookings.*')
+                ->with(['patient', 'schedule.therapist'])
+                ->whereIn('bookings.status', ['confirmed'])
+                ->where('schedules.date', '>=', now()->toDateString())
+                ->orderBy('schedules.date', 'asc')
+                ->orderBy('schedules.start_time', 'asc')
+                ->take(5)
+                ->get();
+
+            // Ongoing sessions (in_progress)
+            $therapistActiveSessions = (clone $baseBookingQuery)
+                ->with(['patient', 'schedule.therapist'])
+                ->where('status', 'in_progress')
+                ->get();
+
+            // Past sessions (completed)
+            $therapistPastSessions = (clone $baseBookingQuery)
+                ->with(['patient', 'schedule.therapist'])
+                ->where('status', 'completed')
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            // Therapist Stats (Global if admin, otherwise specific)
+            $therapistStats = [
+                'total_sessions' => (clone $baseBookingQuery)->where('status', 'completed')->count(),
+                'total_patients' => (clone $baseBookingQuery)->distinct('patient_id')->count('patient_id'),
+                'active_courses' => (clone $baseCourseQuery)->count(),
+            ];
+        }
+
         return Inertia::render('Dashboard', [
             'screeningResult' => $screeningResult,
             'profileProgress' => $profileProgress,
@@ -62,6 +111,10 @@ class DashboardController extends Controller
             'daysUntilNextScreening' => $daysUntilNextScreening,
             'activeBooking' => $activeBooking,
             'latestCompletedBooking' => $latestCompletedBooking ?? null,
+            'therapistUpcomingSessions' => $therapistUpcomingSessions,
+            'therapistActiveSessions' => $therapistActiveSessions,
+            'therapistPastSessions' => $therapistPastSessions,
+            'therapistStats' => $therapistStats,
         ]);
     }
 }

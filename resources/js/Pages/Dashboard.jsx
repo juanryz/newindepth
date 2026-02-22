@@ -298,7 +298,7 @@ function ActiveBookingCard({ booking }) {
 }
 
 export default function Dashboard() {
-    const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking } = usePage().props;
+    const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking, therapistUpcomingSessions, therapistActiveSessions, therapistPastSessions, therapistStats } = usePage().props;
     const user = auth.user;
     const roles = user.roles?.map(r => r.name) ?? [];
 
@@ -314,8 +314,16 @@ export default function Dashboard() {
         <AuthenticatedLayout
             header={
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         Selamat datang, {user.name} 👋
+                        {!!user.agreement_signed_at && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-200 dark:border-emerald-800/30 shadow-sm">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Verified Client
+                            </span>
+                        )}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         {isAdmin ? 'Panel Admin & CS' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
@@ -337,7 +345,11 @@ export default function Dashboard() {
                                 daysUntilNextScreening={daysUntilNextScreening}
                             />
 
-                            <ServiceFlowGuide />
+                            <ServiceFlowGuide
+                                user={auth.user}
+                                profileProgress={profileProgress}
+                                activeBooking={activeBooking}
+                            />
                         </div>
                     )}
 
@@ -435,22 +447,222 @@ export default function Dashboard() {
                         </section>
                     )}
 
-                    {/* ============== THERAPIST SECTION ============== */}
-                    {isTherapist && (
-                        <section>
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                Panel Terapis
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <QuickCard
-                                    href={route('schedules.index')}
-                                    title="Jadwal Saya"
-                                    description="Atur slot waktu dan sesi yang tersedia"
-                                    iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
-                                />
+                    {/* ============== THERAPIST SECTION (Also visible to Admin) ============== */}
+                    {(isTherapist || isAdmin) && (
+                        <div className="space-y-8">
+                            {/* Therapist Stats */}
+                            <section>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                    {isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Sesi Berhasil' : 'Total Sesi Selesai'}</p>
+                                        <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{therapistStats?.total_sessions || 0}</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Pasien Terdaftar' : 'Total Pasien Unik'}</p>
+                                        <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{therapistStats?.total_patients || 0}</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Kelas Online' : 'Kelas Online Saya'}</p>
+                                        <p className="text-3xl font-black text-amber-600 dark:text-amber-400">{therapistStats?.active_courses || 0}</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Ongoing Sessions */}
+                            {therapistActiveSessions?.length > 0 && (
+                                <section>
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-red-500 dark:text-red-400 mb-4 flex items-center gap-2">
+                                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                                        {isAdmin ? 'Sesi Terapi Sedang Berlangsung (Monitoring)' : 'Sesi Sedang Berlangsung'}
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {therapistActiveSessions.map((booking) => (
+                                            <div key={booking.id} className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-red-100 dark:border-red-900/30 p-6 shadow-sm">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div>
+                                                        <p className="text-xs font-medium text-gray-500">Pasien</p>
+                                                        <h4 className="text-lg font-bold text-gray-900 dark:text-white uppercase">{booking.patient?.name}</h4>
+                                                    </div>
+                                                    <span className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 rounded-full text-xs font-bold animate-pulse">
+                                                        LIVE
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
+                                                    <p><strong>Paket:</strong> {booking.package_type?.toUpperCase()}</p>
+                                                    <p><strong>Terapis:</strong> {booking.schedule?.therapist?.name}</p>
+                                                    <p><strong>Waktu Mulai:</strong> {new Date(booking.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</p>
+                                                </div>
+                                                <Link
+                                                    href={route('schedules.active-session', booking.id)}
+                                                    className={`w-full flex justify-center items-center py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors shadow-lg ${isAdmin ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                                                >
+                                                    {isAdmin ? 'Masuk ke Detail Sesi' : 'Selesaikan Sesi & Input Data'}
+                                                </Link>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div className="lg:col-span-2 space-y-8">
+                                    {/* Upcoming Sessions */}
+                                    <section>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                            {isAdmin ? 'Seluruh Agenda Sesi Terdekat' : 'Agenda Sesi Terdekat'}
+                                        </h3>
+                                        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-2 overflow-hidden shadow-sm">
+                                            <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
+                                                <table className="w-full text-left">
+                                                    <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
+                                                        <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
+                                                            <th className="px-4 py-3">Waktu</th>
+                                                            <th className="px-4 py-3">Pasien</th>
+                                                            {isAdmin && <th className="px-4 py-3">Terapis</th>}
+                                                            <th className="px-4 py-3 text-right">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+                                                        {therapistUpcomingSessions?.length > 0 ? (
+                                                            therapistUpcomingSessions.map((booking) => (
+                                                                <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                    <td className="px-4 py-4">
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                                                                {new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                                            </span>
+                                                                            <span className="text-xs text-gray-500">
+                                                                                {booking.schedule.start_time.substring(0, 5)} WIB
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-xs">
+                                                                                {booking.patient?.name?.charAt(0)}
+                                                                            </div>
+                                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    {isAdmin && (
+                                                                        <td className="px-4 py-4">
+                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.schedule?.therapist?.name}</span>
+                                                                        </td>
+                                                                    )}
+                                                                    <td className="px-4 py-4 text-right">
+                                                                        <Link
+                                                                            href={route('schedules.active-session', booking.id)}
+                                                                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                                        >
+                                                                            Mulai Sesi
+                                                                        </Link>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr>
+                                                                <td colSpan="3" className="px-4 py-8 text-center text-sm text-gray-500 italic">
+                                                                    Belum ada agenda sesi.
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* Past Sessions - Patient History */}
+                                    <section>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                            {isAdmin ? 'Seluruh Riwayat Sesi Terakhir' : 'Riwayat Pasien Terakhir'}
+                                        </h3>
+                                        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-2 overflow-hidden shadow-sm">
+                                            <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
+                                                <table className="w-full text-left">
+                                                    <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
+                                                        <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
+                                                            <th className="px-4 py-3">Tanggal</th>
+                                                            <th className="px-4 py-3">Pasien</th>
+                                                            {isAdmin && <th className="px-4 py-3">Terapis</th>}
+                                                            <th className="px-4 py-3">Hasil</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+                                                        {therapistPastSessions?.length > 0 ? (
+                                                            therapistPastSessions.map((booking) => (
+                                                                <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                    <td className="px-4 py-4">
+                                                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                                            {new Date(booking.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-4 py-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    {isAdmin && (
+                                                                        <td className="px-4 py-4">
+                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.schedule?.therapist?.name}</span>
+                                                                        </td>
+                                                                    )}
+                                                                    <td className="px-4 py-4">
+                                                                        <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-lg text-[10px] font-bold">
+                                                                            {booking.completion_outcome || 'Selesai'}
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr>
+                                                                <td colSpan="3" className="px-4 py-8 text-center text-sm text-gray-500 italic">
+                                                                    Belum ada riwayat sesi.
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <section>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                                            {isAdmin ? 'Layanan Terapi & LMS' : 'Menu Terapis'}
+                                        </h3>
+                                        <div className="flex flex-col gap-4">
+                                            <QuickCard
+                                                href={route('schedules.index')}
+                                                title="Kelola Jadwal"
+                                                description="Atur slot waktu konsultasi"
+                                                iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
+                                            />
+                                            <QuickCard
+                                                href={route('therapist.courses.index')}
+                                                title="Buat Kelas Baru"
+                                                description="Buat dan kelola materi e-learning"
+                                                iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                                color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                            />
+                                            <QuickCard
+                                                href={route('profile.edit')}
+                                                title="Update Bio"
+                                                description="Edit profil publik Anda"
+                                                iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                                color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                            />
+                                        </div>
+                                    </section>
+                                </div>
                             </div>
-                        </section>
+                        </div>
                     )}
 
                     {/* ============== PATIENT SECTION (menu + progress) ============== */}

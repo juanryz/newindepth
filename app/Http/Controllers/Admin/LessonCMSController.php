@@ -34,14 +34,19 @@ class LessonCMSController extends Controller
             'title' => 'required|string|max:255',
             'video_url' => 'nullable|url',
             'content' => 'nullable|string',
+            'attachment' => 'nullable|file|max:10240',
             'is_preview' => 'boolean',
             'order_column' => 'numeric|min:0'
         ]);
 
         $type = $request->filled('video_url') ? 'video' : 'text';
+        if ($request->hasFile('attachment')) {
+            $type = 'document';
+        }
 
         $lesson = new Lesson([
             'title' => $request->title,
+            'course_id' => $course->id,
             'type' => $type,
             'video_url' => $request->video_url,
             'content_url' => $request->video_url, // legacy column
@@ -52,7 +57,13 @@ class LessonCMSController extends Controller
             'order' => $request->order_column ?? 0, // legacy column
         ]);
 
-        $course->lessons()->save($lesson);
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('lessons/attachments', 'public');
+            $lesson->attachment = $path;
+            $lesson->attachment_name = $request->file('attachment')->getClientOriginalName();
+        }
+
+        $lesson->save();
 
         return redirect()->route('admin.courses.lessons.index', $course->id)->with('success', 'Materi berhasil ditambahkan.');
     }
@@ -71,11 +82,15 @@ class LessonCMSController extends Controller
             'title' => 'required|string|max:255',
             'video_url' => 'nullable|url',
             'content' => 'nullable|string',
+            'attachment' => 'nullable|file|max:10240',
             'is_preview' => 'boolean',
             'order_column' => 'numeric|min:0'
         ]);
 
         $type = $request->filled('video_url') ? 'video' : 'text';
+        if ($lesson->attachment || $request->hasFile('attachment')) {
+            $type = 'document';
+        }
 
         $lesson->fill([
             'title' => $request->title,
@@ -88,6 +103,12 @@ class LessonCMSController extends Controller
             'order_column' => $request->order_column ?? 0,
             'order' => $request->order_column ?? 0, // legacy column
         ]);
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('lessons/attachments', 'public');
+            $lesson->attachment = $path;
+            $lesson->attachment_name = $request->file('attachment')->getClientOriginalName();
+        }
 
         $lesson->save();
 

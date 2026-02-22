@@ -54,6 +54,7 @@ class RegisteredUserController extends Controller
         $user->assignRole('patient');
 
         try {
+            $user->sendEmailVerificationNotification();
             event(new Registered($user));
         }
         catch (\Throwable $e) {

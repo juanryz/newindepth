@@ -19,20 +19,30 @@ class Booking extends Model
         'user_voucher_id',
         'therapist_notes',
         'patient_visible_notes',
+        'completion_outcome',
+        'started_at',
+        'recording_link',
+        'reschedule_reason',
+        'rescheduled_by',
+        'rescheduled_at',
+        'original_schedule_id',
+        'package_type',
     ];
 
     protected $casts = [
         'screening_answers' => 'json',
+        'started_at' => 'datetime',
+        'rescheduled_at' => 'datetime',
     ];
 
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->belongsTo(User::class , 'patient_id');
     }
 
     public function therapist()
     {
-        return $this->belongsTo(User::class, 'therapist_id');
+        return $this->belongsTo(User::class , 'therapist_id');
     }
 
     public function schedule()
@@ -47,11 +57,21 @@ class Booking extends Model
 
     public function transaction()
     {
-        return $this->morphOne(Transaction::class, 'transactionable');
+        return $this->morphOne(Transaction::class , 'transactionable');
     }
 
     public function userVoucher()
     {
         return $this->belongsTo(UserVoucher::class);
+    }
+
+    public function originalSchedule()
+    {
+        return $this->belongsTo(Schedule::class , 'original_schedule_id');
+    }
+
+    public function rescheduledByUser()
+    {
+        return $this->belongsTo(User::class , 'rescheduled_by');
     }
 }

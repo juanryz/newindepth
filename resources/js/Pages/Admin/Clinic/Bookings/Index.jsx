@@ -1,17 +1,52 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
+import InputLabel from '@/Components/InputLabel';
 
-export default function AdminBookingsIndex({ bookings, therapists }) {
+export default function AdminBookingsIndex({ bookings, therapists, availableSchedules = [] }) {
     const { data, setData, patch, processing } = useForm({
         therapist_id: '',
     });
 
     const [editingBooking, setEditingBooking] = useState(null);
+    const [reschedulingBooking, setReschedulingBooking] = useState(null);
+    const [noShowBooking, setNoShowBooking] = useState(null);
+
+    const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
+        new_schedule_id: '',
+        reschedule_reason: '',
+    });
+
+    const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
+        no_show_party: 'therapist', // Default to therapist for admin since they are often fixing therapist absences
+        no_show_reason: '',
+    });
 
     const handleAssign = (bookingId) => {
         patch(route('admin.bookings.assign-therapist', bookingId), {
             onSuccess: () => setEditingBooking(null)
+        });
+    };
+
+    const handleReschedule = (e) => {
+        e.preventDefault();
+        postReschedule(route('admin.bookings.reschedule', reschedulingBooking.id), {
+            onSuccess: () => {
+                setReschedulingBooking(null);
+                resetReschedule();
+            }
+        });
+    };
+
+    const handleNoShow = (e) => {
+        e.preventDefault();
+        postNoShow(route('admin.bookings.no-show', noShowBooking.id), {
+            onSuccess: () => {
+                setNoShowBooking(null);
+                resetNoShow();
+            }
         });
     };
 
@@ -158,19 +193,37 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center justify-between group">
-                                                        <span className={booking.therapist ? 'text-gray-900 font-medium' : 'text-gray-400 italic'}>
-                                                            {booking.therapist?.name || 'Belum di-assign'}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingBooking(booking.id);
-                                                                setData('therapist_id', booking.therapist_id || '');
-                                                            }}
-                                                            className="ml-2 text-indigo-600 hover:text-indigo-900 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            {booking.therapist ? 'Ubah' : 'Assign'}
-                                                        </button>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center justify-between group">
+                                                            <span className={booking.therapist ? 'text-gray-900 font-medium text-xs' : 'text-gray-400 italic text-xs'}>
+                                                                {booking.therapist?.name || 'Belum di-assign'}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingBooking(booking.id);
+                                                                    setData('therapist_id', booking.therapist_id || '');
+                                                                }}
+                                                                className="ml-2 text-indigo-600 hover:text-indigo-900 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                {booking.therapist ? 'Ubah' : 'Assign'}
+                                                            </button>
+                                                        </div>
+                                                        {['confirmed', 'in_progress'].includes(booking.status) && (
+                                                            <div className="flex gap-1.5 mt-1">
+                                                                <button
+                                                                    onClick={() => setReschedulingBooking(booking)}
+                                                                    className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-bold hover:bg-amber-100 transition-colors"
+                                                                >
+                                                                    Reschedule
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setNoShowBooking(booking)}
+                                                                    className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] font-bold hover:bg-red-100 transition-colors"
+                                                                >
+                                                                    No-Show
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </td>
@@ -189,6 +242,106 @@ export default function AdminBookingsIndex({ bookings, therapists }) {
                     </div>
                 </div>
             </div>
+            {/* Modal Reschedule */}
+            <Modal show={reschedulingBooking !== null} onClose={() => setReschedulingBooking(null)}>
+                <form onSubmit={handleReschedule} className="p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">Reschedule Sesi</h2>
+                    <p className="text-xs text-gray-500 mb-6">
+                        Pasien: <strong>{reschedulingBooking?.patient?.name}</strong><br />
+                        Jadwal saat ini: {reschedulingBooking?.schedule?.date} pukul {reschedulingBooking?.schedule?.start_time?.substring(0, 5)}
+                    </p>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="new_schedule_id" value="Pilih Jadwal Baru" />
+                        <select
+                            id="new_schedule_id"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            value={rescheduleData.new_schedule_id}
+                            onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
+                            required
+                        >
+                            <option value="">-- Pilih Slot Tersedia --</option>
+                            {availableSchedules
+                                .filter(s => s.id !== reschedulingBooking?.schedule_id)
+                                .map(s => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.therapist?.name} — {new Date(s.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} — {s.start_time?.substring(0, 5)}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="reschedule_reason" value="Alasan Reschedule" />
+                        <textarea
+                            id="reschedule_reason"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                            rows="2"
+                            placeholder="Tuliskan alasan perubahan jadwal..."
+                            value={rescheduleData.reschedule_reason}
+                            onChange={(e) => setRescheduleData('reschedule_reason', e.target.value)}
+                            required
+                        ></textarea>
+                        <p className="text-[10px] text-gray-400 mt-1">* Pesan ini akan diinformasikan ke pelanggan.</p>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setReschedulingBooking(null)}>Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={rescheduling || !rescheduleData.new_schedule_id}
+                            className="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 disabled:opacity-25 transition"
+                        >
+                            Update Jadwal
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Modal No-Show */}
+            <Modal show={noShowBooking !== null} onClose={() => setNoShowBooking(null)}>
+                <form onSubmit={handleNoShow} className="p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">Tandai Tidak Hadir</h2>
+                    <p className="text-xs text-gray-500 mb-6"> Booking Code: {noShowBooking?.booking_code} </p>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="no_show_party" value="Pihak yang Tidak Hadir" />
+                        <select
+                            id="no_show_party"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
+                            value={noShowData.no_show_party}
+                            onChange={(e) => setNoShowData('no_show_party', e.target.value)}
+                            required
+                        >
+                            <option value="therapist">Praktisi (Tidak Hadir)</option>
+                            <option value="patient">Pasien (Tidak Hadir)</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="no_show_reason" value="Keterangan Admin" />
+                        <textarea
+                            id="no_show_reason"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
+                            rows="2"
+                            placeholder="Alasan ketidakhadiran..."
+                            value={noShowData.no_show_reason}
+                            onChange={(e) => setNoShowData('no_show_reason', e.target.value)}
+                        ></textarea>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setNoShowBooking(null)}>Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={markingNoShow}
+                            className="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 disabled:opacity-25 transition"
+                        >
+                            Tandai No-Show
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

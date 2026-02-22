@@ -48,7 +48,22 @@ export default function AgreementDetail({ userModel }) {
     );
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Detail Dokumen Persetujuan</h2>}>
+        <AuthenticatedLayout
+            header={
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => window.history.back()}
+                        className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-sm print:hidden"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <div>
+                        <h2 className="font-bold text-xl text-gray-800 dark:text-white leading-tight">Detail Dokumen Persetujuan</h2>
+                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">HASIL VERIFIKASI DIGITAL</p>
+                    </div>
+                </div>
+            }
+        >
             <Head title={`Dokumen Persetujuan — ${userModel.name}`} />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 px-4 sm:px-6 print:bg-white print:py-0 print:px-0">

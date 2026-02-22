@@ -1,0 +1,32 @@
+dor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(175): Illuminate/Pipeline/Pipeline->then(Object(Closure))
+#68 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate/Foundation/Http/Kernel->sendRequestThroughRouter(Object(Illuminate/Http/Request))
+#69 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate/Foundation/Http/Kernel->handle(Object(Illuminate/Http/Request))
+#70 D:/MAGANG/WEB/newindepth/public/index.php(20): Illuminate/Foundation/Application->handleRequest(Object(Illuminate/Http/Request))
+#71 C:/Program Files/Herd/resources/app.asar.unpacked/resources/valet/server.php(139): require('D://MAGANG//WEB//n...')
+#72 {main}
+"} 
+[2026-02-22 19:13:31] local.ERROR: Method Inertia\Response::getComponent does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method Inertia\\Response::getComponent does not exist. at D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Macroable/Traits/Macroable.php:115)
+[stacktrace]
+#0 D:/MAGANG/WEB/newindepth/debug_response.php(21): Inertia/Response->__call('getComponent', Array)
+#1 {main}
+"} 
+[2026-02-22 19:16:46] local.ERROR: SQLSTATE[HY000]: General error: 1 near "SHOW": syntax error (Connection: sqlite, Database: D:\MAGANG\WEB\newindepth\database\database.sqlite, SQL: SHOW COLUMNS FROM lessons) {"exception":"[object] (Illuminate\\Database\\QueryException(code: HY000): SQLSTATE[HY000]: General error: 1 near \"SHOW\": syntax error (Connection: sqlite, Database: D:\\MAGANG\\WEB\\newindepth\\database\\database.sqlite, SQL: SHOW COLUMNS FROM lessons) at D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('SHOW COLUMNS FR...', Array, Object(Closure))
+#1 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('SHOW COLUMNS FR...', Array, Object(Closure))
+#2 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(491): Illuminate/Database/Connection->select('SHOW COLUMNS FR...')
+#3 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Database/DatabaseManager->__call('select', Array)
+#4 D:/MAGANG/WEB/newindepth/check_columns.php(7): Illuminate/Support/Facades/Facade::__callStatic('select', Array)
+#5 {main}
+
+[previous exception] [object] (PDOException(code: HY000): SQLSTATE[HY000]: General error: 1 near \"SHOW\": syntax error at D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php:420)
+[stacktrace]
+#0 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(420): PDO->prepare('SHOW COLUMNS FR...')
+#1 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/Connection->{closure:Illuminate/Database/Connection::select():411}('SHOW COLUMNS FR...', Array)
+#2 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('SHOW COLUMNS FR...', Array, Object(Closure))
+#3 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('SHOW COLUMNS FR...', Array, Object(Closure))
+#4 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(491): Illuminate/Database/Connection->select('SHOW COLUMNS FR...')
+#5 D:/MAGANG/WEB/newindepth/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Database/DatabaseManager->__call('select', Array)
+#6 D:/MAGANG/WEB/newindepth/check_columns.php(7): Illuminate/Support/Facades/Facade::__callStatic('select', Array)
+#7 {main}
+"} 

@@ -9,10 +9,11 @@ import TextInput from '@/Components/TextInput';
 export default function LessonsForm({ course, lesson }) {
     const isEditing = !!lesson.id;
 
-    const { data, setData, post, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         title: lesson.title || '',
         video_url: lesson.video_url || '',
         content: lesson.content || '',
+        attachment: null,
         is_preview: lesson.is_preview || false,
         order_column: lesson.order_column || 0,
     });
@@ -21,7 +22,14 @@ export default function LessonsForm({ course, lesson }) {
         e.preventDefault();
 
         if (isEditing) {
-            put(route('admin.courses.lessons.update', [course.id, lesson.id]));
+            post(route('admin.courses.lessons.update', [course.id, lesson.id]), {
+                forceFormData: true,
+                onSuccess: () => { },
+                data: {
+                    ...data,
+                    _method: 'PUT'
+                }
+            });
         } else {
             post(route('admin.courses.lessons.store', course.id));
         }
@@ -91,8 +99,23 @@ export default function LessonsForm({ course, lesson }) {
                                     placeholder="https://www.youtube.com/watch?v=..."
                                     onChange={(e) => setData('video_url', e.target.value)}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Kosongkan jika materi hanya berupa teks bacaan.</p>
+                                <p className="text-xs text-gray-500 mt-1">Kosongkan jika materi berupa file atau teks.</p>
                                 <InputError message={errors.video_url} className="mt-2" />
+                            </div>
+
+                            {/* File Upload */}
+                            <div>
+                                <InputLabel htmlFor="attachment" value="Unggah File (PDF, Word, Gambar, dll)" />
+                                <input
+                                    id="attachment"
+                                    type="file"
+                                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                    onChange={(e) => setData('attachment', e.target.files[0])}
+                                />
+                                {lesson.attachment && (
+                                    <p className="text-xs text-green-600 mt-1">File saat ini: {lesson.attachment_name}</p>
+                                )}
+                                <InputError message={errors.attachment} className="mt-2" />
                             </div>
 
                             {/* Deskripsi/Teks */}
