@@ -28,15 +28,15 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout title="Sign In">
             <Head title="Sign In" />
 
-            <div className="mb-10 text-center relative">
+            <div className="mb-6 text-center relative">
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-400/10 rounded-full blur-[100px] pointer-events-none"></div>
-                <h2 className="text-[2.75rem] font-black text-gray-950 dark:text-white tracking-[-0.04em] leading-tight transition-colors duration-1000">
+                <h2 className="text-3xl font-black text-gray-950 dark:text-white tracking-[-0.01em] leading-tight transition-colors duration-1000">
                     Sign In
                 </h2>
-                <p className="mt-3 text-[11px] text-gray-700 dark:text-gray-300 font-black tracking-[0.2em] uppercase opacity-90">
+                <p className="mt-2 text-[10px] text-gray-700 dark:text-gray-300 font-black tracking-[0.2em] uppercase opacity-90">
                     Lanjutkan perjalanan batin Anda
                 </p>
-                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-8"></div>
+                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mt-6"></div>
             </div>
 
             {status && (

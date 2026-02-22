@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function GuestLayout({ children, title, backLink = '/', backText = 'Kembali ke Beranda' }) {
     return (
@@ -12,13 +13,13 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                 <div className="absolute bottom-[-20%] left-[10%] w-[70vw] h-[70vw] rounded-full bg-rose-400/15 dark:bg-rose-600/10 blur-[150px] animate-blob mix-blend-soft-light" style={{ animationDelay: '6s' }}></div>
             </div>
 
-            {/* Navbar for Guest */}
-            <Navbar auth={{ user: null }} active="" isAuthPage={true} title={title} />
+            {/* Navbar for Guest - HIDDEN as requested */}
+            {/* <Navbar auth={{ user: null }} active="" isAuthPage={true} title={title} /> */}
 
-            <div className="relative z-10 w-full sm:max-w-md mt-28 px-4 sm:px-0">
+            <div className="relative z-10 w-full sm:max-w-md mt-32 sm:mt-16 px-4 sm:px-0">
 
                 {/* Back Button Positioned Above Form */}
-                <div className="mb-6 flex justify-start">
+                <div className="mb-6 flex justify-between items-center">
                     <Link
                         href={backLink}
                         className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400 transition-all group"
@@ -28,6 +29,10 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                         </svg>
                         {backText}
                     </Link>
+
+                    <div className="flex items-center gap-2">
+                        <ThemeToggle />
+                    </div>
                 </div>
 
                 {/* Liquid Glassmorphism Card */}
@@ -39,6 +44,21 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                     <div className="absolute -top-12 -right-12 w-32 h-32 bg-gold-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                     <div className="relative z-10">
+                        {/* Center Logo */}
+                        <div className="flex justify-center mb-8">
+                            <Link href="/">
+                                <img
+                                    src="/images/logo-color.png"
+                                    alt="InDepth Mental Wellness"
+                                    className="h-20 w-auto object-contain block dark:hidden"
+                                />
+                                <img
+                                    src="/images/logo-white.png"
+                                    alt="InDepth Mental Wellness"
+                                    className="h-20 w-auto object-contain hidden dark:block"
+                                />
+                            </Link>
+                        </div>
                         {children}
                     </div>
                 </div>
