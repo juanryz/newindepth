@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
+import LiquidBackground from '@/Components/LiquidBackground';
 
 export default function BlogIndex({ posts, auth }) {
     // Smooth scroll for anchor links
@@ -27,11 +28,8 @@ export default function BlogIndex({ posts, auth }) {
                 <meta name="description" content="Baca artikel, tips, dan wawasan seputar kesehatan mental, psikologi, dan kesejahteraan jiwa langsung dari tim profesional InDepth Mental Wellness." />
             </Head>
 
-            {/* Global Background Ambient Light (Liquid Glass foundation) */}
-            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
-            </div>
+            {/* Premium Liquid Background */}
+            <LiquidBackground />
 
             {/* Navbar (Unified) */}
             <Navbar auth={auth} active="blog" />
@@ -113,49 +111,8 @@ export default function BlogIndex({ posts, auth }) {
                 </div>
             </main>
 
-            {/* Footer (Consistent with Homepage) */}
-            <footer className="relative z-10 border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-20 pb-10 mt-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        {/* Brand Column */}
-                        <div className="col-span-1 md:col-span-1">
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className="font-extrabold text-2xl tracking-tight text-gray-900 dark:text-white">InDepth</span>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                                Kesehatan Mental Terpadu & Profesional. Membantu Anda menemukan kembali ketenangan batin.
-                            </p>
-                        </div>
-
-                        {/* Location Column */}
-                        <div className="col-span-1 md:col-span-2">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Lokasi & Kontak</h4>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-2">
-                                Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237
-                            </p>
-                            <p className="text-gray-900 dark:text-white font-bold text-sm">
-                                Telepon: 0822-2080-0034
-                            </p>
-                        </div>
-
-                        {/* Quick links */}
-                        <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider text-sm">Navigasi</h4>
-                            <ul className="space-y-4 text-sm">
-                                <li><a href="/#layanan" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Layanan</a></li>
-                                <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
-                                <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                            &copy; {new Date().getFullYear()} InDepth Mental Wellness. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            </footer>
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }

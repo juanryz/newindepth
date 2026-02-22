@@ -24,8 +24,14 @@ class AgreementController extends Controller
 
         $usia = ($user->screening_answers['usia'] ?? null) ?: ($user->screening_answers['age'] ?? null);
 
+        $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
         return Inertia::render('Clinic/InitialAgreement', [
-            'userAge' => $usia !== null ? (int) $usia : null,
+            'userAge' => $usia !== null ? (int)$usia : null,
+            'screeningResult' => $screeningResult,
         ]);
     }
 

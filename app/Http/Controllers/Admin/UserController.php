@@ -38,6 +38,50 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(User $user)
+    {
+        $user->load(['roles', 'permissions']);
+
+        // Load activity based on role
+        $bookings = [];
+        $schedules = [];
+        $transactions = [];
+
+        if ($user->hasRole('patient')) {
+            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction'])
+                ->where('patient_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $transactions = \App\Models\Transaction::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        if ($user->hasRole('therapist')) {
+            $schedules = \App\Models\Schedule::withCount('bookings')
+                ->whereHas('bookings', function ($q) use ($user) {
+                $q->where('therapist_id', $user->id);
+            })
+                ->orWhere('therapist_id', $user->id) // If legacy link exists
+                ->orderBy('date', 'desc')
+                ->get();
+
+            // Bookings where they are the therapist
+            $bookings = \App\Models\Booking::with(['patient', 'schedule'])
+                ->where('therapist_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return Inertia::render('Admin/Users/Show', [
+            'userModel' => $user,
+            'bookings' => $bookings,
+            'transactions' => $transactions,
+            'schedules' => $schedules,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

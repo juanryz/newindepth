@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
@@ -11,7 +12,12 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
 
     if (disabled) {
         return (
-            <div className={cls} title="Lengkapi profil dan screening terlebih dahulu">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={cls}
+                title="Lengkapi profil dan screening terlebih dahulu"
+            >
                 <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
@@ -27,22 +33,29 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
                         Lengkapi profil & screening
                     </span>
                 </div>
-            </div>
+            </motion.div>
         );
     }
 
     return (
-        <Link href={href} className={cls}>
-            <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
-                </svg>
-            </div>
-            <div>
-                <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
-            </div>
-        </Link>
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+        >
+            <Link href={href} className={cls}>
+                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
+                    </svg>
+                </div>
+                <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
+                </div>
+            </Link>
+        </motion.div>
     );
 }
 

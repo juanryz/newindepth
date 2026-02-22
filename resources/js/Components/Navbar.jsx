@@ -32,13 +32,13 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
         <>
             <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 dark:bg-black/20 backdrop-blur-2xl border-b border-white/20 dark:border-gray-800/20 shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-500">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20 relative">
+                    <div className="flex justify-between items-center h-24 relative">
 
                         {/* Logo */}
                         <div className="flex-shrink-0 flex items-center cursor-pointer group relative z-50" onClick={() => window.scrollTo(0, 0)}>
                             <Link href="/">
-                                <img src="/images/logo-color.png" alt="InDepth" className="h-14 w-auto object-contain block dark:hidden relative z-10" />
-                                <img src="/images/logo-white.png" alt="InDepth" className="h-14 w-auto object-contain hidden dark:block relative z-10" />
+                                <img src="/images/logo-color.png" alt="InDepth" className="h-[70px] md:h-[90px] w-auto object-contain block dark:hidden relative z-10" />
+                                <img src="/images/logo-white.png" alt="InDepth" className="h-[70px] md:h-[90px] w-auto object-contain hidden dark:block relative z-10" />
                             </Link>
                         </div>
 
@@ -102,90 +102,86 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                             )}
 
                             {/* Hamburger button (mobile only) */}
-                            {!isAuthPage && (
-                                <button
-                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                    className="md:hidden p-2 rounded-xl bg-white/30 dark:bg-gray-800/30 backdrop-blur-md border border-white/20 dark:border-gray-700/30 text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50 transition-all duration-300"
-                                    aria-label="Toggle mobile menu"
-                                    aria-expanded={isMobileMenuOpen}
-                                >
-                                    <div className="w-5 h-5 flex flex-col justify-center gap-1.5 overflow-hidden">
-                                        <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-                                        <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 scale-x-0' : ''}`}></span>
-                                        <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-                                    </div>
-                                </button>
-                            )}
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="md:hidden p-2 rounded-xl bg-white/30 dark:bg-gray-800/30 backdrop-blur-md border border-white/20 dark:border-gray-700/30 text-gray-700 dark:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/50 transition-all duration-300"
+                                aria-label="Toggle mobile menu"
+                                aria-expanded={isMobileMenuOpen}
+                            >
+                                <div className="w-5 h-5 flex flex-col justify-center gap-1.5 overflow-hidden">
+                                    <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                    <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0 scale-x-0' : ''}`}></span>
+                                    <span className={`block h-0.5 bg-current rounded-full transition-all duration-300 origin-center ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Mobile Menu Drawer */}
-                {!isAuthPage && (
-                    <div
-                        className={`md:hidden transition-all duration-500 ease-in-out overflow-hidden ${isMobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
-                    >
-                        <div className="bg-white/60 dark:bg-gray-900/80 backdrop-blur-2xl border-t border-white/20 dark:border-gray-700/30 px-4 pb-6 pt-4 space-y-1">
+                <div
+                    className={`md:hidden transition-all duration-500 ease-in-out overflow-hidden ${isMobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
+                >
+                    <div className="bg-white/60 dark:bg-gray-900/80 backdrop-blur-2xl border-t border-white/20 dark:border-gray-700/30 px-4 pb-6 pt-4 space-y-1">
 
-                            {/* Nav Links */}
-                            {navLinks.map((item) => (
-                                <Link
-                                    key={item.key}
-                                    href={item.href}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${active === item.key
-                                        ? 'bg-gold-500/10 text-gold-600 dark:text-gold-400'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
-                                        }`}
-                                >
-                                    {active === item.key && (
-                                        <span className="w-1.5 h-1.5 rounded-full bg-gold-500 flex-shrink-0"></span>
-                                    )}
-                                    {item.name}
-                                </Link>
-                            ))}
-
-                            {/* Contact Us */}
-                            <button
-                                onClick={() => { setIsMobileMenuOpen(false); setIsChatOpen(true); }}
-                                className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-200"
+                        {/* Nav Links */}
+                        {navLinks.map((item) => (
+                            <Link
+                                key={item.key}
+                                href={item.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${active === item.key
+                                    ? 'bg-gold-500/10 text-gold-600 dark:text-gold-400'
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+                                    }`}
                             >
-                                Contact Us
-                            </button>
+                                {active === item.key && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gold-500 flex-shrink-0"></span>
+                                )}
+                                {item.name}
+                            </Link>
+                        ))}
 
-                            {/* Divider */}
-                            <div className="my-3 border-t border-gray-200/60 dark:border-gray-700/40"></div>
+                        {/* Contact Us */}
+                        <button
+                            onClick={() => { setIsMobileMenuOpen(false); setIsChatOpen(true); }}
+                            className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-200"
+                        >
+                            Contact Us
+                        </button>
 
-                            {/* Auth Buttons */}
-                            {user ? (
+                        {/* Divider */}
+                        <div className="my-3 border-t border-gray-200/60 dark:border-gray-700/40"></div>
+
+                        {/* Auth Buttons */}
+                        {user ? (
+                            <Link
+                                href={route('dashboard')}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 shadow-[0_4px_12px_rgba(208,170,33,0.3)] transition-all duration-300"
+                            >
+                                Dashboard
+                            </Link>
+                        ) : (
+                            <div className="flex flex-col gap-2">
                                 <Link
-                                    href={route('dashboard')}
+                                    href={route('login')}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gold-600 dark:text-gold-400 border border-gold-400/40 hover:bg-gold-500/10 transition-all duration-200"
+                                >
+                                    Masuk
+                                </Link>
+                                <Link
+                                    href={route('register')}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 shadow-[0_4px_12px_rgba(208,170,33,0.3)] transition-all duration-300"
                                 >
-                                    Dashboard
+                                    Daftar
                                 </Link>
-                            ) : (
-                                <div className="flex flex-col gap-2">
-                                    <Link
-                                        href={route('login')}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gold-600 dark:text-gold-400 border border-gold-400/40 hover:bg-gold-500/10 transition-all duration-200"
-                                    >
-                                        Masuk
-                                    </Link>
-                                    <Link
-                                        href={route('register')}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 shadow-[0_4px_12px_rgba(208,170,33,0.3)] transition-all duration-300"
-                                    >
-                                        Daftar
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
 
                 <AiChatPopup isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
             </nav>

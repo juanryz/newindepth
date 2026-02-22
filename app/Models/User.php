@@ -116,22 +116,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'therapist_id');
+        return $this->hasMany(Schedule::class , 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'patient_id');
+        return $this->hasMany(Booking::class , 'patient_id');
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class, 'user_id');
+        return $this->hasMany(Transaction::class , 'user_id');
     }
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class, 'affiliate_user_id');
+        return $this->hasMany(Commission::class , 'affiliate_user_id');
     }
 
     public function courses()
@@ -159,29 +159,42 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getProfileCompletionStats(): array
     {
+        $isTherapist = $this->hasRole('therapist');
+
         $fields = [
             'name' => ['label' => 'Nama Lengkap', 'filled' => filled($this->name)],
             'email' => ['label' => 'Email', 'filled' => filled($this->email)],
             'age' => ['label' => 'Usia', 'filled' => filled($this->age)],
             'gender' => ['label' => 'Jenis Kelamin', 'filled' => filled($this->gender)],
             'phone' => ['label' => 'Nomor HP', 'filled' => filled($this->phone)],
-            'ktp_photo' => ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)],
-            'emergency_contact_name' => ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)],
-            'emergency_contact_phone' => ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)],
-            'emergency_contact_relation' => ['label' => 'Hubungan Kontak Darurat', 'filled' => filled($this->emergency_contact_relation)],
-            'agreement' => ['label' => 'Tanda Tangan Perjanjian', 'filled' => !is_null($this->agreement_signed_at)],
-            'screening' => ['label' => 'Penyelesaian Skrining', 'filled' => !is_null($this->screening_completed_at)],
         ];
+
+        if ($isTherapist) {
+            $fields['specialization'] = ['label' => 'Keahlian/Spesialisasi', 'filled' => filled($this->specialization)];
+            $fields['bio'] = ['label' => 'Biografi Singkat', 'filled' => filled($this->bio)];
+        }
+        else {
+            $fields['ktp_photo'] = ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)];
+            $fields['emergency_contact_name'] = ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)];
+            $fields['emergency_contact_phone'] = ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)];
+            $fields['emergency_contact_relation'] = ['label' => 'Hubungan Kontak Darurat', 'filled' => filled($this->emergency_contact_relation)];
+            $fields['agreement'] = ['label' => 'Tanda Tangan Perjanjian', 'filled' => !is_null($this->agreement_signed_at)];
+            $fields['screening'] = ['label' => 'Penyelesaian Skrining', 'filled' => !is_null($this->screening_completed_at)];
+        }
 
         $completedCount = count(array_filter(array_column($fields, 'filled')));
         $totalCount = count($fields);
 
+        // Define mandatory fields for basic "Profile Completion" badge, excluding dynamic steps
+        $mandatoryFields = array_diff_key($fields, array_flip(['agreement', 'screening']));
+        $isComplete = count(array_filter(array_column($mandatoryFields, 'filled'))) === count($mandatoryFields);
+
         return [
-            'percentage' => (int) round(($completedCount / $totalCount) * 100),
+            'percentage' => (int)round(($completedCount / $totalCount) * 100),
             'fields' => $fields,
             'completed_count' => $completedCount,
             'total_count' => $totalCount,
-            'is_complete' => $completedCount === $totalCount,
+            'is_complete' => $isComplete,
         ];
     }
 
@@ -193,5 +206,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isPackageLocked(): bool
     {
         return !is_null($this->recommended_package);
+    }
+
+    public function getProfileCompletionAttribute()
+    {
+        return $this->getProfileCompletionStats();
     }
 }

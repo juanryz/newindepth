@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('recommended_package', ['reguler', 'vip'])->nullable()->after('status');
+            $table->enum('recommended_package', ['hipnoterapi', 'vip', 'upgrade'])->nullable()->after('status');
             $table->json('screening_answers')->nullable()->after('recommended_package');
             $table->timestamp('screening_completed_at')->nullable()->after('screening_answers');
         });

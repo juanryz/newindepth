@@ -80,7 +80,7 @@ export default function PaymentUpload({ booking, transaction }) {
                             </div>
 
                             <div className="flex items-center justify-end mt-4">
-                                <PrimaryButton className="ml-4" disabled={processing}>
+                                <PrimaryButton className="ml-4 !bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold" disabled={processing}>
                                     Upload dan Konfirmasi
                                 </PrimaryButton>
                             </div>

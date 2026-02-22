@@ -92,10 +92,10 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {tx.payment_bank}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
-                                                {tx.payment_proof && (
-                                                    <a href={`/storage/${tx.payment_proof}`} target="_blank" rel="noreferrer" className="underline">Lihat Bukti</a>
-                                                )}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                {tx.payment_proof ? (
+                                                    <a href={`/storage/${tx.payment_proof}`} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 font-bold underline transition-colors">Lihat Bukti</a>
+                                                ) : <span className="text-gray-400 italic">—</span>}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -106,10 +106,20 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                                                 {tx.status === 'pending' && (
-                                                    <>
-                                                        <button onClick={() => handleValidate(tx)} className="text-green-600 hover:text-green-900">Validasi</button>
-                                                        <button onClick={() => setSelectedReject(tx)} className="text-red-600 hover:text-red-900">Tolak</button>
-                                                    </>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleValidate(tx)}
+                                                            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-md transition-all shadow-sm"
+                                                        >
+                                                            Validasi
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setSelectedReject(tx)}
+                                                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-md transition-all shadow-sm"
+                                                        >
+                                                            Tolak
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </td>
                                         </tr>
@@ -140,7 +150,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             />
                             <div className="flex justify-end gap-3">
                                 <button type="button" onClick={() => setSelectedReject(null)} className="text-gray-600">Batal</button>
-                                <PrimaryButton type="submit" className="bg-red-600">Konfirmasi Penolakan</PrimaryButton>
+                                <PrimaryButton type="submit" className="!bg-red-600 hover:!bg-red-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">Konfirmasi Penolakan</PrimaryButton>
                             </div>
                         </form>
                     </div>
@@ -170,7 +180,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             </div>
                             <div className="flex justify-end gap-3">
                                 <button type="button" onClick={() => setSelectedValidate(null)} className="text-gray-600">Batal</button>
-                                <PrimaryButton type="submit" disabled={validating}>
+                                <PrimaryButton type="submit" disabled={validating} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">
                                     {validating ? 'Memvalidasi...' : 'Konfirmasi & Validasi'}
                                 </PrimaryButton>
                             </div>

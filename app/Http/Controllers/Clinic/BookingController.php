@@ -37,7 +37,8 @@ class BookingController extends Controller
             return redirect()->route('screening.show');
         }
 
-        if (!session()->has('initial_agreement_completed')) {
+        // Must complete agreement (check session or DB)
+        if (!session()->has('initial_agreement_completed') && !$user->agreement_signed_at) {
             return redirect()->route('agreement.show')->with('error', 'Silakan setujui persyaratan awal sebelum memilih jadwal.');
         }
 
@@ -53,10 +54,10 @@ class BookingController extends Controller
             ->whereDate('date', '<=', $toDate->toDateString())
             ->where('status', 'available')
             ->withCount([
-                'bookings' => function ($query) {
-                    $query->where('status', 'confirmed');
-                }
-            ])
+            'bookings' => function ($query) {
+            $query->where('status', 'confirmed');
+        }
+        ])
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();
@@ -127,7 +128,7 @@ class BookingController extends Controller
             return redirect()->route('screening.show')->withErrors(['error' => 'Selesaikan skrining terlebih dahulu.']);
         }
 
-        if (!session()->has('initial_agreement_completed')) {
+        if (!session()->has('initial_agreement_completed') && !$user->agreement_signed_at) {
             return redirect()->route('agreement.show')->withErrors(['error' => 'Selesaikan persetujuan awal terlebih dahulu.']);
         }
 
@@ -138,15 +139,16 @@ class BookingController extends Controller
 
         try {
             $booking = $bookingService->createBooking($validated, $user->id);
-            return redirect()->route('bookings.show', $booking->id)->with('success', 'Booking berhasil dibuat.');
-        } catch (Exception $e) {
+            return redirect()->route('payments.create', $booking->id)->with('success', 'Booking berhasil dibuat. Silakan lanjut ke pembayaran.');
+        }
+        catch (Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     public function show(Booking $booking)
     {
-        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
+        if ((int)$booking->patient_id !== (int)auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -158,12 +160,12 @@ class BookingController extends Controller
             ->active()
             ->get()
             ->map(fn($uv) => [
-                'id' => $uv->id,
-                'code' => $uv->voucher->code,
-                'description' => $uv->voucher->description,
-                'discount_amount' => $uv->voucher->discount_amount,
-                'is_active' => true,
-            ]);
+        'id' => $uv->id,
+        'code' => $uv->voucher->code,
+        'description' => $uv->voucher->description,
+        'discount_amount' => $uv->voucher->discount_amount,
+        'is_active' => true,
+        ]);
 
         return Inertia::render('Clinic/Bookings/Show', [
             'booking' => $booking,
@@ -173,7 +175,7 @@ class BookingController extends Controller
 
     public function cancel(Booking $booking, Request $request)
     {
-        if ((int) $booking->patient_id !== (int) $request->user()->id && !$request->user()->isStaff()) {
+        if ((int)$booking->patient_id !== (int)$request->user()->id && !$request->user()->isStaff()) {
             abort(403);
         }
 
@@ -220,18 +222,18 @@ class BookingController extends Controller
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             foreach ($slotsArray as $slot) {
                 \Illuminate\Support\Facades\DB::table('schedules')->updateOrInsert(
-                    [
-                        'date' => $date->toDateString(),
-                        'start_time' => $slot['start'],
-                        'schedule_type' => 'consultation',
-                    ],
-                    [
-                        'end_time' => $slot['end'],
-                        'quota' => $quota,
-                        'status' => 'available',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]
+                [
+                    'date' => $date->toDateString(),
+                    'start_time' => $slot['start'],
+                    'schedule_type' => 'consultation',
+                ],
+                [
+                    'end_time' => $slot['end'],
+                    'quota' => $quota,
+                    'status' => 'available',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
                 );
             }
         }

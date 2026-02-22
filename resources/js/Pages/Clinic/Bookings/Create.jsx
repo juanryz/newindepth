@@ -149,7 +149,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                             </div>
 
                             <div className="mt-6 flex justify-end">
-                                <PrimaryButton type="submit" disabled={!data.schedule_id || processing}>
+                                <PrimaryButton type="submit" disabled={!data.schedule_id || processing} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">
                                     Konfirmasi Booking & Lanjut Pembayaran
                                 </PrimaryButton>
                             </div>

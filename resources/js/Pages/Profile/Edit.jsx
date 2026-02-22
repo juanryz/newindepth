@@ -5,9 +5,14 @@ import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePatientDocumentsForm from './Partials/UpdatePatientDocumentsForm';
 import ServiceAgreementForm from './Partials/ServiceAgreementForm';
+import UpdateTherapistProfileForm from './Partials/UpdateTherapistProfileForm';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
 
-export default function Edit({ mustVerifyEmail, status, profileProgress }) {
+export default function Edit({ mustVerifyEmail, status, profileProgress, auth }) {
+    const user = auth.user;
+    const isPatient = user.roles.some(role => role.name === 'patient');
+    const isTherapist = user.roles.some(role => role.name === 'therapist');
+
     return (
         <AuthenticatedLayout
             header={
@@ -31,13 +36,23 @@ export default function Edit({ mustVerifyEmail, status, profileProgress }) {
                                 />
                             </div>
 
-                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
-                                <UpdatePatientDocumentsForm className="max-w-2xl" />
-                            </div>
+                            {isTherapist && (
+                                <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
+                                    <UpdateTherapistProfileForm className="max-w-2xl" />
+                                </div>
+                            )}
 
-                            <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
-                                <ServiceAgreementForm className="max-w-4xl" />
-                            </div>
+                            {isPatient && (
+                                <>
+                                    <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
+                                        <UpdatePatientDocumentsForm className="max-w-2xl" />
+                                    </div>
+
+                                    <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
+                                        <ServiceAgreementForm className="max-w-4xl" />
+                                    </div>
+                                </>
+                            )}
 
                             <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] sm:p-10 p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
                                 <UpdatePasswordForm className="max-w-xl" />

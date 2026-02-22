@@ -24,7 +24,7 @@ export default function PublicBlogShow({ post }) {
     };
 
     return (
-        <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
             <Head>
                 <title>{post.meta_title || post.title} | InDepth Mental Wellness</title>
                 <meta name="description" content={post.meta_description || post.excerpt || ''} />
@@ -75,8 +75,8 @@ export default function PublicBlogShow({ post }) {
                     dangerouslySetInnerHTML={{ __html: post.body }}
                 />
 
-                <Footer />
             </article>
+            <Footer />
         </div>
     );
 }

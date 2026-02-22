@@ -32,7 +32,7 @@ export default function ExpensesIndex({ expenses }) {
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Pengeluaran</h2>
-                    <PrimaryButton onClick={() => setIsFormOpen(!isFormOpen)}>
+                    <PrimaryButton onClick={() => setIsFormOpen(!isFormOpen)} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">
                         {isFormOpen ? 'Tutup Form' : 'Catat Pengeluaran Baru'}
                     </PrimaryButton>
                 </div>
@@ -123,7 +123,7 @@ export default function ExpensesIndex({ expenses }) {
                                 </div>
 
                                 <div className="md:col-span-2 flex justify-end">
-                                    <PrimaryButton disabled={processing}>Simpan Data</PrimaryButton>
+                                    <PrimaryButton disabled={processing} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">Simpan Data</PrimaryButton>
                                 </div>
                             </form>
                         </div>

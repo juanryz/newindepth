@@ -88,6 +88,7 @@ export default function UsersIndex({ users, filters }) {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                                                <Link href={route('admin.users.show', user.id)} className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300">Lihat</Link>
                                                 <Link href={route('admin.users.edit', user.id)} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">Edit</Link>
                                                 <button type="button" onClick={() => handleDelete(user.id)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Hapus</button>
                                             </td>

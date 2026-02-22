@@ -224,8 +224,8 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 Batalkan Pesanan
                             </button>
-                            <Link href={`/payments/upload/${booking.id}`}>
-                                <PrimaryButton>Lanjutkan ke Pembayaran</PrimaryButton>
+                            <Link href={route('payments.create', booking.id)}>
+                                <PrimaryButton className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold">Lanjutkan ke Pembayaran</PrimaryButton>
                             </Link>
                         </div>
                     )}

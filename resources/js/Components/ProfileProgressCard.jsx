@@ -13,7 +13,7 @@ export default function ProfileProgressCard({ profileProgress, showLink = true }
             : 'bg-green-500';
 
     return (
-        <div className="bg-white/20 backdrop-blur-[60px] backdrop-saturate-[1.8] border border-white/40 dark:bg-white/[0.03] dark:border-white/[0.08] sm:rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)] transition-all duration-700">
+        <div className="bg-[#FAF8ED] dark:bg-gray-800/80 sm:rounded-[2.5rem] p-8 transition-all duration-700">
             <div className="flex items-center justify-between mb-1">
                 <h3 className="font-bold text-gray-900 dark:text-white">Kelengkapan Profil</h3>
                 <span className={`text-lg font-extrabold ${percentage === 100 ? 'text-green-500' : 'text-gray-700 dark:text-gray-300'}`}>
@@ -53,17 +53,31 @@ export default function ProfileProgressCard({ profileProgress, showLink = true }
                 ))}
             </ul>
 
-            {showLink && percentage < 100 && (
-                <Link
-                    href={route('profile.edit')}
-                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-indigo-200 dark:border-indigo-700/50 text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Lengkapi Profil
-                </Link>
-            )}
+            <div className="mt-4 space-y-3">
+                {showLink && percentage < 100 && (
+                    <Link
+                        href={route('profile.edit')}
+                        className="flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-indigo-200 dark:border-indigo-700/50 text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        Lengkapi Profil
+                    </Link>
+                )}
+
+                {fields?.screening && !fields.screening.filled && (
+                    <Link
+                        href={route('screening.show')}
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Mulai Skrining
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }

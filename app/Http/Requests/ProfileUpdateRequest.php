@@ -28,6 +28,8 @@ class ProfileUpdateRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:20'],
             'age' => ['nullable', 'integer', 'min:0', 'max:150'],
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan,Lainnya'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'specialization' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

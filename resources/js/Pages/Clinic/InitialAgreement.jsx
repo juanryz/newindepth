@@ -5,8 +5,17 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 
-export default function InitialAgreement({ userAge }) {
+const severityColors = {
+    'Ringan': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+    'Sedang': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+    'Berat Akut': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+    'Berat Kronis': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+    'High Risk': 'bg-red-200 text-red-900 dark:bg-red-900/60 dark:text-red-200',
+};
+
+export default function InitialAgreement({ userAge, screeningResult }) {
     const isUnder17 = userAge !== null && userAge < 17;
+    const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
     const { data, setData, post, processing, transform, errors } = useForm({
         // Bagian 1
@@ -189,6 +198,49 @@ export default function InitialAgreement({ userAge }) {
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Form Pernyataan Awal</h3>
                             <p className="text-sm text-gray-500 mt-2">Harap baca dengan teliti dan centang seluruh pernyataan di bawah ini untuk melanjutkan ke proses booking.</p>
                         </div>
+
+                        {screeningResult && (
+                            <div className="mb-10 p-6 rounded-2xl border border-indigo-100 bg-indigo-50/50 dark:bg-indigo-900/10 dark:border-indigo-800/50">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-gray-900 dark:text-white text-lg">Hasil Skrining Anda</h4>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {screeningResult.severity_label && (
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${severityColors[screeningResult.severity_label] || 'bg-gray-100 text-gray-800'}`}>
+                                                    Tingkat: {screeningResult.severity_label}
+                                                </span>
+                                            )}
+                                            {screeningResult.recommended_package && (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                                    Rekomendasi: {screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {screeningResult.ai_summary && (
+                                            <div className="mt-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-indigo-50 dark:border-indigo-900/30">
+                                                <p className={`text-sm text-gray-700 dark:text-gray-300 leading-relaxed ${!isSummaryExpanded ? 'line-clamp-3' : ''}`}>
+                                                    {screeningResult.ai_summary}
+                                                </p>
+                                                {screeningResult.ai_summary.length > 200 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                                                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-2 hover:underline"
+                                                    >
+                                                        {isSummaryExpanded ? 'Sembunyikan' : 'Baca selengkapnya...'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <form onSubmit={submit} className="space-y-10">
 

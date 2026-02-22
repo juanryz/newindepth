@@ -8,8 +8,8 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-2">
                         <Link href="/">
-                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-14 block dark:hidden mb-6" />
-                            <img src="/images/logo-white.png" alt="InDepth Logo" className="h-14 hidden dark:block mb-6" />
+                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-[120px] md:h-[160px] w-auto object-contain block dark:hidden mb-6" />
+                            <img src="/images/logo-white.png" alt="InDepth Logo" className="h-[120px] md:h-[160px] w-auto object-contain hidden dark:block mb-6" />
                         </Link>
                         <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light max-w-md">
                             Klinik Hipnoterapi & Psikoterapi Premium di Semarang. Menyediakan layanan kesehatan mental terpadu dengan pendekatan personal dan profesional. Membantu Anda menemukan kembali ketenangan batin.

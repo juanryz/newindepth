@@ -16,11 +16,12 @@ class ClinicReportController extends Controller
         $month = $request->get('month', now()->format('m'));
         $year = $request->get('year', now()->format('Y'));
 
+        $driver = \Illuminate\Support\Facades\DB::getDriverName();
         // Chart Data: Revenue per Month (last 12 months)
         $revenueByMonth = Transaction::select(
             \Illuminate\Support\Facades\DB::raw('SUM(amount) as total'),
-            \Illuminate\Support\Facades\DB::raw('strftime("%m-%Y", created_at) as month_year'),
-            \Illuminate\Support\Facades\DB::raw('strftime("%Y-%m", created_at) as sort_key')
+            \Illuminate\Support\Facades\DB::raw($driver === 'sqlite' ? 'strftime("%m-%Y", created_at) as month_year' : 'DATE_FORMAT(created_at, "%m-%Y") as month_year'),
+            \Illuminate\Support\Facades\DB::raw($driver === 'sqlite' ? 'strftime("%Y-%m", created_at) as sort_key' : 'DATE_FORMAT(created_at, "%Y-%m") as sort_key')
         )
             ->where('status', 'paid')
             ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
@@ -42,11 +43,11 @@ class ClinicReportController extends Controller
             ->take(5)
             ->get()
             ->map(function ($booking) {
-                return [
-                    'name' => $booking->therapist->name ?? 'Unknown',
-                    'bookings' => $booking->total_bookings
-                ];
-            });
+            return [
+            'name' => $booking->therapist->name ?? 'Unknown',
+            'bookings' => $booking->total_bookings
+            ];
+        });
 
         // Chart Data: Bookings by Status (this month)
         $bookingsByStatus = \App\Models\Booking::select(

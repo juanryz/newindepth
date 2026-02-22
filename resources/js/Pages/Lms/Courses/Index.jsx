@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Footer from '@/Components/Footer';
+import LiquidBackground from '@/Components/LiquidBackground';
 import { Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import ErrorBoundary from '@/Components/ErrorBoundary';
@@ -33,11 +35,8 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
             <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
 
 
-                {/* Global Background Ambient Light */}
-                <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gold-400/20 dark:bg-gold-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[8000ms]"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-300/20 dark:bg-yellow-600/10 blur-[150px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
-                </div>
+                {/* Premium Liquid Background */}
+                <LiquidBackground />
 
                 {/* Navbar */}
                 <Navbar auth={auth} active="courses" />
@@ -87,7 +86,15 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                     const price = isNaN(Number(course.price)) ? 0 : Number(course.price);
 
                                     return (
-                                        <article key={course.id} className="group flex flex-col bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 dark:border-gray-800/60 overflow-hidden hover:shadow-[0_20px_50px_rgba(208,170,33,0.1)] transition-all duration-500 hover:-translate-y-2">
+                                        <motion.article
+                                            key={course.id}
+                                            initial={{ opacity: 0, y: 30 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ duration: 0.5 }}
+                                            whileHover={{ y: -8 }}
+                                            className="group flex flex-col bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 dark:border-gray-800/60 overflow-hidden hover:shadow-[0_20px_50px_rgba(208,170,33,0.1)] transition-all duration-500"
+                                        >
                                             <Link href={route('courses.show', course.slug)} className="block relative aspect-[16/10] overflow-hidden">
                                                 {course.thumbnail ? (
                                                     <img src={`/storage/${course.thumbnail}`} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -129,7 +136,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                                     </Link>
                                                 </div>
                                             </div>
-                                        </article>
+                                        </motion.article>
                                     );
                                 })
                             )}

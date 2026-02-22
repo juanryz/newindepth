@@ -183,7 +183,7 @@ export default function UpdatePatientDocumentsForm({ className = '' }) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing || isCompressing}>
+                    <PrimaryButton disabled={processing || isCompressing} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-4 !py-2 !text-xs !tracking-widest !font-semibold !h-auto !shadow-none !uppercase">
                         {isCompressing ? 'Menyimpan...' : 'Simpan Dokumen'}
                     </PrimaryButton>
 

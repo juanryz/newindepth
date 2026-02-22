@@ -296,7 +296,7 @@ export default function ServiceAgreementForm({ className = '' }) {
                         <InputError className="mt-2 text-center" message={errors.digital_signature} />
 
                         <div className="flex justify-center mt-10 border-t pt-6">
-                            <PrimaryButton disabled={processing || !isAgreementComplete} className="px-8 py-3 w-full sm:w-auto text-lg justify-center">
+                            <PrimaryButton disabled={processing || !isAgreementComplete} className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !tracking-widest !font-semibold !h-auto !shadow-none !uppercase w-full sm:w-auto justify-center">
                                 Setujui & Tanda Tangani
                             </PrimaryButton>
                         </div>
