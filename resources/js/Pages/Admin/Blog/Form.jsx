@@ -4,6 +4,8 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function BlogForm({ post }) {
     const isEditing = !!post;
@@ -80,15 +82,24 @@ export default function BlogForm({ post }) {
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="body" value="Konten Artikel (HTML / Teks Panjang)" />
-                                <textarea
-                                    id="body"
-                                    className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-64 font-mono text-sm"
-                                    value={data.body}
-                                    onChange={(e) => setData('body', e.target.value)}
-                                    required
-                                />
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Anda dapat menggunakan tag HTML dasar seperti &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, dll.</p>
+                                <InputLabel htmlFor="body" value="Konten Artikel" />
+                                <div className="mt-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden pb-12">
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={data.body}
+                                        onChange={(content) => setData('body', content)}
+                                        className="h-96"
+                                        modules={{
+                                            toolbar: [
+                                                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                                                ['bold', 'italic', 'underline', 'strike'],
+                                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                ['link', 'image'],
+                                                ['clean']
+                                            ],
+                                        }}
+                                    />
+                                </div>
                                 {errors.body && <p className="text-sm text-red-600 mt-2">{errors.body}</p>}
                             </div>
 

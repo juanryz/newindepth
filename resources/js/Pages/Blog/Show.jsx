@@ -101,7 +101,14 @@ export default function PublicBlogShow({ post, auth }) {
 
                 <div
                     className="prose prose-lg prose-indigo dark:prose-invert mx-auto prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-img:rounded-xl prose-a:text-gold-600 dark:prose-a:text-gold-400"
-                    dangerouslySetInnerHTML={{ __html: body || '' }}
+                    dangerouslySetInnerHTML={{
+                        __html:
+                            body
+                                ? body.includes('<') && body.includes('>')
+                                    ? body
+                                    : body.split('\n').map(p => `<p>${p}</p>`).join('')
+                                : ''
+                    }}
                 />
 
             </article>

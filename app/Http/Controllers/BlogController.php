@@ -32,7 +32,9 @@ class BlogController extends Controller
         $post = $query->first();
 
         if (!$post) {
-            return "Debug: Post with slug [{$slug}] not found or not published. User is: " . (auth()->check() ? auth()->user()->email : 'Guest');
+            return Inertia::render('Blog/Show', [
+                'post' => null
+            ]);
         }
 
         return Inertia::render('Blog/Show', [
