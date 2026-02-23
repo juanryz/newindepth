@@ -168,7 +168,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                         {/* Auth Buttons */}
                         {user ? (
                             <Link
-                                href={route('dashboard')}
+                                href="/dashboard"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 shadow-[0_4px_12px_rgba(208,170,33,0.3)] transition-all duration-300"
                             >
@@ -177,14 +177,14 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                         ) : (
                             <div className="flex flex-col gap-2">
                                 <Link
-                                    href={route('login')}
+                                    href="/login"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gold-600 dark:text-gold-400 border border-gold-400/40 hover:bg-gold-500/10 transition-all duration-200"
                                 >
                                     Masuk
                                 </Link>
                                 <Link
-                                    href={route('register')}
+                                    href="/register"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center justify-center w-full px-5 py-3 rounded-2xl text-sm font-bold text-gray-900 bg-gradient-to-br from-gold-400 to-gold-600 shadow-[0_4px_12px_rgba(208,170,33,0.3)] transition-all duration-300"
                                 >
