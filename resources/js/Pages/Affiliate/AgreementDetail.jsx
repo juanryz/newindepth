@@ -105,11 +105,10 @@ export default function AgreementDetail({ userModel }) {
 
                     {/* Footer Actions */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">
-                        <PrimaryButton onClick={() => window.print()} className="w-full sm:w-auto px-10 h-14 rounded-2xl bg-slate-950 text-white font-black uppercase tracking-widest shadow-2xl hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3">
+                        <PrimaryButton onClick={() => window.print()} className="w-full sm:w-auto px-10 h-14 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-black uppercase tracking-widest shadow-2xl hover:bg-slate-800 dark:hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
                             Download Arsip PDF
                         </PrimaryButton>
-                        <Link href={route('affiliate.dashboard')} className="text-[10px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest transition-all">Kembali ke Dashboard Affiliate</Link>
                     </div>
 
                 </div>

@@ -162,7 +162,7 @@ export default function AgreementDetail({ userModel }) {
                             <h1 className="text-xl font-black tracking-tight mt-1 uppercase">Surat Perjanjian Layanan Hipnoterapi</h1>
                         </div>
 
-                        <div className="p-8 sm:p-10 font-serif text-sm leading-relaxed text-gray-800 dark:text-gray-300 space-y-6">
+                        <div className="p-8 sm:p-10 font-serif text-sm leading-relaxed text-gray-800 dark:text-gray-100 space-y-6">
                             <div className="text-center mb-8 not-serif">
                                 <p className="font-bold text-gray-900 dark:text-white underline">SURAT PERJANJIAN LAYANAN</p>
                                 <p className="text-xs text-gray-500">Nomor: ID/{userModel.id}/{userModel.agreement_signed_at ? new Date(userModel.agreement_signed_at).getTime() : 'N/A'}</p>

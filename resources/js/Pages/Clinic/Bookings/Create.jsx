@@ -420,6 +420,14 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                         </div>
 
                         <div className="p-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex flex-col items-center gap-4 flex-shrink-0">
+                            {Object.keys(errors).length > 0 && (
+                                <div className="w-full p-4 mb-2 text-xs text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl font-bold">
+                                    <p className="mb-1 uppercase tracking-widest">Maaf, terjadi kesalahan:</p>
+                                    <ul className="list-disc list-inside">
+                                        {Object.values(errors).map((err, i) => <li key={i}>{err}</li>)}
+                                    </ul>
+                                </div>
+                            )}
                             <button
                                 onClick={submit}
                                 disabled={!(data.agree_refund && data.agree_final && data.agree_access && data.agree_chargeback) || processing}

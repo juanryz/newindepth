@@ -111,7 +111,7 @@ export default function PaymentUpload({ booking, transaction }) {
                         <form onSubmit={submit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <InputLabel htmlFor="payment_bank" value="Bank Pengirim Anda" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                    <InputLabel htmlFor="payment_bank" value="Bank Pengirim Anda" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
                                     <TextInput
                                         id="payment_bank"
                                         type="text"
@@ -125,7 +125,7 @@ export default function PaymentUpload({ booking, transaction }) {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="payment_proof" value="Preview Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                    <InputLabel htmlFor="payment_proof" value="Preview Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
                                     <div className="relative group">
                                         <input
                                             id="payment_proof"

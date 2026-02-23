@@ -425,93 +425,100 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 Hasil Skrining Psikologis
                                             </h3>
 
-                                            {latestScreening ? (
-                                                <div className="space-y-8">
-                                                    <div className="p-8 rounded-[2rem] bg-rose-50/30 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/50 relative overflow-hidden">
-                                                        <div className="relative z-10">
-                                                            <h4 className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em] mb-4">Analisis Diagnosa AI</h4>
-                                                            <p className="text-xl font-black text-gray-900 dark:text-white leading-relaxed mb-6">
-                                                                "{latestScreening.ai_summary || latestScreening.severity_label || 'Tidak ada ringkasan'}"
-                                                            </p>
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="px-4 py-1.5 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
-                                                                    {latestScreening.severity_label || 'Analyzed'}
+                                            {screeningResults && screeningResults.length > 0 ? (
+                                                <div className="space-y-12">
+                                                    {screeningResults.map((screening, sIdx) => (
+                                                        <div key={screening.id || sIdx} className="space-y-8 pb-12 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0">
+                                                            <div className="flex items-center gap-4 mb-4">
+                                                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                                                    Sesi #{screeningResults.length - sIdx}
                                                                 </span>
-                                                                <span className="text-xs font-bold text-gray-400">
-                                                                    DIKIRIM: {new Date(latestScreening.completed_at || userModel.screening_completed_at).toLocaleString('id-ID', { dateStyle: 'long' })}
+                                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">
+                                                                    {new Date(screening.completed_at || screening.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
                                                                 </span>
                                                             </div>
-                                                        </div>
-                                                        <Activity className="absolute -right-8 -bottom-8 w-40 h-40 text-rose-500/5" />
-                                                    </div>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                        {/* Detailed AI Analysis Fields */}
-                                                        {latestScreening.step_data && (
-                                                            <div className="p-6 rounded-[2rem] bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800 space-y-4">
-                                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center gap-2">
-                                                                    <Clipboard className="w-3 h-3" /> Rekomendasi Paket & Treatment
-                                                                </p>
-                                                                <div className="space-y-4">
-                                                                    <div>
-                                                                        <p className="text-[10px] font-black text-rose-500 uppercase">Paket yang Direkomendasikan</p>
-                                                                        <p className="text-sm font-black text-gray-900 dark:text-white uppercase mt-1">{latestScreening.recommended_package || userModel.recommended_package || '-'}</p>
+                                                            <div className="p-8 rounded-[2rem] bg-rose-50/30 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/50 relative overflow-hidden">
+                                                                <div className="relative z-10">
+                                                                    <h4 className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em] mb-4">Analisis Diagnosa AI</h4>
+                                                                    <p className="text-xl font-black text-gray-900 dark:text-white leading-relaxed mb-6">
+                                                                        "{screening.ai_summary || screening.severity_label || 'Tidak ada ringkasan'}"
+                                                                    </p>
+                                                                    <div className="flex items-center gap-4">
+                                                                        <span className="px-4 py-1.5 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                                                            {screening.severity_label || 'Analyzed'}
+                                                                        </span>
+                                                                        {screening.is_high_risk && (
+                                                                            <span className="px-4 py-1.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                                                                <AlertTriangle className="w-3 h-3" /> Resiko Tinggi
+                                                                            </span>
+                                                                        )}
                                                                     </div>
-                                                                    {latestScreening.step_data.analysis && (
+                                                                </div>
+                                                                <Activity className="absolute -right-8 -bottom-8 w-40 h-40 text-rose-500/5" />
+                                                            </div>
+
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                                {/* Detailed AI Analysis Fields */}
+                                                                <div className="p-6 rounded-[2rem] bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800 space-y-4">
+                                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center gap-2">
+                                                                        <Clipboard className="w-3 h-3" /> Rekomendasi Paket & Treatment
+                                                                    </p>
+                                                                    <div className="space-y-4">
                                                                         <div>
-                                                                            <p className="text-[10px] font-black text-indigo-500 uppercase mb-2">Analisis Mendalam</p>
-                                                                            <div className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                                                                                {latestScreening.step_data.analysis}
+                                                                            <p className="text-[10px] font-black text-rose-500 uppercase">Paket yang Direkomendasikan</p>
+                                                                            <p className="text-sm font-black text-gray-900 dark:text-white uppercase mt-1">{screening.recommended_package || '-'}</p>
+                                                                        </div>
+                                                                        {screening.step_data?.analysis && (
+                                                                            <div>
+                                                                                <p className="text-[10px] font-black text-indigo-500 uppercase mb-2">Analisis Mendalam</p>
+                                                                                <div className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                    {screening.step_data.analysis}
+                                                                                </div>
                                                                             </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="p-6 rounded-[2rem] bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800">
+                                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Metadata Skrining</p>
+                                                                    <div className="space-y-3">
+                                                                        <div className="flex justify-between text-xs font-bold border-b border-gray-100 dark:border-gray-800 pb-2">
+                                                                            <span className="text-gray-500 uppercase">Metode Analisis</span>
+                                                                            <span className="text-gray-900 dark:text-white">InDepth AI v2.1</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between text-xs font-bold">
+                                                                            <span className="text-gray-500 uppercase">Status Validitas</span>
+                                                                            <span className={`font-black uppercase text-emerald-500`}>TERVERIFIKASI</span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {screening.admin_notes && (
+                                                                        <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+                                                                            <p className="text-[10px] font-black text-rose-500 uppercase mb-2">Catatan Admin</p>
+                                                                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{screening.admin_notes}</p>
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
-                                                        )}
 
-                                                        <div className="p-6 rounded-[2rem] bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800">
-                                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Metadata Skrining</p>
-                                                            <div className="space-y-3">
-                                                                <div className="flex justify-between text-xs font-bold border-b border-gray-100 dark:border-gray-800 pb-2">
-                                                                    <span className="text-gray-500 uppercase">Durasi Pengerjaan</span>
-                                                                    <span className="text-gray-900 dark:text-white">~5-10 Menit</span>
-                                                                </div>
-                                                                <div className="flex justify-between text-xs font-bold border-b border-gray-100 dark:border-gray-800 pb-2">
-                                                                    <span className="text-gray-500 uppercase">Metode Analisis</span>
-                                                                    <span className="text-gray-900 dark:text-white">InDepth AI v2.1</span>
-                                                                </div>
-                                                                <div className="flex justify-between text-xs font-bold">
-                                                                    <span className="text-gray-500 uppercase">Tingkat Risiko</span>
-                                                                    <span className={`font-black uppercase ${latestScreening.is_high_risk ? 'text-rose-500' : 'text-emerald-500'}`}>
-                                                                        {latestScreening.is_high_risk ? 'Tinggi' : 'Normal/Rendah'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            {latestScreening.admin_notes && (
-                                                                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-                                                                    <p className="text-[10px] font-black text-rose-500 uppercase mb-2">Catatan Admin</p>
-                                                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{latestScreening.admin_notes}</p>
+                                                            {/* Full Chat History Preview if available */}
+                                                            {screening.chat_history && (
+                                                                <div className="p-8 bg-gray-50/30 dark:bg-gray-900/40 rounded-[2rem] border border-gray-100 dark:border-gray-800">
+                                                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Log Percakapan dengan AI (Sesi #{screeningResults.length - sIdx})</h4>
+                                                                    <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                                                                        {screening.chat_history.map((msg, i) => (
+                                                                            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                                                <div className={`max-w-[80%] p-4 rounded-2xl text-xs font-medium ${msg.role === 'user' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 shadow-sm'}`}>
+                                                                                    {msg.content}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    </div>
-
-                                                    {/* Full Chat History Preview if available */}
-                                                    {latestScreening.chat_history && (
-                                                        <div className="p-8 bg-gray-50/30 dark:bg-gray-900/40 rounded-[2rem] border border-gray-100 dark:border-gray-800">
-                                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Log Percakapan Skrining</h4>
-                                                            <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-4">
-                                                                {latestScreening.chat_history.map((msg, i) => (
-                                                                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                                        <div className={`max-w-[80%] p-4 rounded-2xl text-xs font-medium ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700'}`}>
-                                                                            {msg.content}
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                                    ))}
                                                 </div>
                                             ) : (
                                                 <div className="py-20 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[2rem]">
@@ -522,6 +529,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                         </div>
                                     </motion.div>
                                 )}
+
 
                                 {activeTab === 'sessions' && (
                                     <motion.div

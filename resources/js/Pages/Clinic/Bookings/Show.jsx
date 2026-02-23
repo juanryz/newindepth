@@ -37,14 +37,8 @@ export default function BookingShow({ booking, userVouchers = [] }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={route('dashboard')}
-                        className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-sm"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                    </Link>
-                    <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Detail Reservasi #{booking.booking_code}</h2>
+                <div className="flex items-center gap-4 text-slate-800 dark:text-white">
+                    <h2 className="font-semibold text-xl leading-tight">Detail Reservasi #{booking.booking_code}</h2>
                 </div>
             }
         >

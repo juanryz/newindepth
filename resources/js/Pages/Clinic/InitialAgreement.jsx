@@ -176,9 +176,9 @@ export default function InitialAgreement({ userAge }) {
     };
 
     const CheckboxItem = ({ id, label, checked, onChange }) => (
-        <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${checked ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-300'}`}>
-            <input type="checkbox" id={id} checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 accent-indigo-600 rounded text-indigo-600 focus:ring-indigo-500" />
-            <span className="text-sm leading-relaxed">{label}</span>
+        <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${checked ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300 dark:hover:border-indigo-600'}`}>
+            <input type="checkbox" id={id} checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 w-5 h-5 accent-indigo-600 rounded text-indigo-600 focus:ring-indigo-500" />
+            <span className={`text-sm leading-relaxed ${checked ? 'font-bold' : 'text-gray-700 dark:text-gray-300'}`}>{label}</span>
         </label>
     );
 
@@ -350,7 +350,7 @@ export default function InitialAgreement({ userAge }) {
                                 <p className="text-sm text-gray-500 mt-2">InDepth Mental Wellness</p>
                             </div>
 
-                            <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 sm:p-8 rounded-lg text-sm text-gray-800 dark:text-gray-300 max-h-[500px] overflow-y-auto font-serif leading-relaxed mb-6 shadow-inner relative">
+                            <div className="bg-gray-50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 p-6 sm:p-8 rounded-lg text-sm text-gray-800 dark:text-gray-100 max-h-[500px] overflow-y-auto font-serif leading-relaxed mb-6 shadow-inner relative">
                                 <p className="font-bold mb-2">PASAL 1 - IDENTITAS KLIEN</p>
                                 {(!user.age || !user.gender || !user.phone) && (
                                     <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
