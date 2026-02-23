@@ -1,0 +1,190 @@
+import { jsxs, jsx } from "react/jsx-runtime";
+import { I as InputError } from "./InputError-2JjWc6nJ.js";
+import { I as InputLabel } from "./InputLabel-CnBOqvzp.js";
+import { P as PrimaryButton } from "./PrimaryButton-DsRkdqwY.js";
+import { T as TextInput } from "./TextInput-DcEnl-Ka.js";
+import { G as GuestLayout } from "./GuestLayout-6VFu8n0g.js";
+import { useForm, Head, Link } from "@inertiajs/react";
+import { useState } from "react";
+import "./ThemeToggle-SHr-61ed.js";
+import "react-dom";
+function Register() {
+  const { data, setData, post, processing, errors, reset } = useForm({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    password_confirmation: ""
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const submit = (e) => {
+    e.preventDefault();
+    post(route("register"), {
+      onFinish: () => reset("password", "password_confirmation")
+    });
+  };
+  return /* @__PURE__ */ jsxs(GuestLayout, { title: "Sign Up", children: [
+    /* @__PURE__ */ jsx(Head, { title: "Sign Up" }),
+    /* @__PURE__ */ jsxs("div", { className: "mb-6 text-center relative", children: [
+      /* @__PURE__ */ jsx("div", { className: "absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 bg-gold-400/20 rounded-full blur-3xl pointer-events-none" }),
+      /* @__PURE__ */ jsx("h2", { className: "text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-900 via-gold-700 to-gray-950 dark:from-white dark:via-gold-400 dark:to-white tracking-tighter leading-tight", children: "Sign Up" }),
+      /* @__PURE__ */ jsx("p", { className: "mt-2 text-[10px] text-gray-700 dark:text-gray-300 font-bold tracking-wide uppercase opacity-90", children: "Mulai perjalanan transformasi Anda" }),
+      /* @__PURE__ */ jsx("div", { className: "h-1 w-16 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 mx-auto mt-4 rounded-full shadow-[0_2px_10px_rgba(208,170,33,0.3)]" })
+    ] }),
+    /* @__PURE__ */ jsxs("form", { onSubmit: submit, className: "space-y-6", children: [
+      /* @__PURE__ */ jsxs("div", { className: "group", children: [
+        /* @__PURE__ */ jsx(InputLabel, { htmlFor: "name", value: "Name", className: "ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" }),
+        /* @__PURE__ */ jsx(
+          TextInput,
+          {
+            id: "name",
+            name: "name",
+            value: data.name,
+            className: "mt-1 block w-full px-4 py-3.5",
+            autoComplete: "name",
+            isFocused: true,
+            onChange: (e) => setData("name", e.target.value),
+            required: true
+          }
+        ),
+        /* @__PURE__ */ jsx(InputError, { message: errors.name, className: "mt-2 ml-1" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "group", children: [
+        /* @__PURE__ */ jsx(InputLabel, { htmlFor: "email", value: "Email", className: "ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" }),
+        /* @__PURE__ */ jsx(
+          TextInput,
+          {
+            id: "email",
+            type: "email",
+            name: "email",
+            value: data.email,
+            className: "mt-1 block w-full px-4 py-3.5",
+            autoComplete: "username",
+            onChange: (e) => setData("email", e.target.value),
+            required: true
+          }
+        ),
+        /* @__PURE__ */ jsx(InputError, { message: errors.email, className: "mt-2 ml-1" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "group", children: [
+        /* @__PURE__ */ jsx(InputLabel, { htmlFor: "phone", value: "Nomor Telepon / WhatsApp", className: "ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" }),
+        /* @__PURE__ */ jsx(
+          TextInput,
+          {
+            id: "phone",
+            type: "text",
+            name: "phone",
+            value: data.phone,
+            className: "mt-1 block w-full px-4 py-3.5",
+            autoComplete: "tel",
+            onChange: (e) => setData("phone", e.target.value),
+            required: true
+          }
+        ),
+        /* @__PURE__ */ jsx(InputError, { message: errors.phone, className: "mt-2 ml-1" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "group", children: [
+        /* @__PURE__ */ jsx(InputLabel, { htmlFor: "password", value: "Password", className: "ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" }),
+        /* @__PURE__ */ jsxs("div", { className: "relative mt-1", children: [
+          /* @__PURE__ */ jsx(
+            TextInput,
+            {
+              id: "password",
+              type: showPassword ? "text" : "password",
+              name: "password",
+              value: data.password,
+              className: "block w-full px-4 py-3.5 pr-12",
+              autoComplete: "new-password",
+              onChange: (e) => setData("password", e.target.value),
+              required: true
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              className: "absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gold-500 transition-colors",
+              onClick: () => setShowPassword(!showPassword),
+              children: showPassword ? /* @__PURE__ */ jsx("svg", { className: "h-5 w-5", fill: "none", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268-2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" }) }) : /* @__PURE__ */ jsxs("svg", { className: "h-5 w-5", fill: "none", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", stroke: "currentColor", children: [
+                /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z" }),
+                /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.543 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" })
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(InputError, { message: errors.password, className: "mt-2 ml-1" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "group", children: [
+        /* @__PURE__ */ jsx(InputLabel, { htmlFor: "password_confirmation", value: "Confirm Password", className: "ml-1 mb-1 transition-colors group-focus-within:text-gold-600 dark:group-focus-within:text-gold-400" }),
+        /* @__PURE__ */ jsxs("div", { className: "relative mt-1", children: [
+          /* @__PURE__ */ jsx(
+            TextInput,
+            {
+              id: "password_confirmation",
+              type: showConfirmPassword ? "text" : "password",
+              name: "password_confirmation",
+              value: data.password_confirmation,
+              className: "block w-full px-4 py-3.5 pr-12",
+              autoComplete: "new-password",
+              onChange: (e) => setData("password_confirmation", e.target.value),
+              required: true
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              className: "absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gold-500 transition-colors",
+              onClick: () => setShowConfirmPassword(!showConfirmPassword),
+              children: showConfirmPassword ? /* @__PURE__ */ jsx("svg", { className: "h-5 w-5", fill: "none", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268-2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" }) }) : /* @__PURE__ */ jsxs("svg", { className: "h-5 w-5", fill: "none", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", stroke: "currentColor", children: [
+                /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z" }),
+                /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.543 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" })
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(InputError, { message: errors.password_confirmation, className: "mt-2 ml-1" })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "pt-2", children: /* @__PURE__ */ jsx(PrimaryButton, { className: "w-full", disabled: processing, children: "Sign Up" }) }),
+      /* @__PURE__ */ jsxs("div", { className: "relative flex items-center py-4", children: [
+        /* @__PURE__ */ jsx("div", { className: "flex-grow border-t border-gray-200 dark:border-gray-800" }),
+        /* @__PURE__ */ jsx("span", { className: "flex-shrink-0 mx-4 text-xs font-bold uppercase tracking-widest text-gray-400", children: "Atau" }),
+        /* @__PURE__ */ jsx("div", { className: "flex-grow border-t border-gray-200 dark:border-gray-800" })
+      ] }),
+      /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxs(
+          "a",
+          {
+            href: route("auth.google"),
+            className: "w-full inline-flex justify-center items-center px-4 py-3.5 bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-2xl font-bold text-sm text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-700/60 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.3)] hover:-translate-y-1 transition-all duration-300 group",
+            children: [
+              /* @__PURE__ */ jsxs("svg", { className: "w-5 h-5 mr-3 group-hover:scale-110 transition-transform", viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: [
+                /* @__PURE__ */ jsx("path", { d: "M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z", fill: "#4285F4" }),
+                /* @__PURE__ */ jsx("path", { d: "M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z", fill: "#34A853" }),
+                /* @__PURE__ */ jsx("path", { d: "M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z", fill: "#FBBC05" }),
+                /* @__PURE__ */ jsx("path", { d: "M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z", fill: "#EA4335" })
+              ] }),
+              "Sign up with Google"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs("p", { className: "text-center text-sm font-medium text-gray-500 dark:text-gray-400", children: [
+          "Sudah punya akun?",
+          " ",
+          /* @__PURE__ */ jsx(
+            Link,
+            {
+              href: route("login"),
+              className: "text-gold-600 dark:text-gold-400 font-bold hover:underline underline-offset-4 decoration-2",
+              children: "Sign In di sini"
+            }
+          )
+        ] })
+      ] })
+    ] })
+  ] });
+}
+export {
+  Register as default
+};

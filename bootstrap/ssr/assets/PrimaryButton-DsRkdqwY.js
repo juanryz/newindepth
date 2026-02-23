@@ -1,0 +1,20 @@
+import { jsx } from "react/jsx-runtime";
+function PrimaryButton({
+  className = "",
+  disabled,
+  children,
+  ...props
+}) {
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      ...props,
+      className: `inline-flex items-center justify-center rounded-[1.25rem] bg-[#b89d5a] px-8 py-3.5 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-sm transition-all duration-300 hover:bg-[#a68b4a] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-[#b89d5a]/20 disabled:opacity-50 disabled:pointer-events-none relative overflow-hidden ` + className,
+      disabled,
+      children
+    }
+  );
+}
+export {
+  PrimaryButton as P
+};
