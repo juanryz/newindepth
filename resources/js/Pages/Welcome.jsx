@@ -12,14 +12,31 @@ export default function Welcome({ auth, articles, courses }) {
 
     // Smooth scroll for anchor links
     useEffect(() => {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+        const handleSmoothScroll = function (e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#') && href.length > 1) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
+                try {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } catch (err) {
+                    console.error('Invalid selector:', href);
+                }
+            }
+        };
+
+        const anchors = document.querySelectorAll('a[href^="#"]');
+        anchors.forEach(anchor => {
+            anchor.addEventListener('click', handleSmoothScroll);
         });
+
+        return () => {
+            anchors.forEach(anchor => {
+                anchor.removeEventListener('click', handleSmoothScroll);
+            });
+        };
     }, []);
 
     return (
@@ -534,7 +551,10 @@ export default function Welcome({ auth, articles, courses }) {
                                     </div>
                                     <div className="p-8">
                                         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">
-                                            {new Date(article.published_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                            {article.published_at
+                                                ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                : new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                            }
                                         </div>
                                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-gold-600 transition-colors line-clamp-2 leading-tight">
                                             {article.title}

@@ -24,8 +24,8 @@ class BlogController extends Controller
     {
         $query = BlogPost::with('author')->where('slug', $slug);
 
-        // If not admin/super_admin, only show published posts
-        if (!auth()->check() || (!auth()->user()->hasRole('admin') && !auth()->user()->hasRole('super_admin'))) {
+        // If guest or patient, only show published posts
+        if (!auth()->check() || !auth()->user()->isStaff()) {
             $query->where('is_published', true);
         }
 

@@ -26,9 +26,7 @@ class ScheduleController extends Controller
         ]);
 
         if (!$isAdmin) {
-            $bookingsQuery->whereHas('schedule', function ($query) use ($user) {
-                $query->where('therapist_id', $user->id);
-            });
+            $bookingsQuery->where('therapist_id', $user->id);
         }
 
         $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'completed'])
@@ -44,8 +42,9 @@ class ScheduleController extends Controller
 
         // Available schedules for rescheduling
         $schedulesQuery = Schedule::query();
+        // For rescheduling, allow therapists to see all available global slots
         if (!$isAdmin) {
-            $schedulesQuery->where('therapist_id', $user->id);
+            // Optional: you might want to limit this, but for now let's allow finding any available slot
         }
 
         $availableSchedules = $schedulesQuery->where('date', '>=', now()->toDateString())
@@ -57,33 +56,42 @@ class ScheduleController extends Controller
 
         $allSchedulesQuery = Schedule::with(['therapist', 'bookings.patient']);
         if (!$isAdmin) {
-            $allSchedulesQuery->where('therapist_id', $user->id);
+            // Only show schedules that have a booking assigned to this therapist
+            $allSchedulesQuery->whereHas('bookings', function ($sq) use ($user) {
+                $sq->where('therapist_id', $user->id);
+            });
         }
 
-        $allSchedules = $allSchedulesQuery->get()
-            ->map(function ($schedule) {
-                $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
-                $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
-                $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+        $allSchedules = $allSchedulesQuery->get();
 
-                return [
-                    'id' => $schedule->id,
-                    'title' => $schedule->bookings->count() > 0 ? $schedule->bookings->first()->patient->name : 'Tersedia',
-                    'start' => $date . 'T' . $startTime,
-                    'end' => $date . 'T' . $endTime,
-                    'extendedProps' => [
-                        'bookings' => $schedule->bookings,
-                        'therapist' => $schedule->therapist,
-                        'schedule_type' => $schedule->schedule_type,
-                        'status' => $schedule->status,
-                    ]
-                ];
-            });
+        $calendarSchedules = $allSchedules->map(function ($schedule) use ($user) {
+            $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
+            $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
+            $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+
+            $myBooking = $schedule->bookings->where('therapist_id', $user->id)->first();
+
+            // At this point, for therapists, myBooking will always exist due to the whereHas filter
+            return [
+                'id' => $schedule->id,
+                'title' => $myBooking ? $myBooking->patient->name : 'Tugas Sesi',
+                'start' => $date . 'T' . $startTime,
+                'end' => $date . 'T' . $endTime,
+                'backgroundColor' => null, // Use default or component colors
+                'extendedProps' => [
+                    'bookings' => $schedule->bookings->where('therapist_id', $user->id)->values(),
+                    'therapist' => $schedule->therapist,
+                    'schedule_type' => $schedule->schedule_type,
+                    'status' => $schedule->status,
+                    'is_mine' => true,
+                ]
+            ];
+        });
 
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
             'availableSchedules' => $availableSchedules,
-            'calendarSchedules' => $allSchedules,
+            'calendarSchedules' => $calendarSchedules
         ]);
     }
 

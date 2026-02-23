@@ -216,9 +216,17 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
                                                             <div className="flex items-center justify-between group/tp">
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Penanggung Jawab</span>
-                                                                    <span className={`text-xs font-bold ${booking.therapist ? 'text-slate-900 dark:text-white' : 'text-rose-400 dark:text-rose-500'}`}>
-                                                                        {booking.therapist?.name || 'BELUM DITUNJUK'}
-                                                                    </span>
+                                                                    {booking.therapist ? (
+                                                                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                                                                            {booking.therapist.name}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-xs font-bold text-amber-500 dark:text-amber-400">
+                                                                            {['pending_payment', 'pending_validation'].includes(booking.status)
+                                                                                ? '⏳ Otomatis setelah bayar'
+                                                                                : 'BELUM DITUNJUK'}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <button
                                                                     onClick={() => {

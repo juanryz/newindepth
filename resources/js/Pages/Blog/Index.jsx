@@ -8,17 +8,31 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function BlogIndex({ posts, auth }) {
     // Smooth scroll for anchor links
     useEffect(() => {
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                if (this.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
+        const handleSmoothScroll = function (e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#') && href.length > 1) {
+                e.preventDefault();
+                try {
+                    const target = document.querySelector(href);
                     if (target) {
                         target.scrollIntoView({ behavior: 'smooth' });
                     }
+                } catch (err) {
+                    console.error('Invalid selector:', href);
                 }
-            });
+            }
+        };
+
+        const anchors = document.querySelectorAll('a[href^="#"]');
+        anchors.forEach(anchor => {
+            anchor.addEventListener('click', handleSmoothScroll);
         });
+
+        return () => {
+            anchors.forEach(anchor => {
+                anchor.removeEventListener('click', handleSmoothScroll);
+            });
+        };
     }, []);
 
     return (
@@ -80,7 +94,12 @@ export default function BlogIndex({ posts, auth }) {
                                     </Link>
                                     <div className="p-8 flex-1 flex flex-col">
                                         <div className="mb-4 flex items-center gap-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                                            <span>{new Date(post.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                            <span>
+                                                {post.published_at
+                                                    ? new Date(post.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                    : new Date(post.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                }
+                                            </span>
                                             <span className="w-1 h-1 rounded-full bg-gold-400"></span>
                                             <span>5 Menit Baca</span>
                                         </div>

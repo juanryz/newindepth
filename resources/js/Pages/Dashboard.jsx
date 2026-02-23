@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
 import ServiceFlowGuide from '@/Components/ServiceFlowGuide';
 
@@ -494,12 +494,16 @@ export default function Dashboard() {
                                                                         </td>
                                                                     )}
                                                                     <td className="px-4 py-4 text-right">
-                                                                        <Link
-                                                                            href={route('schedules.active-session', booking.id)}
-                                                                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
+                                                                                    router.post(route('schedules.start', booking.id));
+                                                                                }
+                                                                            }}
+                                                                            className="text-xs font-black text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 uppercase tracking-widest"
                                                                         >
                                                                             Mulai Sesi
-                                                                        </Link>
+                                                                        </button>
                                                                     </td>
                                                                 </tr>
                                                             ))

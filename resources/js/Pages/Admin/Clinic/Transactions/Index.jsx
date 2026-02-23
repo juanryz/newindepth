@@ -14,7 +14,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { post: validatePost, processing: validating } = useForm({});
 
     const handleValidate = (tx) => {
-        if (confirm('Validasi transaksi ini? Terapis akan ditugaskan secara otomatis.')) {
+        if (confirm('Validasi transaksi ini?\n\nTerapis akan otomatis ditugaskan secara acak dari daftar terapis yang tersedia.')) {
             validatePost(route('admin.transactions.validate', tx.id));
         }
     };
@@ -215,10 +215,17 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                                 ✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}
                                                             </span>
                                                             {tx.validated_by && (
-                                                                <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
-                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                                    By: {tx.validated_by_user?.name || tx.validated_by?.name || 'Admin'}
-                                                                </span>
+                                                                <div className="flex flex-col items-center gap-1 mt-1">
+                                                                    <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
+                                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                        By: {tx.validated_by_user?.name || tx.validated_by?.name || 'Admin'}
+                                                                    </span>
+                                                                    {tx.transactionable?.therapist && (
+                                                                        <span className="text-[9px] font-black text-emerald-600 uppercase flex items-center gap-1 border-t border-slate-100 dark:border-slate-800 pt-1 mt-1 w-full justify-center">
+                                                                            👤 {tx.transactionable.therapist.name}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             )}
                                                         </div>
                                                     )}

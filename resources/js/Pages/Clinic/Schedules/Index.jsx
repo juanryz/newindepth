@@ -22,6 +22,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
 
     const [activeTab, setActiveTab] = useState('calendar');
+    const [historyFilter, setHistoryFilter] = useState('pending'); // Default: Belum Selesai
     const [isAdding, setIsAdding] = useState(false);
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
@@ -160,61 +161,54 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const renderEventContent = (eventInfo) => {
         const { event } = eventInfo;
+        const isMine = event.extendedProps.is_mine;
         const isBooked = event.extendedProps.bookings && event.extendedProps.bookings.length > 0;
         const status = isBooked ? event.extendedProps.bookings[0].status : 'available';
         const patientName = isBooked ? event.extendedProps.bookings[0].patient?.name : null;
 
-        if (status === 'in_progress') {
-            return (
-                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/20">
-                    <div className="flex items-center justify-between pointer-events-none">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
-                        <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
-                    </div>
-                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">🔴 BERLANGSUNG</div>
-                    {patientName && <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none truncate">{patientName}</div>}
-                </div>
-            );
+        // Base styling for glass effect
+        let contentClass = "h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden transition-all duration-300 ";
+        let textClass = "font-black truncate leading-tight uppercase tracking-tight pointer-events-none ";
+
+        if (isMine) {
+            if (status === 'in_progress') {
+                contentClass += "bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/20";
+                textClass += "text-xs text-white";
+            } else if (status === 'completed') {
+                contentClass += "bg-gradient-to-br from-slate-400 to-slate-500 text-white shadow-inner opacity-80";
+                textClass += "text-[10px] text-white";
+            } else {
+                contentClass += "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20";
+                textClass += "text-xs text-white";
+            }
+        } else {
+            if (isBooked) {
+                contentClass += "bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 opacity-60";
+                textClass += "text-[9px] text-slate-400 dark:text-slate-500";
+            } else {
+                contentClass += "bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm hover:border-indigo-300";
+                textClass += "text-[9px] text-slate-900 dark:text-white";
+            }
         }
 
-        if (status === 'completed') {
-            return (
-                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-gray-400 to-gray-500 text-white shadow-sm">
-                    <div className="flex items-center justify-between pointer-events-none">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
-                    </div>
-                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">✅ SELESAI</div>
-                    {patientName && <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none truncate">{patientName}</div>}
-                </div>
-            );
-        }
-
-        if (isBooked) {
-            return (
-                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20 shadow-inner">
-                    <div className="flex items-center justify-between pointer-events-none">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
-                        <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
-                    </div>
-                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">{patientName || '✅ TERISI'}</div>
-                    <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none">
-                        {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Konsultasi'}
-                    </div>
-                </div>
-            );
-        }
-
-        // Available slot
         return (
-            <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
-                <div className="flex items-center justify-between pointer-events-none">
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
+            <div className={contentClass}>
+                <div className="flex items-center justify-between pointer-events-none mb-0.5">
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60 leading-none">{eventInfo.timeText}</span>
+                    {isMine && status === 'confirmed' && <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>}
                 </div>
-                <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-slate-900 dark:text-white">
-                    {event.extendedProps.therapist?.name || 'Slot Tersedia'}
+
+                <div className={textClass}>
+                    {isMine ? (
+                        status === 'in_progress' ? '🔴 LIVE' : (patientName || 'TUGAS ANDA')
+                    ) : (
+                        isBooked ? 'TERISI' : 'SLOT TERSEDIA'
+                    )}
                 </div>
-                <div className="text-[8px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest pointer-events-none">
-                    {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Konsultasi'}
+
+                <div className="text-[8px] font-bold opacity-60 uppercase tracking-widest pointer-events-none flex items-center gap-1">
+                    {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Sesi'}
+                    {isMine && status === 'completed' && ' • SELESAI'}
                 </div>
             </div>
         );
@@ -420,28 +414,66 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                 </div>
                             ) : (
                                 <div className="space-y-6 animate-in fade-in duration-500">
-                                    {bookings.length === 0 ? (
+                                    {/* Sub-Filter for History */}
+                                    <div className="flex gap-2 mb-8 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
+                                        <button
+                                            onClick={() => setHistoryFilter('pending')}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'pending' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
+                                        >
+                                            Belum Selesai
+                                        </button>
+                                        <button
+                                            onClick={() => setHistoryFilter('completed')}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'completed' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
+                                        >
+                                            Selesai
+                                        </button>
+                                        <button
+                                            onClick={() => setHistoryFilter('all')}
+                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
+                                        >
+                                            Semua
+                                        </button>
+                                    </div>
+
+                                    {bookings.filter(b => {
+                                        if (historyFilter === 'all') return true;
+                                        if (historyFilter === 'pending') return ['confirmed', 'in_progress'].includes(b.status);
+                                        return b.status === 'completed';
+                                    }).length === 0 ? (
                                         <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
-                                            <p className="text-gray-400 font-medium italic">Belum ada sesi yang tercatat.</p>
+                                            <p className="text-gray-400 font-medium italic">
+                                                {historyFilter === 'pending' ? 'Hore! Tidak ada sesi yang perlu diselesaikan.' : 'Belum ada sesi yang selesai.'}
+                                            </p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                                            {bookings.map((booking) => {
+                                            {bookings.filter(b2 => {
+                                                if (historyFilter === 'all') return true;
+                                                if (historyFilter === 'pending') return ['confirmed', 'in_progress'].includes(b2.status);
+                                                return b2.status === 'completed';
+                                            }).map((booking) => {
                                                 const isNoShow = booking.completion_outcome?.startsWith('No-Show');
                                                 const wasRescheduled = !!booking.rescheduled_at;
                                                 return (
                                                     <div key={booking.id} id={`booking-${booking.id}`} className={`rounded-[2.5rem] border shadow-sm p-7 relative overflow-hidden flex flex-col transition-all duration-300 ${isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50' : booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 ring-2 ring-red-500 shadow-xl' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50 ring-1 ring-indigo-50 dark:ring-indigo-900/30 hover:shadow-xl hover:border-indigo-200 dark:hover:border-indigo-700'}`}>
                                                         {/* Status Badge */}
-                                                        <div className="absolute top-6 right-6 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700">
-                                                            {isNoShow ? (
-                                                                <span className="text-orange-600 dark:text-orange-400">Tidak Hadir</span>
-                                                            ) : booking.status === 'completed' ? (
-                                                                <span className="text-gray-500 dark:text-gray-400">Selesai</span>
-                                                            ) : booking.status === 'in_progress' ? (
-                                                                <span className="text-red-600 dark:text-red-400 animate-pulse">Sedang Berlangsung</span>
-                                                            ) : (
-                                                                <span className="text-indigo-600 dark:text-indigo-400">{wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}</span>
+                                                        <div className="absolute top-6 right-6 flex flex-col items-end gap-2">
+                                                            {/* "Baru" Pulse for recently updated confirmed bookings */}
+                                                            {booking.status === 'confirmed' && (new Date() - new Date(booking.updated_at)) < (24 * 60 * 60 * 1000) && (
+                                                                <span className="text-[9px] font-black px-2 py-0.5 rounded bg-amber-400 text-amber-900 animate-bounce shadow-lg shadow-amber-400/20">PASIEN BARU</span>
                                                             )}
+                                                            <div className="text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700">
+                                                                {isNoShow ? (
+                                                                    <span className="text-orange-600 dark:text-orange-400">Tidak Hadir</span>
+                                                                ) : booking.status === 'completed' ? (
+                                                                    <span className="text-gray-500 dark:text-gray-400">Selesai</span>
+                                                                ) : booking.status === 'in_progress' ? (
+                                                                    <span className="text-red-600 dark:text-red-400 animate-pulse">Sedang Berlangsung</span>
+                                                                ) : (
+                                                                    <span className="text-indigo-600 dark:text-indigo-400">{wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}</span>
+                                                                )}
+                                                            </div>
                                                         </div>
 
                                                         <div className="mb-6 pr-24">
