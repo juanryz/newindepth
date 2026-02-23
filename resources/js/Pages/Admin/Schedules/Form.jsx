@@ -58,8 +58,8 @@ export default function Form({ therapists, onSuccess }) {
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none"
                     required
                 >
-                    <option value="consultation">👤 Konsultasi Pasien</option>
-                    <option value="class">🎓 Kelas / Kelompok</option>
+                    <option value="consultation" className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">👤 Konsultasi Pasien</option>
+                    <option value="class" className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">🎓 Kelas / Kelompok</option>
                 </select>
             </div>
 
@@ -71,8 +71,16 @@ export default function Form({ therapists, onSuccess }) {
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none"
                     required
                 >
-                    <option value="">Pilih Terapis...</option>
-                    {therapists.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    <option value="" className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">Pilih Terapis...</option>
+                    {therapists.map(t => (
+                        <option
+                            key={t.id}
+                            value={t.id}
+                            className="text-slate-900 dark:text-white bg-white dark:bg-slate-800"
+                        >
+                            {t.name}
+                        </option>
+                    ))}
                 </select>
                 {errors.therapist_id && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.therapist_id}</div>}
             </div>
@@ -99,9 +107,9 @@ export default function Form({ therapists, onSuccess }) {
                         className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none"
                         required
                     >
-                        <option value="">Pilih Sesi...</option>
+                        <option value="" className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">Pilih Sesi...</option>
                         {SESSIONS.map(s => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
+                            <option key={s.id} value={s.id} className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">{s.name}</option>
                         ))}
                     </select>
                     {errors.session && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.session}</div>}

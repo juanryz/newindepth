@@ -97,7 +97,7 @@ class UserController extends Controller
             'bookings' => $bookings,
             'transactions' => $transactions,
             'schedules' => $schedules,
-            'screeningResults' => $user->screeningResults,
+            'screeningResults' => $user->screeningResults()->orderBy('completed_at', 'desc')->get(),
             'profileCompletion' => $user->getProfileCompletionStats(),
             'courseTransactions' => $courseTransactions,
         ]);

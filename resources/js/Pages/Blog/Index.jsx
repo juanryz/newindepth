@@ -108,15 +108,15 @@ export default function BlogIndex({ posts, auth }) {
                                                 {post.title}
                                             </h3>
                                             <p className="text-gray-600 dark:text-gray-400 line-clamp-3 font-light leading-relaxed mb-6">
-                                                {post.excerpt || (post.body || "").replace(/(<([^>]+)>)/gi, "").substring(0, 120) + "..."}
+                                                {post.excerpt || (post.body ? String(post.body).replace(/(<([^>]+)>)/gi, "").substring(0, 120) : '') + "..."}
                                             </p>
                                         </Link>
                                         <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center font-bold text-gold-600 text-xs">
-                                                    {post.author?.name?.charAt(0)}
+                                                    {(post.author?.name || 'A').charAt(0)}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{post.author?.name}</span>
+                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{post.author?.name || 'InDepth Admin'}</span>
                                             </div>
                                             <Link href={route('blog.show', post.slug)} className="text-gold-600 dark:text-gold-400 hover:translate-x-1 transition-transform">
                                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>

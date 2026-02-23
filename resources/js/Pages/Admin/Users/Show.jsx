@@ -503,7 +503,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                             </div>
 
                                                             {/* Full Chat History Preview if available */}
-                                                            {screening.chat_history && (
+                                                            {screening.chat_history && screening.chat_history.length > 0 && (
                                                                 <div className="p-8 bg-gray-50/30 dark:bg-gray-900/40 rounded-[2rem] border border-gray-100 dark:border-gray-800">
                                                                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Log Percakapan dengan AI (Sesi #{screeningResults.length - sIdx})</h4>
                                                                     <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-4">

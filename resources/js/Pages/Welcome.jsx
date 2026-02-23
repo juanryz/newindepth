@@ -560,7 +560,7 @@ export default function Welcome({ auth, articles, courses }) {
                                             {article.title}
                                         </h3>
                                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 font-medium leading-relaxed">
-                                            {article.excerpt || (article.body?.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...')}
+                                            {article.excerpt || (article.body ? String(article.body).replace(/<[^>]*>?/gm, '').substring(0, 120) : '') + '...'}
                                         </p>
                                         <Link href={route('blog.show', article.slug)} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 group/link">
                                             Baca Selengkapnya

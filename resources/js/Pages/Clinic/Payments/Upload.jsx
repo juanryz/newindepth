@@ -4,6 +4,7 @@ import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import RefundPolicyContent from '@/Components/Clinic/RefundPolicyContent';
 
 const GlassPanel = ({ children, className = '', ...props }) => (
     <div className={`bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-[2.5rem] transition-all duration-500 ${className}`} {...props}>{children}</div>
@@ -21,6 +22,8 @@ export default function PaymentUpload({ booking, transaction }) {
         agree_access: true,
         agree_chargeback: true,
     });
+
+    const [showPolicyModal, setShowPolicyModal] = useState(false);
 
     const submit = (e) => {
         e.preventDefault();
@@ -65,7 +68,12 @@ export default function PaymentUpload({ booking, transaction }) {
                             <p className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest leading-none">Status Persetujuan</p>
                             <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mt-1">
                                 Kebijakan Non-Refund telah Anda setujui sebelumnya.
-                                <a href={route('terms') + '#non-refund'} target="_blank" rel="noopener noreferrer" className="underline ml-1 hover:text-emerald-800 transition-colors">Lihat detail kebijakan disini</a>
+                                <button
+                                    onClick={() => setShowPolicyModal(true)}
+                                    className="underline ml-1 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors"
+                                >
+                                    Lihat detail kebijakan disini
+                                </button>
                             </p>
                         </div>
                     </div>
@@ -181,6 +189,36 @@ export default function PaymentUpload({ booking, transaction }) {
                         </form>
                     </GlassPanel>
                 </div>
+
+                {/* Policy Modal */}
+                {showPolicyModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
+                        <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
+                            <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white relative flex-shrink-0">
+                                <h2 className="text-2xl font-black uppercase tracking-tighter">KEBIJAKAN NON-REFUND</h2>
+                                <p className="text-indigo-100 text-sm font-bold opacity-80 uppercase tracking-widest mt-1">Arsip Persetujuan Transaksi</p>
+                                <button onClick={() => setShowPolicyModal(false)} className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+
+                            <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar flex-grow">
+                                <div className="bg-gray-50 dark:bg-black/20 rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-inner">
+                                    <RefundPolicyContent />
+                                </div>
+                            </div>
+
+                            <div className="p-8 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-center flex-shrink-0">
+                                <PrimaryButton
+                                    onClick={() => setShowPolicyModal(false)}
+                                    className="!bg-indigo-600 hover:!bg-indigo-700 !rounded-xl !px-10"
+                                >
+                                    Tutup
+                                </PrimaryButton>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </AuthenticatedLayout>
     );

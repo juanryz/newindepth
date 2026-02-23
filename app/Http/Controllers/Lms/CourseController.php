@@ -167,6 +167,7 @@ class CourseController extends Controller
     {
         $request->validate([
             'payment_proof' => 'required|image|max:2048',
+            'payment_bank' => 'required|string|max:100',
         ]);
 
         $user = auth()->user();
@@ -185,8 +186,9 @@ class CourseController extends Controller
 
             $transaction->update([
                 'payment_proof' => $path,
+                'payment_bank' => $request->payment_bank,
                 'payment_proof_uploaded_at' => now(),
-                'status' => 'pending_validation',
+                'status' => 'pending',
             ]);
 
             return redirect()->route('courses.index')->with('success', 'Bukti pembayaran berhasil diupload. Admin akan segera memvalidasi.');
