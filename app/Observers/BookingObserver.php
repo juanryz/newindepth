@@ -35,16 +35,17 @@ class BookingObserver
             ]
         );
 
-        // Check if user already has an active VIP reward (avoid duplicate issuance for same booking)
+        // Check if a voucher has already been issued FOR THIS SPECIFIC BOOKING
         $alreadyIssued = UserVoucher::where('user_id', $booking->patient_id)
             ->where('voucher_id', $voucher->id)
-            ->where('created_at', '>=', $booking->confirmed_at ?? now()->subMinute())
+            ->where('booking_id', $booking->id)
             ->exists();
 
         if (!$alreadyIssued) {
             UserVoucher::create([
                 'user_id' => $booking->patient_id,
                 'voucher_id' => $voucher->id,
+                'booking_id' => $booking->id,
                 'claimed_at' => now(),
                 'expired_at' => now()->addDays(30),
             ]);
