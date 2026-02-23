@@ -36,10 +36,10 @@ export default function BlogForm({ post }) {
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link href={route('admin.blog.index')} className="text-gray-500 hover:text-gray-700">
+                    <Link href={route('admin.blog.index')} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                         &larr; Batal
                     </Link>
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">
                         {isEditing ? 'Edit Artikel' : 'Tulis Artikel Baru'}
                     </h2>
                 </div>
@@ -49,7 +49,7 @@ export default function BlogForm({ post }) {
 
             <div className="py-12">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-8">
                         <form onSubmit={submit} className="space-y-6">
 
                             <div>
@@ -69,7 +69,7 @@ export default function BlogForm({ post }) {
                                 <InputLabel htmlFor="excerpt" value="Excerpt (Ringkasan Singkat Singkat)" />
                                 <textarea
                                     id="excerpt"
-                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-20"
+                                    className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-20"
                                     value={data.excerpt}
                                     onChange={(e) => setData('excerpt', e.target.value)}
                                 />
@@ -80,12 +80,12 @@ export default function BlogForm({ post }) {
                                 <InputLabel htmlFor="body" value="Konten Artikel (HTML / Teks Panjang)" />
                                 <textarea
                                     id="body"
-                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-64 font-mono text-sm"
+                                    className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-64 font-mono text-sm"
                                     value={data.body}
                                     onChange={(e) => setData('body', e.target.value)}
                                     required
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Anda dapat menggunakan tag HTML dasar seperti &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, dll.</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Anda dapat menggunakan tag HTML dasar seperti &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, dll.</p>
                                 {errors.body && <p className="text-sm text-red-600 mt-2">{errors.body}</p>}
                             </div>
 
@@ -108,7 +108,7 @@ export default function BlogForm({ post }) {
 
                             <hr className="my-6 border-gray-200" />
 
-                            <h3 className="text-lg font-bold text-gray-800">SEO Meta Data (Opsional)</h3>
+                            <h3 className="text-lg font-bold text-gray-800 dark:text-white">SEO Meta Data (Opsional)</h3>
 
                             <div>
                                 <InputLabel htmlFor="meta_title" value="Meta Title" />
@@ -127,7 +127,7 @@ export default function BlogForm({ post }) {
                                 <InputLabel htmlFor="meta_description" value="Meta Description" />
                                 <textarea
                                     id="meta_description"
-                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-20"
+                                    className="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full h-20"
                                     value={data.meta_description}
                                     onChange={(e) => setData('meta_description', e.target.value)}
                                 />
@@ -150,11 +150,11 @@ export default function BlogForm({ post }) {
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        className="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                         checked={data.is_published}
                                         onChange={(e) => setData('is_published', e.target.checked)}
                                     />
-                                    <span className="ms-2 text-sm text-gray-600 font-bold">Publikasikan Artikel Ini (Terlihat oleh Publik)</span>
+                                    <span className="ms-2 text-sm text-gray-600 dark:text-gray-300 font-bold">Publikasikan Artikel Ini (Terlihat oleh Publik)</span>
                                 </label>
                             </div>
 

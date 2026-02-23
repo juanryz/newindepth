@@ -22,7 +22,7 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
     const isScreeningDone = !!user.screening_completed_at;
 
     // If ALL steps done, hide the entire component
-    if (isBasicProfileDone && isDocsDone && isAgreementDone && isScreeningDone) {
+    if (isBasicProfileDone && isDocsDone && isAgreementDone) {
         return null;
     }
 
@@ -60,17 +60,6 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
                 </svg>
             ),
         },
-        {
-            title: "Skrining Kesehatan",
-            description: "Analisis kondisi mental awal.",
-            route: "screening.show",
-            done: isScreeningDone,
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-            ),
-        },
     ];
 
     // Find first incomplete step
@@ -96,7 +85,7 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
             </div>
 
             <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                 initial="hidden"
                 animate="visible"
                 variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } }}
@@ -108,10 +97,10 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
 
                     const cardContent = (
                         <div className={`relative h-full flex flex-col items-center text-center p-6 rounded-3xl border transition-all duration-500 ${isDone
-                                ? 'bg-emerald-50/40 dark:bg-emerald-900/10 border-emerald-200/40 dark:border-emerald-700/20'
-                                : isActive
-                                    ? 'bg-white/60 dark:bg-white/[0.04] backdrop-blur-2xl border-indigo-400/50 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/10 ring-2 ring-indigo-400/10'
-                                    : 'bg-white/30 dark:bg-white/[0.02] backdrop-blur border-slate-200/40 dark:border-slate-700/20 opacity-40'
+                            ? 'bg-emerald-50/40 dark:bg-emerald-900/10 border-emerald-200/40 dark:border-emerald-700/20'
+                            : isActive
+                                ? 'bg-white/60 dark:bg-white/[0.04] backdrop-blur-2xl border-indigo-400/50 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/10 ring-2 ring-indigo-400/10'
+                                : 'bg-white/30 dark:bg-white/[0.02] backdrop-blur border-slate-200/40 dark:border-slate-700/20 opacity-40'
                             }`}>
                             {/* Step number */}
                             <div className={`absolute -top-2.5 left-5 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black border-2 border-white dark:border-slate-900 shadow-sm ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
@@ -128,10 +117,10 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
 
                             {/* Icon */}
                             <div className={`w-14 h-14 mb-3 rounded-2xl flex items-center justify-center transition-all duration-500 ${isDone
-                                    ? 'bg-emerald-500 text-white'
-                                    : isActive
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                ? 'bg-emerald-500 text-white'
+                                : isActive
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
                                 }`}>
                                 {isDone ? (
                                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">

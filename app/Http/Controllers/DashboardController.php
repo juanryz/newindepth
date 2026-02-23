@@ -59,8 +59,15 @@ class DashboardController extends Controller
         $therapistActiveSessions = [];
         $therapistPastSessions = [];
         $therapistStats = [];
+        $recentPatients = [];
 
         if ($user->hasRole('therapist') || $user->hasAnyRole(['admin', 'super_admin'])) {
+            // Fetch recent patients for Admin/Therapist
+            $recentPatients = \App\Models\User::role('patient')
+                ->whereNotNull('screening_completed_at')
+                ->latest('screening_completed_at')
+                ->take(5)
+                ->get();
             $baseBookingQuery = \App\Models\Booking::query();
             $baseCourseQuery = \App\Models\Course::query();
 
@@ -115,6 +122,7 @@ class DashboardController extends Controller
             'therapistActiveSessions' => $therapistActiveSessions,
             'therapistPastSessions' => $therapistPastSessions,
             'therapistStats' => $therapistStats,
+            'recentPatients' => $recentPatients,
         ]);
     }
 }

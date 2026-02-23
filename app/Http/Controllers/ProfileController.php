@@ -115,7 +115,7 @@ class ProfileController extends Controller
         $user->emergency_contact_relation = $request->emergency_contact_relation;
         $user->save();
 
-        return Redirect::back()->with('status', 'documents-updated');
+        return Redirect::route('agreement.show')->with('status', 'documents-updated');
     }
 
     /**

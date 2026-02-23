@@ -112,8 +112,18 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                     <span className="text-[10px] font-black px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg border border-gold-500/20 w-fit uppercase tracking-widest">
                                                         {tx.transactionable_type.split('\\').pop()}
                                                     </span>
+                                                    {tx.transactionable?.schedule && (
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                                                {new Date(tx.transactionable.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} @ {tx.transactionable.schedule.start_time.substring(0, 5)} WIB
+                                                            </span>
+                                                            <span className="text-[9px] font-black text-indigo-500 uppercase">
+                                                                {tx.transactionable.package_type || 'Package'}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                     {tx.payment_agreement_data && (
-                                                        <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase">
+                                                        <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase mt-1">
                                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                                                             Agreement Signed
                                                         </span>
@@ -152,10 +162,15 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                 {tx.status === 'pending' && (
                                                     <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                                                         <button
-                                                            onClick={() => handleValidate(tx)}
-                                                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
+                                                            disabled={validating}
+                                                            onClick={() => {
+                                                                if (confirm('Validasi pembayaran ini? Terapis akan ditugaskan secara otomatis.')) {
+                                                                    validatePost(route('admin.transactions.validate', tx.id));
+                                                                }
+                                                            }}
+                                                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 disabled:opacity-50"
                                                         >
-                                                            Validasi
+                                                            {validating ? '...' : 'Validasi'}
                                                         </button>
                                                         <button
                                                             onClick={() => setSelectedReject(tx)}
@@ -216,53 +231,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                 </div>
             )}
 
-            {/* Modal Validate — Therapist Selection */}
-            {selectedValidate && (
-                <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] w-full max-w-md border border-gray-100 dark:border-gray-800 shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="mb-6">
-                            <h3 className="text-2xl font-bold dark:text-white mb-2">Validasi Pembayaran</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Invoice: <span className="font-bold text-gray-900 dark:text-white">{selectedValidate.invoice_number}</span></p>
-                        </div>
-                        <form onSubmit={submitValidate}>
-                            <div className="mb-8">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pilih Terapis (Opsional)</label>
-                                <div className="relative">
-                                    <select
-                                        value={validateData.therapist_id}
-                                        onChange={e => setValidateData('therapist_id', e.target.value)}
-                                        className="w-full appearance-none bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-all cursor-pointer"
-                                    >
-                                        <option value="">— Pilih Otomatis (Random) —</option>
-                                        {therapists.map(t => (
-                                            <option key={t.id} value={t.id}>{t.name}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-gray-400 mt-3 flex items-start gap-2 leading-relaxed">
-                                    <svg className="w-3 h-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Jika tidak dipilih, sistem akan secara otomatis menugaskan terapis yang tersedia untuk slot waktu ini.
-                                </p>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <PrimaryButton
-                                    type="submit"
-                                    disabled={validating}
-                                    className="!bg-gold-600 hover:!bg-gold-500 !rounded-2xl !px-6 !py-4 !text-xs !tracking-widest !font-black !h-auto !shadow-xl !shadow-gold-600/20 !uppercase !w-full !justify-center disabled:opacity-50"
-                                >
-                                    {validating ? 'Memproses...' : 'Konfirmasi & Validasi'}
-                                </PrimaryButton>
-                                <button type="button" onClick={() => setSelectedValidate(null)} className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors py-2">
-                                    Batal
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+
         </AuthenticatedLayout>
     );
 }

@@ -23,7 +23,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const [activeTab, setActiveTab] = useState('calendar');
     const [isAdding, setIsAdding] = useState(false);
-    const { data: scheduleData, setData: setScheduleData, post: postSchedule, processing: addingSchedule, reset: resetSchedule } = useForm({
+    const { data: scheduleData, setData: setScheduleData, post: postSchedule, processing: addingSchedule, reset: resetSchedule, errors: scheduleErrors } = useForm({
         date: '',
         start_time: '',
         end_time: '',
@@ -202,13 +202,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             header={
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none">Kelola Jadwal</h2>
-                        <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Atur ketersediaan & pantau sesi terapi</p>
+                        <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">Kelola Jadwal</h2>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-300 mt-2 uppercase tracking-[0.2em]">Pantau sesi terapi Anda</p>
                     </div>
-                    <PrimaryButton onClick={() => setIsAdding(true)} className="rounded-2xl px-8 py-4 bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 group">
-                        <svg className="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
-                        Tambah Slot Praktik
-                    </PrimaryButton>
                 </div>
             }
         >
@@ -218,22 +214,22 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Tabs Navigation */}
-                    <div className="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-[1.5rem] w-fit border border-slate-200/50 shadow-inner">
+                    <div className="flex gap-2 mb-8 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[1.5rem] w-fit border border-slate-200/50 dark:border-slate-700 shadow-inner">
                         <button
                             onClick={() => setActiveTab('calendar')}
-                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}
+                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
                         >
                             Kalender Jadwal
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}
+                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
                         >
                             Daftar Sesi
                         </button>
                     </div>
 
-                    <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.04)] rounded-[3rem] overflow-hidden">
+                    <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-none rounded-[3rem] overflow-hidden">
                         <div className="p-8">
                             {activeTab === 'calendar' ? (
                                 <div className="animate-in fade-in duration-500">
@@ -259,7 +255,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             ) : (
                                 <div className="space-y-6 animate-in fade-in duration-500">
                                     {bookings.length === 0 ? (
-                                        <div className="text-center py-20 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+                                        <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
                                             <p className="text-gray-400 font-medium italic">Belum ada sesi yang tercatat.</p>
                                         </div>
                                     ) : (
@@ -268,41 +264,41 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                 const isNoShow = booking.completion_outcome?.startsWith('No-Show');
                                                 const wasRescheduled = !!booking.rescheduled_at;
                                                 return (
-                                                    <div key={booking.id} id={`booking-${booking.id}`} className={`rounded-[2.5rem] border shadow-sm p-7 relative overflow-hidden flex flex-col transition-all duration-300 ${isNoShow ? 'bg-orange-50/30 border-orange-200' : booking.status === 'completed' ? 'bg-gray-50/50 border-gray-200' : booking.status === 'in_progress' ? 'bg-red-50/30 border-red-200 ring-2 ring-red-500 shadow-xl' : 'bg-white border-indigo-100 ring-1 ring-indigo-50 hover:shadow-xl hover:border-indigo-200'}`}>
+                                                    <div key={booking.id} id={`booking-${booking.id}`} className={`rounded-[2.5rem] border shadow-sm p-7 relative overflow-hidden flex flex-col transition-all duration-300 ${isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50' : booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 ring-2 ring-red-500 shadow-xl' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50 ring-1 ring-indigo-50 dark:ring-indigo-900/30 hover:shadow-xl hover:border-indigo-200 dark:hover:border-indigo-700'}`}>
                                                         {/* Status Badge */}
-                                                        <div className="absolute top-6 right-6 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest bg-white shadow-sm border border-gray-100">
+                                                        <div className="absolute top-6 right-6 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700">
                                                             {isNoShow ? (
-                                                                <span className="text-orange-600">Tidak Hadir</span>
+                                                                <span className="text-orange-600 dark:text-orange-400">Tidak Hadir</span>
                                                             ) : booking.status === 'completed' ? (
-                                                                <span className="text-gray-500">Selesai</span>
+                                                                <span className="text-gray-500 dark:text-gray-400">Selesai</span>
                                                             ) : booking.status === 'in_progress' ? (
-                                                                <span className="text-red-600 animate-pulse">Sedang Berlangsung</span>
+                                                                <span className="text-red-600 dark:text-red-400 animate-pulse">Sedang Berlangsung</span>
                                                             ) : (
-                                                                <span className="text-indigo-600">{wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}</span>
+                                                                <span className="text-indigo-600 dark:text-indigo-400">{wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}</span>
                                                             )}
                                                         </div>
 
                                                         <div className="mb-6 pr-24">
-                                                            <h4 className="font-black text-xl text-gray-900 uppercase tracking-tight leading-none mb-1">{booking.patient.name}</h4>
+                                                            <h4 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tight leading-none mb-1">{booking.patient.name}</h4>
                                                             <p className="text-xs text-gray-400 font-bold italic">{booking.patient.email}</p>
                                                             {isAdmin && (
                                                                 <div className="mt-3 flex items-center gap-2">
                                                                     <span className="text-[10px] font-black text-white bg-indigo-500 px-2 py-0.5 rounded uppercase tracking-tighter">Terapis</span>
-                                                                    <span className="text-xs font-bold text-indigo-700">{booking.schedule?.therapist?.name}</span>
+                                                                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400">{booking.schedule?.therapist?.name}</span>
                                                                 </div>
                                                             )}
                                                         </div>
 
-                                                        <div className="bg-indigo-50/50 rounded-3xl p-5 mb-6 border border-indigo-100/50">
-                                                            <div className="flex items-center text-xs text-indigo-900 font-black mb-2 uppercase tracking-widest">
-                                                                <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                        <div className="bg-indigo-50/50 dark:bg-slate-800 rounded-3xl p-5 mb-6 border border-indigo-100/50 dark:border-slate-700">
+                                                            <div className="flex items-center text-xs text-indigo-900 dark:text-indigo-300 font-black mb-2 uppercase tracking-widest">
+                                                                <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                                 {new Date(booking.schedule.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                                             </div>
-                                                            <div className="flex items-center text-xs text-indigo-800 font-bold">
-                                                                <svg className="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                            <div className="flex items-center text-xs text-indigo-800 dark:text-indigo-400 font-bold">
+                                                                <svg className="w-4 h-4 mr-2 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                                 {booking.schedule.start_time?.substring(0, 5)} - {booking.schedule.end_time?.substring(0, 5)} WIB
                                                             </div>
-                                                            <div className="flex items-center text-[10px] font-black text-indigo-600 dark:text-indigo-400 mt-3 pt-3 border-t border-indigo-100/50 uppercase tracking-[0.2em]">
+                                                            <div className="flex items-center text-[10px] font-black text-indigo-600 dark:text-indigo-500 mt-3 pt-3 border-t border-indigo-100/50 dark:border-slate-700 uppercase tracking-[0.2em]">
                                                                 Paket: {booking.package_type || 'REGULER'}
                                                             </div>
                                                         </div>
@@ -389,73 +385,14 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                 </div>
             </div>
 
-            {/* Modal: Tambah Slot Praktik */}
-            <Modal show={isAdding} onClose={() => setIsAdding(false)}>
-                <form onSubmit={handleAddSchedule} className="p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Tambah Slot Praktik</h2>
-                    <p className="text-sm text-gray-500 mb-8">Buka slot ketersediaan baru untuk janji temu pasien.</p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <InputLabel htmlFor="date" value="Tanggal Praktik" />
-                            <TextInput
-                                id="date"
-                                type="date"
-                                className="mt-1 block w-full rounded-2xl border-gray-200"
-                                value={scheduleData.date}
-                                onChange={e => setScheduleData('date', e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="quota" value="Kuota (Pasien)" />
-                            <TextInput
-                                id="quota"
-                                type="number"
-                                className="mt-1 block w-full rounded-2xl border-gray-200"
-                                value={scheduleData.quota}
-                                onChange={e => setScheduleData('quota', e.target.value)}
-                                min="1"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="start_time" value="Jam Mulai" />
-                            <TextInput
-                                id="start_time"
-                                type="time"
-                                className="mt-1 block w-full rounded-2xl border-gray-200"
-                                value={scheduleData.start_time}
-                                onChange={e => setScheduleData('start_time', e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="end_time" value="Jam Selesai" />
-                            <TextInput
-                                id="end_time"
-                                type="time"
-                                className="mt-1 block w-full rounded-2xl border-gray-200"
-                                value={scheduleData.end_time}
-                                onChange={e => setScheduleData('end_time', e.target.value)}
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end gap-3">
-                        <SecondaryButton onClick={() => setIsAdding(false)} className="rounded-2xl">Batal</SecondaryButton>
-                        <PrimaryButton type="submit" disabled={addingSchedule} className="rounded-2xl bg-indigo-600 hover:bg-indigo-700">Simpan Slot</PrimaryButton>
-                    </div>
-                </form>
-            </Modal>
 
             {/* Modal: Patient History */}
             <Modal show={selectedHistoryPatient !== null} onClose={closeHistoryModal} maxWidth="2xl">
                 <div className="p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Riwayat Pasien</h2>
-                    <div className="mb-8 p-6 bg-slate-50 rounded-[2rem] border border-gray-100">
-                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Data & Skrining Pasien</h3>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Riwayat Pasien</h2>
+                    <div className="mb-8 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Data & Skrining Pasien</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Kelengkapan Profil</p>
@@ -524,8 +461,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             {/* Modal: Complete Session */}
             <Modal show={selectedCompletingBooking !== null} onClose={closeCompleteModal}>
                 <form onSubmit={handleCompleteSession} className="p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Akhiri Sesi</h2>
-                    <p className="text-sm text-gray-500 mb-8">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Akhiri Sesi</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
                         Sesi dengan <strong>{selectedCompletingBooking?.patient?.name}</strong> pada {selectedCompletingBooking?.schedule?.date}.
                     </p>
 
@@ -598,8 +535,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             {/* Modal: Reschedule Session */}
             <Modal show={selectedRescheduleBooking !== null} onClose={closeRescheduleModal}>
                 <form onSubmit={handleReschedule} className="p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Jadwal Ulang</h2>
-                    <p className="text-sm text-gray-500 mb-8">Pasien: <strong>{selectedRescheduleBooking?.patient?.name}</strong></p>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Jadwal Ulang</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Pasien: <strong>{selectedRescheduleBooking?.patient?.name}</strong></p>
 
                     <div className="space-y-6">
                         <div>
@@ -652,8 +589,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             {/* Modal: Mark No-Show */}
             <Modal show={selectedNoShowBooking !== null} onClose={closeNoShowModal}>
                 <form onSubmit={handleNoShow} className="p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Tandai Tidak Hadir</h2>
-                    <p className="text-sm text-gray-500 mb-8">Pasien: <strong>{selectedNoShowBooking?.patient?.name}</strong></p>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Tandai Tidak Hadir</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Pasien: <strong>{selectedNoShowBooking?.patient?.name}</strong></p>
 
                     <div className="space-y-6">
                         <div>

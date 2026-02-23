@@ -63,7 +63,10 @@ export default function PaymentUpload({ booking, transaction }) {
                         </div>
                         <div>
                             <p className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest leading-none">Status Persetujuan</p>
-                            <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mt-1">Kebijakan Non-Refund telah Anda setujui sebelumnya.</p>
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mt-1">
+                                Kebijakan Non-Refund telah Anda setujui sebelumnya.
+                                <Link href={route('terms')} className="underline ml-1 hover:text-emerald-800 transition-colors">Lihat detail kebijakan disini</Link>
+                            </p>
                         </div>
                     </div>
 
@@ -84,15 +87,15 @@ export default function PaymentUpload({ booking, transaction }) {
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">8720394817</p>
-                                            <p className="text-[10px] text-slate-400">a.n. InDepth Mental Wellness</p>
+                                            <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
+                                            <p className="text-[10px] text-slate-400">a.n. JULIUS BAMBANG</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">MDR</div>
+                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BNI</div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">1390028471530</p>
-                                            <p className="text-[10px] text-slate-400">a.n. InDepth Mental Wellness</p>
+                                            <p className="text-sm font-bold text-slate-800 dark:text-white">1883920627</p>
+                                            <p className="text-[10px] text-slate-400">a.n. SAIFUL ANAM</p>
                                         </div>
                                     </div>
                                 </div>

@@ -46,14 +46,11 @@ class TransactionValidationController extends Controller
                     // Determine therapist: use admin's choice, or auto-assign
                     $therapistId = $request->therapist_id;
                     if (!$therapistId) {
-                        // Priority 1: Use therapist from the schedule if it exists
                         if ($booking->schedule && $booking->schedule->therapist_id) {
                             $therapistId = $booking->schedule->therapist_id;
-                        }
-                        else {
-                            // Priority 2: Random assignment from available therapists for this slot
+                        } else {
                             $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
-                                ->whereNotIn('status', ['failed', 'cancelled'])
+                                ->whereIn('status', ['confirmed', 'completed'])
                                 ->whereNotNull('therapist_id')
                                 ->pluck('therapist_id')
                                 ->toArray();
@@ -62,7 +59,11 @@ class TransactionValidationController extends Controller
                                 ->whereNotIn('id', $bookedIds)
                                 ->get();
 
-                            $therapistId = $available->count() > 0 ? $available->random()->id : null;
+                            if ($available->count() === 0) {
+                                throw new \Exception('Gagal assign otomatis: Semua terapis sudah memiliki jadwal di slot ini. Silakan pilih terapis secara manual.');
+                            }
+
+                            $therapistId = $available->random()->id;
                         }
                     }
 
@@ -71,7 +72,6 @@ class TransactionValidationController extends Controller
                         'therapist_id' => $therapistId,
                     ]);
 
-                    // Reduction of quota happens here upon confirmation/payment
                     $schedule = $booking->schedule;
                     if ($schedule) {
                         $schedule->increment('booked_count');
@@ -80,18 +80,13 @@ class TransactionValidationController extends Controller
                         }
                     }
 
-                    // Attempt to send mail and notification, but don't crash if they fail
                     try {
                         \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
-                        $transaction->user->notify(new BookingConfirmed($booking));
-                    }
-                    catch (\Throwable $m) {
+                        $transaction->user->notify(new \App\Notifications\BookingConfirmed($booking));
+                    } catch (\Throwable $m) {
                         \Illuminate\Support\Facades\Log::error('Notification Failure during validation: ' . $m->getMessage());
                     }
-
-                }
-                else if ($transaction->transactionable_type === \App\Models\Course::class) {
-                    // Enroll user to course
+                } else if ($transaction->transactionable_type === \App\Models\Course::class) {
                     $transaction->transactionable->users()->attach($transaction->user_id, [
                         'transaction_id' => $transaction->id,
                         'enrolled_at' => now(),
@@ -102,9 +97,8 @@ class TransactionValidationController extends Controller
             });
 
             return redirect()->back()->with('success', 'Transaksi berhasil divalidasi.');
-        }
-        catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Validation Error: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Validation Error for TX #' . $transaction->id . ': ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Gagal memvalidasi transaksi: ' . $e->getMessage()]);
         }
     }

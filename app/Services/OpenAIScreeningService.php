@@ -73,9 +73,20 @@ PROMPT;
                 $messages[] = ['role' => 'user', 'content' => $userMessage];
             }
 
-            if (!$this->apiKey) {
+            if (!$this->apiKey || $this->apiKey === 'sk-test-fakekey-only-for-demo') {
+                $msg = strtolower($userMessage ?? '');
+                $reply = 'Terima kasih sudah berbagi. Kami sangat menghargai keterbukaan Anda dan tim kami di InDepth siap mendampingi proses pemulihan Anda.';
+
+                if (str_contains($msg, 'sedih') || str_contains($msg, 'bingung') || str_contains($msg, 'stres')) {
+                    $reply = 'Kami mengerti bahwa perasaan tersebut sangat tidak nyaman. Di InDepth, kami akan membantu Anda menemukan akar dari perasaan tersebut melalui metode trance yang aman.';
+                } elseif (str_contains($msg, 'trauma') || str_contains($msg, 'masa lalu')) {
+                    $reply = 'Trauma masa lalu memang berat, tapi Anda tidak sendirian. Metode InDepth dirancang khusus untuk membantu pelepasan emosi yang tertahan di lapisan somatic mind.';
+                } elseif (str_contains($msg, 'takut') || str_contains($msg, 'cemas')) {
+                    $reply = 'Kecemasan adalah sinyal dari pikiran bawah sadar. Kami akan membantu Anda berkomunikasi dengan bagian tersebut untuk menciptakan rasa tenang yang baru.';
+                }
+
                 return [
-                    'reply' => 'Terima kasih sudah berbagi. Kami mendengar Anda dan akan membantu sebaik mungkin.',
+                    'reply' => $reply . " (Mode Simulasi Skrining)",
                     'is_high_risk' => $this->detectCrisis($userMessage ?? ''),
                 ];
             }

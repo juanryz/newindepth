@@ -21,8 +21,8 @@ class ScheduleController extends Controller
             'patient.screeningResults',
             'patient.courses',
             'patient.bookings' => function ($query) {
-            $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
-        }
+                $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
+            }
         ]);
 
         if (!$isAdmin) {
@@ -34,11 +34,11 @@ class ScheduleController extends Controller
         $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'completed'])
             ->get()
             ->map(function ($booking) {
-            if ($booking->patient) {
-                $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
-            }
-            return $booking;
-        })
+                if ($booking->patient) {
+                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+                }
+                return $booking;
+            })
             ->sortBy('schedule.date')
             ->values();
 
@@ -62,23 +62,23 @@ class ScheduleController extends Controller
 
         $allSchedules = $allSchedulesQuery->get()
             ->map(function ($schedule) {
-            $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
-            $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
-            $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+                $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
+                $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
+                $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
 
-            return [
-            'id' => $schedule->id,
-            'title' => $schedule->bookings->count() > 0 ? $schedule->bookings->first()->patient->name : 'Tersedia',
-            'start' => $date . 'T' . $startTime,
-            'end' => $date . 'T' . $endTime,
-            'extendedProps' => [
-            'bookings' => $schedule->bookings,
-            'therapist' => $schedule->therapist,
-            'schedule_type' => $schedule->schedule_type,
-            'status' => $schedule->status,
-            ]
-            ];
-        });
+                return [
+                    'id' => $schedule->id,
+                    'title' => $schedule->bookings->count() > 0 ? $schedule->bookings->first()->patient->name : 'Tersedia',
+                    'start' => $date . 'T' . $startTime,
+                    'end' => $date . 'T' . $endTime,
+                    'extendedProps' => [
+                        'bookings' => $schedule->bookings,
+                        'therapist' => $schedule->therapist,
+                        'schedule_type' => $schedule->schedule_type,
+                        'status' => $schedule->status,
+                    ]
+                ];
+            });
 
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
@@ -198,15 +198,30 @@ class ScheduleController extends Controller
         }
 
         $request->validate([
-            'new_schedule_id' => 'required|exists:schedules,id',
+            'new_schedule_id' => 'nullable|exists:schedules,id',
+            'new_date' => 'required_without:new_schedule_id|nullable|date',
+            'new_start_time' => 'required_with:new_date|nullable|date_format:H:i',
+            'new_end_time' => 'required_with:new_date|nullable|date_format:H:i|after:new_start_time',
             'reschedule_reason' => 'required|string|max:500',
         ]);
 
-        $newSchedule = Schedule::findOrFail($request->new_schedule_id);
-
-        // Ensure new schedule is available
-        if ($newSchedule->status !== 'available' || $newSchedule->booked_count >= $newSchedule->quota) {
-            return redirect()->back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);
+        if ($request->new_schedule_id) {
+            $newSchedule = Schedule::findOrFail($request->new_schedule_id);
+            if ($newSchedule->status !== 'available' || $newSchedule->booked_count >= $newSchedule->quota) {
+                return redirect()->back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);
+            }
+        } else {
+            // Create a new schedule slot dynamically
+            $newSchedule = Schedule::create([
+                'therapist_id' => $booking->therapist_id,
+                'date' => $request->new_date,
+                'start_time' => $request->new_start_time,
+                'end_time' => $request->new_end_time,
+                'quota' => 1,
+                'booked_count' => 0,
+                'status' => 'available',
+                'schedule_type' => $booking->schedule->schedule_type ?? 'consultation',
+            ]);
         }
 
         // Save old schedule reference
@@ -258,11 +273,11 @@ class ScheduleController extends Controller
             'status' => 'completed',
             'completion_outcome' => $request->no_show_party === 'patient' ? 'No-Show (Pasien)' : 'No-Show (Praktisi)',
             'therapist_notes' => $request->no_show_reason ?? ($request->no_show_party === 'patient'
-            ? 'Pasien tidak hadir pada sesi yang dijadwalkan.'
-            : 'Praktisi tidak dapat hadir pada sesi yang dijadwalkan.'),
+                ? 'Pasien tidak hadir pada sesi yang dijadwalkan.'
+                : 'Praktisi tidak dapat hadir pada sesi yang dijadwalkan.'),
             'patient_visible_notes' => $request->no_show_party === 'patient'
-            ? 'Anda tidak hadir pada sesi yang dijadwalkan. Silakan hubungi admin untuk menjadwalkan ulang.'
-            : 'Mohon maaf, praktisi tidak dapat hadir. Admin akan segera menghubungi Anda untuk menjadwal ulang sesi.',
+                ? 'Anda tidak hadir pada sesi yang dijadwalkan. Silakan hubungi admin untuk menjadwalkan ulang.'
+                : 'Mohon maaf, praktisi tidak dapat hadir. Admin akan segera menghubungi Anda untuk menjadwal ulang sesi.',
         ]);
 
         // Notify patient
@@ -280,6 +295,7 @@ class ScheduleController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'quota' => 'required|integer|min:1',
+            'schedule_type' => 'nullable|string|max:255',
         ]);
 
         $validated['therapist_id'] = $request->user()->id;

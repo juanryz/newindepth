@@ -98,6 +98,9 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'phone' => $request->phone,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_phone' => $request->emergency_contact_phone,
+            'emergency_contact_relation' => $request->emergency_contact_relation,
         ]);
 
         // Auto-verify email for admin-created users
@@ -135,6 +138,9 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_phone' => $request->emergency_contact_phone,
+            'emergency_contact_relation' => $request->emergency_contact_relation,
         ]);
 
         if ($request->filled('password')) {

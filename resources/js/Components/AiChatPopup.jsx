@@ -196,7 +196,7 @@ export default function AiChatPopup({ isOpen, onClose }) {
                                     <button
                                         key={idx}
                                         onClick={() => handleSend(s)}
-                                        className="text-[11px] font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gold-50 dark:hover:bg-gold-900/20 hover:text-gold-600 border border-gray-200 dark:border-gray-700 rounded-full px-3 py-1.5 transition-all active:scale-95"
+                                        className="text-[11px] font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gold-50 dark:hover:bg-gold-900/20 hover:text-gold-600 border border-gray-200 dark:border-gray-700 rounded-full px-3 py-1.5 transition-all active:scale-95"
                                     >
                                         {s}
                                     </button>
@@ -210,7 +210,7 @@ export default function AiChatPopup({ isOpen, onClose }) {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Tulis pertanyaan..."
-                                className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-2xl py-3 pl-4 pr-12 text-sm focus:ring-2 focus:ring-gold-500/50 dark:text-gray-200"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-2xl py-3 pl-4 pr-12 text-sm focus:ring-2 focus:ring-gold-500/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                                 disabled={isThinking}
                             />
                             <button

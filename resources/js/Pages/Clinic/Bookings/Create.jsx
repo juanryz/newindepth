@@ -234,14 +234,17 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl overflow-hidden border border-emerald-100 dark:border-emerald-900/30">
+                        <div
+                            onClick={() => setPrivacyAccepted(false)}
+                            className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl overflow-hidden border border-emerald-100 dark:border-emerald-900/30 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group"
+                        >
                             <div className="p-6">
                                 <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-300 mb-2 flex items-center gap-2">
                                     <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                     Status Persetujuan Privasi
                                 </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                                    ✓ Kebijakan Privasi telah disetujui. Data anda terlindungi oleh UU PDP.
+                                <p className="text-sm text-emerald-700 dark:text-emerald-400 font-bold">
+                                    ✓ Kebijakan Privasi telah disetujui. Klik untuk baca ulang.
                                 </p>
                             </div>
                         </div>

@@ -14,6 +14,9 @@ export default function Show({ schedule, availableSchedules }) {
     // Form for Rescheduling
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
         new_schedule_id: '',
+        new_date: '',
+        new_start_time: '',
+        new_end_time: '',
         reschedule_reason: '',
     });
 
@@ -367,10 +370,17 @@ export default function Show({ schedule, availableSchedules }) {
                                 id="new_schedule_id"
                                 className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
                                 value={rescheduleData.new_schedule_id}
-                                onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
-                                required
+                                onChange={(e) => {
+                                    setRescheduleData(prev => ({
+                                        ...prev,
+                                        new_schedule_id: e.target.value,
+                                        new_date: '',
+                                        new_start_time: '',
+                                        new_end_time: ''
+                                    }));
+                                }}
                             >
-                                <option value="">-- Pilih Slot Tersedia --</option>
+                                <option value="">-- Buat Jadwal Custom (Manual) --</option>
                                 {availableSchedules
                                     ?.filter(s => s.id !== selectedRescheduleBooking?.schedule_id)
                                     .map(s => (
@@ -380,6 +390,44 @@ export default function Show({ schedule, availableSchedules }) {
                                     ))}
                             </select>
                         </div>
+
+                        {!rescheduleData.new_schedule_id && (
+                            <div className="p-6 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100 dark:border-indigo-800/30 space-y-4">
+                                <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest text-center">Input Jadwal Secara Manual</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="sm:col-span-2">
+                                        <InputLabel value="Tanggal Baru" className="text-[10px] font-black uppercase text-gray-400 mb-1" />
+                                        <TextInput
+                                            type="date"
+                                            className="w-full"
+                                            value={rescheduleData.new_date}
+                                            onChange={e => setRescheduleData('new_date', e.target.value)}
+                                            required={!rescheduleData.new_schedule_id}
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Jam Mulai" className="text-[10px] font-black uppercase text-gray-400 mb-1" />
+                                        <TextInput
+                                            type="time"
+                                            className="w-full"
+                                            value={rescheduleData.new_start_time}
+                                            onChange={e => setRescheduleData('new_start_time', e.target.value)}
+                                            required={!rescheduleData.new_schedule_id}
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Jam Selesai" className="text-[10px] font-black uppercase text-gray-400 mb-1" />
+                                        <TextInput
+                                            type="time"
+                                            className="w-full"
+                                            value={rescheduleData.new_end_time}
+                                            onChange={e => setRescheduleData('new_end_time', e.target.value)}
+                                            required={!rescheduleData.new_schedule_id}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan (Akan Muncul di Dashboard Pasien)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
@@ -399,8 +447,8 @@ export default function Show({ schedule, availableSchedules }) {
                         <SecondaryButton onClick={() => setSelectedRescheduleBooking(null)} disabled={rescheduling} className="rounded-2xl px-6">Batal</SecondaryButton>
                         <button
                             type="submit"
-                            disabled={rescheduling || !rescheduleData.new_schedule_id}
-                            className={`inline-flex items-center px-8 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95 ${(rescheduling || !rescheduleData.new_schedule_id) && 'opacity-25'}`}
+                            disabled={rescheduling || (!rescheduleData.new_schedule_id && !rescheduleData.new_date)}
+                            className={`inline-flex items-center px-8 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95 ${(rescheduling || (!rescheduleData.new_schedule_id && !rescheduleData.new_date)) && 'opacity-25'}`}
                         >
                             Konfirmasi Jadwal Ulang
                         </button>
