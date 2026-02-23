@@ -8,12 +8,24 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const navLinks = [
-        { name: 'Home', href: '/', key: 'home' },
-        { name: 'Metode', href: route('methods.index'), key: 'methods' },
-        { name: 'Artikel', href: route('blog.index'), key: 'blog' },
-        { name: 'E-Learning', href: route('courses.index'), key: 'courses' }
-    ];
+    const getNavLinks = () => {
+        try {
+            return [
+                { name: 'Home', href: '/', key: 'home' },
+                { name: 'Metode', href: route('methods.index'), key: 'methods' },
+                { name: 'Artikel', href: route('blog.index'), key: 'blog' },
+                { name: 'E-Learning', href: route('courses.index'), key: 'courses' }
+            ];
+        } catch (e) {
+            return [
+                { name: 'Home', href: '/', key: 'home' },
+                { name: 'Metode', href: '/metode', key: 'methods' },
+                { name: 'Artikel', href: '/blog', key: 'blog' },
+                { name: 'E-Learning', href: '/courses', key: 'courses' }
+            ];
+        }
+    };
+    const navLinks = getNavLinks();
 
     // Close mobile menu on route change / ESC key
     useEffect(() => {
