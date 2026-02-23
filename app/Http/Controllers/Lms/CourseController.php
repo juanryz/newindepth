@@ -117,6 +117,12 @@ class CourseController extends Controller
                     'transactionable_id' => $course->id,
                     'amount' => $amount,
                     'status' => 'pending',
+                    'invoice_number' => 'INV-CRS-' . strtoupper(uniqid()),
+                    'payment_agreement_data' => [
+                        'terms_accepted' => true,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ],
                 ]);
 
                 return redirect()->route('courses.payment', $course->slug);

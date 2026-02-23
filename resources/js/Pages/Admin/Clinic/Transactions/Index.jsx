@@ -210,9 +210,17 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                         </div>
                                                     )}
                                                     {tx.status === 'paid' && tx.validated_at && (
-                                                        <span className="text-[9px] text-slate-400 font-bold">
-                                                            ✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}
-                                                        </span>
+                                                        <div className="flex flex-col items-end gap-1">
+                                                            <span className="text-[9px] text-slate-400 font-bold">
+                                                                ✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}
+                                                            </span>
+                                                            {tx.validated_by && (
+                                                                <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                    By: {tx.validated_by_user?.name || tx.validated_by?.name || 'Admin'}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>

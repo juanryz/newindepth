@@ -607,36 +607,75 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                             <div className="max-h-[600px] overflow-y-auto">
                                                 <table className="w-full text-left">
                                                     <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-10">
-                                                        <tr>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal & Invoice</th>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Metadata</th>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
+                                                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">
+                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Invoice</th>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Layanan & Jadwal</th>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-                                                        {transactions.map(tx => (
-                                                            <tr key={tx.id} className="hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10 transition-colors">
-                                                                <td className="px-8 py-6">
-                                                                    <p className="text-sm font-black text-gray-900 dark:text-white">
-                                                                        Rp {new Intl.NumberFormat('id-ID').format(tx.amount)}
-                                                                    </p>
-                                                                    <p className="text-[10px] text-gray-500 uppercase font-black">{tx.invoice_number}</p>
-                                                                </td>
-                                                                <td className="px-8 py-6">
-                                                                    <div className="text-[10px] font-bold text-gray-500 space-y-1">
-                                                                        <p className="uppercase">{tx.payment_method || 'MANUAL'}</p>
-                                                                        <p className="font-mono">{new Date(tx.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</p>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-8 py-6 text-right">
-                                                                    <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-lg ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600' :
-                                                                        tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600' : 'bg-amber-500/10 text-amber-600'
-                                                                        }`}>
-                                                                        {tx.status}
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
+                                                        {transactions.map(tx => {
+                                                            const isBooking = tx.transactionable_type?.includes('Booking');
+                                                            const hasDiscount = tx.transactionable?.user_voucher?.voucher;
+                                                            return (
+                                                                <tr key={tx.id} className="hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10 transition-colors">
+                                                                    <td className="px-6 py-5">
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
+                                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
+                                                                            <span className="text-[9px] font-medium text-slate-500 mt-1">{new Date(tx.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-5">
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <span className="text-[10px] font-black px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg border border-indigo-500/20 w-fit uppercase tracking-widest">
+                                                                                {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop() || 'Course'}
+                                                                            </span>
+                                                                            <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">
+                                                                                {isBooking ? `${tx.transactionable?.package_type || 'Package'}` : `${tx.transactionable?.title || 'Online Course'}`}
+                                                                            </span>
+                                                                            {tx.payment_agreement_data && (
+                                                                                <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase mt-1">
+                                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                                                    Agreement Signed
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-5">
+                                                                        <div className="flex flex-col">
+                                                                            <span className="text-sm font-black text-slate-900 dark:text-white">
+                                                                                Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-5 text-right">
+                                                                        <div className="flex flex-col items-end gap-2">
+                                                                            <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
+                                                                            ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                                                                                    tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
+                                                                                        tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
+                                                                                            'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
+                                                                                }`}>
+                                                                                {tx.status === 'paid' ? 'Valid' : tx.status === 'rejected' ? 'Ditolak' : tx.status === 'pending' ? 'Menunggu' : tx.status}
+                                                                            </span>
+                                                                            {tx.status === 'paid' && tx.validated_at && (
+                                                                                <div className="flex flex-col items-end gap-1 mt-1">
+                                                                                    <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
+                                                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                                        By: {tx.validated_by?.name || tx.validated_by_user?.name || 'Admin'}
+                                                                                    </span>
+                                                                                    <span className="text-[9px] text-slate-400 font-bold">
+                                                                                        {new Date(tx.validated_at).toLocaleDateString('id-ID')}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
                                                     </tbody>
                                                 </table>
                                                 {transactions.length === 0 && <div className="p-12 text-center text-gray-400 font-bold uppercase text-xs tracking-widest italic">Belum ada catatan transaksi.</div>}

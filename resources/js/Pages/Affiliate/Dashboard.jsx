@@ -121,7 +121,7 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                                 type="text"
                                                 value={data.name}
                                                 onChange={e => setData('name', e.target.value)}
-                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-900 dark:text-white"
                                                 placeholder="Contoh: Budi Santoso"
                                                 required
                                             />
@@ -132,7 +132,7 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                                 type="text"
                                                 value={data.phone}
                                                 onChange={e => setData('phone', e.target.value)}
-                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-900 dark:text-white"
                                                 placeholder="Contoh: 081234567890"
                                                 required
                                             />
@@ -143,7 +143,7 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                                 type="number"
                                                 value={data.age}
                                                 onChange={e => setData('age', e.target.value)}
-                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-900 dark:text-white"
                                                 placeholder="Contoh: 25"
                                                 required
                                             />
@@ -153,7 +153,7 @@ export default function AffiliateDashboard({ commissions, totalEarned, pendingAm
                                             <select
                                                 value={data.gender}
                                                 onChange={e => setData('gender', e.target.value)}
-                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium"
+                                                className="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-900 dark:text-white"
                                                 required
                                             >
                                                 <option value="">Pilih Jenis Kelamin</option>

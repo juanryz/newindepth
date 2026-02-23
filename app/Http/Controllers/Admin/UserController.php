@@ -54,13 +54,13 @@ class UserController extends Controller
                 ->get();
 
             // Get transactions directly linked to user
-            $directTransactions = \App\Models\Transaction::where('user_id', $user->id)
+            $directTransactions = \App\Models\Transaction::with(['transactionable', 'validatedBy'])->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
             // Also get transactions linked via bookings (polymorphic)
             $bookingIds = $bookings->pluck('id')->toArray();
-            $bookingTransactions = \App\Models\Transaction::where('transactionable_type', \App\Models\Booking::class)
+            $bookingTransactions = \App\Models\Transaction::with(['transactionable', 'validatedBy'])->where('transactionable_type', \App\Models\Booking::class)
                 ->whereIn('transactionable_id', $bookingIds)
                 ->orderBy('created_at', 'desc')
                 ->get();

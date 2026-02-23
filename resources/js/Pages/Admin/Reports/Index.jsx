@@ -309,7 +309,7 @@ export default function ReportsIndex({ stats, recentTransactions, recentExpenses
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap">
                                                     <span className="px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-gold-500/20">
-                                                        {tx.transactionable_type.split('\\').pop() === 'Booking' ? 'Terapi' : 'Learning'}
+                                                        {tx.transactionable_type?.split('\\')?.pop() === 'Booking' ? 'Terapi' : 'Learning'}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-sm font-black text-green-600 dark:text-green-400 text-right">
