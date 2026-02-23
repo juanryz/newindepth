@@ -72,7 +72,7 @@ export default function PublicBlogShow({ post, auth }) {
 
             <Navbar auth={auth} />
 
-            <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+            <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12 md:pt-40 md:pb-20">
                 <header className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-8">
                         {title}
