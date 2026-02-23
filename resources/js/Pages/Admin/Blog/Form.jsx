@@ -29,11 +29,11 @@ export default function BlogForm({ post }) {
                 ...data,
                 _method: 'put',
             }));
-            formPost(route('admin.blog.update', post.id), {
+            formPost(`/admin/blog/${post.id}`, {
                 forceFormData: true,
             });
         } else {
-            formPost(route('admin.blog.store'));
+            formPost('/admin/blog');
         }
     };
 
@@ -41,7 +41,7 @@ export default function BlogForm({ post }) {
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link href={route('admin.blog.index')} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                    <Link href="/admin/blog" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                         &larr; Batal
                     </Link>
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">

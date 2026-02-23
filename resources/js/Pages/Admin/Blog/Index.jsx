@@ -11,7 +11,7 @@ export default function BlogIndex({ posts }) {
             header={
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kelola Blog Artikel</h2>
-                    <Link href={route('admin.blog.create')}>
+                    <Link href="/admin/blog/create">
                         <PrimaryButton className="!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !shadow-xl !shadow-gold-600/20 !uppercase !bg-gold-600 hover:!bg-gold-500 transition-all transform active:scale-95">
                             Buat Artikel Baru
                         </PrimaryButton>
@@ -64,10 +64,10 @@ export default function BlogIndex({ posts }) {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-black space-x-4">
-                                                    <a href={route('blog.show', post.slug || '')} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
-                                                    <Link href={route('admin.blog.edit', post.id)} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
+                                                    <a href={`/blog/${post.slug || ''}`} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
+                                                    <Link href={`/admin/blog/${post.id}/edit`} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
                                                     <Link
-                                                        href={route('admin.blog.destroy', post.id)}
+                                                        href={`/admin/blog/${post.id}`}
                                                         method="delete"
                                                         as="button"
                                                         onBefore={() => confirm('Hapus artikel ini permanen?')}
