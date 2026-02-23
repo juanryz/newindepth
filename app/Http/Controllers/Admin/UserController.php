@@ -53,9 +53,20 @@ class UserController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            $transactions = \App\Models\Transaction::where('user_id', $user->id)
+            // Get transactions directly linked to user
+            $directTransactions = \App\Models\Transaction::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+            // Also get transactions linked via bookings (polymorphic)
+            $bookingIds = $bookings->pluck('id')->toArray();
+            $bookingTransactions = \App\Models\Transaction::where('transactionable_type', \App\Models\Booking::class)
+                ->whereIn('transactionable_id', $bookingIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Merge and deduplicate by ID
+            $transactions = $directTransactions->merge($bookingTransactions)->unique('id')->sortByDesc('created_at')->values();
         }
 
         if ($user->hasRole('therapist')) {

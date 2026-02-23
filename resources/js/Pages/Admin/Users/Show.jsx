@@ -291,6 +291,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                     Rp {new Intl.NumberFormat('id-ID').format(tx.amount)}
                                                                 </p>
                                                                 <p className="text-[10px] text-gray-500 font-medium uppercase">{tx.invoice_number}</p>
+                                                                <p className="text-[10px] text-gray-400 mt-0.5">{new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                                             </td>
                                                             <td className="px-6 py-4 text-right">
                                                                 <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-lg ${tx.status === 'paid' ? 'bg-green-100 text-green-700' :
@@ -298,7 +299,10 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                         tx.status === 'rejected' ? 'bg-red-100 text-red-700' :
                                                                             tx.status === 'refunded' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
                                                                     }`}>
-                                                                    {tx.status}
+                                                                    {tx.status === 'paid' ? 'Terbayar' :
+                                                                        tx.status === 'pending' ? 'Menunggu' :
+                                                                            tx.status === 'rejected' ? 'Ditolak' :
+                                                                                tx.status === 'cancelled' ? 'Dibatalkan' : tx.status}
                                                                 </span>
                                                             </td>
                                                         </tr>
