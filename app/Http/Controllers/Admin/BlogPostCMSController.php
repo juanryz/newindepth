@@ -34,9 +34,10 @@ class BlogPostCMSController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
-            'is_published' => 'boolean',
+            'is_published' => 'nullable',
         ]);
 
+        $validated['is_published'] = $request->boolean('is_published');
         $validated['author_id'] = auth()->id();
         $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
 
@@ -44,7 +45,8 @@ class BlogPostCMSController extends Controller
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
         }
 
-        if ($validated['is_published'] ?? false) {
+        // Properly set published_at if it's published for the first time
+        if ($validated['is_published']) {
             $validated['published_at'] = now();
         }
 
@@ -70,8 +72,10 @@ class BlogPostCMSController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
-            'is_published' => 'boolean',
+            'is_published' => 'nullable',
         ]);
+
+        $validated['is_published'] = $request->boolean('is_published');
 
         if ($request->hasFile('featured_image')) {
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
@@ -79,8 +83,10 @@ class BlogPostCMSController extends Controller
             unset($validated['featured_image']);
         }
 
-        if (($validated['is_published'] ?? false) && !$post->is_published) {
+        if ($validated['is_published'] && !$post->is_published) {
             $validated['published_at'] = now();
+        } else if (!$validated['is_published']) {
+            $validated['published_at'] = null;
         }
 
         $post->update($validated);
