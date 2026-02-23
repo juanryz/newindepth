@@ -11,7 +11,7 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        $expenses = Expense::with('recorder')
+        $expenses = Expense::with('recordedBy')
             ->orderBy('expense_date', 'desc')
             ->paginate(15);
 
