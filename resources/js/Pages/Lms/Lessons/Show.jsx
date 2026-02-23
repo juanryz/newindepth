@@ -37,7 +37,7 @@ export default function LessonShow({ course, lesson, isEnrolled, auth }) {
             {/* LEARNING NAVBAR */}
             <nav className="h-16 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl flex items-center justify-between px-6 z-50">
                 <div className="flex items-center gap-4">
-                    <Link href={route('courses.index')} className="text-gray-400 hover:text-indigo-600 transition-colors">
+                    <Link href="/courses" className="text-gray-400 hover:text-indigo-600 transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                     </Link>
                     <div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
@@ -55,7 +55,7 @@ export default function LessonShow({ course, lesson, isEnrolled, auth }) {
                     >
                         <svg className={`w-5 h-5 transition-transform ${sidebarOpen ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     </button>
-                    <Link href={route('courses.show', course.slug)} className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 dark:hover:bg-indigo-400 dark:hover:text-white transition-all">
+                    <Link href={`/courses/${course.slug}`} className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 dark:hover:bg-indigo-400 dark:hover:text-white transition-all">
                         Daftar Modul
                     </Link>
                 </div>

@@ -19,7 +19,7 @@ export default function CoursePayment({ course, transaction, auth }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('courses.payment.store', course.slug));
+        post(`/courses/${course.slug}/payment`);
     };
 
     return (
@@ -37,7 +37,7 @@ export default function CoursePayment({ course, transaction, auth }) {
                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium italic">Silakan unggah bukti transfer untuk mengakses materi kelas.</p>
                         </div>
                         <Link
-                            href={route('courses.show', course.slug)}
+                            href={`/courses/${course.slug}`}
                             className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-gold-600 transition-colors group"
                         >
                             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>

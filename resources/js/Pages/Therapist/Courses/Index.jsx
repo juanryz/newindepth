@@ -67,7 +67,7 @@ export default function CoursesIndex({ courses }) {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                <a href={route('courses.show', course.slug)} target="_blank" rel="noreferrer" className="hover:underline hover:text-indigo-600">
+                                                <a href={`/courses/${course.slug}`} target="_blank" rel="noreferrer" className="hover:underline hover:text-indigo-600">
                                                     {course.title}
                                                 </a>
                                                 <div className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[200px]">{course.location}</div>

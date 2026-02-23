@@ -1,13 +1,11 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
-$app = require_once __DIR__ . '/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-$request = Illuminate\Http\Request::create(
-    '/admin/schedules?therapist_id=2',
-    'GET'
+$options = array(
+    'http' => array(
+        'method' => "GET",
+        'header' => "X-Inertia: true\r\n" .
+            "X-Inertia-Version: ...\r\n"
+    )
 );
-$request->headers->set('X-Inertia', 'true');
-
-$response = $kernel->handle($request);
-echo $response->getContent();
+$context = stream_context_create($options);
+$response = file_get_contents('https://indepth.co.id/courses', false, $context);
+echo "Length: " . strlen($response) . "\n";

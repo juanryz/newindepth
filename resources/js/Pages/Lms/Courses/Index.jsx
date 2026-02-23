@@ -95,7 +95,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                             whileHover={{ y: -8 }}
                                             className="group flex flex-col bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 dark:border-gray-800/60 overflow-hidden hover:shadow-[0_20px_50px_rgba(208,170,33,0.1)] transition-all duration-500"
                                         >
-                                            <Link href={route('courses.show', course.slug)} className="block relative aspect-[16/10] overflow-hidden">
+                                            <Link href={`/courses/${course.slug}`} className="block relative aspect-[16/10] overflow-hidden">
                                                 {course.thumbnail ? (
                                                     <img src={`/storage/${course.thumbnail}`} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 ) : (
@@ -113,7 +113,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                                 </div>
                                             </Link>
                                             <div className="p-8 flex-1 flex flex-col">
-                                                <Link href={route('courses.show', course.slug)} className="flex-1">
+                                                <Link href={`/courses/${course.slug}`} className="flex-1">
                                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors leading-snug">
                                                         {title}
                                                     </h3>
@@ -131,7 +131,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                                             Rp {price.toLocaleString('id-ID')}
                                                         </span>
                                                     )}
-                                                    <Link href={route('courses.show', course.slug)} className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-600 dark:text-gold-400 hover:bg-gold-500 hover:text-white transition-all transform group-hover:translate-x-1">
+                                                    <Link href={`/courses/${course.slug}`} className="w-10 h-10 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-600 dark:text-gold-400 hover:bg-gold-500 hover:text-white transition-all transform group-hover:translate-x-1">
                                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                                     </Link>
                                                 </div>

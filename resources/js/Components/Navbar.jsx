@@ -12,7 +12,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
         try {
             return [
                 { name: 'Home', href: '/', key: 'home' },
-                { name: 'Metode', href: '/methods', key: 'methods' },
+                { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
                 { name: 'E-Learning', href: '/courses', key: 'courses' }
             ];
