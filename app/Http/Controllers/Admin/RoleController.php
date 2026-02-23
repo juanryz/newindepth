@@ -12,11 +12,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::with('permissions')->get();
-
-        return Inertia::render('Admin/Roles/Index', [
-            'roles' => $roles,
-        ]);
+        return redirect()->route('admin.users.index', ['tab' => 'roles']);
     }
 
     public function create()

@@ -101,26 +101,44 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // CS / Admin Routes for Transaction Validation
     Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin')->prefix('admin')->name('admin.')->group(
         function () {
-            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
+            // Unified Order Management
+            Route::get('/order-management', [\App\Http\Controllers\Admin\OrderManagementController::class, 'index'])->name('orders.index');
+
+            Route::get('/transactions', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('transactions.index');
             Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
             Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
 
             // Blog CMS
             Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
 
-            // Reports & Expenses
-            Route::get('/reports', [\App\Http\Controllers\Admin\ClinicReportController::class, 'index'])->name('reports.index');
-            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\ClinicReportController::class, 'exportCsv'])->name('reports.export-csv');
-            Route::get('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'index'])->name('expenses.index');
-            Route::post('/expenses', [\App\Http\Controllers\Admin\ExpenseController::class, 'store'])->name('expenses.store');
-            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+            // Unified Finance Management
+            Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('finance.index');
+            Route::post('/finance/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+            Route::delete('/finance/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])->name('finance.expenses.destroy');
+            Route::post('/finance/petty-cash', [\App\Http\Controllers\Admin\FinanceController::class, 'storePettyCash'])->name('finance.petty-cash.store');
+            Route::delete('/finance/petty-cash/{transaction}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyPettyCash'])->name('finance.petty-cash.destroy');
+
+            // Redirects for old routes
+            Route::get('/reports', function () {
+                return redirect()->route('admin.finance.index');
+            })->name('reports.index');
+            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\FinanceController::class, 'exportCsv'])->name('reports.export-csv');
+            Route::get('/expenses', function () {
+                return redirect()->route('admin.finance.index');
+            })->name('expenses.index');
+            Route::post('/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])->name('expenses.store');
+            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])->name('expenses.destroy');
 
             // Admin E-Learning CMS
             Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
             Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
 
             // Admin Bookings
-            Route::get('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'index'])->name('bookings.index');
+            Route::get('/clinic/bookings', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('bookings.index');
             Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
             Route::get('/clinic/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'show'])->name('schedules.show');
             Route::patch('/clinic/bookings/{booking}/details', [\App\Http\Controllers\Admin\AdminBookingController::class, 'updateDetails'])->name('bookings.update-details');
@@ -130,7 +148,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])->name('bookings.store');
 
             // Admin Schedule Management
-            Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');
+            Route::get('/schedules', function () {
+                return redirect()->route('admin.orders.index');
+            })->name('schedules.index');
             Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
 

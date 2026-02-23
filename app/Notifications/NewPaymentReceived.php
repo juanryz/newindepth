@@ -28,7 +28,7 @@ class NewPaymentReceived extends Notification
             'transaction_id' => $this->transaction->id,
             'title' => 'Pembayaran Baru Masuk',
             'message' => "Ada bukti pembayaran baru untuk Invoice {$this->transaction->invoice_number} dari {$this->transaction->user->name}.",
-            'url' => route('admin.transactions.index'),
+            'url' => route('admin.orders.index'),
             'type' => 'info'
         ];
     }

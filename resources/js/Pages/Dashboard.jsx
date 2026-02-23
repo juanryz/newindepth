@@ -320,11 +320,11 @@ export default function Dashboard() {
                                 <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                                     <QuickCard
-                                        href={route('admin.schedules.index')}
-                                        title="Kelola Jadwal"
-                                        description="Atur slot waktu konsultasi praktek"
-                                        iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                        color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
+                                        href={route('admin.orders.index')}
+                                        title="Manajemen Order"
+                                        description="Mengelola Jadwal, Pasien dan Pembayaran"
+                                        iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                        color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
                                     />
                                     <QuickCard
                                         href={route('admin.courses.index')}
@@ -334,32 +334,11 @@ export default function Dashboard() {
                                         color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                     />
                                     <QuickCard
-                                        href={route('admin.bookings.index')}
-                                        title="Booking Pasien"
-                                        description="Pantau dan kelola reservasi pasien"
-                                        iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                        color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.transactions.index')}
-                                        title="Validasi Bayar"
-                                        description="Konfirmasi pembayaran paket & sesi"
-                                        iconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        href={route('admin.finance.index')}
+                                        title="Keuangan"
+                                        description="Laporan, Pengeluaran & Kas Kecil"
+                                        iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.62 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.62-1M12 17v1m2-9.5V7a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2h2m4-3.5v3.5a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2h2"
                                         color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.reports.index')}
-                                        title="Laporan Keuangan"
-                                        description="Analisa pendapatan dan transaksi"
-                                        iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                        color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.expenses.index')}
-                                        title="Biaya Pengeluaran"
-                                        description="Catat operasional & biaya klinik"
-                                        iconPath="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                        color="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400"
                                     />
                                     <QuickCard
                                         href={route('admin.blog.index')}
@@ -395,7 +374,7 @@ export default function Dashboard() {
                             <section>
                                 <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}</SectionLabel>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                                    <Link href={isAdmin ? route('admin.bookings.index') : route('schedules.index')} className="block group">
+                                    <Link href={isAdmin ? route('admin.orders.index') : route('schedules.index')} className="block group">
                                         <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(99,102,241,0.06)] hover:border-indigo-200/50 dark:hover:border-indigo-500/20 transition-all">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Sesi Berhasil' : 'Total Sesi Selesai'}</p>
                                             <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">{therapistStats?.total_sessions || 0}</p>

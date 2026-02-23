@@ -71,11 +71,19 @@ class AdminBookingController extends Controller
         $request->validate([
             'recording_link' => 'nullable|url',
             'therapist_notes' => 'nullable|string',
+            'patient_visible_notes' => 'nullable|string',
+            'completion_outcome' => 'nullable|string',
+            'session_checklist' => 'nullable|array',
+            'status' => 'nullable|string|in:pending,confirmed,completed,cancelled,no_show',
         ]);
 
         $booking->update([
             'recording_link' => $request->recording_link,
             'therapist_notes' => $request->therapist_notes,
+            'patient_visible_notes' => $request->patient_visible_notes,
+            'completion_outcome' => $request->completion_outcome,
+            'session_checklist' => array_merge($booking->session_checklist ?? [], $request->session_checklist ?? []),
+            'status' => $request->status ?? $booking->status,
         ]);
 
         return back()->with('success', 'Detail booking berhasil diperbarui.');

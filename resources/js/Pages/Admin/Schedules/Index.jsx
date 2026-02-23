@@ -31,7 +31,7 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
 
     useEffect(() => {
         if (therapistId !== (filters.therapist_id || '')) {
-            router.get(route('admin.schedules.index'), {
+            router.get(route('admin.orders.index'), {
                 ...filters,
                 therapist_id: therapistId
             }, { preserveState: true, replace: true });

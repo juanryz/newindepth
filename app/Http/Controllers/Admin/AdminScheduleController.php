@@ -110,7 +110,14 @@ class AdminScheduleController extends Controller
 
     public function show(Schedule $schedule)
     {
-        $schedule->load(['therapist', 'bookings.patient.screeningResults', 'bookings.therapist']);
+        $schedule->load([
+            'therapist',
+            'bookings.therapist',
+            'bookings.patient.roles',
+            'bookings.patient.screeningResults',
+            'bookings.patient.transactions.transactionable',
+            'bookings.patient.transactions.validatedBy',
+        ]);
 
         $availableSchedules = Schedule::with('therapist')
             ->where('date', '>=', now()->toDateString())

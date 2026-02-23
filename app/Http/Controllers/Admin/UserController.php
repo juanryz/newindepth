@@ -19,10 +19,16 @@ class UserController extends Controller
                 ->orWhere('email', 'like', '%' . $request->search . '%');
         }
 
-        $users = $query->paginate(15)->withQueryString();
+        $users = $query->latest()->paginate(15)->withQueryString();
+
+        // Also fetch roles for the roles management tab
+        $roles = \Spatie\Permission\Models\Role::with('permissions')->get();
+        $permissions = \Spatie\Permission\Models\Permission::all();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
+            'roles' => $roles,
+            'permissions' => $permissions,
             'filters' => $request->only(['search']),
         ]);
     }
