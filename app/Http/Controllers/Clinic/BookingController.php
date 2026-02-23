@@ -39,6 +39,57 @@ class BookingController extends Controller
         ]);
     }
 
+    /**
+     * Session History - Shows completed sessions with therapist notes, recordings, outcomes
+     */
+    public function sessionHistory(Request $request)
+    {
+        $user = $request->user();
+
+        $bookings = Booking::with(['therapist', 'schedule.therapist'])
+            ->where('patient_id', $user->id)
+            ->whereIn('status', ['completed', 'confirmed'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Hide internal therapist notes from patient view
+        $bookings->getCollection()->each(function ($booking) {
+            $booking->makeHidden(['therapist_notes']);
+        });
+
+        return Inertia::render('Clinic/Bookings/SessionHistory', [
+            'bookings' => $bookings,
+        ]);
+    }
+
+    /**
+     * Transaction History - Shows payment/invoice records
+     */
+    public function transactionHistory(Request $request)
+    {
+        $user = $request->user();
+
+        $bookings = Booking::with(['therapist', 'schedule.therapist', 'transaction', 'userVoucher.voucher'])
+            ->where('patient_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Hide internal notes from patient view
+        $bookings->getCollection()->each(function ($booking) {
+            $booking->makeHidden(['therapist_notes']);
+        });
+
+        $profileProgress = null;
+        if ($user->hasRole('patient')) {
+            $profileProgress = $user->getProfileCompletionStats();
+        }
+
+        return Inertia::render('Clinic/Bookings/TransactionHistory', [
+            'bookings' => $bookings,
+            'profileProgress' => $profileProgress,
+        ]);
+    }
+
     public function create(Request $request)
     {
         $user = $request->user();

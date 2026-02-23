@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
@@ -23,6 +23,13 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const [activeTab, setActiveTab] = useState('calendar');
     const [isAdding, setIsAdding] = useState(false);
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
     const { data: scheduleData, setData: setScheduleData, post: postSchedule, processing: addingSchedule, reset: resetSchedule, errors: scheduleErrors } = useForm({
         date: '',
         start_time: '',
@@ -194,6 +201,14 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         .fc-toolbar-title { font-size: 1.1rem !important; font-weight: 800 !important; text-transform: uppercase; }
         .fc-button-primary { background: white !important; color: #475569 !important; border: 1px solid #e2e8f0 !important; font-weight: 700 !important; font-size: 11px !important; text-transform: uppercase !important; border-radius: 10px !important; }
         .fc-button-active { background: #4f46e5 !important; color: white !important; border-color: #4f46e5 !important; }
+        @media (max-width: 767px) {
+            .fc-toolbar { flex-direction: column !important; gap: 8px !important; align-items: stretch !important; }
+            .fc-toolbar-title { font-size: 0.9rem !important; text-align: center; }
+            .fc-toolbar-chunk { display: flex !important; justify-content: center !important; }
+            .fc-button-primary { font-size: 9px !important; padding: 4px 8px !important; }
+            .fc .fc-col-header-cell-cushion { font-size: 10px !important; }
+            .fc .fc-timegrid-slot-label-cushion { font-size: 10px !important; }
+        }
     `;
 
     return (
@@ -214,29 +229,33 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Tabs Navigation */}
-                    <div className="flex gap-2 mb-8 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[1.5rem] w-fit border border-slate-200/50 dark:border-slate-700 shadow-inner">
+                    <div className="flex gap-2 mb-6 md:mb-8 bg-slate-100 dark:bg-slate-800 p-1 md:p-1.5 rounded-xl md:rounded-[1.5rem] w-full md:w-fit border border-slate-200/50 dark:border-slate-700 shadow-inner">
                         <button
                             onClick={() => setActiveTab('calendar')}
-                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
+                            className={`flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
                         >
-                            Kalender Jadwal
+                            Kalender
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`px-8 py-3 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
+                            className={`flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
                         >
                             Daftar Sesi
                         </button>
                     </div>
 
-                    <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-none rounded-[3rem] overflow-hidden">
-                        <div className="p-8">
+                    <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-none rounded-2xl md:rounded-[3rem] overflow-hidden">
+                        <div className="p-3 sm:p-5 md:p-8">
                             {activeTab === 'calendar' ? (
                                 <div className="animate-in fade-in duration-500">
                                     <FullCalendar
                                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                        initialView="timeGridWeek"
-                                        headerToolbar={{
+                                        initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
+                                        headerToolbar={isMobile ? {
+                                            left: 'prev,next',
+                                            center: 'title',
+                                            right: 'timeGridDay,dayGridMonth'
+                                        } : {
                                             left: 'prev,next today',
                                             center: 'title',
                                             right: 'dayGridMonth,timeGridWeek,timeGridDay'
@@ -259,7 +278,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             <p className="text-gray-400 font-medium italic">Belum ada sesi yang tercatat.</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                             {bookings.map((booking) => {
                                                 const isNoShow = booking.completion_outcome?.startsWith('No-Show');
                                                 const wasRescheduled = !!booking.rescheduled_at;

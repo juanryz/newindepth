@@ -6,24 +6,22 @@ import { useState, useEffect } from 'react';
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
 
-    const COOLDOWN_TIME = 300; // 5 minutes
-    const MAX_ATTEMPTS = 3;
+    const COOLDOWN_TIME = 60; // 1 minute cooldown
 
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [attempts, setAttempts] = useState(() => {
-        const saved = localStorage.getItem('verify_email_attempts');
-        return saved ? parseInt(saved) : 0;
-    });
-
-    useEffect(() => {
+    const [timeLeft, setTimeLeft] = useState(() => {
+        // Start with cooldown active since email is sent on registration
         const lastSent = localStorage.getItem('verify_email_last_sent');
         if (lastSent) {
             const elapsed = Math.floor((Date.now() - parseInt(lastSent)) / 1000);
             if (elapsed < COOLDOWN_TIME) {
-                setTimeLeft(COOLDOWN_TIME - elapsed);
+                return COOLDOWN_TIME - elapsed;
             }
+            return 0;
         }
-    }, []);
+        // First time visiting the page — email just sent, start cooldown
+        localStorage.setItem('verify_email_last_sent', Date.now().toString());
+        return COOLDOWN_TIME;
+    });
 
     useEffect(() => {
         let interval;
@@ -35,18 +33,12 @@ export default function VerifyEmail({ status }) {
         return () => clearInterval(interval);
     }, [timeLeft]);
 
-    useEffect(() => {
-        localStorage.setItem('verify_email_attempts', attempts.toString());
-    }, [attempts]);
-
     const submit = (e) => {
         e.preventDefault();
-        if (attempts >= MAX_ATTEMPTS) return;
 
         post(route('verification.send'), {
             onSuccess: () => {
                 setTimeLeft(COOLDOWN_TIME);
-                setAttempts(prev => prev + 1);
                 localStorage.setItem('verify_email_last_sent', Date.now().toString());
             }
         });
@@ -89,34 +81,18 @@ export default function VerifyEmail({ status }) {
                     </div>
                 )}
 
-                {attempts >= MAX_ATTEMPTS && (
-                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm font-bold text-red-600 dark:text-red-400 text-center">
-                        Batas percobaan tercapai. Silakan coba lagi nanti.
-                    </div>
-                )}
-
                 <div className="relative group transition-all duration-500 hover:-translate-y-1">
                     <PrimaryButton
                         className="w-full shadow-lg shadow-gold-500/10 py-4"
-                        disabled={processing || timeLeft > 0 || attempts >= MAX_ATTEMPTS}
+                        disabled={processing || timeLeft > 0}
                     >
                         {timeLeft > 0
-                            ? `Tunggu ${formatTime(timeLeft)}`
-                            : attempts >= MAX_ATTEMPTS
-                                ? 'Batas Tercapai'
-                                : 'Kirim Ulang Email Verifikasi'}
+                            ? `Kirim ulang dalam ${formatTime(timeLeft)}`
+                            : 'Kirim Ulang Email Verifikasi'}
                     </PrimaryButton>
                 </div>
 
                 <div className="flex flex-col items-center gap-6">
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-                            Percobaan: {attempts} / {MAX_ATTEMPTS}
-                        </span>
-                        <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
-                    </div>
-
                     <Link
                         href={route('logout')}
                         method="post"

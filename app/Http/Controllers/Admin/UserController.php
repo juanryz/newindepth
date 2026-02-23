@@ -85,13 +85,21 @@ class UserController extends Controller
                 ->get();
         }
 
+        // Get course enrollments (transactions for courses)
+        $courseTransactions = \App\Models\Transaction::where('user_id', $user->id)
+            ->where('transactionable_type', 'App\\Models\\Course')
+            ->with('transactionable')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Admin/Users/Show', [
             'userModel' => $user,
             'bookings' => $bookings,
             'transactions' => $transactions,
             'schedules' => $schedules,
             'screeningResults' => $user->screeningResults,
-            'profileCompletion' => $user->getProfileCompletionStats()
+            'profileCompletion' => $user->getProfileCompletionStats(),
+            'courseTransactions' => $courseTransactions,
         ]);
     }
 

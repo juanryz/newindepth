@@ -50,18 +50,7 @@ export default function AgreementDetail({ userModel }) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => window.history.back()}
-                        className="group flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm print:hidden"
-                    >
-                        <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                        <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap">Kembali</span>
-                    </button>
-                    <div>
-                        <h2 className="font-bold text-xl text-gray-800 dark:text-white leading-tight">Detail Dokumen Persetujuan</h2>
-                    </div>
-                </div>
+                <h2 className="font-bold text-xl text-gray-800 dark:text-white leading-tight">Dokumen Persetujuan — {userModel.name}</h2>
             }
         >
             <Head title={`Dokumen Persetujuan — ${userModel.name}`} />

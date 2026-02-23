@@ -516,58 +516,58 @@ export default function Dashboard() {
                                         </GlassPanel>
                                     </section>
 
-                                    {/* Past Sessions - Patient History */}
-                                    <section>
-                                        <SectionLabel>{isAdmin ? 'Seluruh Riwayat Sesi Terakhir' : 'Riwayat Pasien Terakhir'}</SectionLabel>
-                                        <GlassPanel className="p-2 overflow-hidden">
-                                            <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
-                                                <table className="w-full text-left">
-                                                    <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
-                                                        <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
-                                                            <th className="px-4 py-3">Tanggal</th>
-                                                            <th className="px-4 py-3">Pasien</th>
-                                                            {isAdmin && <th className="px-4 py-3">Terapis</th>}
-                                                            <th className="px-4 py-3">Hasil</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
-                                                        {therapistPastSessions?.length > 0 ? (
-                                                            therapistPastSessions.map((booking) => (
-                                                                <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                                                    <td className="px-4 py-4">
-                                                                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                                            {new Date(booking.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-4">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
-                                                                        </div>
-                                                                    </td>
-                                                                    {isAdmin && (
+                                    {/* Past Sessions - Only for Admin */}
+                                    {isAdmin && (
+                                        <section>
+                                            <SectionLabel>Seluruh Riwayat Sesi Terakhir</SectionLabel>
+                                            <GlassPanel className="p-2 overflow-hidden">
+                                                <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
+                                                    <table className="w-full text-left">
+                                                        <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
+                                                            <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
+                                                                <th className="px-4 py-3">Tanggal</th>
+                                                                <th className="px-4 py-3">Pasien</th>
+                                                                <th className="px-4 py-3">Terapis</th>
+                                                                <th className="px-4 py-3">Hasil</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+                                                            {therapistPastSessions?.length > 0 ? (
+                                                                therapistPastSessions.map((booking) => (
+                                                                    <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                        <td className="px-4 py-4">
+                                                                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                                                {new Date(booking.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-4 py-4">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
+                                                                            </div>
+                                                                        </td>
                                                                         <td className="px-4 py-4">
                                                                             <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name}</span>
                                                                         </td>
-                                                                    )}
-                                                                    <td className="px-4 py-4">
-                                                                        <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-lg text-[10px] font-bold">
-                                                                            {booking.completion_outcome || 'Selesai'}
-                                                                        </span>
+                                                                        <td className="px-4 py-4">
+                                                                            <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-lg text-[10px] font-bold">
+                                                                                {booking.completion_outcome || 'Selesai'}
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            ) : (
+                                                                <tr>
+                                                                    <td colSpan="4" className="px-4 py-8 text-center text-sm text-gray-500 italic">
+                                                                        Belum ada riwayat sesi.
                                                                     </td>
                                                                 </tr>
-                                                            ))
-                                                        ) : (
-                                                            <tr>
-                                                                <td colSpan="3" className="px-4 py-8 text-center text-sm text-gray-500 italic">
-                                                                    Belum ada riwayat sesi.
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </GlassPanel>
-                                    </section>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </GlassPanel>
+                                        </section>
+                                    )}
                                 </div>
 
                                 <div className="space-y-6">
@@ -630,6 +630,13 @@ export default function Dashboard() {
                                             color="bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400"
                                         />
                                         <QuickCard
+                                            href={route('screening.index')}
+                                            title="Skrining Mandiri"
+                                            description="Lakukan asesmen kesehatan mental Anda"
+                                            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                            color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
+                                        />
+                                        <QuickCard
                                             href={route('agreement.show')}
                                             title="Dokumen Persetujuan"
                                             description="Tanda tangan surat perjanjian layanan"
@@ -651,7 +658,7 @@ export default function Dashboard() {
                                             color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
                                         />
                                         <QuickCard
-                                            href={route('bookings.history')}
+                                            href={route('bookings.transactions')}
                                             title="Riwayat Transaksi"
                                             description="Pantau pembayaran dan upload bukti transfer"
                                             iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
