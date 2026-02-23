@@ -7,9 +7,9 @@ export default function BookingIndex({ bookings, profileProgress }) {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Riwayat Transaksi & Reservasi</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Hasil Sesi Terapis & Riwayat</h2>}
         >
-            <Head title="Riwayat Transaksi" />
+            <Head title="Hasil Sesi & Riwayat" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -21,8 +21,8 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                     <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Belum ada riwayat</h3>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Anda belum pernah melakukan reservasi atau transaksi sebelumnya.</p>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Belum ada riwayat sesi</h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Anda belum pernah melakukan sesi konsultasi sebelumnya.</p>
                                     <div className="mt-6">
                                         {isProfileComplete ? (
                                             <Link

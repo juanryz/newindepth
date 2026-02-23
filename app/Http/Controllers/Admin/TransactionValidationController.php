@@ -14,7 +14,7 @@ class TransactionValidationController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::with(['user', 'transactionable.therapist'])
+        $transactions = Transaction::with(['user', 'transactionable.therapist', 'transactionable.schedule'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 

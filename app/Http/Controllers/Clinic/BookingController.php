@@ -23,6 +23,11 @@ class BookingController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        // Hide internal notes from patient view
+        $bookings->getCollection()->each(function ($booking) {
+            $booking->makeHidden(['therapist_notes']);
+        });
+
         $profileProgress = null;
         if ($user->hasRole('patient')) {
             $profileProgress = $user->getProfileCompletionStats();
@@ -163,6 +168,11 @@ class BookingController extends Controller
         }
 
         $booking->load(['therapist', 'schedule.therapist', 'transaction', 'userVoucher.voucher']);
+
+        // Hide internal therapist notes from patient view (only show patient_visible_notes)
+        if (!auth()->user()->isStaff()) {
+            $booking->makeHidden(['therapist_notes']);
+        }
 
         // Pass user's active vouchers so the frontend can offer applying one
         $userVouchers = UserVoucher::with('voucher')

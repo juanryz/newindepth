@@ -77,7 +77,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-bold text-amber-900 dark:text-amber-200">Anda Belum Melengkapi Profil</p>
-                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">Selesaikan screening terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.</p>
+                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">Lengkapi profil Anda terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.</p>
                     </div>
                 </div>
             </GlassPanel>
@@ -313,24 +313,7 @@ export default function Dashboard() {
                     {/* ============== ADMIN / CS SECTION ============== */}
                     {isAdmin && (
                         <div className="space-y-10">
-                            {/* Summary Stats */}
-                            <section>
-                                <SectionLabel>Statistik Perusahaan (Global Summary)</SectionLabel>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                                    <GlassPanel className="p-6 transition-all">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Total Sesi Berhasil</p>
-                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">{therapistStats?.total_sessions || 0}</p>
-                                    </GlassPanel>
-                                    <GlassPanel className="p-6 transition-all">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Pasien Terdaftar</p>
-                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">{therapistStats?.total_patients || 0}</p>
-                                    </GlassPanel>
-                                    <GlassPanel className="p-6 transition-all">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Total Kelas Online</p>
-                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-400">{therapistStats?.active_courses || 0}</p>
-                                    </GlassPanel>
-                                </div>
-                            </section>
+
 
                             {/* Main Management Menus */}
                             <section>
@@ -638,13 +621,7 @@ export default function Dashboard() {
                                             disabled={!isProfileComplete}
                                             disabledText="Anda harus melengkapi profil hingga 100% sebelum membuat janji temu"
                                         />
-                                        <QuickCard
-                                            href={route('screening.show')}
-                                            title="Skrining Kesehatan"
-                                            description="Isi form analisa kesehatan awal"
-                                            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                                            color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                                        />
+
                                         <QuickCard
                                             href={route('profile.documents')}
                                             title="Identitas Diri"

@@ -65,7 +65,7 @@ export default function PaymentUpload({ booking, transaction }) {
                             <p className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest leading-none">Status Persetujuan</p>
                             <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mt-1">
                                 Kebijakan Non-Refund telah Anda setujui sebelumnya.
-                                <Link href={route('terms')} className="underline ml-1 hover:text-emerald-800 transition-colors">Lihat detail kebijakan disini</Link>
+                                <a href={route('terms') + '#non-refund'} target="_blank" rel="noopener noreferrer" className="underline ml-1 hover:text-emerald-800 transition-colors">Lihat detail kebijakan disini</a>
                             </p>
                         </div>
                     </div>

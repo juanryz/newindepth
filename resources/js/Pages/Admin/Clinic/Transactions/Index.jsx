@@ -2,41 +2,21 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 
 export default function TransactionsIndex({ transactions, therapists = [] }) {
-    const { flash } = usePage().props;
+    const { flash, errors: pageErrors } = usePage().props;
     const [selectedReject, setSelectedReject] = useState(null);
-    const [selectedValidate, setSelectedValidate] = useState(null);
 
-    const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject } = useForm({
+    const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({
         rejection_reason: '',
     });
 
-    const { data: validateData, setData: setValidateData, post: validatePost, processing: validating, reset: resetValidate } = useForm({
-        therapist_id: '',
-    });
+    const { post: validatePost, processing: validating } = useForm({});
 
     const handleValidate = (tx) => {
-        // Only booking types need therapist selection
-        if (tx.transactionable_type.includes('Booking')) {
-            setSelectedValidate(tx);
-            setValidateData('therapist_id', tx.transactionable?.therapist_id ?? '');
-        } else {
-            if (confirm('Validasi transaksi ini?')) {
-                validatePost(route('admin.transactions.validate', tx.id));
-            }
+        if (confirm('Validasi transaksi ini? Terapis akan ditugaskan secara otomatis.')) {
+            validatePost(route('admin.transactions.validate', tx.id));
         }
-    };
-
-    const submitValidate = (e) => {
-        e.preventDefault();
-        validatePost(route('admin.transactions.validate', selectedValidate.id), {
-            onSuccess: () => {
-                setSelectedValidate(null);
-                resetValidate();
-            }
-        });
     };
 
     const submitReject = (e) => {
@@ -47,6 +27,20 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                 resetReject();
             }
         });
+    };
+
+    const formatSchedule = (tx) => {
+        const booking = tx.transactionable;
+        if (!booking?.schedule) return null;
+        const schedule = booking.schedule;
+        try {
+            const dateStr = new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            const startTime = schedule.start_time?.substring(0, 5) || '--:--';
+            const endTime = schedule.end_time?.substring(0, 5) || '--:--';
+            return { dateStr, startTime, endTime };
+        } catch {
+            return null;
+        }
     };
 
     return (
@@ -63,9 +57,15 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                 </div>
 
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8 relative z-10">
-                    {flash.success && (
-                        <div className="p-4 mb-4 text-sm text-green-800 dark:text-green-300 rounded-2xl bg-green-50/80 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 backdrop-blur-xl animate-in slide-in-from-top-4 duration-500">
+                    {flash?.success && (
+                        <div className="p-4 mb-4 text-sm text-green-800 dark:text-green-300 rounded-2xl bg-green-50/80 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 backdrop-blur-xl">
                             {flash.success}
+                        </div>
+                    )}
+
+                    {pageErrors?.error && (
+                        <div className="p-4 mb-4 text-sm text-red-800 dark:text-red-300 rounded-2xl bg-red-50/80 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 backdrop-blur-xl">
+                            {pageErrors.error}
                         </div>
                     )}
 
@@ -84,105 +84,121 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-slate-100/50 dark:bg-slate-800/50">
                                     <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
-                                        <th className="px-8 py-5">Invoice</th>
-                                        <th className="px-8 py-5">Pengguna</th>
-                                        <th className="px-8 py-5">Layanan</th>
-                                        <th className="px-8 py-5">Validitas</th>
-                                        <th className="px-8 py-5">Status</th>
-                                        <th className="px-8 py-5 text-right">Aksi</th>
+                                        <th className="px-6 py-5">Invoice</th>
+                                        <th className="px-6 py-5">Pengguna</th>
+                                        <th className="px-6 py-5">Layanan & Jadwal</th>
+                                        <th className="px-6 py-5">Nominal</th>
+                                        <th className="px-6 py-5">Bukti</th>
+                                        <th className="px-6 py-5">Status</th>
+                                        <th className="px-6 py-5 text-right">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                    {transactions.data.map((tx) => (
-                                        <tr key={tx.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
-                                            <td className="px-8 py-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || 'BANK'}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{tx.user?.name}</span>
-                                                    <span className="text-xs text-slate-500">{tx.user?.email}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6 whitespace-nowrap">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="text-[10px] font-black px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg border border-gold-500/20 w-fit uppercase tracking-widest">
-                                                        {tx.transactionable_type.split('\\').pop()}
-                                                    </span>
-                                                    {tx.transactionable?.schedule && (
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                                                                {new Date(tx.transactionable.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} @ {tx.transactionable.schedule.start_time.substring(0, 5)} WIB
-                                                            </span>
+                                    {transactions.data.map((tx) => {
+                                        const scheduleInfo = formatSchedule(tx);
+                                        const isBooking = tx.transactionable_type?.includes('Booking');
+                                        return (
+                                            <tr key={tx.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                                                <td className="px-6 py-5">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold text-slate-900 dark:text-white">{tx.user?.name}</span>
+                                                        <span className="text-xs text-slate-500">{tx.user?.email}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-[10px] font-black px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg border border-gold-500/20 w-fit uppercase tracking-widest">
+                                                            {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop()}
+                                                        </span>
+                                                        {isBooking && (
                                                             <span className="text-[9px] font-black text-indigo-500 uppercase">
-                                                                {tx.transactionable.package_type || 'Package'}
+                                                                {tx.transactionable?.package_type || 'Package'}
                                                             </span>
+                                                        )}
+                                                        {scheduleInfo && (
+                                                            <div className="flex flex-col mt-1">
+                                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                                                                    📅 {scheduleInfo.dateStr}
+                                                                </span>
+                                                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                                                                    🕐 {scheduleInfo.startTime} – {scheduleInfo.endTime} WIB
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {tx.payment_agreement_data && (
+                                                            <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase mt-1">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                                Agreement Signed
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span className="text-sm font-black text-slate-900 dark:text-white">
+                                                        Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    {tx.payment_proof ? (
+                                                        <a
+                                                            href={`/storage/${tx.payment_proof}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-flex items-center gap-2 group/proof"
+                                                        >
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-gold-500 group-hover/proof:text-white transition-all duration-300">
+                                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                            </div>
+                                                            <span className="text-xs font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Lihat</span>
+                                                        </a>
+                                                    ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Belum Upload</span>}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
+                                                        ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                                                            tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
+                                                                tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
+                                                                    'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
+                                                        }`}>
+                                                        {tx.status === 'paid' ? 'Valid' :
+                                                            tx.status === 'rejected' ? 'Ditolak' :
+                                                                tx.status === 'pending' ? 'Menunggu' :
+                                                                    tx.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 text-right">
+                                                    {tx.status === 'pending' && (
+                                                        <div className="flex justify-end gap-2">
+                                                            <button
+                                                                disabled={validating}
+                                                                onClick={() => handleValidate(tx)}
+                                                                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 disabled:opacity-50"
+                                                            >
+                                                                {validating ? '...' : 'Validasi'}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setSelectedReject(tx)}
+                                                                className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all hover:scale-105 active:scale-95"
+                                                            >
+                                                                Tolak
+                                                            </button>
                                                         </div>
                                                     )}
-                                                    {tx.payment_agreement_data && (
-                                                        <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase mt-1">
-                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                                                            Agreement Signed
+                                                    {tx.status === 'paid' && tx.validated_at && (
+                                                        <span className="text-[9px] text-slate-400 font-bold">
+                                                            ✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}
                                                         </span>
                                                     )}
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                {tx.payment_proof ? (
-                                                    <a
-                                                        href={`/storage/${tx.payment_proof}`}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="inline-flex items-center gap-2 group/proof"
-                                                    >
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-gold-500 group-hover/proof:text-white transition-all duration-300">
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                        </div>
-                                                        <span className="text-xs font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Bukti Tuntas</span>
-                                                    </a>
-                                                ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Belum Upload</span>}
-                                            </td>
-                                            <td className="px-8 py-6">
-                                                <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
-                                                    ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-                                                        tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
-                                                            tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
-                                                                'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
-                                                    }`}>
-                                                    {tx.status === 'paid' ? 'Valid' :
-                                                        tx.status === 'rejected' ? 'Ditolak' :
-                                                            tx.status === 'pending' ? 'Menunggu' :
-                                                                tx.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                {tx.status === 'pending' && (
-                                                    <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                                                        <button
-                                                            disabled={validating}
-                                                            onClick={() => {
-                                                                if (confirm('Validasi pembayaran ini? Terapis akan ditugaskan secara otomatis.')) {
-                                                                    validatePost(route('admin.transactions.validate', tx.id));
-                                                                }
-                                                            }}
-                                                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 disabled:opacity-50"
-                                                        >
-                                                            {validating ? '...' : 'Validasi'}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setSelectedReject(tx)}
-                                                            className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all hover:scale-105 active:scale-95"
-                                                        >
-                                                            Tolak
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -195,6 +211,28 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                 <p className="text-slate-500 dark:text-slate-600 font-black uppercase tracking-[0.2em] italic">Bersih. Tidak ada transaksi tertunda.</p>
                             </div>
                         )}
+
+                        {/* Pagination */}
+                        {transactions.links && transactions.data.length > 0 && (
+                            <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-center gap-1">
+                                {transactions.links.map((link, i) => (
+                                    <div key={i}>
+                                        {link.url === null ? (
+                                            <div
+                                                className="px-4 py-2 text-sm text-gray-400 border rounded-lg"
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        ) : (
+                                            <a
+                                                href={link.url}
+                                                className={`px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors ${link.active ? 'bg-indigo-50 border-indigo-500 text-indigo-600 font-bold' : 'bg-white text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'}`}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -202,7 +240,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
             {/* Modal Reject */}
             {selectedReject && (
                 <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] w-full max-w-md border border-gray-100 dark:border-gray-800 shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] w-full max-w-md border border-gray-100 dark:border-gray-800 shadow-2xl">
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold dark:text-white mb-2">Tolak Pembayaran</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">Invoice: <span className="font-bold text-gray-900 dark:text-white">{selectedReject.invoice_number}</span></p>
@@ -219,8 +257,8 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                 />
                             </div>
                             <div className="flex flex-col gap-3">
-                                <PrimaryButton type="submit" className="!bg-red-600 hover:!bg-red-500 !rounded-2xl !px-6 !py-4 !text-xs !tracking-widest !font-black !h-auto !shadow-xl !shadow-red-600/20 !uppercase !w-full !justify-center">
-                                    Konfirmasi Penolakan
+                                <PrimaryButton type="submit" disabled={rejecting} className="!bg-red-600 hover:!bg-red-500 !rounded-2xl !px-6 !py-4 !text-xs !tracking-widest !font-black !h-auto !shadow-xl !shadow-red-600/20 !uppercase !w-full !justify-center">
+                                    {rejecting ? 'Memproses...' : 'Konfirmasi Penolakan'}
                                 </PrimaryButton>
                                 <button type="button" onClick={() => setSelectedReject(null)} className="text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors py-2">
                                     Batal
@@ -230,7 +268,6 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                     </div>
                 </div>
             )}
-
 
         </AuthenticatedLayout>
     );

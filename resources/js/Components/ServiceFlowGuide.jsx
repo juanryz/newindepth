@@ -19,7 +19,7 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
     })();
 
     const isAgreementDone = !!user.agreement_signed_at;
-    const isScreeningDone = !!user.screening_completed_at;
+
 
     // If ALL steps done, hide the entire component
     if (isBasicProfileDone && isDocsDone && isAgreementDone) {

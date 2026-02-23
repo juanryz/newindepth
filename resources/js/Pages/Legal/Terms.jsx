@@ -55,12 +55,12 @@ export default function Terms({ auth }) {
                                 </ul>
                             </section>
 
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">3. Pembayaran dan Kebijakan Pembatalan</h2>
-                                <p>Pembayaran untuk setiap layanan harus diselesaikan sebelum sesi dilakukan. Kami menerapkan kebijakan pembatalan untuk memastikan kualitas pelayanan bagi seluruh klien.</p>
+                            <section id="non-refund" className="scroll-mt-32">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">3. Pembayaran dan Kebijakan Non-Refund</h2>
+                                <p>Pembayaran untuk setiap layanan harus diselesaikan sebelum sesi dilakukan. Kami menerapkan kebijakan non-refund dan pembatalan untuk memastikan kualitas pelayanan bagi seluruh klien.</p>
                                 <ul className="list-disc ml-6 space-y-2 mt-2 text-sm">
                                     <li>Pembatalan atau perubahan jadwal harus dilakukan sekurang-kurangnya 24 jam sebelum sesi yang telah dijadwalkan.</li>
-                                    <li>Pembatalan kurang dari batas waktu tersebut atau ketidakhadiran (No-Show) pada sesi tanpa pemberitahuan sebelumnya, tidak akan mendapatkan pengembalian biaya yang telah dibayarkan.</li>
+                                    <li>Pembayaran bersifat <strong>FINAL dan TIDAK DAPAT DIKEMBALIKAN (Non-Refundable)</strong>. Pembatalan kurang dari batas waktu tersebut atau ketidakhadiran (No-Show) pada sesi tanpa pemberitahuan sebelumnya, tidak akan mendapatkan pengembalian biaya yang telah dibayarkan / hangus.</li>
                                 </ul>
                             </section>
 
