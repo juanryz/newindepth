@@ -11,6 +11,7 @@ class Transaction extends Model
     protected $casts = [
         'payment_proof_uploaded_at' => 'datetime',
         'validated_at' => 'datetime',
+        'payment_agreement_data' => 'json',
     ];
 
     public function user()
@@ -20,7 +21,7 @@ class Transaction extends Model
 
     public function validatedBy()
     {
-        return $this->belongsTo(User::class, 'validated_by');
+        return $this->belongsTo(User::class , 'validated_by');
     }
 
     public function transactionable()

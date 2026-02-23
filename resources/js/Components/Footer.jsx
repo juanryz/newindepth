@@ -25,6 +25,7 @@ export default function Footer() {
                             <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
                             <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
                             <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
+                            <li><Link href={route('disclaimer')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors font-bold">Disclaimer Resmi</Link></li>
                         </ul>
                     </div>
 

@@ -55,7 +55,7 @@ class CourseController extends Controller
                 $query->select('id', 'course_id', 'title', 'order', 'type', 'is_preview')
                     ->orderBy('order');
             }
-            ]);
+            ])->loadCount('users');
 
             // Ensure lessons is a sequential array for frontend .map()
             $course->setRelation('lessons', $course->lessons->values());
@@ -98,7 +98,7 @@ class CourseController extends Controller
             return redirect()->route('courses.my')->with('info', 'Anda sudah terdaftar di kelas ini.');
         }
 
-        if (Number::parseFloat($course->price ?? 0) > 0) {
+        if ((float)($course->price ?? 0) > 0) {
             // Course is paid, redirect to checkout
             // Currently not implemented, redirect back with error/info
             return redirect()->route('courses.show', $course->slug)->withErrors(['error' => 'Fitur pembelian kelas berbayar sedang dikembangkan. Silakan hubungi admin.']);

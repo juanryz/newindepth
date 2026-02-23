@@ -7,40 +7,42 @@ use App\Models\ScreeningResult;
 use App\Services\OpenAIScreeningService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class ScreeningController extends Controller
 {
     public function show(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->user()->fresh();
 
         $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
             ->whereNotNull('completed_at')
             ->latest('completed_at')
             ->first();
 
-        // Only show results if it was completed within last 15 days
         $showResults = false;
         if ($screeningResult && $screeningResult->completed_at) {
-            $daysSinceSync = $screeningResult->completed_at->diffInDays(now());
-            if ($daysSinceSync < 15) {
+            if ($screeningResult->completed_at->diffInDays(now()) < 15) {
                 $showResults = true;
             }
         }
 
+        $prefill = [
+            'nama' => (string) ($user->name ?? ''),
+            'email' => (string) ($user->email ?? ''),
+            'wa' => (string) ($user->phone ?? ''),
+            'gender' => (string) ($user->gender ?? ''),
+            'usia' => (string) ($user->age ?? ''),
+        ];
+
+        Log::info('Screening Prefill Data for User ' . $user->id, $prefill);
+
         return Inertia::render('Clinic/Screening', [
             'screeningResult' => $showResults ? $screeningResult : null,
-            'prefill' => [
-                'nama' => $user->name ?? '',
-                'email' => $user->email ?? '',
-                'wa' => $user->phone ?? '',
-            ],
+            'prefill' => $prefill,
         ]);
     }
 
-    /**
-     * Endpoint AJAX untuk AI Chat (Step 9 & 10)
-     */
     public function chatMessage(Request $request)
     {
         $request->validate([
@@ -58,12 +60,9 @@ class ScreeningController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Submit screening lengkap (10 step)
-     */
     public function store(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->user()->fresh();
 
         $lastResult = \App\Models\ScreeningResult::where('user_id', $user->id)
             ->whereNotNull('completed_at')
@@ -82,14 +81,11 @@ class ScreeningController extends Controller
         $stepData = $request->input('step_data');
         $chatHistory = $request->input('chat_history', []);
 
-        // ── Decision Engine ──────────────────────────────────────────
         [$recommendedPackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, $chatHistory);
 
-        // ── Generate AI Summary ───────────────────────────────────────
         $service = new OpenAIScreeningService();
         $aiSummary = $service->generateSummary($stepData, $chatHistory);
 
-        // ── Simpan ke screening_results ───────────────────────────────
         ScreeningResult::create([
             'user_id' => $user->id,
             'step_data' => $stepData,
@@ -101,32 +97,31 @@ class ScreeningController extends Controller
             'completed_at' => now(),
         ]);
 
-        // ── Update user table (backward compat) ───────────────────────
         $user->update([
+            'name' => $stepData['nama'] ?? $user->name,
+            'phone' => $stepData['wa'] ?? $user->phone,
+            'age' => $stepData['usia'] ?? $user->age,
+            'gender' => $stepData['gender'] ?? $user->gender,
             'screening_answers' => $stepData,
             'screening_completed_at' => now(),
             'recommended_package' => in_array($recommendedPackage, ['hipnoterapi', 'upgrade', 'vip']) ? $recommendedPackage : 'hipnoterapi',
         ]);
 
         return redirect()->route('dashboard')
-            ->with('success', 'Skrining berhasil. Anda dapat melihat hasil ringkasannya di bawah ini.');
+            ->with('success', 'Skrining berhasil.');
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // DECISION ENGINE
-    // ─────────────────────────────────────────────────────────────────────
     private function runDecisionEngine(array $stepData, array $chatHistory): array
     {
-        $masalahUtama = $stepData['masalah_utama'] ?? '';     // Step 2 string
-        $skala = (int) ($stepData['skala'] ?? 0);      // Step 3 int
-        $durasi = $stepData['durasi'] ?? '';             // Step 4 string
-        $obesitasKg = $stepData['obesitas_kg'] ?? null;     // Step 5 string|null
+        $masalahUtama = $stepData['masalah_utama'] ?? '';
+        $skala = (int) ($stepData['skala'] ?? 0);
+        $durasi = $stepData['durasi'] ?? '';
+        $obesitasKg = $stepData['obesitas_kg'] ?? null;
         $chatText = $this->extractChatText($chatHistory);
 
         $isHighRisk = false;
         $isVip = false;
 
-        // ── Deteksi Keyword Krisis ────────────────────────────────────
         $service = new OpenAIScreeningService();
         $allText = ($stepData['detail_masalah'] ?? '') . ' ' . ($stepData['outcome'] ?? '') . ' ' . $chatText;
         if ($service->detectCrisis($allText)) {
@@ -134,7 +129,6 @@ class ScreeningController extends Controller
             $isVip = true;
         }
 
-        // ── VIP Rules ─────────────────────────────────────────────────
         if ($masalahUtama === 'Halusinasi / gangguan persepsi') {
             $isHighRisk = true;
             $isVip = true;
@@ -148,7 +142,6 @@ class ScreeningController extends Controller
             $isVip = true;
         }
 
-        // ── Severity Label ────────────────────────────────────────────
         $durasiKronis = in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas', '6–12 bulan']);
 
         if ($isHighRisk) {
@@ -163,8 +156,6 @@ class ScreeningController extends Controller
             $severityLabel = 'Ringan';
         }
 
-        // ── Package Decision ──────────────────────────────────────────
-        // Jika High Risk atau sudah vonis VIP rules
         if ($isVip || in_array($severityLabel, ['High Risk', 'Berat Kronis', 'Berat Akut'])) {
             $package = 'vip';
         } elseif (
@@ -173,7 +164,6 @@ class ScreeningController extends Controller
         ) {
             $package = 'upgrade';
         } else {
-            // Default reguler, tapi user nanti bisa pilih upgrade VIP di form
             $package = 'hipnoterapi';
         }
 

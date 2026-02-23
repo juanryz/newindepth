@@ -17,6 +17,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/disclaimer', function () {
+    return Inertia::render('Legal/Disclaimer');
+})->name('disclaimer');
+
 // Socialite Routes
 Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::class , 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class , 'handleGoogleCallback']);
@@ -140,6 +144,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Affiliate Dashboard
         Route::get('/affiliate/dashboard', [\App\Http\Controllers\Affiliate\CommissionController::class , 'index'])->name('affiliate.dashboard');
+        Route::post('/affiliate/agreement', [\App\Http\Controllers\Affiliate\CommissionController::class , 'storeAgreement'])->name('affiliate.agreement.store');
+        Route::get('/affiliate/agreement/view', [\App\Http\Controllers\Affiliate\CommissionController::class , 'showAgreement'])->name('affiliate.agreement.show');
 
         // Notifications
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class , 'markAsRead'])->name('notifications.read');

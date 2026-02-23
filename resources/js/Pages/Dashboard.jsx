@@ -5,32 +5,31 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
 import ServiceFlowGuide from '@/Components/ServiceFlowGuide';
 
+const GlassPanel = ({ children, className = '', ...props }) => (
+    <div className={`bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-3xl transition-all duration-500 ${className}`} {...props}>{children}</div>
+);
+
+const SectionLabel = ({ children, className = '' }) => (
+    <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-500 dark:from-slate-500 dark:to-slate-600 mb-5 ml-1 ${className}`}>{children}</h3>
+);
+
 function QuickCard({ href, title, description, iconPath, color, disabled = false, disabledText = 'Lengkapi profil & screening' }) {
-    const cls = `group flex gap-4 items-start p-6 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-sm transition-all duration-200 h-full ${disabled
-        ? 'opacity-50 cursor-not-allowed pointer-events-none select-none'
-        : 'hover:shadow-lg hover:-translate-y-0.5'
-        }`;
+    const base = `group flex gap-4 items-start p-5 rounded-2xl h-full transition-all duration-300 bg-white/50 dark:bg-white/[0.03] backdrop-blur-xl border border-white/70 dark:border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.15)]`;
+    const cls = disabled
+        ? `${base} opacity-40 cursor-not-allowed pointer-events-none select-none`
+        : `${base} hover:shadow-[0_12px_40px_rgba(99,102,241,0.08)] hover:border-indigo-200/50 dark:hover:border-indigo-500/20 hover:-translate-y-1`;
 
     if (disabled) {
         return (
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={cls}
-                title="Lengkapi profil dan screening terlebih dahulu"
-            >
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
-                    </svg>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className={cls} title="Lengkapi profil dan screening terlebih dahulu">
+                <div className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center ${color} shadow-sm`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} /></svg>
                 </div>
-                <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
-                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
+                <div className="min-w-0">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-white">{title}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{description}</p>
+                    <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         {disabledText}
                     </span>
                 </div>
@@ -39,22 +38,14 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="h-full"
-        >
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3, scale: 1.01 }} whileTap={{ scale: 0.98 }} className="h-full">
             <Link href={href} className={cls}>
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} />
-                    </svg>
+                <div className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center ${color} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} /></svg>
                 </div>
-                <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
+                <div className="min-w-0">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{title}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{description}</p>
                 </div>
             </Link>
         </motion.div>
@@ -76,32 +67,32 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
     if (!screeningResult) {
         /* Belum screening */
         return (
-            <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700/50 p-5">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-800/40 flex items-center justify-center">
+            <GlassPanel className="!border-amber-200/60 dark:!border-amber-700/30 p-5 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-100/40 to-orange-100/20 dark:from-amber-900/10 dark:to-transparent pointer-events-none" />
+                <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-amber-100/80 dark:bg-amber-800/30 backdrop-blur flex items-center justify-center shadow-sm">
                         <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-bold text-amber-900 dark:text-amber-200">Anda Belum Melengkapi Profil</p>
-                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">
-                            Selesaikan screening kesehatan mental terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.
-                        </p>
+                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">Selesaikan screening terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.</p>
                     </div>
                 </div>
-            </div>
+            </GlassPanel>
         );
     }
 
     /* Sudah screening */
-    const severityClass = severityColors[screeningResult.severity_label] ?? 'bg-indigo-100 text-indigo-800';
+
     const packageLabel = screeningResult.recommended_package
         ? (screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()))
         : null;
 
     return (
-        <div className="rounded-2xl border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-700/50 p-5">
+        <GlassPanel className="!border-green-200/60 dark:!border-green-700/30 p-5 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 to-emerald-100/10 dark:from-green-900/10 dark:to-transparent pointer-events-none" />
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-green-100 dark:bg-green-800/40 flex items-center justify-center">
                     <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,37 +102,13 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                 <div className="flex-1 min-w-0">
                     <p className="font-bold text-green-900 dark:text-green-200">Screening Selesai</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {screeningResult.severity_label && (
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${severityClass}`}>
-                                Tingkat: {screeningResult.severity_label}
-                            </span>
-                        )}
                         {packageLabel && (
                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
                                 Rekomendasi: {packageLabel}
                             </span>
                         )}
-                        {screeningResult.is_high_risk && screeningResult.severity_label !== 'High Risk' && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">
-                                ⚠️ High Risk
-                            </span>
-                        )}
                     </div>
-                    {screeningResult.ai_summary && (
-                        <div className="mt-3 border-l-2 border-green-300 dark:border-green-700 pl-3">
-                            <p className={`text-sm text-green-800 dark:text-green-300 leading-relaxed ${!isSummaryExpanded ? 'line-clamp-3' : ''}`}>
-                                {screeningResult.ai_summary}
-                            </p>
-                            {screeningResult.ai_summary.length > 200 && (
-                                <button
-                                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                                    className="text-xs font-bold text-green-700 dark:text-green-400 mt-1 hover:text-green-900 dark:hover:text-green-200 transition-colors focus:outline-none"
-                                >
-                                    {isSummaryExpanded ? 'Sembunyikan' : 'Baca selengkapnya...'}
-                                </button>
-                            )}
-                        </div>
-                    )}
+
                 </div>
 
                 <div className="flex-shrink-0 mt-4 sm:mt-0 flex flex-col items-end justify-center">
@@ -167,7 +134,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                     )}
                 </div>
             </div>
-        </div>
+        </GlassPanel>
     );
 }
 
@@ -178,57 +145,51 @@ function LastSessionCard({ booking }) {
     const { schedule, therapist, recording_link, patient_visible_notes } = booking;
 
     return (
-        <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm overflow-hidden mb-8">
-            <div className="bg-emerald-500/10 px-6 py-3 border-b border-emerald-100 dark:border-emerald-800/50 flex items-center justify-between">
+        <GlassPanel className="!border-emerald-200/50 dark:!border-emerald-800/30 overflow-hidden mb-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/40 to-transparent dark:from-emerald-900/5 dark:to-transparent pointer-events-none" />
+            <div className="relative bg-emerald-500/5 px-6 py-3 border-b border-emerald-100/50 dark:border-emerald-800/30 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <h3 className="text-sm font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Sesi Terakhir Anda</h3>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    <h3 className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-[0.15em]">Sesi Terakhir Anda</h3>
                 </div>
-                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 bg-emerald-100/60 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full backdrop-blur">
                     {new Date(schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                 </span>
             </div>
-            <div className="p-6">
+            <div className="relative p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Catatan & Homework</p>
-                        <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100/50 dark:border-emerald-800/30">
-                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed italic">
-                                "{patient_visible_notes || 'Terapis Anda tidak meninggalkan catatan khusus untuk sesi ini. Tetap semangat melakukan yang terbaik!'}"
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-3">Catatan & Homework</p>
+                        <div className="bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl p-4 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/20">
+                            <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed italic">
+                                "{patient_visible_notes || 'Terapis tidak meninggalkan catatan khusus. Tetap semangat!'}"
                             </p>
                         </div>
                     </div>
                     <div className="flex flex-col justify-between">
                         <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Rekaman Sesi</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-3">Rekaman Sesi</p>
                             {recording_link ? (
-                                <a
-                                    href={recording_link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="group flex items-center gap-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30 hover:bg-indigo-100 transition-all"
-                                >
-                                    <div className="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                <a href={recording_link} target="_blank" rel="noreferrer" className="group flex items-center gap-4 p-3 bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-indigo-100/50 dark:border-indigo-800/20 hover:bg-indigo-50/50 transition-all">
+                                    <div className="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:scale-110 transition-transform">
                                         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-bold text-indigo-900 dark:text-indigo-300">Tonton Ulang Sesi</p>
-                                        <p className="text-[10px] text-indigo-600 truncate">Klik untuk membuka link YouTube</p>
+                                        <p className="text-[10px] text-indigo-500 truncate">Klik untuk membuka video</p>
                                     </div>
                                 </a>
                             ) : (
-                                <div className="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-700/50 text-center">
-                                    <p className="text-xs text-gray-500 italic">Rekaman tidak tersedia untuk sesi ini.</p>
+                                <div className="p-4 bg-white/30 dark:bg-white/[0.01] backdrop-blur rounded-2xl border border-slate-100/50 dark:border-slate-700/30 text-center">
+                                    <p className="text-xs text-slate-400 italic">Rekaman tidak tersedia untuk sesi ini.</p>
                                 </div>
                             )}
                         </div>
-                        <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                            <span className="font-bold">Terapis:</span> {therapist?.name}
-                        </div>
+                        <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><span className="font-bold">Terapis:</span> {therapist?.name || schedule.therapist?.name}</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </GlassPanel>
     );
 }
 
@@ -256,44 +217,34 @@ function ActiveBookingCard({ booking }) {
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sesi+Hipnoterapi+-+InDepth&dates=${formatGoogleCalDate(schedule.date, schedule.start_time)}/${formatGoogleCalDate(schedule.date, schedule.end_time)}&details=Sesi+Hipnoterapi+bersama+Terapis:+${therapist?.name || 'Akan diinfokan'}`;
 
     return (
-        <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-900/20 dark:to-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 shadow-sm p-6 mb-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <GlassPanel className="!border-indigo-200/50 dark:!border-indigo-800/20 p-6 mb-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10 dark:to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+            <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <h3 className="font-bold text-lg text-indigo-900 dark:text-indigo-300">Jadwal Aktif Anda</h3>
-                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full backdrop-blur ${statusColors[status] || 'bg-slate-100 text-slate-800'}`}>
                             {statusLabels[status] || status}
                         </span>
                     </div>
-
-                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                        <p><strong className="text-gray-900 dark:text-gray-200">Kode Booking:</strong> #{booking_code}</p>
-                        <p><strong className="text-gray-900 dark:text-gray-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} - {schedule.end_time?.substring(0, 5) || '--:--'} WIB)</p>
-                        <p><strong className="text-gray-900 dark:text-gray-200">Terapis:</strong> {therapist?.name || <span className="italic text-gray-500">Akan diinfokan...</span>}</p>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                        <p><strong className="text-slate-900 dark:text-slate-200">Kode:</strong> #{booking_code}</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} - {schedule.end_time?.substring(0, 5) || '--:--'} WIB)</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
                     </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
-                    <Link
-                        href={route('bookings.show', booking.id)}
-                        className="inline-flex justify-center items-center px-4 py-2 bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 text-sm font-semibold rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors shadow-sm"
-                    >
-                        Lihat Detail
-                    </Link>
-                    <a
-                        href={gcalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <Link href={route('bookings.show', booking.id)} className="inline-flex justify-center items-center px-4 py-2.5 bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl border border-indigo-200/50 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 text-sm font-bold rounded-2xl hover:bg-indigo-50/60 transition-all shadow-sm">Lihat Detail</Link>
+                    <a href={gcalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         Tambahkan ke Kalender
                     </a>
                 </div>
             </div>
-        </div>
+        </GlassPanel>
     );
 }
 
@@ -313,28 +264,34 @@ export default function Dashboard() {
     return (
         <AuthenticatedLayout
             header={
-                <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        Selamat datang, {user.name} 👋
-                        {!!user.agreement_signed_at && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-200 dark:border-emerald-800/30 shadow-sm">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Verified Client
-                            </span>
-                        )}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {isAdmin ? 'Panel Admin & CS' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
-                    </p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                            Selamat datang, {user.name} 👋
+                        </h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                            {isAdmin ? 'Panel Admin & CS' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
+                        </p>
+                    </div>
+                    {!!user.agreement_signed_at && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100/60 dark:bg-emerald-900/30 backdrop-blur text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-[0.15em] rounded-full border border-emerald-200/50 dark:border-emerald-800/20 shadow-sm">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Verified Client
+                        </span>
+                    )}
                 </div>
             }
         >
             <Head title="Dashboard" />
 
-            <div className="py-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="relative py-10 min-h-screen">
+                {/* Liquid Glass Background Blobs */}
+                <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                    <div className="absolute top-[-15%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-400/[0.07] dark:bg-indigo-600/[0.04] blur-[100px] animate-blob" />
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-emerald-400/[0.05] dark:bg-emerald-600/[0.03] blur-[100px] animate-blob animation-delay-2000" />
+                    <div className="absolute top-[30%] left-[40%] w-[25vw] h-[25vw] rounded-full bg-rose-400/[0.04] dark:bg-rose-600/[0.02] blur-[80px] animate-blob animation-delay-4000" />
+                </div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
 
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
                     {isPatient && (
@@ -355,153 +312,156 @@ export default function Dashboard() {
 
                     {/* ============== ADMIN / CS SECTION ============== */}
                     {isAdmin && (
-                        <section>
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                Manajemen Admin
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <QuickCard
-                                    href={route('admin.bookings.index')}
-                                    title="Booking Pasien"
-                                    description="Assign terapis dan kelola appointment"
-                                    iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.transactions.index')}
-                                    title="Validasi Pembayaran"
-                                    description="Approve atau tolak bukti transfer pasien"
-                                    iconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.reports.index')}
-                                    title="Laporan Keuangan"
-                                    description="Ringkasan pemasukan, pengeluaran & laba bersih"
-                                    iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                    color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.expenses.index')}
-                                    title="Kelola Pengeluaran"
-                                    description="Catat biaya operasional, gaji, dan sewa"
-                                    iconPath="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                                    color="bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.blog.index')}
-                                    title="Blog & Artikel"
-                                    description="Tulis dan kelola konten artikel klinik"
-                                    iconPath="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                    color="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.schedules.index')}
-                                    title="Manajemen Jadwal"
-                                    description="Atur slot waktu dan sesi terapis secara global"
-                                    iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
-                                />
-                                {isSuperAdmin && (
-                                    <>
+                        <div className="space-y-10">
+                            {/* Summary Stats */}
+                            <section>
+                                <SectionLabel>Statistik Perusahaan (Global Summary)</SectionLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                    <GlassPanel className="p-6 transition-all">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Total Sesi Berhasil</p>
+                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">{therapistStats?.total_sessions || 0}</p>
+                                    </GlassPanel>
+                                    <GlassPanel className="p-6 transition-all">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Pasien Terdaftar</p>
+                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">{therapistStats?.total_patients || 0}</p>
+                                    </GlassPanel>
+                                    <GlassPanel className="p-6 transition-all">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">Total Kelas Online</p>
+                                        <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-400">{therapistStats?.active_courses || 0}</p>
+                                    </GlassPanel>
+                                </div>
+                            </section>
+
+                            {/* Main Management Menus */}
+                            <section>
+                                <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                    <QuickCard
+                                        href={route('admin.schedules.index')}
+                                        title="Kelola Jadwal"
+                                        description="Atur slot waktu konsultasi praktek"
+                                        iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.courses.index')}
+                                        title="Manajemen Kelas"
+                                        description="Kelola kelas online dan kurikulum"
+                                        iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                        color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.bookings.index')}
+                                        title="Booking Pasien"
+                                        description="Pantau dan kelola reservasi pasien"
+                                        iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.transactions.index')}
+                                        title="Validasi Bayar"
+                                        description="Konfirmasi pembayaran paket & sesi"
+                                        iconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.reports.index')}
+                                        title="Laporan Keuangan"
+                                        description="Analisa pendapatan dan transaksi"
+                                        iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                                        color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.expenses.index')}
+                                        title="Biaya Pengeluaran"
+                                        description="Catat operasional & biaya klinik"
+                                        iconPath="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                                        color="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400"
+                                    />
+                                    <QuickCard
+                                        href={route('admin.blog.index')}
+                                        title="Blog & Artikel"
+                                        description="Kelola publikasi konten edukasi"
+                                        iconPath="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        color="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
+                                    />
+                                    {isSuperAdmin && (
                                         <QuickCard
                                             href={route('admin.users.index')}
                                             title="Manajemen User"
-                                            description="Kelola akun, akses, dan data pengguna"
-                                            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                                            description="Atur hak akses terapis & pasien"
+                                            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"
                                             color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
                                         />
-                                        <QuickCard
-                                            href={route('admin.roles.index')}
-                                            title="Manajemen Roles"
-                                            description="Atur peran dan hak akses sistem"
-                                            iconPath="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                            color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
-                                        />
-                                    </>
-                                )}
-                                <QuickCard
-                                    href={route('admin.courses.index')}
-                                    title="E-Learning (Admin)"
-                                    description="Buat dan kelola materi kelas online"
-                                    iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                    color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                                />
-                                <QuickCard
-                                    href={route('admin.pricing.vouchers.index')}
-                                    title="Manajemen Harga"
-                                    description="Kelola voucher diskon dan promo untuk pasien"
-                                    iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                    color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                />
-                                {!isSuperAdmin && (
+                                    )}
                                     <QuickCard
-                                        href={route('affiliate.dashboard')}
-                                        title="Komisi Afiliasi"
-                                        description="Pantau komisi dan referral yang berjalan"
-                                        iconPath="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                                        color="bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400"
+                                        href={route('admin.pricing.vouchers.index')}
+                                        title="Manajemen Harga"
+                                        description="Atur paket & voucher diskon"
+                                        iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                        color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
                                     />
-                                )}
-                            </div>
-                        </section>
+                                </div>
+                            </section>
+                        </div>
                     )}
 
-                    {/* ============== THERAPIST SECTION (Also visible to Admin) ============== */}
-                    {(isTherapist || isAdmin) && (
+                    {/* ============== THERAPIST SECTION ============== */}
+                    {isTherapist && !isAdmin && (
                         <div className="space-y-8">
-                            {/* Therapist Stats */}
                             <section>
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                    {isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Sesi Berhasil' : 'Total Sesi Selesai'}</p>
-                                        <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{therapistStats?.total_sessions || 0}</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Pasien Terdaftar' : 'Total Pasien Unik'}</p>
-                                        <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{therapistStats?.total_patients || 0}</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{isAdmin ? 'Total Kelas Online' : 'Kelas Online Saya'}</p>
-                                        <p className="text-3xl font-black text-amber-600 dark:text-amber-400">{therapistStats?.active_courses || 0}</p>
-                                    </div>
+                                <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}</SectionLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                    <Link href={isAdmin ? route('admin.bookings.index') : route('schedules.index')} className="block group">
+                                        <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(99,102,241,0.06)] hover:border-indigo-200/50 dark:hover:border-indigo-500/20 transition-all">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Sesi Berhasil' : 'Total Sesi Selesai'}</p>
+                                            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">{therapistStats?.total_sessions || 0}</p>
+                                        </GlassPanel>
+                                    </Link>
+                                    <Link href={isAdmin ? route('admin.users.index') : route('schedules.index')} className="block group">
+                                        <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(16,185,129,0.06)] hover:border-emerald-200/50 dark:hover:border-emerald-500/20 transition-all">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Pasien Terdaftar' : 'Total Pasien Unik'}</p>
+                                            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">{therapistStats?.total_patients || 0}</p>
+                                        </GlassPanel>
+                                    </Link>
+                                    <Link href={isAdmin ? route('admin.courses.index') : route('therapist.courses.index')} className="block group">
+                                        <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(245,158,11,0.06)] hover:border-amber-200/50 dark:hover:border-amber-500/20 transition-all">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Kelas Online' : 'Kelas Online Saya'}</p>
+                                            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-400">{therapistStats?.active_courses || 0}</p>
+                                        </GlassPanel>
+                                    </Link>
                                 </div>
                             </section>
 
                             {/* Ongoing Sessions */}
                             {therapistActiveSessions?.length > 0 && (
                                 <section>
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-red-500 dark:text-red-400 mb-4 flex items-center gap-2">
-                                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
-                                        {isAdmin ? 'Sesi Terapi Sedang Berlangsung (Monitoring)' : 'Sesi Sedang Berlangsung'}
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <SectionLabel className="!text-red-400 dark:!text-red-500 flex items-center gap-2">
+                                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-ping" />
+                                        {isAdmin ? 'Sesi Terapi Berlangsung (Monitoring)' : 'Sesi Sedang Berlangsung'}
+                                    </SectionLabel>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         {therapistActiveSessions.map((booking) => (
-                                            <div key={booking.id} className="bg-white dark:bg-gray-800 rounded-2xl border-2 border-red-100 dark:border-red-900/30 p-6 shadow-sm">
-                                                <div className="flex justify-between items-start mb-4">
+                                            <GlassPanel key={booking.id} className="!border-red-200/50 dark:!border-red-800/20 p-6 relative overflow-hidden">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 to-transparent dark:from-red-900/5 pointer-events-none" />
+                                                <div className="relative flex justify-between items-start mb-4">
                                                     <div>
-                                                        <p className="text-xs font-medium text-gray-500">Pasien</p>
-                                                        <h4 className="text-lg font-bold text-gray-900 dark:text-white uppercase">{booking.patient?.name}</h4>
+                                                        <p className="text-xs font-medium text-slate-500">Pasien</p>
+                                                        <h4 className="text-lg font-bold text-slate-900 dark:text-white uppercase">{booking.patient?.name}</h4>
                                                     </div>
-                                                    <span className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 rounded-full text-xs font-bold animate-pulse">
-                                                        LIVE
+                                                    <span className="px-3 py-1 bg-red-100/60 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-full text-[10px] font-black animate-pulse backdrop-blur shadow-[0_0_12px_rgba(239,68,68,0.2)]">
+                                                        ● LIVE
                                                     </span>
                                                 </div>
-                                                <div className="space-y-2 mb-6 text-sm text-gray-600 dark:text-gray-400">
+                                                <div className="relative space-y-2 mb-6 text-sm text-slate-600 dark:text-slate-400">
                                                     <p><strong>Paket:</strong> {booking.package_type?.toUpperCase()}</p>
-                                                    <p><strong>Terapis:</strong> {booking.schedule?.therapist?.name}</p>
+                                                    <p><strong>Terapis:</strong> {booking.therapist?.name || booking.schedule?.therapist?.name}</p>
                                                     <p><strong>Waktu Mulai:</strong> {new Date(booking.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</p>
                                                 </div>
-                                                <Link
-                                                    href={route('schedules.active-session', booking.id)}
-                                                    className={`w-full flex justify-center items-center py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors shadow-lg ${isAdmin ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
-                                                >
+                                                <Link href={route('schedules.active-session', booking.id)} className={`relative w-full flex justify-center items-center py-3 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95 ${isAdmin ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20' : 'bg-red-600 hover:bg-red-700 shadow-red-600/20'}`}>
                                                     {isAdmin ? 'Masuk ke Detail Sesi' : 'Selesaikan Sesi & Input Data'}
                                                 </Link>
-                                            </div>
+                                            </GlassPanel>
                                         ))}
                                     </div>
                                 </section>
@@ -511,24 +471,22 @@ export default function Dashboard() {
                                 <div className="lg:col-span-2 space-y-8">
                                     {/* Upcoming Sessions */}
                                     <section>
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                            {isAdmin ? 'Seluruh Agenda Sesi Terdekat' : 'Agenda Sesi Terdekat'}
-                                        </h3>
-                                        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-2 overflow-hidden shadow-sm">
+                                        <SectionLabel>{isAdmin ? 'Seluruh Agenda Sesi Terdekat' : 'Agenda Sesi Terdekat'}</SectionLabel>
+                                        <GlassPanel className="p-2 overflow-hidden">
                                             <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
                                                 <table className="w-full text-left">
-                                                    <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
-                                                        <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
+                                                    <thead className="sticky top-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl z-10">
+                                                        <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
                                                             <th className="px-4 py-3">Waktu</th>
                                                             <th className="px-4 py-3">Pasien</th>
                                                             {isAdmin && <th className="px-4 py-3">Terapis</th>}
                                                             <th className="px-4 py-3 text-right">Aksi</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+                                                    <tbody className="divide-y divide-white/30 dark:divide-slate-700/20">
                                                         {therapistUpcomingSessions?.length > 0 ? (
                                                             therapistUpcomingSessions.map((booking) => (
-                                                                <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                <tr key={booking.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
                                                                     <td className="px-4 py-4">
                                                                         <div className="flex flex-col">
                                                                             <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -549,7 +507,7 @@ export default function Dashboard() {
                                                                     </td>
                                                                     {isAdmin && (
                                                                         <td className="px-4 py-4">
-                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.schedule?.therapist?.name}</span>
+                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name}</span>
                                                                         </td>
                                                                     )}
                                                                     <td className="px-4 py-4 text-right">
@@ -572,15 +530,13 @@ export default function Dashboard() {
                                                     </tbody>
                                                 </table>
                                             </div>
-                                        </div>
+                                        </GlassPanel>
                                     </section>
 
                                     {/* Past Sessions - Patient History */}
                                     <section>
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                            {isAdmin ? 'Seluruh Riwayat Sesi Terakhir' : 'Riwayat Pasien Terakhir'}
-                                        </h3>
-                                        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-2 overflow-hidden shadow-sm">
+                                        <SectionLabel>{isAdmin ? 'Seluruh Riwayat Sesi Terakhir' : 'Riwayat Pasien Terakhir'}</SectionLabel>
+                                        <GlassPanel className="p-2 overflow-hidden">
                                             <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
                                                 <table className="w-full text-left">
                                                     <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
@@ -607,7 +563,7 @@ export default function Dashboard() {
                                                                     </td>
                                                                     {isAdmin && (
                                                                         <td className="px-4 py-4">
-                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.schedule?.therapist?.name}</span>
+                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name}</span>
                                                                         </td>
                                                                     )}
                                                                     <td className="px-4 py-4">
@@ -627,15 +583,13 @@ export default function Dashboard() {
                                                     </tbody>
                                                 </table>
                                             </div>
-                                        </div>
+                                        </GlassPanel>
                                     </section>
                                 </div>
 
                                 <div className="space-y-6">
                                     <section>
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                            {isAdmin ? 'Layanan Terapi & LMS' : 'Menu Terapis'}
-                                        </h3>
+                                        <SectionLabel>{isAdmin ? 'Layanan Terapi & LMS' : 'Menu Terapis'}</SectionLabel>
                                         <div className="flex flex-col gap-4">
                                             <QuickCard
                                                 href={route('schedules.index')}
@@ -673,9 +627,7 @@ export default function Dashboard() {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Menu cards */}
                                 <section className="lg:col-span-2">
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                        Menu Pasien
-                                    </h3>
+                                    <SectionLabel>Menu Pasien</SectionLabel>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <QuickCard
                                             href={route('bookings.create')}
@@ -716,6 +668,13 @@ export default function Dashboard() {
                                         />
                                         <QuickCard
                                             href={route('bookings.history')}
+                                            title="Riwayat Sesi"
+                                            description="Lihat jadwal lampau, catatan terapis, dan rekaman"
+                                            iconPath="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                        />
+                                        <QuickCard
+                                            href={route('bookings.history')}
                                             title="Riwayat Transaksi"
                                             description="Pantau pembayaran dan upload bukti transfer"
                                             iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
@@ -740,9 +699,7 @@ export default function Dashboard() {
 
                                 {/* Profile Progress */}
                                 <section className="lg:col-span-1">
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                                        Profil Saya
-                                    </h3>
+                                    <SectionLabel>Profil Saya</SectionLabel>
                                     {profileProgress && <ProfileProgressCard profileProgress={profileProgress} />}
                                 </section>
                             </div>
@@ -751,9 +708,7 @@ export default function Dashboard() {
 
                     {/* ============== SHARED QUICK LINKS ============== */}
                     <section>
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
-                            Akses Cepat
-                        </h3>
+                        <SectionLabel>Akses Cepat</SectionLabel>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <QuickCard
                                 href={route('blog.index')}
@@ -774,6 +729,6 @@ export default function Dashboard() {
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import ErrorBoundary from './ErrorBoundary';
+import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion }) {
+    const [selectedBooking, setSelectedBooking] = useState(null);
     const isPatient = userModel.roles.some(r => r.name === 'patient');
     const isTherapist = userModel.roles.some(r => r.name === 'therapist');
 
@@ -218,82 +221,215 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                         </div>
                     )}
 
-                    {/* Log / Activity Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-500 delay-300">
+                    {/* Session History & Financial Records */}
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-500 delay-300">
 
-                        {/* Bookings Table */}
+                        {/* Session History (Full Width for better readability of notes) */}
                         <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 shadow-sm rounded-3xl overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
-                                <h3 className="font-bold text-lg text-gray-900 dark:text-white">Riwayat Booking {isTherapist ? '(Terapis)' : '(Pasien)'}</h3>
-                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full">{bookings.length} Aktivitas</span>
+                            <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
+                                <div className="space-y-1">
+                                    <h3 className="font-black text-xl text-gray-900 dark:text-white">Riwayat Sesi Konsultasi</h3>
+                                    <p className="text-xs text-gray-500 font-medium">Log sesi klinis</p>
+                                </div>
+                                <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-black uppercase tracking-widest rounded-full border border-indigo-100 dark:border-indigo-800">
+                                    {bookings.length} Sesi
+                                </span>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead className="bg-gray-50/50 dark:bg-gray-900/30">
-                                        <tr>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Detail</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Waktu</th>
-                                            <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
-                                        {bookings.map(booking => (
-                                            <tr key={booking.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 cursor-help" title={booking.therapist_notes || 'Belum ada catatan terapis'}>
-                                                        {booking.booking_code}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 capitalize">{booking.package_type || 'Hipnoterapi'}</p>
-                                                    {booking.recording_link && (
-                                                        <a href={booking.recording_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                                            Link Video
-                                                        </a>
-                                                    )}
-                                                    {booking.therapist_notes && (
-                                                        <div className="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl text-xs text-gray-700 dark:text-gray-300 border border-indigo-100 dark:border-indigo-800/30">
-                                                            <span className="font-bold block mb-1.5 text-indigo-700 dark:text-indigo-400 border-b border-indigo-100 dark:border-indigo-800 pb-1">Hasil Diagnosa & Catatan Terapis:</span>
-                                                            <div className="whitespace-pre-wrap">{booking.therapist_notes}</div>
-                                                        </div>
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                                    {booking.schedule ? `${booking.schedule.date} ${booking.schedule.start_time}` : '-'}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded-md ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                                                        booking.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-                                                        }`}>
-                                                        {booking.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {bookings.length === 0 && (
+
+                            <div className="p-0">
+                                <div className="max-h-[420px] overflow-y-auto custom-scrollbar">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-gray-50/50 dark:bg-gray-900/30 sticky top-0 z-20">
                                             <tr>
-                                                <td colSpan="3" className="px-6 py-8 text-center text-gray-500 italic text-sm">Belum ada riwayat booking</td>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu & Kode</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Praktisi</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                                <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+                                            {bookings.map((booking) => {
+                                                const d = booking.schedule ? new Date(`${booking.schedule.date.replace(/-/g, '/')} ${booking.schedule.start_time}`) : null;
+                                                const formattedDate = d && !isNaN(d.getTime())
+                                                    ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                                    : '-';
+
+                                                return (
+                                                    <tr key={booking.id} className="hover:bg-gray-50/30 dark:hover:bg-gray-900/20 transition-colors">
+                                                        <td className="px-8 py-4">
+                                                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                                                {formattedDate}
+                                                            </p>
+                                                            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-tighter">#{booking.booking_code}</p>
+                                                        </td>
+                                                        <td className="px-8 py-4">
+                                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                {isTherapist ? (booking.patient?.name || '-') : (booking.therapist?.name || '-')}
+                                                            </p>
+                                                        </td>
+                                                        <td className="px-8 py-4">
+                                                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                                                    booking.status === 'completed' ? 'bg-indigo-100 text-indigo-700' :
+                                                                        booking.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                                                                }`}>
+                                                                {booking.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-8 py-4 text-right">
+                                                            <button
+                                                                onClick={() => setSelectedBooking(booking)}
+                                                                className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 hover:underline transition-all uppercase tracking-widest"
+                                                            >
+                                                                Lihat Detail →
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {bookings.length === 0 && (
+                                    <div className="p-12 text-center">
+                                        <p className="text-gray-500 italic font-medium">Belum ada riwayat sesi.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
+
+                        {/* Booking Detail Modal */}
+                        <Modal show={!!selectedBooking} onClose={() => setSelectedBooking(null)} maxWidth="2xl">
+                            {selectedBooking && (
+                                <div className="p-8 space-y-8">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">Detail Sesi #{selectedBooking.booking_code}</h3>
+                                            <p className="text-sm text-gray-500 font-medium">
+                                                {selectedBooking.schedule
+                                                    ? new Date(`${selectedBooking.schedule.date.replace(/-/g, '/')} ${selectedBooking.schedule.start_time}`).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                                    : '-'} WIB
+                                            </p>
+                                        </div>
+                                        <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-6 pb-6 border-b border-gray-100 dark:border-gray-700">
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{isTherapist ? 'Pasien' : 'Praktisi'}</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">{isTherapist ? (selectedBooking.patient?.name || '-') : (selectedBooking.therapist?.name || '-')}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Paket Layanan</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{selectedBooking.package_type || 'Hipnoterapi'}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Sesi</p>
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase inline-block ${selectedBooking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                                selectedBooking.status === 'completed' ? 'bg-indigo-100 text-indigo-700' :
+                                                    selectedBooking.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                {selectedBooking.status}
+                                            </span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Outcome Sesi</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">{selectedBooking.completion_outcome || '-'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                    Catatan Internal (Diagnosa)
+                                                </p>
+                                                <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-2xl p-4 min-h-[100px]">
+                                                    {selectedBooking.therapist_notes ? (
+                                                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                                                            "{selectedBooking.therapist_notes}"
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-400 italic">Belum ada catatan internal.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                                    Catatan Pasien (Tampil di Dashboard)
+                                                </p>
+                                                <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-2xl p-4 min-h-[100px]">
+                                                    {selectedBooking.patient_visible_notes ? (
+                                                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                                                            "{selectedBooking.patient_visible_notes}"
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-400 italic">Belum ada catatan untuk pasien.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {selectedBooking.recording_link && (
+                                            <div className="space-y-2 pt-4">
+                                                <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                    Dokumentasi Rekaman
+                                                </p>
+                                                <a
+                                                    href={selectedBooking.recording_link}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center justify-between p-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all shadow-lg hover:shadow-indigo-500/20 group"
+                                                >
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <p className="text-xs font-black uppercase tracking-tighter opacity-80">Video Rekaman Sesi</p>
+                                                            <p className="text-sm font-bold">Watch Technical Session</p>
+                                                        </div>
+                                                    </div>
+                                                    <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-6 flex justify-end">
+                                        <SecondaryButton onClick={() => setSelectedBooking(null)}>
+                                            Tutup Detail
+                                        </SecondaryButton>
+                                    </div>
+                                </div>
+                            )}
+                        </Modal>
 
                         {/* Transactions or Schedules Section */}
                         {isPatient ? (
                             <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 shadow-sm rounded-3xl overflow-hidden">
-                                <div className="p-6 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
-                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white">Riwayat Transaksi</h3>
-                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full">{transactions.length} Transaksi</span>
+                                <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
+                                    <div className="space-y-1">
+                                        <h3 className="font-black text-xl text-gray-900 dark:text-white">Riwayat Transaksi & Keuangan</h3>
+                                        <p className="text-xs text-gray-500 font-medium">Log pembayaran dan billing pasien</p>
+                                    </div>
+                                    <span className="px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-widest rounded-full border border-emerald-100 dark:border-emerald-800">
+                                        {transactions.length} Transaksi
+                                    </span>
                                 </div>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto p-4 max-h-[600px] overflow-y-auto custom-scrollbar">
                                     <table className="w-full text-left">
-                                        <thead className="bg-gray-50/50 dark:bg-gray-900/30">
+                                        <thead className="bg-gray-50/50 dark:bg-gray-900/30 sticky top-0 z-10">
                                             <tr>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Invoice / Rekening</th>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Nominal</th>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Bukti</th>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Status</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Invoice / Rekening</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Bukti</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
@@ -301,37 +437,35 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
                                                     <td className="px-6 py-4">
                                                         <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{tx.invoice_number}</p>
-                                                        <p className="text-xs text-gray-500">{tx.payment_method || '-'}</p>
+                                                        <p className="text-[10px] text-gray-500 font-medium">{tx.payment_method || '-'}</p>
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                    <td className="px-6 py-4 text-sm font-black text-gray-900 dark:text-gray-100">
                                                         Rp {new Intl.NumberFormat('id-ID').format(tx.amount)}
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         {tx.payment_proof ? (
-                                                            <a href={`/storage/${tx.payment_proof}`} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:text-blue-800 underline font-bold transition-colors">Lihat Bukti</a>
+                                                            <a href={`/storage/${tx.payment_proof}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 transition-colors">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                                Bukti Transfer
+                                                            </a>
                                                         ) : (
-                                                            <span className="text-xs text-gray-400 italic">—</span>
+                                                            <span className="text-[10px] text-gray-400 font-bold uppercase italic">Belum Ada</span>
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded-md ${tx.status === 'paid' ? 'bg-green-100 text-green-700' :
-                                                                tx.status === 'cancelled' ? 'bg-gray-100 text-gray-500' :
-                                                                    tx.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                                                                        tx.status === 'refunded' ? 'bg-orange-100 text-orange-700' :
-                                                                            'bg-amber-100 text-amber-700'
+                                                        <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-lg ${tx.status === 'paid' ? 'bg-green-100 text-green-700' :
+                                                            tx.status === 'cancelled' ? 'bg-gray-100 text-gray-500' :
+                                                                tx.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                                                    tx.status === 'refunded' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
                                                             }`}>
-                                                            {tx.status === 'cancelled' ? 'Dibatalkan' :
-                                                                tx.status === 'paid' ? 'Lunas' :
-                                                                    tx.status === 'rejected' ? 'Ditolak' :
-                                                                        tx.status === 'refunded' ? 'Dikembalikan' :
-                                                                            tx.status}
+                                                            {tx.status}
                                                         </span>
                                                     </td>
                                                 </tr>
                                             ))}
                                             {transactions.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500 italic text-sm">Belum ada riwayat transaksi</td>
+                                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500 italic text-sm">Belum ada data transaksi keuangan.</td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -340,39 +474,41 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                             </div>
                         ) : isTherapist ? (
                             <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 shadow-sm rounded-3xl overflow-hidden">
-                                <div className="p-6 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
-                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white">Jadwal Terapis</h3>
-                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full">{schedules.length} Slot</span>
+                                <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
+                                    <div className="space-y-1">
+                                        <h3 className="font-black text-xl text-gray-900 dark:text-white">Slot Jadwal Praktek</h3>
+                                        <p className="text-xs text-gray-500 font-medium">Jadwal yang telah dibuka oleh terapis</p>
+                                    </div>
+                                    <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-black uppercase tracking-widest rounded-full">{schedules.length} Slot</span>
                                 </div>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto p-4 max-h-[600px] overflow-y-auto custom-scrollbar">
                                     <table className="w-full text-left">
-                                        <thead className="bg-gray-50/50 dark:bg-gray-900/30">
+                                        <thead className="bg-gray-50/50 dark:bg-gray-900/30 sticky top-0 z-10">
                                             <tr>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Tanggal</th>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Waktu</th>
-                                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Isian</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Tanggal</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Kapasitas</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                                             {schedules.map(sch => (
                                                 <tr key={sch.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
-                                                    <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        {new Date(sch.date).toLocaleDateString('id-ID', { dateStyle: 'medium' })}
+                                                    <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-gray-100 uppercase">
+                                                        {new Date(sch.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                                        {sch.start_time.substring(0, 5)} - {sch.end_time.substring(0, 5)}
+                                                    <td className="px-6 py-4 text-sm font-bold text-gray-600 dark:text-gray-400">
+                                                        {sch.start_time.substring(0, 5)} - {sch.end_time.substring(0, 5)} WIB
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded-md ${sch.booked_count >= sch.quota ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                                                            }`}>
-                                                            {sch.booked_count} / {sch.quota}
+                                                        <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-lg ${sch.booked_count >= sch.quota ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
+                                                            {sch.booked_count} / {sch.quota} Terisi
                                                         </span>
                                                     </td>
                                                 </tr>
                                             ))}
                                             {schedules.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="3" className="px-6 py-8 text-center text-gray-500 italic text-sm">Belum ada data jadwal</td>
+                                                    <td colSpan="3" className="px-6 py-12 text-center text-gray-500 italic text-sm">Belum ada slot jadwal yang dibuka.</td>
                                                 </tr>
                                             )}
                                         </tbody>

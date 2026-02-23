@@ -82,7 +82,7 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                             </div>
                                                         </td>
                                                         <td className="py-4 px-4 align-top min-w-[200px]">
-                                                            <div className="font-medium">{booking.schedule?.therapist?.name || '-'}</div>
+                                                            <div className="font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name || '-'}</div>
                                                             <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                                 {booking.schedule ? new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                                                             </div>

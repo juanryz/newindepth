@@ -55,118 +55,131 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
         >
             <Head title="Validasi Transaksi" />
 
-            <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div className="relative py-12 bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden transition-colors duration-700">
+                {/* Dynamic Background Blobs */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40 dark:opacity-20 z-0">
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-gold-400/20 to-indigo-500/20 blur-[120px] rounded-full animate-pulse" style={{ animationDuration: '12s' }}></div>
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-tr from-cyan-400/10 to-gold-400/10 blur-[100px] rounded-full animate-pulse" style={{ animationDuration: '18s', animationDelay: '3s' }}></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8 relative z-10">
                     {flash.success && (
-                        <div className="p-4 mb-4 text-sm text-green-800 dark:text-green-300 rounded-2xl bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 backdrop-blur-sm animate-pulse">
+                        <div className="p-4 mb-4 text-sm text-green-800 dark:text-green-300 rounded-2xl bg-green-50/80 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 backdrop-blur-xl animate-in slide-in-from-top-4 duration-500">
                             {flash.success}
                         </div>
                     )}
 
-                    <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl overflow-hidden shadow-2xl shadow-gray-200/50 dark:shadow-black/50 sm:rounded-[2rem] border border-gray-100 dark:border-gray-800/50 transition-all duration-500">
-                        <div className="p-8">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Daftar Transaksi</h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Kelola dan validasi pembayaran dari pasien dan siswa.</p>
-                                </div>
-                            </div>
+                    {/* Header Panel */}
+                    <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-2xl border border-white dark:border-slate-800 p-8 sm:p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-none transition-all duration-500">
+                        <div>
+                            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                                Validasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-indigo-600">Transaksi</span>
+                            </h1>
+                            <p className="mt-2 text-slate-500 dark:text-slate-400 font-bold italic tracking-wide">Kelola dan validasi pembayaran dari pasien dan siswa di InDepth.</p>
+                        </div>
+                    </div>
 
-                            <div className="overflow-x-auto -mx-8">
-                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
-                                    <thead className="bg-gray-50/50 dark:bg-gray-800/30">
-                                        <tr>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Invoice</th>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Pengguna</th>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Tipe Layanan</th>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Metode</th>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Bukti Transfer</th>
-                                            <th className="px-8 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Status</th>
-                                            <th className="px-8 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50 bg-transparent">
-                                        {transactions.data.map((tx) => (
-                                            <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors duration-300">
-                                                <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
-                                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                                        {tx.invoice_number}
-                                                    </span>
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap">
-                                                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{tx.user?.name}</div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-500">{tx.user?.email}</div>
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap">
-                                                    <span className="text-xs font-bold px-2.5 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-md border border-gold-500/20">
+                    <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-white dark:border-slate-800 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-all duration-700">
+                        <div className="overflow-x-auto p-4 sm:p-0">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100/50 dark:bg-slate-800/50">
+                                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
+                                        <th className="px-8 py-5">Invoice</th>
+                                        <th className="px-8 py-5">Pengguna</th>
+                                        <th className="px-8 py-5">Layanan</th>
+                                        <th className="px-8 py-5">Validitas</th>
+                                        <th className="px-8 py-5">Status</th>
+                                        <th className="px-8 py-5 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                    {transactions.data.map((tx) => (
+                                        <tr key={tx.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || 'BANK'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{tx.user?.name}</span>
+                                                    <span className="text-xs text-slate-500">{tx.user?.email}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 whitespace-nowrap">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] font-black px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg border border-gold-500/20 w-fit uppercase tracking-widest">
                                                         {tx.transactionable_type.split('\\').pop()}
                                                     </span>
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                                    {tx.payment_bank}
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap text-sm">
-                                                    {tx.payment_proof ? (
-                                                        <a
-                                                            href={`/storage/${tx.payment_proof}`}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="inline-flex items-center gap-2 text-gold-600 dark:text-gold-400 hover:text-gold-500 font-bold decoration-2 hover:underline transition-all"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                                            Lihat Bukti
-                                                        </a>
-                                                    ) : <span className="text-gray-400 dark:text-gray-600 italic">Belum Upload</span>}
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap">
-                                                    <span className={`px-4 py-1.5 inline-flex text-[10px] leading-4 font-black uppercase tracking-widest rounded-full border
-                                                        ${tx.status === 'paid' ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' :
-                                                            tx.status === 'rejected' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
-                                                                tx.status === 'refunded' ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20' :
-                                                                    tx.status === 'cancelled' ? 'bg-gray-500/10 text-gray-500 dark:text-gray-400 border-gray-500/20' :
-                                                                        'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
-                                                        }`}>
-                                                        {tx.status === 'paid' ? 'Lunas' :
-                                                            tx.status === 'rejected' ? 'Ditolak' :
-                                                                tx.status === 'refunded' ? 'Dikembalikan' :
-                                                                    tx.status === 'cancelled' ? 'Dibatalkan' :
-                                                                        tx.status === 'pending' ? 'Menunggu' :
-                                                                            tx.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium">
-                                                    {tx.status === 'pending' && (
-                                                        <div className="flex justify-end gap-2">
-                                                            <button
-                                                                onClick={() => handleValidate(tx)}
-                                                                className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-600/20 active:scale-95"
-                                                            >
-                                                                Validasi
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setSelectedReject(tx)}
-                                                                className="px-4 py-2 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-600/20 transition-all active:scale-95"
-                                                            >
-                                                                Tolak
-                                                            </button>
-                                                        </div>
+                                                    {tx.payment_agreement_data && (
+                                                        <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                            Agreement Signed
+                                                        </span>
                                                     )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {transactions.data.length === 0 && (
-                                <div className="py-20 text-center">
-                                    <div className="bg-gray-100 dark:bg-gray-800 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-3.586a1 1 0 00-.707.293l-1.414 1.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 006.586 13H4" /></svg>
-                                    </div>
-                                    <p className="text-gray-500 dark:text-gray-400 font-medium tracking-tight">Belum ada transaksi yang perlu divalidasi.</p>
-                                </div>
-                            )}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                {tx.payment_proof ? (
+                                                    <a
+                                                        href={`/storage/${tx.payment_proof}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="inline-flex items-center gap-2 group/proof"
+                                                    >
+                                                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-gold-500 group-hover/proof:text-white transition-all duration-300">
+                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                        </div>
+                                                        <span className="text-xs font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Bukti Tuntas</span>
+                                                    </a>
+                                                ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Belum Upload</span>}
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
+                                                    ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                                                        tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
+                                                            tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
+                                                                'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
+                                                    }`}>
+                                                    {tx.status === 'paid' ? 'Valid' :
+                                                        tx.status === 'rejected' ? 'Ditolak' :
+                                                            tx.status === 'pending' ? 'Menunggu' :
+                                                                tx.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                {tx.status === 'pending' && (
+                                                    <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                                        <button
+                                                            onClick={() => handleValidate(tx)}
+                                                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
+                                                        >
+                                                            Validasi
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setSelectedReject(tx)}
+                                                            className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all hover:scale-105 active:scale-95"
+                                                        >
+                                                            Tolak
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
+
+                        {transactions.data.length === 0 && (
+                            <div className="py-32 text-center">
+                                <div className="bg-slate-100 dark:bg-slate-800 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                    <svg className="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <p className="text-slate-500 dark:text-slate-600 font-black uppercase tracking-[0.2em] italic">Bersih. Tidak ada transaksi tertunda.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -220,7 +233,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                         onChange={e => setValidateData('therapist_id', e.target.value)}
                                         className="w-full appearance-none bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-all cursor-pointer"
                                     >
-                                        <option value="">— Tetap / Tanpa Perubahan —</option>
+                                        <option value="">— Pilih Otomatis (Random) —</option>
                                         {therapists.map(t => (
                                             <option key={t.id} value={t.id}>{t.name}</option>
                                         ))}
@@ -231,7 +244,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                 </div>
                                 <p className="text-[10px] text-gray-400 mt-3 flex items-start gap-2 leading-relaxed">
                                     <svg className="w-3 h-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Jika tidak dipilih, terapis yang sudah ada sebelumnya (apabila ada) akan dipertahankan atau diacak berdasarkan ketersediaan.
+                                    Jika tidak dipilih, sistem akan secara otomatis menugaskan terapis yang tersedia untuk slot waktu ini.
                                 </p>
                             </div>
                             <div className="flex flex-col gap-3">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, Link } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputLabel from '@/Components/InputLabel';
@@ -75,164 +75,200 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Booking Pasien</h2>}>
+        <AuthenticatedLayout
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Manajemen Booking Pasien</h2>}
+        >
             <Head title="Booking Pasien" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profil</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skrining</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Sesi</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terapis</th>
+            <div className="relative py-12 bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden transition-colors duration-700">
+                {/* Dynamic Background Blobs */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40 dark:opacity-20 z-0">
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-indigo-400/30 to-purple-500/30 blur-[120px] rounded-full animate-pulse" style={{ animationDuration: '10s' }}></div>
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-tr from-cyan-400/20 to-emerald-400/20 blur-[100px] rounded-full animate-pulse" style={{ animationDuration: '15s', animationDelay: '2s' }}></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8 relative z-10">
+                    {/* Header Panel */}
+                    <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-2xl border border-white dark:border-slate-800 p-8 sm:p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-none transition-all duration-500">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                            <div>
+                                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    Booking <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">Pasien</span>
+                                </h1>
+                                <p className="mt-2 text-slate-500 dark:text-slate-400 font-bold italic tracking-wide">Pantau skrining, pembayaran, dan penugasan terapis.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bookings Table Panel */}
+                    <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-white dark:border-slate-800 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-all duration-700">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100/50 dark:bg-slate-800/50">
+                                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
+                                        <th className="px-8 py-5">Info Booking</th>
+                                        <th className="px-8 py-5">Pasien & Screening</th>
+                                        <th className="px-8 py-5">Jadwal Sesi</th>
+                                        <th className="px-8 py-5 text-center">Status</th>
+                                        <th className="px-8 py-5">Terapis & Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                     {bookings.map((booking) => (
-                                        <tr key={booking.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div className="font-medium text-gray-900">{booking.booking_code}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div className="font-medium text-gray-900">{booking.patient?.name}</div>
-                                                <div className="text-xs text-gray-500">{booking.patient?.email}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <tr key={booking.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+                                            <td className="px-8 py-6">
                                                 <div className="flex flex-col">
-                                                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1 max-w-[100px]">
-                                                        <div
-                                                            className={`h-1.5 rounded-full ${booking.patient_profile_stats?.percentage === 100 ? 'bg-green-600' : 'bg-yellow-500'}`}
-                                                            style={{ width: `${booking.patient_profile_stats?.percentage || 0}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <span className="text-xs font-semibold">{booking.patient_profile_stats?.percentage || 0}% Lengkap</span>
-                                                    {booking.patient?.agreement_signed_at ? (
-                                                        <span className="text-[10px] text-green-600 font-bold uppercase mt-1">✓ Perjanjian TTD</span>
-                                                    ) : (
-                                                        <span className="text-[10px] text-red-500 font-bold uppercase mt-1">✗ Belum TTD</span>
-                                                    )}
+                                                    <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{booking.booking_code}</span>
+                                                    <span className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">
+                                                        {booking.package_type?.toUpperCase() || 'KONSULTASI'}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {booking.patient?.screening_completed_at ? (
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col gap-3">
+                                                    <div>
+                                                        <div className="text-sm font-bold text-slate-900 dark:text-white">{booking.patient?.name}</div>
+                                                        <div className="text-xs text-slate-500">{booking.patient?.email}</div>
+                                                    </div>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex flex-col">
+                                                            <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-1 my-1">
+                                                                <div
+                                                                    className={`h-1 rounded-full ${booking.patient_profile_stats?.percentage === 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                                                    style={{ width: `${booking.patient_profile_stats?.percentage || 0}%` }}
+                                                                ></div>
+                                                            </div>
+                                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{booking.patient_profile_stats?.percentage || 0}% Profil</span>
+                                                        </div>
+                                                        {booking.patient?.screening_completed_at ? (
+                                                            <div className="flex flex-col border-l border-slate-200 dark:border-slate-700 pl-4">
+                                                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Skrining OK</span>
+                                                                <span className="text-[10px] text-slate-400 truncate max-w-[120px]">{booking.patient.recommended_package || 'No Rec'}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[9px] font-black text-rose-500 uppercase border-l border-slate-200 dark:border-slate-700 pl-4">Belum Skrining</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                {booking.schedule ? (
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs text-green-700 font-medium">Selesai: {new Date(booking.patient.screening_completed_at).toLocaleDateString('id-ID')}</span>
-                                                        <span className="text-xs italic text-gray-500 truncate max-w-[150px]">
-                                                            Pesan: {booking.patient.recommended_package || '-'}
+                                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                            {new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500">
+                                                            {booking.schedule.start_time?.substring(0, 5)} WIB
                                                         </span>
                                                     </div>
-                                                ) : (
-                                                    <span className="text-xs text-red-400 italic">Belum skrining</span>
-                                                )}
+                                                ) : <span className="text-xs text-slate-400 italic">No Slot</span>}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {booking.schedule ? (
-                                                    <>
-                                                        <div>{new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                                                        <div className="text-xs">{booking.schedule.start_time?.substring(0, 5) || '--:--'} - {booking.schedule.end_time?.substring(0, 5) || '--:--'}</div>
-                                                    </>
-                                                ) : '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex flex-col gap-1">
+                                            <td className="px-8 py-6 text-center">
+                                                <div className="flex flex-col items-center gap-2">
                                                     {getStatusBadge(booking.status)}
-                                                    {booking.status === 'completed' && (
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            {booking.recording_link && (
-                                                                <a href={booking.recording_link} target="_blank" title="Ada Rekaman" className="text-purple-600">
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                                                </a>
-                                                            )}
-                                                            {booking.therapist_notes && (
-                                                                <span title="Ada Catatan Klinis" className="text-gray-400">
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                                                </span>
-                                                            )}
-                                                            {booking.patient_visible_notes && (
-                                                                <span title="Ada Pesan untuk Pasien" className="text-blue-500">
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {editingBooking === booking.id ? (
-                                                    <div className="flex items-center gap-2">
-                                                        <select
-                                                            className="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                                            value={data.therapist_id}
-                                                            onChange={(e) => setData('therapist_id', e.target.value)}
-                                                        >
-                                                            <option value="">Pilih Terapis</option>
-                                                            {therapists.map(t => (
-                                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                                            ))}
-                                                        </select>
-                                                        <button
-                                                            onClick={() => handleAssign(booking.id)}
-                                                            className="px-3 py-1 bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                                                            disabled={processing || !data.therapist_id}
-                                                        >
-                                                            Simpan
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setEditingBooking(null)}
-                                                            className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded-md hover:bg-gray-300"
-                                                            disabled={processing}
-                                                        >
-                                                            Batal
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col gap-2">
-                                                        <div className="flex items-center justify-between group">
-                                                            <span className={booking.therapist ? 'text-gray-900 font-medium text-xs' : 'text-gray-400 italic text-xs'}>
-                                                                {booking.therapist?.name || 'Belum di-assign'}
-                                                            </span>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingBooking(booking.id);
-                                                                    setData('therapist_id', booking.therapist_id || '');
-                                                                }}
-                                                                className="ml-2 text-indigo-600 hover:text-indigo-900 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                {booking.therapist ? 'Ubah' : 'Assign'}
-                                                            </button>
-                                                        </div>
-                                                        {['confirmed', 'in_progress'].includes(booking.status) && (
-                                                            <div className="flex gap-1.5 mt-1">
-                                                                <button
-                                                                    onClick={() => setReschedulingBooking(booking)}
-                                                                    className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-bold hover:bg-amber-100 transition-colors"
-                                                                >
-                                                                    Reschedule
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => setNoShowBooking(booking)}
-                                                                    className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] font-bold hover:bg-red-100 transition-colors"
-                                                                >
-                                                                    No-Show
-                                                                </button>
+                                                    <div className="flex items-center gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
+                                                        {booking.recording_link && (
+                                                            <div className="w-5 h-5 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500" title="Ada Rekaman">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                            </div>
+                                                        )}
+                                                        {booking.therapist_notes && (
+                                                            <div className="w-5 h-5 rounded-lg bg-slate-50 dark:bg-slate-900/40 flex items-center justify-center text-slate-500" title="Ada Catatan Klinis">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                             </div>
                                                         )}
                                                     </div>
-                                                )}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col gap-4">
+                                                    {editingBooking === booking.id ? (
+                                                        <div className="flex flex-col gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur p-4 rounded-2xl border border-white dark:border-slate-700 shadow-xl">
+                                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assign Terapis</label>
+                                                            <select
+                                                                className="text-xs bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-indigo-500/20"
+                                                                value={data.therapist_id}
+                                                                onChange={(e) => setData('therapist_id', e.target.value)}
+                                                            >
+                                                                <option value="">Pilih Terapis</option>
+                                                                {therapists.map(t => (
+                                                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                                                ))}
+                                                            </select>
+                                                            <div className="flex gap-2 mt-2">
+                                                                <button
+                                                                    onClick={() => handleAssign(booking.id)}
+                                                                    className="flex-1 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-lg hover:bg-indigo-700 transition-all"
+                                                                    disabled={processing || !data.therapist_id}
+                                                                >
+                                                                    Simpan
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setEditingBooking(null)}
+                                                                    className="flex-1 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-black uppercase rounded-lg"
+                                                                >
+                                                                    Batal
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex items-center justify-between group/tp">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Penanggung Jawab</span>
+                                                                    <span className={`text-xs font-bold ${booking.therapist ? 'text-slate-900 dark:text-white' : 'text-rose-400 dark:text-rose-500'}`}>
+                                                                        {booking.therapist?.name || 'BELUM DITUNJUK'}
+                                                                    </span>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setEditingBooking(booking.id);
+                                                                        setData('therapist_id', booking.therapist_id || '');
+                                                                    }}
+                                                                    className="p-2 text-indigo-500 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl opacity-0 group-hover:opacity-100 group-hover/tp:opacity-100 transition-all"
+                                                                    title="Ganti Terapis"
+                                                                >
+                                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/50">
+                                                                {booking.schedule_id && (
+                                                                    <Link
+                                                                        href={route('admin.schedules.show', booking.schedule_id)}
+                                                                        className="flex-1 text-center py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 hover:text-indigo-500 transition-all"
+                                                                    >
+                                                                        Detail Sesi
+                                                                    </Link>
+                                                                )}
+
+                                                                {['confirmed', 'in_progress'].includes(booking.status) && (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={() => setReschedulingBooking(booking)}
+                                                                            className="px-2 py-2 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+                                                                        >
+                                                                            Reschedule
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => setNoShowBooking(booking)}
+                                                                            className="px-2 py-2 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20"
+                                                                        >
+                                                                            No-Show
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
                                     {bookings.length === 0 && (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                Belum ada booking pasien.
+                                            <td colSpan="5" className="px-8 py-20 text-center">
+                                                <p className="text-slate-500 dark:text-slate-600 font-bold italic">Belum ada booking pasien yang terdaftar.</p>
                                             </td>
                                         </tr>
                                     )}

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import InputLabel from '@/Components/InputLabel';
+import TextInput from '@/Components/TextInput';
+import SecondaryButton from '@/Components/SecondaryButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     User, Mail, Phone, Calendar, UserCheck, ShieldCheck,
@@ -9,8 +13,46 @@ import {
     ExternalLink, BookOpen, MessageSquare, Clipboard, Video
 } from 'lucide-react';
 
-export default function PatientDetail({ patient, profileProgress, fromBookingId }) {
+export default function PatientDetail({ patient, profileProgress, availableSchedules, fromBookingId }) {
     const [activeTab, setActiveTab] = useState('summary');
+
+    // Modal states
+    const [selectedRescheduleBooking, setSelectedRescheduleBooking] = useState(null);
+    const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
+
+    // Form for Rescheduling
+    const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
+        new_schedule_id: '',
+        reschedule_reason: '',
+    });
+
+    // Form for No-Show
+    const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
+        no_show_party: 'patient',
+        no_show_reason: '',
+    });
+
+    const handleReschedule = (e) => {
+        e.preventDefault();
+        postReschedule(route('schedules.reschedule', selectedRescheduleBooking.id), {
+            onSuccess: () => {
+                setSelectedRescheduleBooking(null);
+                resetReschedule();
+            },
+            preserveScroll: true,
+        });
+    };
+
+    const handleNoShow = (e) => {
+        e.preventDefault();
+        postNoShow(route('schedules.no-show', selectedNoShowBooking.id), {
+            onSuccess: () => {
+                setSelectedNoShowBooking(null);
+                resetNoShow();
+            },
+            preserveScroll: true,
+        });
+    };
 
     const tabs = [
         { id: 'summary', label: 'Ringkasan', icon: Activity },
@@ -227,12 +269,9 @@ export default function PatientDetail({ patient, profileProgress, fromBookingId 
                                                             {patient.agreement_signed_at ? `Tgl: ${new Date(patient.agreement_signed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'Tgl: -'}
                                                         </p>
                                                         {patient.agreement_signed_at && (
-                                                            <Link
-                                                                href={route('agreement.patient', patient.id)}
-                                                                className="inline-flex items-center gap-1.5 mt-3 text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 uppercase tracking-wider"
-                                                            >
-                                                                <FileText className="w-3 h-3" /> Lihat Dokumen Lengkap
-                                                            </Link>
+                                                            <div className="mt-3 flex items-center gap-2 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                                                                <ShieldCheck className="w-3 h-3" /> Dokumen Disetujui
+                                                            </div>
                                                         )}
                                                     </div>
                                                     <div className={`p-4 rounded-2xl border ${patient.recommended_package ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
@@ -505,6 +544,22 @@ export default function PatientDetail({ patient, profileProgress, fromBookingId 
                                                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusColor(booking.status)}`}>
                                                                             {booking.status === 'completed' ? 'TERLESAIKAN' : booking.status === 'in_progress' ? 'SEDANG BERJALAN' : 'AKAN DATANG'}
                                                                         </span>
+                                                                        {booking.status === 'confirmed' && (
+                                                                            <div className="flex gap-2">
+                                                                                <button
+                                                                                    onClick={() => setSelectedRescheduleBooking(booking)}
+                                                                                    className="px-3 py-1 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-100 dark:border-amber-900/30 transition-all hover:bg-amber-100"
+                                                                                >
+                                                                                    Reschedule
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => setSelectedNoShowBooking(booking)}
+                                                                                    className="px-3 py-1 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900/30 transition-all hover:bg-red-100"
+                                                                                >
+                                                                                    No-Show / Batal
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
                                                                         {booking.completion_outcome && (
                                                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${booking.completion_outcome === 'Normal' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                                                                                 }`}>
@@ -521,7 +576,7 @@ export default function PatientDetail({ patient, profileProgress, fromBookingId 
                                                                             <div className="bg-white/50 dark:bg-gray-800/80 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-3 text-xs">
                                                                                 <p className="flex justify-between">
                                                                                     <span className="text-gray-500">Terapis:</span>
-                                                                                    <span className="font-bold text-gray-800 dark:text-gray-200">{booking.schedule?.therapist?.name || '-'}</span>
+                                                                                    <span className="font-bold text-gray-800 dark:text-gray-200">{booking.therapist?.name || booking.schedule?.therapist?.name || '-'}</span>
                                                                                 </p>
                                                                                 <p className="flex justify-between">
                                                                                     <span className="text-gray-500">Paket:</span>
@@ -580,6 +635,16 @@ export default function PatientDetail({ patient, profileProgress, fromBookingId 
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            {booking.reschedule_reason && (
+                                                                <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-800/30 rounded-2xl">
+                                                                    <p className="text-[9px] font-black text-amber-700 dark:text-amber-500 uppercase flex items-center gap-1.5 mb-1.5">
+                                                                        <Activity className="w-3 h-3" /> Info Reschedule
+                                                                    </p>
+                                                                    <p className="text-xs font-medium text-amber-800 dark:text-amber-300 italic">
+                                                                        "{booking.reschedule_reason}"
+                                                                    </p>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ))
                                                 ) : (
@@ -597,7 +662,109 @@ export default function PatientDetail({ patient, profileProgress, fromBookingId 
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+
+            {/* Modal: Reschedule Session */}
+            <Modal show={selectedRescheduleBooking !== null} onClose={() => setSelectedRescheduleBooking(null)}>
+                <form onSubmit={handleReschedule} className="p-8 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-[2.5rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Jadwal Ulang</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-bold text-indigo-500">Anda sedang menjadwal ulang sesi <strong>{selectedRescheduleBooking?.booking_code}</strong></p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Baru" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="new_schedule_id"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={rescheduleData.new_schedule_id}
+                                onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
+                                required
+                            >
+                                <option value="">-- Pilih Slot Tersedia --</option>
+                                {availableSchedules
+                                    ?.filter(s => s.id !== selectedRescheduleBooking?.schedule_id)
+                                    .map(s => (
+                                        <option key={s.id} value={s.id}>
+                                            {new Date(s.date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })} | {s.start_time?.substring(0, 5)} WIB | {s.therapist?.name || 'Praktisi'}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan (Akan Muncul di Dashboard Pasien)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <textarea
+                                id="reschedule_reason"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all resize-none dark:text-gray-200"
+                                rows="3"
+                                placeholder="Detail alasan reschedule..."
+                                value={rescheduleData.reschedule_reason}
+                                onChange={(e) => setRescheduleData('reschedule_reason', e.target.value)}
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setSelectedRescheduleBooking(null)} disabled={rescheduling} className="rounded-2xl px-6">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={rescheduling || !rescheduleData.new_schedule_id}
+                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 ${(rescheduling || !rescheduleData.new_schedule_id) && 'opacity-25'}`}
+                        >
+                            Simpan Jadwal Baru
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Modal: Mark No-Show / Cancel */}
+            <Modal show={selectedNoShowBooking !== null} onClose={() => setSelectedNoShowBooking(null)}>
+                <form onSubmit={handleNoShow} className="p-8 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-[2.5rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Batalkan / No-Show</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-bold text-red-500">Menandai booking <strong>{selectedNoShowBooking?.booking_code}</strong> tidak hadir.</p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="no_show_party" value="Keterangan Pihak Berhalangan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="no_show_party"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={noShowData.no_show_party}
+                                onChange={(e) => setNoShowData('no_show_party', e.target.value)}
+                                required
+                            >
+                                <option value="patient">Pasien Tidak Hadir</option>
+                                <option value="therapist">Praktisi Berhalangan / Batalkan</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="no_show_reason" value="Alasan Pembatalan / No-Show" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <textarea
+                                id="no_show_reason"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all resize-none dark:text-gray-200"
+                                rows="3"
+                                placeholder="Detail pembatalan..."
+                                value={noShowData.no_show_reason}
+                                onChange={(e) => setNoShowData('no_show_reason', e.target.value)}
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setSelectedNoShowBooking(null)} disabled={markingNoShow} className="rounded-2xl px-6">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={markingNoShow}
+                            className={`inline-flex items-center px-8 py-3 bg-red-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg active:scale-95 ${markingNoShow && 'opacity-25'}`}
+                        >
+                            Konfirmasi No-Show
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+        </AuthenticatedLayout >
     );
 }
 

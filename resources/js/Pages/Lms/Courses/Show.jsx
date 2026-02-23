@@ -1,22 +1,74 @@
-import React, { useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import React, { useEffect, useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ErrorBoundary from '@/Components/ErrorBoundary';
 import LiquidBackground from '@/Components/LiquidBackground';
 
-export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
-    // Ensure course is never null/undefined
-    const safeCourse = course || {};
+const TRAINING_AGREEMENT = {
+    title: "PERJANJIAN PESERTA PELATIHAN, LMS, DAN SERTIFIKASI",
+    updated: "23 Februari 2026",
+    content: `Perjanjian ini mengikat secara hukum antara InDepth Mental Wellness (“Penyelenggara”) dan Peserta (“Peserta”). Dengan mendaftar, membayar, dan/atau mengikuti pelatihan, Peserta menyatakan telah membaca dan menyetujui seluruh ketentuan berikut.
 
-    // Set page title without using <Head> to avoid reported crashes
+PASAL 1: IDENTITAS PESERTA
+Peserta menyatakan bahwa data identitas yang terdaftar pada akun InDepth Mental Wellness (Nama, Email, Nomor Telepon, Alamat, dan KTP) adalah benar dan dapat dipertanggungjawabkan secara hukum.
+
+PASAL 2: BATAS USIA
+1. Usia dewasa hukum untuk mengikuti pelatihan dan sertifikasi secara mandiri adalah 21 tahun.
+2. Peserta di bawah usia tersebut wajib mendapatkan persetujuan orang tua atau wali sah.
+
+PASAL 3: RUANG LINGKUP PROGRAM
+Program dapat berupa pelatihan offline, seminar, LMS berbasis website, atau sertifikasi berjenjang. Penyelenggara berhak mengatur metode, jadwal, kurikulum, dan standar kelulusan.
+
+PASAL 4: HAK DAN KEWAJIBAN PESERTA
+Peserta wajib mengikuti aturan, tidak merekam/menggandakan materi tanpa izin, tidak menjual ulang materi, dan menjaga etika profesional. Pelanggaran dapat mengakibatkan pembatalan sertifikat dan tuntutan hukum.
+
+PASAL 5: HAK KEKAYAAN INTELEKTUAL
+Seluruh materi, metode, sistem, dan modul adalah hak cipta milik InDepth Mental Wellness. Dilarang menggandakan, merekam ulang, atau mengklaim kepemilikan tanpa izin tertulis.
+
+PASAL 6: SISTEM SERTIFIKASI
+Kelulusan ditentukan oleh standar evaluasi resmi. Sertifikat dapat dicabut jika ditemukan pelanggaran etika dan tidak memberikan hak membuka cabang tanpa izin.
+
+PASAL 7: PEMBAYARAN DAN NON-REFUND
+1. Biaya pelatihan tidak dapat direfund setelah pelatihan dimulai.
+2. Tidak hadir tanpa pemberitahuan dianggap hangus.
+3. Sertifikat hanya diberikan setelah seluruh kewajiban terpenuhi.
+
+PASAL 8: REKAMAN DAN DOKUMENTASI
+Pelatihan dapat direkam untuk dokumentasi, evaluasi internal, dan kepentingan akademik. Peserta menyetujui penggunaan dokumentasi tersebut.
+
+PASAL 9: PEMBATASAN TANGGUNG JAWAB
+Penyelenggara tidak bertanggung jawab atas interpretasi pribadi peserta, kerugian usaha akibat penerapan materi, atau kegagalan praktik di luar standar InDepth.
+
+PASAL 10: LARANGAN PENCEMARAN NAMA BAIK
+Peserta dilarang menyebarkan tuduhan tanpa dasar hukum tetap atau menggunakan nama InDepth untuk intimidasi.
+
+PASAL 11: FORCE MAJEURE
+Jika terjadi bencana alam atau gangguan sistem besar, maka jadwal dapat diubah tanpa kewajiban ganti rugi tambahan.
+
+PASAL 12: PENYELESAIAN SENGKETA
+Sengketa diselesaikan melalui musyawarah. Jika tidak tercapai kesepakatan, domisili hukum dipilih di Pengadilan Negeri Semarang.
+
+PASAL 13: PERSETUJUAN ELEKTRONIK
+Persetujuan digital melalui sistem ini memiliki kekuatan hukum yang sama dengan tanda tangan basah sesuai UU ITE.`
+};
+
+export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
+    const safeCourse = course || {};
+    const [showAgreement, setShowAgreement] = useState(false);
+    const [agreementCheckboxes, setAgreementCheckboxes] = useState({
+        dataCorrect: false,
+        agreeTerms: false,
+        noMisuse: false,
+        rulesUnderstood: false
+    });
+
     useEffect(() => {
         if (safeCourse.title) {
             document.title = safeCourse.title + ' - InDepth Mental Wellness';
         }
     }, [safeCourse.title]);
 
-    // Smooth scroll for internal links
     useEffect(() => {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -30,6 +82,123 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
             });
         });
     }, []);
+
+    const handleEnrollmentClick = () => {
+        setShowAgreement(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const confirmEnrollment = () => {
+        if (Object.values(agreementCheckboxes).every(v => v)) {
+            router.post(route('courses.enroll', safeCourse.slug));
+        }
+    };
+
+    if (showAgreement) {
+        return (
+            <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased relative">
+                <LiquidBackground />
+                <Navbar auth={auth} active="courses" />
+                <main className="relative z-10 pt-32 pb-20">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-3xl shadow-2xl rounded-[3rem] border border-white/40 dark:border-gray-700/30 overflow-hidden animate-in fade-in zoom-in duration-500">
+                            <div className="bg-gradient-to-br from-gold-500 via-gold-600 to-yellow-700 p-10 text-center relative overflow-hidden">
+                                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                                    <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+                                    <div className="absolute bottom-0 right-0 w-48 h-48 bg-yellow-400 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+                                </div>
+                                <div className="relative z-10 space-y-4">
+                                    <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl mx-auto flex items-center justify-center border border-white/40 shadow-2xl">
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </div>
+                                    <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Agreement & Ketentuan Peserta</h1>
+                                    <p className="text-gold-50 text-sm font-bold uppercase tracking-widest opacity-80">Kelas: {safeCourse.title}</p>
+                                </div>
+                            </div>
+
+                            <div className="p-8 md:p-14 space-y-12">
+                                {/* Identity Box */}
+                                <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-3xl p-8 border border-gray-100 dark:border-gray-800">
+                                    <h3 className="text-xs font-black text-gold-600 uppercase tracking-[0.3em] mb-6">Identitas Peserta Terdaftar</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nama Lengkap</p>
+                                            <p className="font-bold text-gray-900 dark:text-white">{auth.user?.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Email Registrasi</p>
+                                            <p className="font-bold text-gray-900 dark:text-white">{auth.user?.email}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nomor Telepon</p>
+                                            <p className="font-bold text-gray-900 dark:text-white">{auth.user?.phone || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Keanggotaan</p>
+                                            <p className="font-bold text-gray-900 dark:text-white uppercase text-xs">{auth.user?.roles?.[0]?.name || 'Pasien'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Scrollable Content */}
+                                <div className="space-y-6">
+                                    <div className="bg-white dark:bg-black/40 rounded-[2rem] p-8 border border-gray-100 dark:border-gray-800 h-[500px] overflow-y-auto custom-scrollbar text-sm leading-relaxed text-gray-600 dark:text-gray-400 shadow-inner">
+                                        <p className="font-black text-gray-900 dark:text-white mb-6 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-4">Isi Perjanjian Resmi</p>
+                                        <div className="whitespace-pre-wrap space-y-4">{TRAINING_AGREEMENT.content}</div>
+                                    </div>
+                                </div>
+
+                                {/* Confirmation Checklist */}
+                                <div className="space-y-4 pt-8 border-t border-gray-100 dark:border-gray-800">
+                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 text-center">Pernyataan Konfirmasi Wajib</h3>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {[
+                                            { id: 'dataCorrect', label: 'Saya menyatakan seluruh data identitas di atas adalah benar.' },
+                                            { id: 'agreeTerms', label: 'Saya menyetujui seluruh ketentuan dalam perjanjian ini.' },
+                                            { id: 'noMisuse', label: 'Saya tidak akan menyalahgunakan materi pelatihan ini.' },
+                                            { id: 'rulesUnderstood', label: 'Saya memahami hak dan kewajiban saya sebagai peserta.' }
+                                        ].map(item => (
+                                            <label key={item.id} className={`flex items-start gap-4 p-5 rounded-2xl transition-all cursor-pointer border-2 ${agreementCheckboxes[item.id] ? 'bg-gold-50/30 border-gold-300 dark:bg-gold-900/10 dark:border-gold-800' : 'bg-white dark:bg-gray-800/30 border-gray-100 dark:border-gray-800 hover:border-gold-200'}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={agreementCheckboxes[item.id]}
+                                                    onChange={e => setAgreementCheckboxes({ ...agreementCheckboxes, [item.id]: e.target.checked })}
+                                                    className="mt-1 w-5 h-5 text-gold-600 border-gray-300 rounded focus:ring-gold-500"
+                                                />
+                                                <span className={`text-sm font-bold ${agreementCheckboxes[item.id] ? 'text-gold-900 dark:text-gold-200' : 'text-gray-600 dark:text-gray-400'}`}>
+                                                    {item.label}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-4 pt-6">
+                                    <button
+                                        onClick={confirmEnrollment}
+                                        disabled={!Object.values(agreementCheckboxes).every(v => v)}
+                                        className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm transition-all shadow-2xl ${Object.values(agreementCheckboxes).every(v => v)
+                                            ? 'bg-gradient-to-r from-gold-600 to-yellow-600 text-white hover:scale-[1.02] active:scale-[0.98] shadow-gold-500/20'
+                                            : 'bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600 cursor-not-allowed'
+                                            }`}
+                                    >
+                                        Tandatangani & {safeCourse.price > 0 ? 'Lanjut Pembayaran' : 'Ambil Kelas Gratis'}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowAgreement(false)}
+                                        className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                                    >
+                                        Batalkan Pendaftaran
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <ErrorBoundary>
@@ -72,45 +241,56 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
                                 <div className="p-10 md:p-12 md:w-7/12 flex flex-col justify-center relative">
                                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">{safeCourse.title || 'Judul Kelas'}</h1>
 
-                                    <div className="flex flex-wrap gap-2 mb-6">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${safeCourse.course_type === 'online' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400'}`}>
-                                            {safeCourse.course_type === 'online' ? '🌐 Kelas Online' : '🏠 Kelas Offline'}
+                                    <div className="flex flex-wrap gap-2 mb-8">
+                                        <span className="px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400 text-xs font-bold uppercase tracking-wider flex items-center shadow-sm">
+                                            <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                            Kelas Offline (Tatap Muka)
                                         </span>
-                                        {safeCourse.course_type === 'online' && safeCourse.online_platform && (
-                                            <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full text-xs font-bold uppercase tracking-wider">
-                                                {safeCourse.online_platform}
-                                            </span>
-                                        )}
+                                    </div>
+
+                                    {/* Location & Schedule Info */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                        <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 shadow-sm">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Lokasi Pelaksanaan</p>
+                                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                                                <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                {safeCourse.location || 'Semarang'}
+                                            </p>
+                                        </div>
+                                        <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 shadow-sm">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tanggal & Waktu</p>
+                                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                                                <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                {safeCourse.schedule_at ? new Date(safeCourse.schedule_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Segera Hadir'}
+                                            </p>
+                                        </div>
+                                        <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 shadow-sm sm:col-span-2">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Kuota Pendaftaran</p>
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-1 h-3 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-100 dark:border-gray-700 shadow-inner">
+                                                    <div
+                                                        className={`h-full bg-gradient-to-r transition-all duration-1000 ${((safeCourse.users_count || 0) / (safeCourse.quota || 1) * 100) > 80 ? 'from-orange-500 to-red-600' : 'from-indigo-500 to-purple-600'}`}
+                                                        style={{ width: `${Math.min(100, (safeCourse.users_count || 0) / (safeCourse.quota || 1) * 100)}%` }}
+                                                    ></div>
+                                                </div>
+                                                <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+                                                    {safeCourse.users_count || 0} / {safeCourse.quota || 0} Terisi
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg font-light leading-relaxed whitespace-pre-line">{safeCourse.description || 'Tidak ada deskripsi.'}</p>
 
                                     {isEnrolled && (
                                         <div className="mb-8 p-6 rounded-2xl bg-gold-500/10 border border-gold-500/30 backdrop-blur-md">
-                                            <p className="text-xs font-bold text-gold-600 dark:text-gold-400 uppercase tracking-widest mb-2">Akses Khusus Pasien Terdaftar</p>
-                                            {safeCourse.course_type === 'online' ? (
-                                                <div className="space-y-4">
-                                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Silakan bergabung ke sesi melalui link di bawah ini:
-                                                    </p>
-                                                    <a
-                                                        href={safeCourse.online_link || '#'}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg hover:scale-[1.02]"
-                                                    >
-                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                                        Buka Link Pertemuan
-                                                    </a>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Lokasi Sesi:</p>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
-                                                        {safeCourse.location || 'Lokasi belum ditentukan.'}
-                                                    </p>
-                                                </div>
-                                            )}
+                                            <p className="text-xs font-bold text-gold-600 dark:text-gold-400 uppercase tracking-widest mb-2">Informasi Akses Peserta</p>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Lokasi Sesi:</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                                                    {safeCourse.location || 'Lokasi belum ditentukan.'}
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
 
@@ -132,16 +312,14 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
                                                     Masuk untuk Mendaftar
                                                     <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                                 </Link>
-                                            ) : Number(safeCourse.price || 0) === 0 ? (
-                                                <Link href={route('courses.enroll', safeCourse.slug)} method="post" as="button" type="button" className="inline-flex items-center justify-center px-8 py-4 text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full font-bold shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_25px_rgba(16,185,129,0.5)] transition-all hover:-translate-y-1 hover:from-emerald-600 hover:to-teal-600 group">
-                                                    Daftar Kelas Gratis
-                                                    <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                                </Link>
                                             ) : (
-                                                <Link href={route('courses.enroll', safeCourse.slug)} method="post" as="button" type="button" className="inline-flex items-center justify-center px-8 py-4 text-white bg-gradient-to-r from-gold-500 to-yellow-500 rounded-full font-bold shadow-[0_8px_20px_rgba(208,170,33,0.3)] hover:shadow-[0_12px_25px_rgba(208,170,33,0.5)] transition-all hover:-translate-y-1 hover:from-gold-600 hover:to-yellow-600 group">
-                                                    Beli Kelas Sekarang
+                                                <button
+                                                    onClick={handleEnrollmentClick}
+                                                    className={`inline-flex items-center justify-center px-8 py-4 text-white bg-gradient-to-r ${Number(safeCourse.price || 0) === 0 ? 'from-emerald-500 to-teal-500 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:from-emerald-600 hover:to-teal-600' : 'from-gold-500 to-yellow-500 shadow-[0_8px_20px_rgba(208,170,33,0.3)] hover:from-gold-600 hover:to-yellow-600'} rounded-full font-bold transition-all hover:-translate-y-1 group`}
+                                                >
+                                                    {Number(safeCourse.price || 0) === 0 ? 'Daftar Kelas Gratis' : 'Beli Kelas Sekarang'}
                                                     <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                                </Link>
+                                                </button>
                                             )}
                                         </div>
                                     </div>

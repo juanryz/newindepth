@@ -6,6 +6,7 @@ import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import VisionMissionSection from '@/Components/VisionMissionSection';
 import LiquidBackground from '@/Components/LiquidBackground';
+import DisclaimerSection from '@/Components/DisclaimerSection';
 
 export default function Welcome({ auth, articles, courses }) {
 
@@ -492,6 +493,8 @@ export default function Welcome({ auth, articles, courses }) {
                 </div>
             </div>
 
+
+            <DisclaimerSection />
 
             <Footer />
         </div>

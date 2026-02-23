@@ -111,7 +111,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Terapis</dt>
-                                    <dd className="mt-1 text-sm text-gray-900 font-semibold">{booking.schedule.therapist?.name || '-'}</dd>
+                                    <dd className="mt-1 text-sm text-gray-900 font-semibold">{booking.therapist?.name || booking.schedule.therapist?.name || '-'}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500">Tanggal</dt>
@@ -132,6 +132,21 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                     </dd>
                                 </div>
                             </dl>
+
+                            {booking.reschedule_reason && (
+                                <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                                    <h4 className="text-xs font-black text-amber-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        Pemberitahuan Perubahan Jadwal
+                                    </h4>
+                                    <p className="text-sm font-medium text-amber-800 leading-relaxed italic">
+                                        "{booking.reschedule_reason}"
+                                    </p>
+                                    <p className="text-[10px] text-amber-600 font-bold mt-2 uppercase">
+                                        Diperbarui pada: {new Date(booking.rescheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -169,6 +184,31 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                         Pastikan Anda mentransfer <strong>tepat sesuai nominal di atas hingga 3 digit terakhir</strong> untuk memastikan kelancaran verifikasi sistem kami.
                                     </div>
                                 )}
+
+                                {/* REDAKSI UNTUK DASHBOARD / INVOICE */}
+                                <div className="mt-6 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Kebijakan & Ketentuan Final
+                                    </h4>
+                                    <div className="space-y-3">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                            Pembayaran Anda telah diterima dan bersifat <strong>FINAL</strong> sesuai kebijakan InDepth Mental Wellness. Transaksi ini tidak dapat dibatalkan dan tidak dapat direfund.
+                                        </p>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {[
+                                                'Menyetujui Kebijakan Non-Refund',
+                                                'Menyetujui Persetujuan Elektronik (UU ITE)',
+                                                'Mengunci slot waktu / akses sistem',
+                                            ].map((text, i) => (
+                                                <div key={i} className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    {text}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage, Link } from '@inertiajs/react';
 import axios from 'axios';
@@ -120,7 +120,22 @@ export default function Screening() {
         nama: prefill.nama || '',
         email: prefill.email || '',
         wa: prefill.wa || '',
+        gender: prefill.gender || '',
+        usia: prefill.usia || '',
     });
+
+    useEffect(() => {
+        if (Object.keys(prefill).length > 0) {
+            setStepData(prev => ({
+                ...prev,
+                nama: prev.nama || prefill.nama || '',
+                email: prev.email || prefill.email || '',
+                wa: prev.wa || prefill.wa || '',
+                gender: prev.gender || prefill.gender || '',
+                usia: prev.usia || prefill.usia || '',
+            }));
+        }
+    }, [prefill]);
     const [chatHistory, setChatHistory] = useState([]);
     const [aiTyping, setAiTyping] = useState(false);
     const [aiMessages, setAiMessages] = useState({});   // { step: [{ role, content }] }
@@ -128,11 +143,13 @@ export default function Screening() {
     const [submitting, setSubmitting] = useState(false);
 
     // Track which fields were auto-filled
-    const autofilled = {
+    const autofilled = useMemo(() => ({
         nama: !!prefill.nama,
         email: !!prefill.email,
         wa: !!prefill.wa,
-    };
+        gender: !!prefill.gender,
+        usia: !!prefill.usia,
+    }), [prefill]);
 
     const chatEndRef = useRef(null);
 
@@ -315,7 +332,7 @@ export default function Screening() {
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
     if (screeningResult) {
-        const severityClass = severityColors[screeningResult.severity_label] ?? 'bg-indigo-100 text-indigo-800';
+
         const packageLabel = screeningResult.recommended_package
             ? (screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
             : null;
@@ -339,13 +356,7 @@ export default function Screening() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                                    <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
-                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Tingkat Keparahan</span>
-                                        <div className={`inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold ${severityClass}`}>
-                                            {screeningResult.severity_label}
-                                        </div>
-                                    </div>
+                                <div className="grid grid-cols-1 gap-6 mb-10">
                                     <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
                                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Rekomendasi Paket</span>
                                         <div className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
@@ -353,30 +364,6 @@ export default function Screening() {
                                         </div>
                                     </div>
                                 </div>
-
-                                {screeningResult.ai_summary && (
-                                    <div className="mb-10">
-                                        <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                            Analisis AI InDepth
-                                        </h4>
-                                        <div className="relative p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl">
-                                            <p className={`text-gray-700 dark:text-gray-300 leading-relaxed ${!isSummaryExpanded ? 'line-clamp-6' : ''}`}>
-                                                {screeningResult.ai_summary}
-                                            </p>
-                                            {screeningResult.ai_summary.length > 400 && (
-                                                <button
-                                                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                                                    className="mt-4 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                                                >
-                                                    {isSummaryExpanded ? 'Sembunyikan' : 'Baca analisis lengkap...'}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
 
 
                             </div>
@@ -532,7 +519,7 @@ function Step1({ data, update, autofilled = {} }) {
     return (
         <div className="space-y-4">
             {/* Auto-fill notice */}
-            {(autofilled.nama || autofilled.email || autofilled.wa) && (
+            {(autofilled.nama || autofilled.email || autofilled.wa || autofilled.gender || autofilled.usia) && (
                 <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/50 text-xs text-green-700 dark:text-green-400">
                     <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -549,7 +536,17 @@ function Step1({ data, update, autofilled = {} }) {
                 required
             />
             <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Kelamin *</label>
+                <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Kelamin *</label>
+                    {autofilled.gender && (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            otomatis
+                        </span>
+                    )}
+                </div>
                 <div className="flex gap-3">
                     {['Laki-laki', 'Perempuan'].map(g => (
                         <button
@@ -563,7 +560,14 @@ function Step1({ data, update, autofilled = {} }) {
                     ))}
                 </div>
             </div>
-            <InputField label="Usia" type="number" value={data.usia} onChange={v => update('usia', v)} required />
+            <AutofillInputField
+                label="Usia"
+                type="number"
+                value={data.usia}
+                onChange={v => update('usia', v)}
+                autoFilled={autofilled.usia}
+                required
+            />
             {under17 && (
                 <label className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 rounded-xl text-sm text-yellow-800 dark:text-yellow-400 cursor-pointer">
                     <input type="checkbox" checked={!!data.izin_wali} onChange={e => update('izin_wali', e.target.checked)} className="mt-0.5 accent-yellow-600" />

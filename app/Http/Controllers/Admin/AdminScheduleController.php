@@ -106,8 +106,17 @@ class AdminScheduleController extends Controller
     {
         $schedule->load(['therapist', 'bookings.patient.screeningResults', 'bookings.therapist']);
 
+        $availableSchedules = Schedule::with('therapist')
+            ->where('date', '>=', now()->toDateString())
+            ->where('status', 'available')
+            ->whereColumn('booked_count', '<', 'quota')
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
         return Inertia::render('Admin/Schedules/Show', [
-            'schedule' => $schedule
+            'schedule' => $schedule,
+            'availableSchedules' => $availableSchedules
         ]);
     }
 

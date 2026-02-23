@@ -49,10 +49,22 @@ class AdminBookingController extends Controller
             'therapist_id' => 'required|exists:users,id',
         ]);
 
+        $oldTherapistId = $booking->therapist_id;
         $booking->update([
             'therapist_id' => $request->therapist_id,
         ]);
 
+        // If booking was already confirmed, notify the patient of the change
+        if (in_array($booking->status, ['confirmed', 'in_progress']) && $oldTherapistId != $request->therapist_id) {
+            try {
+                $booking->patient->notify(new \App\Notifications\TherapistAssigned($booking));
+            }
+            catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to notify patient of therapist change: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Terapis berhasil ditugaskan.');
     }
 
     public function updateDetails(Request $request, Booking $booking)

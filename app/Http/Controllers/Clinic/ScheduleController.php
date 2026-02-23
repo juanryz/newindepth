@@ -55,9 +55,35 @@ class ScheduleController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        $allSchedulesQuery = Schedule::with(['therapist', 'bookings.patient']);
+        if (!$isAdmin) {
+            $allSchedulesQuery->where('therapist_id', $user->id);
+        }
+
+        $allSchedules = $allSchedulesQuery->get()
+            ->map(function ($schedule) {
+            $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
+            $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
+            $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
+
+            return [
+            'id' => $schedule->id,
+            'title' => $schedule->bookings->count() > 0 ? $schedule->bookings->first()->patient->name : 'Tersedia',
+            'start' => $date . 'T' . $startTime,
+            'end' => $date . 'T' . $endTime,
+            'extendedProps' => [
+            'bookings' => $schedule->bookings,
+            'therapist' => $schedule->therapist,
+            'schedule_type' => $schedule->schedule_type,
+            'status' => $schedule->status,
+            ]
+            ];
+        });
+
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
             'availableSchedules' => $availableSchedules,
+            'calendarSchedules' => $allSchedules,
         ]);
     }
 
@@ -74,13 +100,21 @@ class ScheduleController extends Controller
 
         $user->load([
             'screeningResults' => fn($q) => $q->latest(),
-            'bookings' => fn($q) => $q->with(['schedule.therapist'])->latest(),
+            'bookings' => fn($q) => $q->with(['schedule.therapist', 'therapist'])->latest(),
             'courses',
         ]);
+
+        $availableSchedules = Schedule::where('date', '>=', now()->toDateString())
+            ->where('status', 'available')
+            ->whereColumn('booked_count', '<', 'quota')
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
 
         return Inertia::render('Clinic/Schedules/PatientDetail', [
             'patient' => $user,
             'profileProgress' => $user->getProfileCompletionStats(),
+            'availableSchedules' => $availableSchedules,
             'fromBookingId' => $request->query('from_booking_id'),
         ]);
     }

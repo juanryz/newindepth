@@ -10,6 +10,7 @@ class Course extends Model
 
     protected $casts = [
         'is_published' => 'boolean',
+        'schedule_at' => 'datetime',
     ];
 
     public function lessons()

@@ -74,7 +74,7 @@ class DashboardController extends Controller
             $therapistUpcomingSessions = (clone $baseBookingQuery)
                 ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
                 ->select('bookings.*')
-                ->with(['patient', 'schedule.therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist'])
                 ->whereIn('bookings.status', ['confirmed'])
                 ->where('schedules.date', '>=', now()->toDateString())
                 ->orderBy('schedules.date', 'asc')
@@ -84,13 +84,13 @@ class DashboardController extends Controller
 
             // Ongoing sessions (in_progress)
             $therapistActiveSessions = (clone $baseBookingQuery)
-                ->with(['patient', 'schedule.therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist'])
                 ->where('status', 'in_progress')
                 ->get();
 
             // Past sessions (completed)
             $therapistPastSessions = (clone $baseBookingQuery)
-                ->with(['patient', 'schedule.therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist'])
                 ->where('status', 'completed')
                 ->latest('updated_at')
                 ->take(10)
@@ -99,7 +99,7 @@ class DashboardController extends Controller
             // Therapist Stats (Global if admin, otherwise specific)
             $therapistStats = [
                 'total_sessions' => (clone $baseBookingQuery)->where('status', 'completed')->count(),
-                'total_patients' => (clone $baseBookingQuery)->distinct('patient_id')->count('patient_id'),
+                'total_patients' => (clone $baseBookingQuery)->distinct()->count('patient_id'),
                 'active_courses' => (clone $baseCourseQuery)->count(),
             ];
         }

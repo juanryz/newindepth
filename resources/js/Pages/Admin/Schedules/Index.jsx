@@ -103,6 +103,20 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
         .dark .fc-toolbar-title {
             color: #f8fafc;
         }
+        .fc-daygrid-day-number {
+            font-weight: 400 !important;
+            font-size: 14px !important;
+            color: #475569;
+        }
+        .dark .fc-daygrid-day-number {
+            color: #94a3b8;
+        }
+        .fc-daygrid-day-top {
+            font-weight: 400 !important;
+        }
+        .fc-daygrid-event {
+            font-weight: 500 !important;
+        }
         .fc-button-primary {
             background-color: white !important;
             border: 1px solid rgba(0,0,0,0.05) !important;

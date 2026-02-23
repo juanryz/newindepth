@@ -1,8 +1,27 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import InputLabel from '@/Components/InputLabel';
+import TextInput from '@/Components/TextInput';
+import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Show({ schedule }) {
+export default function Show({ schedule, availableSchedules }) {
+    // Modal states
+    const [selectedRescheduleBooking, setSelectedRescheduleBooking] = useState(null);
+    const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
+
+    // Form for Rescheduling
+    const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
+        new_schedule_id: '',
+        reschedule_reason: '',
+    });
+
+    // Form for No-Show
+    const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
+        no_show_party: 'patient',
+        no_show_reason: '',
+    });
     // State for local edits
     const [editingDetails, setEditingDetails] = useState(() => {
         const initialEdits = {};
@@ -32,6 +51,28 @@ export default function Show({ schedule }) {
             therapist_notes: details.therapist_notes,
         }, {
             preserveScroll: true
+        });
+    };
+
+    const handleReschedule = (e) => {
+        e.preventDefault();
+        postReschedule(route('admin.bookings.reschedule', selectedRescheduleBooking.id), {
+            onSuccess: () => {
+                setSelectedRescheduleBooking(null);
+                resetReschedule();
+            },
+            preserveScroll: true,
+        });
+    };
+
+    const handleNoShow = (e) => {
+        e.preventDefault();
+        postNoShow(route('admin.bookings.no-show', selectedNoShowBooking.id), {
+            onSuccess: () => {
+                setSelectedNoShowBooking(null);
+                resetNoShow();
+            },
+            preserveScroll: true,
         });
     };
 
@@ -127,12 +168,22 @@ export default function Show({ schedule }) {
                                                         <div className="text-sm font-bold text-gray-400">{patient?.email}</div>
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col items-center sm:items-end">
+                                                <div className="flex flex-col items-center sm:items-end gap-2">
                                                     <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${booking.package_type === 'vip'
                                                         ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
                                                         : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
                                                         }`}>
                                                         Paket {booking.package_type || 'reguler'}
+                                                    </span>
+                                                    <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${booking.status === 'confirmed' ? 'bg-blue-100 text-blue-600' :
+                                                        booking.status === 'completed' ? 'bg-emerald-100 text-emerald-600' :
+                                                            booking.status === 'cancelled' ? 'bg-red-100 text-red-600' :
+                                                                'bg-gray-100 text-gray-600'
+                                                        }`}>
+                                                        {booking.status === 'confirmed' ? 'Dikonfirmasi' :
+                                                            booking.status === 'completed' ? 'Selesai' :
+                                                                booking.status === 'in_progress' ? 'Sedang Berlangsung' :
+                                                                    booking.status}
                                                     </span>
                                                 </div>
                                             </div>
@@ -209,19 +260,84 @@ export default function Show({ schedule }) {
                                                         ></textarea>
                                                     </div>
 
-                                                    <div className="flex justify-end pt-4">
+                                                    <div className="flex flex-wrap justify-between items-center pt-8 border-t border-gray-50 dark:border-gray-800 gap-4">
+                                                        <div className="flex gap-3">
+                                                            <button
+                                                                onClick={() => setSelectedRescheduleBooking(booking)}
+                                                                disabled={booking.status === 'completed'}
+                                                                className="px-6 py-4 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all border border-amber-100 dark:border-amber-900/30 disabled:opacity-50"
+                                                            >
+                                                                Reschedule
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setSelectedNoShowBooking(booking)}
+                                                                disabled={booking.status === 'completed'}
+                                                                className="px-6 py-4 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-100 dark:border-red-900/30 disabled:opacity-50"
+                                                            >
+                                                                No-Show / Batal
+                                                            </button>
+                                                        </div>
+
                                                         <button
                                                             onClick={() => updateBookingDetails(booking.id)}
                                                             disabled={
                                                                 editingDetails[booking.id]?.recording_link === (booking.recording_link || '') &&
                                                                 editingDetails[booking.id]?.therapist_notes === (booking.therapist_notes || '')
                                                             }
-                                                            className="px-12 py-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 dark:disabled:bg-gray-800 text-white disabled:text-gray-400 font-black text-[10px] uppercase tracking-widest rounded-3xl transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 flex items-center gap-3"
+                                                            className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 dark:disabled:bg-gray-800 text-white disabled:text-gray-400 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-indigo-600/20 active:scale-95 flex items-center gap-3"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                                                            Simpan Perubahan
+                                                            Simpan Detail
                                                         </button>
                                                     </div>
+
+                                                    {booking.status === 'completed' && (
+                                                        <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 border-2 border-emerald-100 dark:border-emerald-800/30 rounded-3xl space-y-4 shadow-sm">
+                                                            <div className="flex items-center justify-between">
+                                                                <h4 className="text-[10px] font-black text-emerald-700 dark:text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                    Hasil Sesi Terakhir
+                                                                </h4>
+                                                                <span className="text-[8px] font-black text-emerald-600/50 uppercase">Finalized</span>
+                                                            </div>
+                                                            <div className="space-y-3">
+                                                                <div>
+                                                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter mb-1">Catatan Diagnosa / Sesi:</p>
+                                                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                                                                        "{booking.therapist_notes || 'Tidak ada catatan.'}"
+                                                                    </p>
+                                                                </div>
+                                                                {booking.recording_link && (
+                                                                    <div className="pt-2">
+                                                                        <a
+                                                                            href={booking.recording_link}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md"
+                                                                        >
+                                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                                            Buka Rekaman Sesi
+                                                                        </a>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {booking.reschedule_reason && (
+                                                        <div className="mt-6 p-6 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-800/30 rounded-3xl">
+                                                            <p className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase flex items-center gap-2 mb-2">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                Keterangan Reschedule / Perubahan
+                                                            </p>
+                                                            <p className="text-sm font-medium text-amber-800 dark:text-amber-300 italic">
+                                                                "{booking.reschedule_reason}"
+                                                                <span className="block mt-2 text-[9px] font-black opacity-60 not-italic uppercase tracking-wider">
+                                                                    Rescheduled At: {new Date(booking.rescheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -237,6 +353,108 @@ export default function Show({ schedule }) {
                     </div>
                 </div>
             </div>
+
+            {/* Modal: Reschedule Session */}
+            <Modal show={selectedRescheduleBooking !== null} onClose={() => setSelectedRescheduleBooking(null)}>
+                <form onSubmit={handleReschedule} className="p-8 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-[2.5rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Jadwal Ulang (Admin)</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-bold">Pasien: <span className="text-indigo-600">{selectedRescheduleBooking?.patient?.name}</span></p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Baru" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="new_schedule_id"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={rescheduleData.new_schedule_id}
+                                onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
+                                required
+                            >
+                                <option value="">-- Pilih Slot Tersedia --</option>
+                                {availableSchedules
+                                    ?.filter(s => s.id !== selectedRescheduleBooking?.schedule_id)
+                                    .map(s => (
+                                        <option key={s.id} value={s.id}>
+                                            {new Date(s.date).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })} | {s.start_time?.substring(0, 5)} WIB | {s.therapist?.name || 'Belum diatur'}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan (Akan Muncul di Dashboard Pasien)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <textarea
+                                id="reschedule_reason"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all resize-none dark:text-gray-200"
+                                rows="3"
+                                placeholder="Misal: Praktisi sedang berhalangan, atau permintaan pasien..."
+                                value={rescheduleData.reschedule_reason}
+                                onChange={(e) => setRescheduleData('reschedule_reason', e.target.value)}
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setSelectedRescheduleBooking(null)} disabled={rescheduling} className="rounded-2xl px-6">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={rescheduling || !rescheduleData.new_schedule_id}
+                            className={`inline-flex items-center px-8 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95 ${(rescheduling || !rescheduleData.new_schedule_id) && 'opacity-25'}`}
+                        >
+                            Konfirmasi Jadwal Ulang
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Modal: Mark No-Show / Cancel */}
+            <Modal show={selectedNoShowBooking !== null} onClose={() => setSelectedNoShowBooking(null)}>
+                <form onSubmit={handleNoShow} className="p-8 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-[2.5rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Batalkan / No-Show</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-bold">Pasien: <span className="text-red-600">{selectedNoShowBooking?.patient?.name}</span></p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="no_show_party" value="Keterangan Pihak Berhalangan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="no_show_party"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={noShowData.no_show_party}
+                                onChange={(e) => setNoShowData('no_show_party', e.target.value)}
+                                required
+                            >
+                                <option value="patient">Pasien Tidak Hadir</option>
+                                <option value="therapist">Praktisi Berhalangan / Batalkan</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="no_show_reason" value="Alasan Pembatalan / No-Show" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <textarea
+                                id="no_show_reason"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all resize-none dark:text-gray-200"
+                                rows="3"
+                                placeholder="Berikan detail singkat alasan..."
+                                value={noShowData.no_show_reason}
+                                onChange={(e) => setNoShowData('no_show_reason', e.target.value)}
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setSelectedNoShowBooking(null)} disabled={markingNoShow} className="rounded-2xl px-6">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={markingNoShow}
+                            className={`inline-flex items-center px-8 py-3 bg-red-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95 ${markingNoShow && 'opacity-25'}`}
+                        >
+                            Konfirmasi Pembatalan
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

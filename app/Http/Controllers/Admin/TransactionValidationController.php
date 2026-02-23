@@ -43,21 +43,27 @@ class TransactionValidationController extends Controller
                 if ($transaction->transactionable_type === \App\Models\Booking::class) {
                     $booking = $transaction->transactionable;
 
-                    // Determine therapist: use admin's choice, or auto-assign randomly
+                    // Determine therapist: use admin's choice, or auto-assign
                     $therapistId = $request->therapist_id;
                     if (!$therapistId) {
-                        // Collect therapists already booked for this slot
-                        $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
-                            ->whereNotIn('status', ['failed', 'cancelled'])
-                            ->whereNotNull('therapist_id')
-                            ->pluck('therapist_id')
-                            ->toArray();
+                        // Priority 1: Use therapist from the schedule if it exists
+                        if ($booking->schedule && $booking->schedule->therapist_id) {
+                            $therapistId = $booking->schedule->therapist_id;
+                        }
+                        else {
+                            // Priority 2: Random assignment from available therapists for this slot
+                            $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
+                                ->whereNotIn('status', ['failed', 'cancelled'])
+                                ->whereNotNull('therapist_id')
+                                ->pluck('therapist_id')
+                                ->toArray();
 
-                        $available = User::role('therapist')
-                            ->whereNotIn('id', $bookedIds)
-                            ->get();
+                            $available = User::role('therapist')
+                                ->whereNotIn('id', $bookedIds)
+                                ->get();
 
-                        $therapistId = $available->count() > 0 ? $available->random()->id : null;
+                            $therapistId = $available->count() > 0 ? $available->random()->id : null;
+                        }
                     }
 
                     $booking->update([
@@ -78,11 +84,13 @@ class TransactionValidationController extends Controller
                     try {
                         \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
                         $transaction->user->notify(new BookingConfirmed($booking));
-                    } catch (\Throwable $m) {
+                    }
+                    catch (\Throwable $m) {
                         \Illuminate\Support\Facades\Log::error('Notification Failure during validation: ' . $m->getMessage());
                     }
 
-                } else if ($transaction->transactionable_type === \App\Models\Course::class) {
+                }
+                else if ($transaction->transactionable_type === \App\Models\Course::class) {
                     // Enroll user to course
                     $transaction->transactionable->users()->attach($transaction->user_id, [
                         'transaction_id' => $transaction->id,
@@ -94,7 +102,8 @@ class TransactionValidationController extends Controller
             });
 
             return redirect()->back()->with('success', 'Transaksi berhasil divalidasi.');
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Validation Error: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Gagal memvalidasi transaksi: ' . $e->getMessage()]);
         }

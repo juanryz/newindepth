@@ -49,10 +49,10 @@ class BookingService
             ]);
 
             $basePrice = match ($data['package_type']) {
-                'vip' => 8000000,
-                'upgrade' => 1500000,
-                default => 1000000,
-            };
+                    'vip' => 8000000,
+                    'upgrade' => 1500000,
+                    default => 1000000,
+                };
             $uniqueCode = rand(101, 999);
             $amount = $basePrice + $uniqueCode;
 
@@ -61,6 +61,15 @@ class BookingService
                 'invoice_number' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(10)),
                 'amount' => $amount,
                 'status' => 'pending',
+                'ip_address' => request()->ip(),
+                'payment_agreement_data' => [
+                    'agreed_to_refund_policy' => (bool)($data['agree_refund'] ?? false),
+                    'agreed_to_final_payment' => (bool)($data['agree_final'] ?? false),
+                    'agreed_to_access_terms' => (bool)($data['agree_access'] ?? false),
+                    'agreed_to_no_chargeback' => (bool)($data['agree_chargeback'] ?? false),
+                    'timestamp' => now()->toDateTimeString(),
+                    'user_agent' => request()->userAgent(),
+                ],
             ]);
 
             return $booking;

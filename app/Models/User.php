@@ -83,6 +83,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'agreement_signed',
         'agreement_signed_at',
         'agreement_data',
+        'affiliate_agreement_signed_at',
+        'affiliate_signature',
     ];
 
     /**
@@ -109,6 +111,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'agreement_data' => 'json',
             'screening_completed_at' => 'datetime',
             'agreement_signed_at' => 'datetime',
+            'affiliate_agreement_signed_at' => 'datetime',
         ];
     }
 
@@ -168,6 +171,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // Agreement expires after 1 year (365 days)
         return $this->agreement_signed_at->diffInDays(now()) < 365;
+    }
+
+    public function hasSignedAffiliateAgreement(): bool
+    {
+        return !is_null($this->affiliate_agreement_signed_at);
     }
 
     public function getProfileCompletionStats(): array

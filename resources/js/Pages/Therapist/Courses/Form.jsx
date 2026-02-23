@@ -13,14 +13,14 @@ export default function CoursesForm({ course }) {
     const { data, setData, post, processing, errors } = useForm({
         title: course.title || '',
         description: course.description || '',
-        course_type: course.course_type || 'online',
-        online_platform: course.online_platform || '',
-        online_link: course.online_link || '',
+        course_type: 'offline', // Forced to offline
+        quota: course.quota || 1,
+        schedule_at: course.schedule_at ? course.schedule_at.split(' ')[0] + 'T' + course.schedule_at.split(' ')[1].substring(0, 5) : '',
         location: course.location || '',
         price: course.price || 0,
         thumbnail: null,
         is_published: course.is_published || false,
-        _method: isEditing ? 'put' : 'post', // Inertia workaround for file uploads with PUT
+        _method: isEditing ? 'put' : 'post',
     });
 
     const handleImageChange = (e) => {
@@ -80,70 +80,61 @@ export default function CoursesForm({ course }) {
                                 </div>
                             </div>
 
-                            {/* Course Type, Platform/Location */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Course Type, Quota, Schedule */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <InputLabel htmlFor="course_type" value="Tipe Kelas" />
                                     <select
                                         id="course_type"
-                                        className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm bg-gray-100 dark:bg-gray-800"
                                         value={data.course_type}
-                                        onChange={(e) => setData('course_type', e.target.value)}
-                                        required
+                                        disabled
                                     >
-                                        <option value="online">Online</option>
                                         <option value="offline">Offline (Tatap Muka)</option>
                                     </select>
+                                    <p className="text-[10px] text-gray-500 mt-1">Saat ini hanya pendaftaran kelas offline yang tersedia.</p>
                                     <InputError message={errors.course_type} className="mt-2" />
                                 </div>
+                                <div>
+                                    <InputLabel htmlFor="quota" value="Jumlah Kuota Peserta" />
+                                    <TextInput
+                                        id="quota"
+                                        type="number"
+                                        min="1"
+                                        className="mt-1 block w-full"
+                                        value={data.quota}
+                                        onChange={(e) => setData('quota', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.quota} className="mt-2" />
+                                </div>
+                                <div>
+                                    <InputLabel htmlFor="schedule_at" value="Tanggal & Waktu Jadwal" />
+                                    <TextInput
+                                        id="schedule_at"
+                                        type="datetime-local"
+                                        className="mt-1 block w-full"
+                                        value={data.schedule_at}
+                                        onChange={(e) => setData('schedule_at', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.schedule_at} className="mt-2" />
+                                </div>
+                            </div>
 
-                                {data.course_type === 'online' && (
-                                    <>
-                                        <div>
-                                            <InputLabel htmlFor="online_platform" value="Platform Online (Zoom, Meet, dll)" />
-                                            <TextInput
-                                                id="online_platform"
-                                                type="text"
-                                                className="mt-1 block w-full"
-                                                value={data.online_platform}
-                                                onChange={(e) => setData('online_platform', e.target.value)}
-                                                placeholder="Contoh: Zoom Meeting"
-                                                required={data.course_type === 'online'}
-                                            />
-                                            <InputError message={errors.online_platform} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel htmlFor="online_link" value="Link Meeting (Zoom/GMeet/dll)" />
-                                            <TextInput
-                                                id="online_link"
-                                                type="url"
-                                                className="mt-1 block w-full"
-                                                value={data.online_link}
-                                                onChange={(e) => setData('online_link', e.target.value)}
-                                                placeholder="https://zoom.us/j/..."
-                                                required={data.course_type === 'online'}
-                                            />
-                                            <p className="text-[10px] text-gray-500 mt-1">*Link ini hanya akan tampil bagi pasien yang sudah membeli kelas.</p>
-                                            <InputError message={errors.online_link} className="mt-2" />
-                                        </div>
-                                    </>
-                                )}
-
-                                {data.course_type === 'offline' && (
-                                    <div>
-                                        <InputLabel htmlFor="location" value="Lokasi / Alamat" />
-                                        <TextInput
-                                            id="location"
-                                            type="text"
-                                            className="mt-1 block w-full"
-                                            value={data.location}
-                                            onChange={(e) => setData('location', e.target.value)}
-                                            placeholder="Contoh: Klinik InDepth, Jakarta"
-                                            required={data.course_type === 'offline'}
-                                        />
-                                        <InputError message={errors.location} className="mt-2" />
-                                    </div>
-                                )}
+                            {/* Location */}
+                            <div>
+                                <InputLabel htmlFor="location" value="Lokasi / Alamat Pelaksanaan" />
+                                <TextInput
+                                    id="location"
+                                    type="text"
+                                    className="mt-1 block w-full"
+                                    value={data.location}
+                                    onChange={(e) => setData('location', e.target.value)}
+                                    placeholder="Contoh: Klinik InDepth, Semarang"
+                                    required
+                                />
+                                <InputError message={errors.location} className="mt-2" />
                             </div>
 
                             {/* Deskripsi */}

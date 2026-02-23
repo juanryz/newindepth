@@ -48,7 +48,7 @@ class UserController extends Controller
         $transactions = [];
 
         if ($user->hasRole('patient')) {
-            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction'])
+            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
                 ->where('patient_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -61,14 +61,14 @@ class UserController extends Controller
         if ($user->hasRole('therapist')) {
             $schedules = \App\Models\Schedule::withCount('bookings')
                 ->whereHas('bookings', function ($q) use ($user) {
-                    $q->where('therapist_id', $user->id);
-                })
+                $q->where('therapist_id', $user->id);
+            })
                 ->orWhere('therapist_id', $user->id) // If legacy link exists
                 ->orderBy('date', 'desc')
                 ->get();
 
             // Bookings where they are the therapist
-            $bookings = \App\Models\Booking::with(['patient', 'schedule'])
+            $bookings = \App\Models\Booking::with(['patient', 'schedule', 'therapist'])
                 ->where('therapist_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
