@@ -51,12 +51,6 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link
-                        href={route('admin.users.index')}
-                        className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shadow-sm"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </Link>
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 dark:text-white leading-tight">Detail User</h2>
                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mt-1">Manajemen Pengguna</p>
