@@ -12,6 +12,8 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'articles' => \App\Models\BlogPost::with('author')->where('is_published', true)->latest('published_at')->take(3)->get(),
+        'courses' => \App\Models\Course::where('is_published', true)->latest()->take(3)->get(),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);

@@ -50,7 +50,12 @@ export default function AgreementDetail({ userModel }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="font-bold text-xl text-gray-800 dark:text-white leading-tight">Dokumen Persetujuan — {userModel.name}</h2>
+                <div className="flex items-center gap-4">
+                    <Link href={route('dashboard')} className="p-2 -ml-2 text-gray-500 hover:text-gold-600 dark:text-gray-400 dark:hover:text-gold-400 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    </Link>
+                    <h2 className="font-bold text-xl text-gray-800 dark:text-white leading-tight">Dokumen Persetujuan — {userModel.name}</h2>
+                </div>
             }
         >
             <Head title={`Dokumen Persetujuan — ${userModel.name}`} />
@@ -61,7 +66,7 @@ export default function AgreementDetail({ userModel }) {
                     {/* --- DOKUMEN 1: PERNYATAAN AWAL --- */}
                     <div className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none border border-gray-100 dark:border-gray-800">
                         <div className="bg-indigo-700 text-white p-6 text-center">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Dokumen 1 dari 2</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Dokumen 1 dari 3</span>
                             <h1 className="text-xl font-black tracking-tight mt-1">Form Pernyataan Awal & Persetujuan Layanan</h1>
                         </div>
 
@@ -153,20 +158,22 @@ export default function AgreementDetail({ userModel }) {
                     {/* --- DOKUMEN 2: SURAT PERJANJIAN LAYANAN --- */}
                     <div className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none border border-gray-100 dark:border-gray-800">
                         <div className="bg-gray-800 text-white p-6 text-center">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Dokumen 2 dari 2</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Dokumen 2 dari 3</span>
                             <h1 className="text-xl font-black tracking-tight mt-1 uppercase">Surat Perjanjian Layanan Hipnoterapi</h1>
                         </div>
 
                         <div className="p-8 sm:p-10 font-serif text-sm leading-relaxed text-gray-800 dark:text-gray-300 space-y-6">
                             <div className="text-center mb-8 not-serif">
                                 <p className="font-bold text-gray-900 dark:text-white underline">SURAT PERJANJIAN LAYANAN</p>
-                                <p className="text-xs text-gray-500">Nomor: ID/{userModel.id}/{new Date(userModel.agreement_signed_at).getTime()}</p>
+                                <p className="text-xs text-gray-500">Nomor: ID/{userModel.id}/{userModel.agreement_signed_at ? new Date(userModel.agreement_signed_at).getTime() : 'N/A'}</p>
                             </div>
 
-                            <p>Saya yang bertanda tangan di bawah ini:</p>
+                            <p className="font-bold">PASAL 1 - IDENTITAS KLIEN</p>
                             <table className="w-full max-w-md ml-4 text-xs">
                                 <tbody>
                                     <tr><td className="py-1 w-32 font-bold uppercase">Nama Lengkap</td><td className="py-1">: {userModel.name}</td></tr>
+                                    <tr><td className="py-1 font-bold uppercase">Usia</td><td className="py-1">: {userModel.age || '-'} Tahun</td></tr>
+                                    <tr><td className="py-1 font-bold uppercase">Jenis Kelamin</td><td className="py-1">: {userModel.gender || '-'}</td></tr>
                                     <tr><td className="py-1 font-bold uppercase">Email</td><td className="py-1">: {userModel.email}</td></tr>
                                     <tr><td className="py-1 font-bold uppercase">Telepon</td><td className="py-1">: {userModel.phone || '-'}</td></tr>
                                 </tbody>
@@ -174,35 +181,33 @@ export default function AgreementDetail({ userModel }) {
 
                             <p>Dengan ini menyatakan secara sadar, tanpa tekanan, tanpa paksaan, dan dalam kondisi mental stabil menyetujui mengikuti layanan hipnoterapi di <strong>InDepth Mental Wellness</strong> dengan ketentuan sebagai berikut:</p>
 
-                            <div className="space-y-4">
+                            <div className="space-y-6 not-serif">
                                 <div>
-                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 1 - PERNYATAAN KESEHATAN</p>
+                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 2 - BATAS USIA DAN WALI</p>
+                                    <p className="text-xs">Klien di bawah 21 tahun wajib didampingi dan memperoleh persetujuan tertulis dari orang tua atau wali sah. Jika klien menyatakan telah mendapat izin wali namun datang sendiri, maka seluruh konsekuensi hukum atas pernyataan tersebut menjadi tanggung jawab klien dan walinya.</p>
+                                </div>
+
+                                <div>
+                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 3 - PERNYATAAN KESEHATAN DAN KEJUJURAN DATA</p>
                                     <p className="text-xs">Klien menyatakan seluruh data yang diberikan adalah benar. Klien wajib mengungkapkan kondisi medis, psikiatri, dan riwayat kesehatan yang relevan. Layanan hipnoterapi bukan tindakan medis dan bukan pengganti penanganan medis darurat.</p>
                                 </div>
 
                                 <div>
-                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 2 - DOKUMENTASI & TRANSPARANSI</p>
+                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 4 - SISTEM DOKUMENTASI DAN TRANSPARANSI</p>
                                     <p className="text-xs">Seluruh sesi direkam audio dan video secara penuh untuk perlindungan hukum kedua pihak. Visual sesi dapat ditampilkan di ruang tunggu tanpa audio sebagai bentuk transparansi.</p>
                                 </div>
 
                                 <div>
-                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 3 - PEMBATALAN & NO-SHOW</p>
-                                    <p className="text-xs">Setiap sesi berdurasi 2 jam. Keterlambatan maksimal 60 menit; Jika melewati batas tersebut, sesi dianggap hangus (No-Show) tanpa pengembalian dana.</p>
+                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 7 - NO-SHOW DAN PEMBATALAN</p>
+                                    <p className="text-xs">Setiap sesi berdurasi 2 jam. Keterlambatan maksimal 30 menit; Jika melewati batas tersebut, sesi dianggap hangus (No-Show) tanpa pengembalian dana.</p>
                                 </div>
 
                                 <div>
-                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 4 - KERAHASIAAN</p>
+                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 11 - KERAHASIAAN DAN LARANGAN PENCEMARAN NAMA BAIK</p>
                                     <p className="text-xs">Seluruh informasi sesi bersifat rahasia tingkat tinggi. Klien dilarang menyebarkan informasi atau tuduhan publik tanpa putusan hukum tetap.</p>
                                 </div>
 
-                                <div>
-                                    <p className="font-bold border-b border-gray-100 dark:border-gray-800 pb-1 mb-2">PASAL 5 - PENYELESAIAN SENGKETA</p>
-                                    <p className="text-xs">Sengketa diselesaikan melalui musyawarah. Jika tidak tercapai kesepakatan, para pihak sepakat memilih domisili hukum di Pengadilan Negeri setempat.</p>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 not-serif">
-                                <section>
+                                <section className="pt-4">
                                     <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest mb-4">Pernyataan Akhir Klien:</h3>
                                     <div className="space-y-2">
                                         <CheckRow label="Seluruh data benar dan lengkap" checked={agreementData?.agree_1} />
@@ -212,6 +217,9 @@ export default function AgreementDetail({ userModel }) {
                                 </section>
                             </div>
 
+                            <p className="italic text-[10px] opacity-70 mt-4 leading-normal">
+                                *Isi lengkap dokumen ini mencakup 13 Pasal lainnya termasuk Force Majeure, Pembatasan Tanggung Jawab, dan Penyelesaian Sengketa yang telah disetujui secara elektronik.
+                            </p>
                             <div className="grid grid-cols-2 gap-8 pt-12 not-serif">
                                 <div className="text-center">
                                     <p className="text-[10px] text-gray-500 mb-2">Semarang, {signDateOnly}</p>
@@ -236,9 +244,32 @@ export default function AgreementDetail({ userModel }) {
                                     <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">Direktur Utama</p>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="pt-8 text-center opacity-30 text-[9px] uppercase font-black tracking-[0.3em]">
-                                Validated via InDepth Mental Wellness Digital Authentication System
+                        <div className="pt-8 text-center opacity-30 text-[9px] uppercase font-black tracking-[0.3em]">
+                            Validated via InDepth Mental Wellness Digital Authentication System
+                        </div>
+                    </div>
+
+                    {/* --- DOKUMEN 3: KEBIJAKAN & PERJANJIAN TAMBAHAN --- */}
+                    <div className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none border border-gray-100 dark:border-gray-800">
+                        <div className="bg-amber-600 text-white p-6 text-center">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Dokumen 3 dari 3</span>
+                            <h1 className="text-xl font-black tracking-tight mt-1 uppercase">Kebijakan & Perjanjian Tambahan</h1>
+                        </div>
+
+                        <div className="p-8 sm:p-10 space-y-6">
+                            <CheckRow label="Kebijakan Privasi (Persetujuan pengelolaan data pribadi)" checked={agreementData?.privacy_policy || (!!agreementData && !agreementData.hasOwnProperty('privacy_policy'))} />
+                            <CheckRow label="Kebijakan Non-Refund (Seluruh pembayaran bersifat final)" checked={agreementData?.refund_policy || (!!agreementData && !agreementData.hasOwnProperty('refund_policy'))} />
+                            <CheckRow label="Perjanjian Afiliasi (Syarat komisi dan rujukan)" checked={agreementData?.affiliate_agreement || (!!agreementData && !agreementData.hasOwnProperty('affiliate_agreement'))} />
+                            <CheckRow label="Perjanjian Produk Digital & Kelas (Hak akses e-learning)" checked={agreementData?.course_agreement || (!!agreementData && !agreementData.hasOwnProperty('course_agreement'))} />
+
+                            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex flex-col sm:flex-row justify-between gap-2">
+                                <span className="flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    Status: Disetujui secara elektronik
+                                </span>
+                                <span>Waktu Persetujuan: {signedAt || 'Belum Disetujui'}</span>
                             </div>
                         </div>
                     </div>
@@ -249,10 +280,14 @@ export default function AgreementDetail({ userModel }) {
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
                             Cetak PDF
                         </button>
+                        <Link href={route('dashboard')} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-12 py-4 bg-gold-500 text-white text-sm font-black rounded-2xl hover:bg-gold-600 transition-all shadow-xl shadow-gold-500/20 uppercase tracking-widest">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                            Kembali ke Dashboard
+                        </Link>
                     </div>
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

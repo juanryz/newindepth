@@ -47,7 +47,7 @@ export default function BlogIndex({ posts }) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/30">
-                                        {posts.data.map((post) => (
+                                        {posts?.data?.map((post) => (
                                             <tr key={post.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all duration-300">
                                                 <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
                                                     {post.title}
@@ -57,14 +57,14 @@ export default function BlogIndex({ posts }) {
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap">
                                                     <span className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg border ${post.is_published
-                                                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50'
-                                                            : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/50'
+                                                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50'
+                                                        : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/50'
                                                         }`}>
                                                         {post.is_published ? 'Published' : 'Draft'}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-black space-x-4">
-                                                    <a href={route('blog.show', post.slug)} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">Lihat</a>
+                                                    <a href={route('blog.show', post.slug || '')} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
                                                     <Link href={route('admin.blog.edit', post.id)} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
                                                     <Link
                                                         href={route('admin.blog.destroy', post.id)}
@@ -82,7 +82,7 @@ export default function BlogIndex({ posts }) {
                                 </table>
                             </div>
 
-                            {posts.data.length === 0 && (
+                            {(!posts?.data || posts.data.length === 0) && (
                                 <div className="py-20 text-center">
                                     <p className="text-gray-400 dark:text-gray-600 text-sm font-bold italic tracking-tight">Belum ada artikel. Silakan buat artikel pertama Anda.</p>
                                 </div>

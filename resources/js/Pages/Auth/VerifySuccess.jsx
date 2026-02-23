@@ -11,12 +11,7 @@ export default function VerifySuccess() {
             setCount((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    // Standard logout flow to ensure clean state
-                    router.post(route('logout'), {}, {
-                        onFinish: () => {
-                            window.location.href = route('login') + '?verified=1';
-                        }
-                    });
+                    router.get(route('dashboard'));
                     return 0;
                 }
                 return prev - 1;

@@ -12,7 +12,7 @@ class Expense extends Model
         'expense_date' => 'date',
     ];
 
-    public function recordedBy()
+    public function recorder()
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }

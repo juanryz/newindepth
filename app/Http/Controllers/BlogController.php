@@ -22,10 +22,14 @@ class BlogController extends Controller
 
     public function show(string $slug)
     {
-        $post = BlogPost::with('author')
-            ->where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
+        $query = BlogPost::with('author')->where('slug', $slug);
+
+        // If not admin/super_admin, only show published posts
+        if (!auth()->check() || (!auth()->user()->hasRole('admin') && !auth()->user()->hasRole('super_admin'))) {
+            $query->where('is_published', true);
+        }
+
+        $post = $query->firstOrFail();
 
         return Inertia::render('Blog/Show', [
             'post' => $post

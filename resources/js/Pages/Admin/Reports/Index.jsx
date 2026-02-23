@@ -7,13 +7,26 @@ import {
 } from 'recharts';
 
 const PIE_COLORS = {
+    'pending_payment': '#f59e0b', // amber-500
     'pending': '#f59e0b', // amber-500
     'confirmed': '#3b82f6', // blue-500
+    'in_progress': '#6366f1', // indigo-500
     'done': '#10b981', // emerald-500
+    'completed': '#10b981', // emerald-500
     'cancelled': '#ef4444' // red-500
 };
 
-export default function ReportsIndex({ stats, recentTransactions, filters, charts }) {
+const STATUS_LABELS = {
+    'pending_payment': 'Menunggu Pembayaran',
+    'pending': 'Menunggu Konfirmasi',
+    'confirmed': 'Dikonfirmasi',
+    'in_progress': 'Sedang Berlangsung',
+    'done': 'Selesai',
+    'completed': 'Selesai',
+    'cancelled': 'Dibatalkan'
+};
+
+export default function ReportsIndex({ stats, recentTransactions, recentExpenses, filters, charts }) {
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -33,7 +46,7 @@ export default function ReportsIndex({ stats, recentTransactions, filters, chart
                             onClick={() => window.print()}
                             className="inline-flex items-center px-4 py-2 border border-gray-100 dark:border-gray-800 rounded-xl font-bold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 backdrop-blur-md transition-all duration-300 bg-white/50 dark:bg-gray-900/50"
                         >
-                            <svg className="w-4 h-4 mr-2 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            <svg className="w-4 h-4 mr-2 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"></path></svg>
                             Cetak Laporan
                         </button>
                         <a
@@ -50,7 +63,7 @@ export default function ReportsIndex({ stats, recentTransactions, filters, chart
             <Head title="Laporan Keuangan" />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)] transition-colors duration-500">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8 pb-20">
 
                     {/* Filter Bar */}
                     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-5 shadow-2xl shadow-gray-200/50 dark:shadow-black/50 sm:rounded-3xl flex flex-wrap gap-6 items-center border border-white dark:border-gray-800">
@@ -207,10 +220,12 @@ export default function ReportsIndex({ stats, recentTransactions, filters, chart
                                                         fontSize: '10px'
                                                     }}
                                                     itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                                                    formatter={(value, name) => [value, STATUS_LABELS[name] || name]}
                                                 />
                                                 <Legend
                                                     iconType="circle"
                                                     wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px', color: '#9ca3af' }}
+                                                    formatter={(value) => STATUS_LABELS[value] || value}
                                                 />
                                             </PieChart>
                                         </ResponsiveContainer>
@@ -220,23 +235,28 @@ export default function ReportsIndex({ stats, recentTransactions, filters, chart
                                 </div>
                             </div>
 
-                            {/* Top Therapists - Bar Chart */}
+                            {/* Expenses Breakdown - Pie Chart */}
                             <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800/50">
-                                <h3 className="text-xs font-black text-gray-900 dark:text-white mb-6 uppercase tracking-widest text-center">Top Terapis</h3>
+                                <h3 className="text-xs font-black text-gray-900 dark:text-white mb-6 uppercase tracking-widest text-center">Kategori Pengeluaran</h3>
                                 <div className="h-64">
-                                    {charts?.topTherapists?.length > 0 ? (
+                                    {charts?.expensesByCategory?.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={charts.topTherapists} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(156, 163, 175, 0.1)" />
-                                                <XAxis type="number" hide />
-                                                <YAxis
-                                                    dataKey="name"
-                                                    type="category"
-                                                    width={100}
-                                                    tick={{ fontSize: 10, fontWeight: 'bold', fill: '#9ca3af' }}
-                                                    axisLine={false}
-                                                    tickLine={false}
-                                                />
+                                            <PieChart>
+                                                <Pie
+                                                    data={charts.expensesByCategory}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    paddingAngle={8}
+                                                    dataKey="total"
+                                                    nameKey="category"
+                                                    stroke="none"
+                                                >
+                                                    {charts.expensesByCategory.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#6366f1', '#a855f7'][index % 6]} />
+                                                    ))}
+                                                </Pie>
                                                 <Tooltip
                                                     contentStyle={{
                                                         backgroundColor: 'rgba(17, 24, 39, 0.9)',
@@ -246,67 +266,106 @@ export default function ReportsIndex({ stats, recentTransactions, filters, chart
                                                         fontSize: '10px'
                                                     }}
                                                     itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                                                    formatter={(value) => `Rp ${Number(value).toLocaleString('id-ID')}`}
                                                 />
-                                                <Bar dataKey="bookings" fill="#d4a321" radius={[0, 10, 10, 0]} barSize={16} />
-                                            </BarChart>
+                                                <Legend
+                                                    iconType="circle"
+                                                    wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px', color: '#9ca3af' }}
+                                                />
+                                            </PieChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <div className="h-full flex items-center justify-center text-gray-400 text-[10px] font-bold border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[2rem]">Belum ada data.</div>
+                                        <div className="h-full flex items-center justify-center text-gray-400 text-[10px] font-bold border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[2rem]">Tidak ada pengeluaran.</div>
                                     )}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Recent Transactions List */}
-                    <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl overflow-hidden shadow-2xl sm:rounded-[2.5rem] mt-12 border border-white dark:border-gray-800 transition-all duration-500">
-                        <div className="p-8 border-b border-gray-50 dark:border-gray-800/50 flex justify-between items-center bg-gray-50/30 dark:bg-gray-800/20">
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Transaksi Terakhir</h2>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">5 pemasukan terbaru di periode ini.</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+                        {/* Recent Transactions List */}
+                        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl overflow-hidden shadow-2xl sm:rounded-[2.5rem] border border-white dark:border-gray-800 transition-all duration-500">
+                            <div className="p-8 border-b border-gray-50 dark:border-gray-800/50 flex justify-between items-center bg-gray-50/30 dark:bg-gray-800/20">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Pemasukan Terakhir</h2>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">5 transaksi terbaru.</p>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800/50">
+                                    <thead className="bg-gray-50/50 dark:bg-gray-800/10">
+                                        <tr>
+                                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Customer</th>
+                                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Jenis</th>
+                                            <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800/30">
+                                        {recentTransactions.map((tx) => (
+                                            <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all duration-300">
+                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-white">{tx.user?.name}</div>
+                                                    <div className="text-[10px] text-gray-400 mt-1 font-mono italic">#{tx.invoice_number}</div>
+                                                </td>
+                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                    <span className="px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-gold-500/20">
+                                                        {tx.transactionable_type.split('\\').pop() === 'Booking' ? 'Terapi' : 'Learning'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-6 whitespace-nowrap text-sm font-black text-green-600 dark:text-green-400 text-right">
+                                                    + Rp {Number(tx.amount).toLocaleString('id-ID')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {recentTransactions.length === 0 && (
+                                    <div className="py-20 text-center text-gray-400 font-bold text-sm italic">Belum ada pemasukan.</div>
+                                )}
                             </div>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800/50">
-                                <thead className="bg-gray-50/50 dark:bg-gray-800/10">
-                                    <tr>
-                                        <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Tanggal</th>
-                                        <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Customer</th>
-                                        <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Jenis</th>
-                                        <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Invoice</th>
-                                        <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Jumlah</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50 dark:divide-gray-800/30">
-                                    {recentTransactions.map((tx) => (
-                                        <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all duration-300">
-                                            <td className="px-8 py-6 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
-                                                {new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                                            </td>
-                                            <td className="px-8 py-6 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-gray-900 dark:text-white">{tx.user?.name}</div>
-                                                <div className="text-[10px] text-gray-500 font-medium">Verified Payment</div>
-                                            </td>
-                                            <td className="px-8 py-6 whitespace-nowrap">
-                                                <span className="px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-gold-500/20">
-                                                    {tx.transactionable_type.split('\\').pop() === 'Booking' ? 'Terapi' : 'Learning'}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-6 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 font-mono font-bold">
-                                                {tx.invoice_number}
-                                            </td>
-                                            <td className="px-8 py-6 whitespace-nowrap text-sm font-black text-green-600 dark:text-green-400 text-right">
-                                                + Rp {Number(tx.amount).toLocaleString('id-ID')}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {recentTransactions.length === 0 && (
-                                <div className="py-20 text-center">
-                                    <p className="text-gray-400 dark:text-gray-600 text-sm font-bold italic">Tidak ada pemasukan di periode ini.</p>
+
+                        {/* Recent Expenses List */}
+                        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-xl overflow-hidden shadow-2xl sm:rounded-[2.5rem] border border-white dark:border-gray-800 transition-all duration-500">
+                            <div className="p-8 border-b border-gray-50 dark:border-gray-800/50 flex justify-between items-center bg-gray-50/30 dark:bg-gray-800/20">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Pengeluaran Terakhir</h2>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">5 pengeluaran terbaru.</p>
                                 </div>
-                            )}
+                                <Link href={route('admin.expenses.index')} className="text-[10px] font-black text-gold-600 dark:text-gold-400 uppercase tracking-widest hover:underline">Kelola Semua</Link>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800/50">
+                                    <thead className="bg-gray-50/50 dark:bg-gray-800/10">
+                                        <tr>
+                                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Keperluan</th>
+                                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Kategori</th>
+                                            <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800/30">
+                                        {recentExpenses.map((ex) => (
+                                            <tr key={ex.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all duration-300">
+                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{ex.description}</div>
+                                                    <div className="text-[10px] text-gray-400 mt-1">{new Date(ex.expense_date).toLocaleDateString('id-ID')}</div>
+                                                </td>
+                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-gray-200 dark:border-gray-700">
+                                                        {ex.category}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-6 whitespace-nowrap text-sm font-black text-red-600 dark:text-red-400 text-right">
+                                                    - Rp {Number(ex.amount).toLocaleString('id-ID')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {recentExpenses.length === 0 && (
+                                    <div className="py-20 text-center text-gray-400 font-bold text-sm italic">Belum ada pengeluaran.</div>
+                                )}
+                            </div>
                         </div>
                     </div>
 

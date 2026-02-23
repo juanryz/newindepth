@@ -43,11 +43,11 @@ class ClinicReportController extends Controller
             ->take(5)
             ->get()
             ->map(function ($booking) {
-            return [
-            'name' => $booking->therapist->name ?? 'Unknown',
-            'bookings' => $booking->total_bookings
-            ];
-        });
+                return [
+                    'name' => $booking->therapist->name ?? 'Unknown',
+                    'bookings' => $booking->total_bookings
+                ];
+            });
 
         // Chart Data: Bookings by Status (this month)
         $bookingsByStatus = \App\Models\Booking::select(
@@ -79,11 +79,27 @@ class ClinicReportController extends Controller
 
         $netIncome = $revenue - $commissions - $expenses;
 
+        // Chart Data: Expenses by Category (this month)
+        $expensesByCategory = Expense::select(
+            'category',
+            \Illuminate\Support\Facades\DB::raw('SUM(amount) as total')
+        )
+            ->whereMonth('expense_date', $month)
+            ->whereYear('expense_date', $year)
+            ->groupBy('category')
+            ->get();
+
         $recentTransactions = Transaction::with(['user', 'transactionable'])
             ->where('status', 'paid')
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $recentExpenses = Expense::whereMonth('expense_date', $month)
+            ->whereYear('expense_date', $year)
+            ->orderBy('expense_date', 'desc')
             ->take(5)
             ->get();
 
@@ -95,6 +111,7 @@ class ClinicReportController extends Controller
                 'netIncome' => $netIncome,
             ],
             'recentTransactions' => $recentTransactions,
+            'recentExpenses' => $recentExpenses,
             'filters' => [
                 'month' => $month,
                 'year' => $year,
@@ -103,6 +120,7 @@ class ClinicReportController extends Controller
                 'revenueByMonth' => $revenueByMonth,
                 'topTherapists' => $topTherapists,
                 'bookingsByStatus' => $bookingsByStatus,
+                'expensesByCategory' => $expensesByCategory,
             ]
         ]);
     }
@@ -119,6 +137,11 @@ class ClinicReportController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        $expenses = Expense::whereMonth('expense_date', $month)
+            ->whereYear('expense_date', $year)
+            ->orderBy('expense_date', 'asc')
+            ->get();
+
         $filename = "Laporan_Keuangan_{$year}_{$month}.csv";
 
         $headers = [
@@ -129,13 +152,14 @@ class ClinicReportController extends Controller
             "Expires" => "0"
         ];
 
-        $columns = ['Tanggal', 'Invoice', 'Customer', 'Jenis', 'Nominal (Rp)'];
-
-        $callback = function () use ($transactions, $columns) {
+        $callback = function () use ($transactions, $expenses) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
 
-            $total = 0;
+            // Pemasukan Section
+            fputcsv($file, ['BAGIAN 1: PEMASUKAN (PENDAPATAN)']);
+            fputcsv($file, ['Tanggal', 'Invoice', 'Customer', 'Jenis', 'Nominal (Rp)']);
+
+            $totalRevenue = 0;
             foreach ($transactions as $tx) {
                 $type = $tx->transactionable_type === \App\Models\Booking::class ? 'Sesi Terapi' : 'Kelas E-Learning';
                 fputcsv($file, [
@@ -145,10 +169,35 @@ class ClinicReportController extends Controller
                     $type,
                     $tx->amount
                 ]);
-                $total += $tx->amount;
+                $totalRevenue += $tx->amount;
             }
+            fputcsv($file, ['', '', '', 'TOTAL PEMASUKAN', $totalRevenue]);
+            fputcsv($file, []); // Empty line
 
-            fputcsv($file, ['', '', '', 'TOTAL', $total]);
+            // Pengeluaran Section
+            fputcsv($file, ['BAGIAN 2: PENGELUARAN (BIAYA OPERASIONAL)']);
+            fputcsv($file, ['Tanggal', 'Kategori', 'Deskripsi', '', 'Nominal (Rp)']);
+
+            $totalExpenses = 0;
+            foreach ($expenses as $ex) {
+                fputcsv($file, [
+                    $ex->expense_date,
+                    $ex->category,
+                    $ex->description,
+                    '',
+                    $ex->amount
+                ]);
+                $totalExpenses += $ex->amount;
+            }
+            fputcsv($file, ['', '', '', 'TOTAL PENGELUARAN', $totalExpenses]);
+            fputcsv($file, []);
+
+            // Summary Section
+            fputcsv($file, ['RINGKASAN']);
+            fputcsv($file, ['Total Pemasukan', '', '', '', $totalRevenue]);
+            fputcsv($file, ['Total Pengeluaran', '', '', '', $totalExpenses]);
+            fputcsv($file, ['LABA BERSIH', '', '', '', $totalRevenue - $totalExpenses]);
+
             fclose($file);
         };
 

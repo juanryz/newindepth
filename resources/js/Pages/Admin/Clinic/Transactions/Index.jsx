@@ -73,7 +73,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                     <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-2xl border border-white dark:border-slate-800 p-8 sm:p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-none transition-all duration-500">
                         <div>
                             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                                Validasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-indigo-600">Transaksi</span>
+                                Validasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600">Transaksi</span>
                             </h1>
                             <p className="mt-2 text-slate-500 dark:text-slate-400 font-bold italic tracking-wide">Kelola dan validasi pembayaran dari pasien dan siswa di InDepth.</p>
                         </div>
@@ -97,6 +97,8 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                     {transactions.data.map((tx) => {
                                         const scheduleInfo = formatSchedule(tx);
                                         const isBooking = tx.transactionable_type?.includes('Booking');
+                                        const hasDiscount = tx.transactionable?.user_voucher?.voucher;
+
                                         return (
                                             <tr key={tx.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
                                                 <td className="px-6 py-5">
@@ -113,7 +115,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     <div className="flex flex-col gap-1">
-                                                        <span className="text-[10px] font-black px-3 py-1 bg-gold-500/10 text-gold-600 dark:text-gold-400 rounded-lg border border-gold-500/20 w-fit uppercase tracking-widest">
+                                                        <span className="text-[10px] font-black px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg border border-indigo-500/20 w-fit uppercase tracking-widest">
                                                             {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop()}
                                                         </span>
                                                         {isBooking && (
@@ -140,9 +142,26 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    <span className="text-sm font-black text-slate-900 dark:text-white">
-                                                        Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}
-                                                    </span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-black text-slate-900 dark:text-white">
+                                                            Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}
+                                                        </span>
+                                                        {hasDiscount ? (
+                                                            <div className="mt-1 flex flex-col">
+                                                                <span className="text-[9px] font-black text-rose-500 uppercase tracking-tighter mb-0.5">
+                                                                    🏷️ POTONGAN DISKON
+                                                                </span>
+                                                                <span className="px-2 py-0.5 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-[10px] font-black rounded-lg border border-rose-100 dark:border-rose-800 uppercase tracking-tighter decoration-rose-500/30 line-through w-fit">
+                                                                    Rp {new Intl.NumberFormat('id-ID').format((tx.amount || 0) + (tx.transactionable.user_voucher.voucher.discount_amount || 0))}
+                                                                </span>
+                                                                <p className="text-[9px] font-bold text-gray-400 mt-0.5" title={tx.transactionable.user_voucher.voucher.description}>
+                                                                    Voucher: {tx.transactionable.user_voucher.voucher.code}
+                                                                </p>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[8px] font-bold text-slate-400 uppercase mt-1">Harga Normal</span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     {tx.payment_proof ? (

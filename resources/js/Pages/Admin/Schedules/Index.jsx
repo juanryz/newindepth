@@ -12,7 +12,22 @@ import Form from './Form'; // Fixed import to just Form if it's in the same dire
 export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
     const [isAdding, setIsAdding] = useState(false);
     const [therapistId, setTherapistId] = useState(filters.therapist_id || '');
+    const [view, setView] = useState('timeGridWeek');
     const calendarRef = useRef(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setView('timeGridDay');
+            } else {
+                setView('timeGridWeek');
+            }
+        };
+
+        handleResize(); // Initial call
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (therapistId !== (filters.therapist_id || '')) {
@@ -218,7 +233,7 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                             <FullCalendar
                                 ref={calendarRef}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                initialView="timeGridWeek"
+                                view={view}
                                 headerToolbar={{
                                     left: 'prev,next',
                                     center: 'title',

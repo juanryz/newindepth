@@ -39,6 +39,12 @@ export default function InitialAgreement({ userAge }) {
         agree_2: false,
         agree_3: false,
         signature: '', // signature for Doc 2 (main)
+
+        // Document 3 (Additional Policies)
+        privacy_policy: false,
+        refund_policy: false,
+        affiliate_agreement: false,
+        course_agreement: false,
     });
 
     const canvasRef1 = useRef(null);
@@ -109,7 +115,8 @@ export default function InitialAgreement({ userAge }) {
         const requiredBools = [
             data.cond_data_benar, data.cond_bukan_pengganti_medis, data.cond_sadar_penuh, data.cond_riwayat_penyakit,
             data.risk_hubungi_medis, data.risk_henti_sesi, data.doc_direkam, data.doc_hukum, data.konfirmasi_akhir,
-            data.agree_1, data.agree_2, data.agree_3
+            data.agree_1, data.agree_2, data.agree_3,
+            data.privacy_policy, data.refund_policy, data.affiliate_agreement, data.course_agreement
         ];
         const requiredCheckboxes = requiredBools.every(Boolean);
 
@@ -137,6 +144,12 @@ export default function InitialAgreement({ userAge }) {
         if (!data.agree_2) missing.push("Doc 2: Memahami isi perjanjian (Pasal 14)");
         if (!data.agree_3) missing.push("Doc 2: Menyetujui ketentuan tanpa keberatan (Pasal 14)");
         if (!hasDrawn2) missing.push("Doc 2: Tanda Tangan Surat Perjanjian");
+
+        // Doc 3
+        if (!data.privacy_policy) missing.push("Persetujuan Kebijakan Privasi");
+        if (!data.refund_policy) missing.push("Persetujuan Kebijakan Non-Refund");
+        if (!data.affiliate_agreement) missing.push("Persetujuan Perjanjian Afiliasi");
+        if (!data.course_agreement) missing.push("Persetujuan Perjanjian Kelas/Produk Digital");
 
         const isProfileComplete = user.age && user.gender && user.phone;
         setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid && hasDrawn1 && hasDrawn2 && isProfileComplete);
@@ -172,7 +185,16 @@ export default function InitialAgreement({ userAge }) {
     const signDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Dokumen Persetujuan Layanan</h2>}>
+        <AuthenticatedLayout
+            header={
+                <div className="flex items-center gap-4">
+                    <Link href={route('dashboard')} className="p-2 -ml-2 text-gray-500 hover:text-gold-600 dark:text-gray-400 dark:hover:text-gold-400 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    </Link>
+                    <h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Dokumen Persetujuan Layanan</h2>
+                </div>
+            }
+        >
             <Head title="Dokumen Persetujuan" />
 
             <div className="py-12">
@@ -501,6 +523,41 @@ export default function InitialAgreement({ userAge }) {
                                 </div>
                             </div>
 
+                        </div>
+
+                        {/* --- DOKUMEN 3: KEBIJAKAN & PERJANJIAN TAMBAHAN --- */}
+                        <div className="bg-white dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 rounded-2xl shadow-lg p-6 sm:p-10">
+                            <div className="mb-8 border-b pb-6 dark:border-gray-700 text-center">
+                                <span className="inline-block py-1 px-3 text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 mb-3 rounded-full">DOKUMEN 3 DARI 3</span>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Kebijakan & Perjanjian Tambahan</h3>
+                                <p className="text-sm text-gray-500 mt-2">Persetujuan untuk operasional, layanan afiliasi, dan produk digital.</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
+                                    <h4 className="font-bold mb-2">1. Kebijakan Privasi</h4>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-3">Saya menyetujui InDepth mengelola data pribadi saya sesuai kebijakan privasi untuk kepentingan layanan, riset internal, dan dokumentasi hukum.</p>
+                                    <CheckboxItem label="Saya menyetujui Kebijakan Privasi." checked={data.privacy_policy} onChange={e => setData('privacy_policy', e)} />
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
+                                    <h4 className="font-bold mb-2">2. Kebijakan Non-Refund</h4>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-3">Sesuai Pasal 8, saya memahami bahwa seluruh pembayaran yang telah dilakukan bersifat final dan tidak dapat dikembalikan (non-refundable) apapun alasannya.</p>
+                                    <CheckboxItem label="Saya menyetujui Kebijakan Non-Refund." checked={data.refund_policy} onChange={e => setData('refund_policy', e)} />
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
+                                    <h4 className="font-bold mb-2">3. Perjanjian Afiliasi</h4>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-3">Jika saya merujuk orang lain ke InDepth, saya menyetujui syarat & ketentuan komisi afiliasi yang berlaku di platform ini.</p>
+                                    <CheckboxItem label="Saya menyetujui Syarat & Ketentuan Afiliasi." checked={data.affiliate_agreement} onChange={e => setData('affiliate_agreement', e)} />
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
+                                    <h4 className="font-bold mb-2">4. Perjanjian Produk Digital & Kelas</h4>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-3">Akses ke materi e-learning dan kelas digital bersifat personal dan tidak boleh disebarluaskan atau digandakan tanpa izin tertulis.</p>
+                                    <CheckboxItem label="Saya menyetujui Ketentuan Produk Digital & Kelas." checked={data.course_agreement} onChange={e => setData('course_agreement', e)} />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Submit Actions */}
