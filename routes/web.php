@@ -157,6 +157,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-courses', [\App\Http\Controllers\Lms\CourseController::class , 'myCourses'])->name('courses.my');
     Route::post('/courses/{course:slug}/enroll', [\App\Http\Controllers\Lms\CourseController::class , 'enroll'])->name('courses.enroll');
+    Route::get('/courses/{course:slug}/payment', [\App\Http\Controllers\Lms\CourseController::class , 'payment'])->name('courses.payment');
+    Route::post('/courses/{course:slug}/payment', [\App\Http\Controllers\Lms\CourseController::class , 'storePayment'])->name('courses.payment.store');
 });
 
 Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class , 'index'])->name('courses.index');
