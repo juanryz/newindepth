@@ -562,7 +562,7 @@ export default function Welcome({ auth, articles, courses }) {
                                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 font-medium leading-relaxed">
                                             {article.excerpt || (article.body ? String(article.body).replace(/<[^>]*>?/gm, '').substring(0, 120) : '') + '...'}
                                         </p>
-                                        <Link href={route('blog.show', article.slug)} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 group/link">
+                                        <Link href={`/blog/${article.slug}`} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 group/link">
                                             Baca Selengkapnya
                                             <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                         </Link>
@@ -572,7 +572,7 @@ export default function Welcome({ auth, articles, courses }) {
                         </div>
 
                         <div className="mt-16 text-center">
-                            <Link href={route('blog.index')} className="px-8 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-lg transition-all text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 mx-auto w-fit">
+                            <Link href="/blog" className="px-8 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-lg transition-all text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 mx-auto w-fit">
                                 Lihat Semua Artikel
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                             </Link>

@@ -42,9 +42,7 @@ export default function AiChatPopup({ isOpen, onClose }) {
         setIsThinking(true);
 
         try {
-            const apiUrl = (window.route && typeof window.route === 'function')
-                ? window.route('ai-chat')
-                : '/api/ai-chat';
+            const apiUrl = '/api/ai-chat';
 
             const newHistory = [...(messages || []), userMsg];
             const response = await axios.post(apiUrl, {

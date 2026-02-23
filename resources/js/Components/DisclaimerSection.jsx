@@ -43,7 +43,7 @@ export default function DisclaimerSection() {
                         </div>
                         <div className="w-full md:w-1/4 flex justify-center md:justify-end">
                             <Link
-                                href={route('disclaimer')}
+                                href="/disclaimer"
                                 className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 dark:bg-black text-white font-bold rounded-2xl hover:bg-gold-600 transition-all duration-300 shadow-xl"
                             >
                                 Baca Selengkapnya

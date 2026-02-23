@@ -21,10 +21,10 @@ export default function Footer() {
                         <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Navigasi</h4>
                         <ul className="space-y-4 text-sm">
                             <li><Link href="/" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Home</Link></li>
-                            <li><Link href={route('methods.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Metode</Link></li>
-                            <li><Link href={route('blog.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
-                            <li><Link href={route('courses.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
-                            <li><Link href={route('testimonials.index')} className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
+                            <li><Link href="/metode" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Metode</Link></li>
+                            <li><Link href="/blog" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
+                            <li><Link href="/courses" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">E-Learning</Link></li>
+                            <li><Link href="/testimonials" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
                         </ul>
                     </div>
 
@@ -64,11 +64,11 @@ export default function Footer() {
                         &copy; {new Date().getFullYear()} InDepth Mental Wellness. Hak Cipta Dilindungi.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <Link href={route('privacy')} className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Kebijakan Privasi</Link>
-                        <span>|</span>
-                        <Link href={route('terms')} className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Syarat &amp; Ketentuan</Link>
-                        <span>|</span>
-                        <Link href={route('disclaimer')} className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Disclaimer Resmi</Link>
+                        <Link href="/privacy" className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Kebijakan Privasi</Link>
+                        <span className="text-gray-300 dark:text-gray-700 hidden sm:inline">•</span>
+                        <Link href="/terms" className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Syarat &amp; Ketentuan</Link>
+                        <span className="text-gray-300 dark:text-gray-700 hidden sm:inline">•</span>
+                        <Link href="/disclaimer" className="hover:text-gold-600 dark:hover:text-gold-400 transition-colors">Disclaimer Resmi</Link>
                     </div>
                 </div>
             </div>
