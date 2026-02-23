@@ -9,16 +9,20 @@ export default function PublicBlogShow({ post }) {
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": post.meta_title || post.title,
-        "image": post.featured_image ? [`${window.location.origin}/storage/${post.featured_image}`] : [],
+        "image": post.featured_image ? [`${typeof window !== 'undefined' ? window.location.origin : ''}/storage/${post.featured_image}`] : [],
         "datePublished": post.published_at,
         "dateModified": post.updated_at,
         "author": [{
             "@type": "Person",
-            "name": post.author?.name
+            "name": post.author?.name || 'InDepth Admin'
         }],
         "publisher": {
             "@type": "Organization",
-            "name": "InDepth Mental Wellness"
+            "name": "InDepth Mental Wellness",
+            "logo": {
+                "@type": "ImageObject",
+                "url": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : ''
+            }
         },
         "description": post.meta_description || post.excerpt
     };
@@ -33,13 +37,14 @@ export default function PublicBlogShow({ post }) {
                 {/* Open Graph limits for social sharing */}
                 <meta property="og:title" content={post.meta_title || post.title} />
                 <meta property="og:description" content={post.meta_description || post.excerpt || ''} />
-                {post.featured_image && <meta property="og:image" content={`${window.location.origin}/storage/${post.featured_image}`} />}
+                {post.featured_image && <meta property="og:image" content={`${typeof window !== 'undefined' ? window.location.origin : ''}/storage/${post.featured_image}`} />}
                 <meta property="og:type" content="article" />
 
                 {/* Inject JSON-LD Schema */}
-                <script type="application/ld+json">
-                    {JSON.stringify(jsonLd)}
-                </script>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
             </Head>
 
             <Navbar auth={null} />
