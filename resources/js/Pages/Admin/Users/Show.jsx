@@ -891,6 +891,12 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.timeline_type.join(', ')}</p>
                                                     </div>
                                                 )}
+                                                {selectedBooking.session_checklist.emerging_type?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Emerging</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.emerging_type.join(', ')}</p>
+                                                    </div>
+                                                )}
                                                 <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Abreaksi</p>
                                                     <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_abreaction ? 'Ya' : 'Tidak'}</p>
@@ -899,10 +905,26 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Segel Hipnotis</p>
                                                     <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_seal ? 'Ya' : 'Tidak'}</p>
                                                 </div>
+                                                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Pengujian Hasil</p>
+                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_result_test ? 'Ya' : 'Tidak'}</p>
+                                                </div>
                                                 {selectedBooking.session_checklist.desired_outcome && (
                                                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 col-span-2">
                                                         <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Outcome Diinginkan</p>
                                                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.desired_outcome}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.outcome_indicator && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 col-span-2">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Indikator Outcome</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.outcome_indicator}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.has_exception && selectedBooking.session_checklist.exception_detail && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 col-span-2">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Pengecualian</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.exception_detail}</p>
                                                     </div>
                                                 )}
                                             </div>
