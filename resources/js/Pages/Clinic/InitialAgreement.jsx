@@ -151,7 +151,7 @@ export default function InitialAgreement({ userAge }) {
         if (!data.affiliate_agreement) missing.push("Persetujuan Perjanjian Afiliasi");
         if (!data.course_agreement) missing.push("Persetujuan Perjanjian Kelas/Produk Digital");
 
-        const isProfileComplete = user.age && user.gender && user.phone;
+        const isProfileComplete = user?.age && user?.gender && user?.phone;
         setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid && hasDrawn1 && hasDrawn2 && isProfileComplete);
         setMissingFields(missing);
     }, [data, isUnder17, hasDrawn1, hasDrawn2]);
