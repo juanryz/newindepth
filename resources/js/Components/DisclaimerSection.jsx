@@ -28,15 +28,15 @@ export default function DisclaimerSection() {
                             </p>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4">
                                 <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-gold-600 dark:text-gold-400 uppercase tracking-widest bg-gold-500/10 px-3 py-1.5 rounded-full border border-gold-500/20">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1.414-1.414l-2 2a1.414 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414l-3 3-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                                     Non-Medical Service
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-gold-600 dark:text-gold-400 uppercase tracking-widest bg-gold-500/10 px-3 py-1.5 rounded-full border border-gold-500/20">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1.414-1.414l-2 2a1.414 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414l-3 3-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                                     Professional Documentation
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-gold-600 dark:text-gold-400 uppercase tracking-widest bg-gold-500/10 px-3 py-1.5 rounded-full border border-gold-500/20">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1.414-1.414l-2 2a1.414 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414l-3 3-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                                     T&C Accepted on Use
                                 </div>
                             </div>
