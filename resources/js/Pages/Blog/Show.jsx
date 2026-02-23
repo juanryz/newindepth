@@ -53,15 +53,14 @@ export default function PublicBlogShow({ post, auth }) {
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
-            <Head>
-                <title>{meta_title || title} | InDepth Mental Wellness</title>
+            <Head title={`${meta_title || title} | InDepth Mental Wellness`}>
                 <meta name="description" content={meta_description || excerpt || ''} />
-                {meta_keywords && <meta name="keywords" content={meta_keywords} />}
+                {!!meta_keywords && <meta name="keywords" content={meta_keywords} />}
 
                 {/* Open Graph limits for social sharing */}
                 <meta property="og:title" content={meta_title || title} />
                 <meta property="og:description" content={meta_description || excerpt || ''} />
-                {featured_image && <meta property="og:image" content={`${typeof window !== 'undefined' ? window.location.origin : ''}/storage/${featured_image}`} />}
+                {!!featured_image && <meta property="og:image" content={`${typeof window !== 'undefined' ? window.location.origin : ''}/storage/${featured_image}`} />}
                 <meta property="og:type" content="article" />
 
                 {/* Inject JSON-LD Schema */}
