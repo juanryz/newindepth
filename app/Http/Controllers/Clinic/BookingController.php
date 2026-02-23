@@ -25,7 +25,7 @@ class BookingController extends Controller
 
         // Hide internal notes from patient view
         $bookings->getCollection()->each(function ($booking) {
-            $booking->makeHidden(['therapist_notes']);
+            $booking->makeHidden(['therapist_notes', 'session_checklist']);
         });
 
         $profileProgress = null;
@@ -54,7 +54,7 @@ class BookingController extends Controller
 
         // Hide internal therapist notes from patient view
         $bookings->getCollection()->each(function ($booking) {
-            $booking->makeHidden(['therapist_notes']);
+            $booking->makeHidden(['therapist_notes', 'session_checklist']);
         });
 
         return Inertia::render('Clinic/Bookings/SessionHistory', [
@@ -222,7 +222,7 @@ class BookingController extends Controller
 
         // Hide internal therapist notes from patient view (only show patient_visible_notes)
         if (!auth()->user()->isStaff()) {
-            $booking->makeHidden(['therapist_notes']);
+            $booking->makeHidden(['therapist_notes', 'session_checklist']);
         }
 
         // Pass user's active vouchers so the frontend can offer applying one

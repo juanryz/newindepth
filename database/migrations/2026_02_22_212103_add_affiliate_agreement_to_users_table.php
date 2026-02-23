@@ -4,16 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration 
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('affiliate_agreement_signed_at')->nullable()->after('agreement_data');
-            $table->longText('affiliate_signature')->nullable()->after('affiliate_agreement_signed_at');
+            if (!Schema::hasColumn('users', 'affiliate_agreement_signed_at')) {
+                $table->timestamp('affiliate_agreement_signed_at')->nullable()->after('agreement_data');
+            }
+            if (!Schema::hasColumn('users', 'affiliate_signature')) {
+                $table->longText('affiliate_signature')->nullable()->after('affiliate_agreement_signed_at');
+            }
         });
     }
 

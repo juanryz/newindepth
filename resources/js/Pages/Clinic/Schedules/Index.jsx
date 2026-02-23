@@ -162,45 +162,180 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         const { event } = eventInfo;
         const isBooked = event.extendedProps.bookings && event.extendedProps.bookings.length > 0;
         const status = isBooked ? event.extendedProps.bookings[0].status : 'available';
-        const patientName = isBooked ? event.extendedProps.bookings[0].patient.name : 'Slot Tersedia';
-        const therapistName = event.extendedProps.therapist?.name;
+        const patientName = isBooked ? event.extendedProps.bookings[0].patient?.name : null;
 
-        let bgColor = 'bg-indigo-500';
-        let textColor = 'text-white';
-        let borderColor = 'border-indigo-600';
-
-        if (status === 'confirmed') {
-            bgColor = 'bg-emerald-500';
-            borderColor = 'border-emerald-600';
-        } else if (status === 'in_progress') {
-            bgColor = 'bg-red-500';
-            borderColor = 'border-red-600';
-        } else if (status === 'completed') {
-            bgColor = 'bg-gray-500';
-            borderColor = 'border-gray-600';
-        } else if (status === 'available') {
-            bgColor = 'bg-blue-500';
-            borderColor = 'border-blue-600';
+        if (status === 'in_progress') {
+            return (
+                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/20">
+                    <div className="flex items-center justify-between pointer-events-none">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
+                        <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
+                    </div>
+                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">🔴 BERLANGSUNG</div>
+                    {patientName && <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none truncate">{patientName}</div>}
+                </div>
+            );
         }
 
+        if (status === 'completed') {
+            return (
+                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-gray-400 to-gray-500 text-white shadow-sm">
+                    <div className="flex items-center justify-between pointer-events-none">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
+                    </div>
+                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">✅ SELESAI</div>
+                    {patientName && <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none truncate">{patientName}</div>}
+                </div>
+            );
+        }
+
+        if (isBooked) {
+            return (
+                <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20 shadow-inner">
+                    <div className="flex items-center justify-between pointer-events-none">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
+                        <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
+                    </div>
+                    <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-white">{patientName || '✅ TERISI'}</div>
+                    <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none">
+                        {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Konsultasi'}
+                    </div>
+                </div>
+            );
+        }
+
+        // Available slot
         return (
-            <div className={`p-1 rounded-lg text-xs font-semibold ${bgColor} ${textColor} border ${borderColor} flex flex-col h-full justify-center`}>
-                <p className="truncate">{event.title}</p>
-                {isAdmin && therapistName && (
-                    <p className="truncate text-[9px] opacity-80 mt-0.5 font-bold uppercase tracking-tighter italic">
-                        By: {therapistName}
-                    </p>
-                )}
+            <div className="h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                <div className="flex items-center justify-between pointer-events-none">
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">{eventInfo.timeText}</span>
+                </div>
+                <div className="text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none text-slate-900 dark:text-white">
+                    {event.extendedProps.therapist?.name || 'Slot Tersedia'}
+                </div>
+                <div className="text-[8px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest pointer-events-none">
+                    {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Konsultasi'}
+                </div>
             </div>
         );
     };
 
     const calendarStyles = `
-        .fc { --fc-border-color: rgba(0,0,0,0.05); font-family: 'Inter', sans-serif; }
-        .fc-event { border: none !important; border-radius: 8px !important; padding: 2px !important; cursor: pointer; }
-        .fc-toolbar-title { font-size: 1.1rem !important; font-weight: 800 !important; text-transform: uppercase; }
-        .fc-button-primary { background: white !important; color: #475569 !important; border: 1px solid #e2e8f0 !important; font-weight: 700 !important; font-size: 11px !important; text-transform: uppercase !important; border-radius: 10px !important; }
-        .fc-button-active { background: #4f46e5 !important; color: white !important; border-color: #4f46e5 !important; }
+        .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.05);
+            --fc-button-bg-color: transparent;
+            --fc-button-border-color: rgba(255, 255, 255, 0.1);
+            --fc-button-hover-bg-color: rgba(99, 102, 241, 0.1);
+            --fc-button-active-bg-color: rgba(99, 102, 241, 0.2);
+            --fc-today-bg-color: rgba(99, 102, 241, 0.05);
+            font-family: 'Inter', sans-serif;
+            border: none !important;
+        }
+        .dark .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.03);
+        }
+        .fc-theme-standard td, .fc-theme-standard th {
+            border: 1px solid var(--fc-border-color) !important;
+        }
+        .fc-col-header-cell {
+            padding: 20px 0 !important;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .fc-col-header-cell-cushion {
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: #6366f1;
+        }
+        .fc-timegrid-slot {
+            height: 4em !important;
+            border-bottom: 1px solid var(--fc-border-color) !important;
+        }
+        .fc-timegrid-slot-label-cushion {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        .fc-event {
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 4px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fc-event:hover {
+            transform: scale(1.02) translateY(-2px);
+            z-index: 50;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .fc-v-event {
+            background: transparent !important;
+        }
+        .fc-event-main {
+            padding: 4px !important;
+        }
+        .fc-timegrid-now-indicator-line {
+            border-color: #6366f1 !important;
+            border-width: 2px !important;
+        }
+        .fc-timegrid-now-indicator-arrow {
+            border-color: #6366f1 !important;
+            border-top-color: transparent !important;
+            border-bottom-color: transparent !important;
+        }
+        .fc-toolbar-title {
+            font-size: 1.25rem !important;
+            font-weight: 900 !important;
+            text-transform: uppercase;
+            letter-spacing: -0.025em;
+            color: #1e293b;
+        }
+        .dark .fc-toolbar-title {
+            color: #f8fafc;
+        }
+        .fc-daygrid-day-number {
+            font-weight: 400 !important;
+            font-size: 14px !important;
+            color: #475569;
+        }
+        .dark .fc-daygrid-day-number {
+            color: #94a3b8;
+        }
+        .fc-daygrid-day-top {
+            font-weight: 400 !important;
+        }
+        .fc-daygrid-event {
+            font-weight: 500 !important;
+        }
+        .fc-button-primary {
+            background-color: white !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            color: #475569 !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+            border-radius: 12px !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+        }
+        .dark .fc-button-primary {
+            background-color: #1e293b !important;
+            border-color: rgba(255,255,255,0.05) !important;
+            color: #cbd5e1 !important;
+        }
+        .fc-button-primary:hover {
+            background-color: #f8fafc !important;
+        }
+        .dark .fc-button-primary:hover {
+            background-color: #334155 !important;
+        }
+        .fc-button-active {
+            background-color: #4f46e5 !important;
+            border-color: #4f46e5 !important;
+            color: white !important;
+        }
         @media (max-width: 767px) {
             .fc-toolbar { flex-direction: column !important; gap: 8px !important; align-items: stretch !important; }
             .fc-toolbar-title { font-size: 0.9rem !important; text-align: center; }
@@ -226,10 +361,17 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             <Head title="Kelola Jadwal Praktik" />
             <style>{calendarStyles}</style>
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative py-12 bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden transition-colors duration-700">
+                {/* Dynamic Background Blobs */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40 dark:opacity-20 z-0">
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-indigo-400/30 to-purple-500/30 blur-[120px] rounded-full animate-pulse" style={{ animationDuration: '8s' }}></div>
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-tr from-cyan-400/20 to-emerald-400/20 blur-[100px] rounded-full animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
+                    <div className="absolute top-[20%] left-[20%] w-[30%] h-[30%] bg-gradient-to-r from-rose-400/10 to-orange-400/10 blur-[80px] rounded-full animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     {/* Tabs Navigation */}
-                    <div className="flex gap-2 mb-6 md:mb-8 bg-slate-100 dark:bg-slate-800 p-1 md:p-1.5 rounded-xl md:rounded-[1.5rem] w-full md:w-fit border border-slate-200/50 dark:border-slate-700 shadow-inner">
+                    <div className="flex gap-2 mb-6 md:mb-8 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl p-1 md:p-1.5 rounded-xl md:rounded-[1.5rem] w-full md:w-fit border border-white/40 dark:border-slate-700 shadow-lg shadow-black/5">
                         <button
                             onClick={() => setActiveTab('calendar')}
                             className={`flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
@@ -244,8 +386,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                         </button>
                     </div>
 
-                    <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-none rounded-2xl md:rounded-[3rem] overflow-hidden">
-                        <div className="p-3 sm:p-5 md:p-8">
+                    {/* Glass Calendar Container */}
+                    <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-white dark:border-slate-800 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-all duration-700 p-2">
+                        <div className="bg-white dark:bg-slate-900/20 rounded-[3rem] p-3 sm:p-5 md:p-10 transition-colors">
                             {activeTab === 'calendar' ? (
                                 <div className="animate-in fade-in duration-500">
                                     <FullCalendar
@@ -260,15 +403,19 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             center: 'title',
                                             right: 'dayGridMonth,timeGridWeek,timeGridDay'
                                         }}
+                                        titleFormat={{ year: 'numeric', month: 'long', day: 'numeric' }}
                                         events={calendarSchedules}
                                         eventClick={handleEventClick}
                                         eventContent={renderEventContent}
                                         height="auto"
                                         slotMinTime="07:00:00"
                                         slotMaxTime="22:00:00"
+                                        slotDuration={'01:00:00'}
                                         allDaySlot={false}
                                         nowIndicator={true}
                                         locale="id"
+                                        expandRows={true}
+                                        stickyHeaderDates={true}
                                     />
                                 </div>
                             ) : (
@@ -401,10 +548,28 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             )}
                         </div>
                     </div>
+
+                    {/* Status Legend */}
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Terisi</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse"></div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Berlangsung</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selesai</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tersedia</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-
 
             {/* Modal: Patient History */}
             <Modal show={selectedHistoryPatient !== null} onClose={closeHistoryModal} maxWidth="2xl">

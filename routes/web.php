@@ -124,8 +124,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
             Route::get('/clinic/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'show'])->name('schedules.show');
             Route::patch('/clinic/bookings/{booking}/details', [\App\Http\Controllers\Admin\AdminBookingController::class, 'updateDetails'])->name('bookings.update-details');
+            Route::post('/clinic/bookings/{booking}/cancel', [\App\Http\Controllers\Admin\AdminBookingController::class, 'cancel'])->name('bookings.cancel');
             Route::post('/clinic/bookings/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class, 'rescheduleSession'])->name('bookings.reschedule');
             Route::post('/clinic/bookings/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])->name('bookings.no-show');
+            Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])->name('bookings.store');
 
             // Admin Schedule Management
             Route::get('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'index'])->name('schedules.index');

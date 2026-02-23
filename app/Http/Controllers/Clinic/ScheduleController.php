@@ -173,6 +173,7 @@ class ScheduleController extends Controller
             'therapist_notes' => 'nullable|string',
             'patient_visible_notes' => 'nullable|string',
             'completion_outcome' => 'required|string|in:Normal,Abnormal/Emergency',
+            'session_checklist' => 'nullable|array',
         ]);
 
         $booking->update([
@@ -181,6 +182,7 @@ class ScheduleController extends Controller
             'therapist_notes' => $request->therapist_notes,
             'patient_visible_notes' => $request->patient_visible_notes,
             'completion_outcome' => $request->completion_outcome,
+            'session_checklist' => $request->session_checklist,
         ]);
 
         return redirect()->route('schedules.patient-detail', $booking->patient_id)->with('success', 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');

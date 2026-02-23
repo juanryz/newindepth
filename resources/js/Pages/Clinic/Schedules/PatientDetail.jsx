@@ -10,7 +10,7 @@ import {
     User, Mail, Phone, Calendar, UserCheck, ShieldCheck,
     FileText, Heart, Activity, Clock, ChevronLeft,
     MapPin, Fingerprint, AlertCircle, CheckCircle2, ChevronRight,
-    ExternalLink, BookOpen, MessageSquare, Clipboard, Video
+    ExternalLink, BookOpen, MessageSquare, Clipboard, Video, ChevronDown
 } from 'lucide-react';
 
 export default function PatientDetail({ patient, profileProgress, availableSchedules, fromBookingId }) {
@@ -19,6 +19,7 @@ export default function PatientDetail({ patient, profileProgress, availableSched
     // Modal states
     const [selectedRescheduleBooking, setSelectedRescheduleBooking] = useState(null);
     const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
+    const [expandedChecklist, setExpandedChecklist] = useState(null);
 
     // Form for Rescheduling
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
@@ -630,6 +631,109 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                                                                 <div className="bg-emerald-50/30 dark:bg-emerald-900/10 p-5 rounded-2xl border border-emerald-100/30 text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed shadow-sm">
                                                                                     {booking.patient_visible_notes}
                                                                                 </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {booking.session_checklist && Object.keys(booking.session_checklist).length > 0 && (
+                                                                            <div>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setExpandedChecklist(prev => prev === booking.id ? null : booking.id)}
+                                                                                    className="w-full flex items-center justify-between p-3 bg-indigo-50/50 dark:bg-indigo-900/10 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 transition-all group"
+                                                                                >
+                                                                                    <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest flex items-center gap-1.5">
+                                                                                        <Clipboard className="w-3 h-3" /> Checklist Sesi Hipnoterapi
+                                                                                    </span>
+                                                                                    <ChevronDown className={`w-4 h-4 text-indigo-400 transition-transform duration-200 ${expandedChecklist === booking.id ? 'rotate-180' : ''}`} />
+                                                                                </button>
+                                                                                {expandedChecklist === booking.id && (
+                                                                                    <div className="grid grid-cols-2 gap-2 mt-3 animate-in fade-in duration-200">
+                                                                                        {booking.session_checklist.problem_name && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Masalah</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.problem_name}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.problem_score && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Awal</p>
+                                                                                                <p className="text-sm font-black text-indigo-600">{booking.session_checklist.problem_score}/10</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.final_problem_score && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Akhir</p>
+                                                                                                <p className="text-sm font-black text-emerald-600">{booking.session_checklist.final_problem_score}/10</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.induction_type?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Induksi</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.induction_type.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.deepening_technique?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Deepening</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.deepening_technique.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.core_method_type?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Metode Inti</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.core_method_type.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.suggestion_type?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Sugesti</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.suggestion_type.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.timeline_type?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Timeline</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.timeline_type.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.emerging_type?.length > 0 && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Emerging</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.emerging_type.join(', ')}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Abreaksi</p>
+                                                                                            <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_abreaction ? 'Ya' : 'Tidak'}</p>
+                                                                                        </div>
+                                                                                        <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Segel Hipnotis</p>
+                                                                                            <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_seal ? 'Ya' : 'Tidak'}</p>
+                                                                                        </div>
+                                                                                        <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Pengujian Hasil</p>
+                                                                                            <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_result_test ? 'Ya' : 'Tidak'}</p>
+                                                                                        </div>
+                                                                                        {booking.session_checklist.desired_outcome && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700 col-span-2">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Outcome Diinginkan</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.desired_outcome}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.outcome_indicator && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700 col-span-2">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Indikator Outcome</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.outcome_indicator}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {booking.session_checklist.has_exception && booking.session_checklist.exception_detail && (
+                                                                                            <div className="p-2.5 bg-white/50 dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700 col-span-2">
+                                                                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Pengecualian</p>
+                                                                                                <p className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.exception_detail}</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         )}
                                                                     </div>

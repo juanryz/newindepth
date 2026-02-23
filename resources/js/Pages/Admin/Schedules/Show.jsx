@@ -6,10 +6,11 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Show({ schedule, availableSchedules }) {
+export default function Show({ schedule, availableSchedules, patients = [] }) {
     // Modal states
     const [selectedRescheduleBooking, setSelectedRescheduleBooking] = useState(null);
     const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
+    const [isAddingPatient, setIsAddingPatient] = useState(false);
 
     // Form for Rescheduling
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
@@ -22,8 +23,15 @@ export default function Show({ schedule, availableSchedules }) {
 
     // Form for No-Show
     const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
-        no_show_party: 'patient',
+        no_show_party: 'cancel',
         no_show_reason: '',
+    });
+
+    // Form for Add Patient
+    const { data: addPatientData, setData: setAddPatientData, post: postAddPatient, processing: addingPatient, reset: resetAddPatient, errors: addPatientErrors } = useForm({
+        patient_id: '',
+        package_type: 'reguler',
+        schedule_id: schedule.id,
     });
     // State for local edits
     const [editingDetails, setEditingDetails] = useState(() => {
@@ -70,10 +78,31 @@ export default function Show({ schedule, availableSchedules }) {
 
     const handleNoShow = (e) => {
         e.preventDefault();
-        postNoShow(route('admin.bookings.no-show', selectedNoShowBooking.id), {
+        if (noShowData.no_show_party === 'cancel') {
+            router.post(route('admin.bookings.cancel', selectedNoShowBooking.id), {}, {
+                onSuccess: () => {
+                    setSelectedNoShowBooking(null);
+                    resetNoShow();
+                },
+                preserveScroll: true,
+            });
+        } else {
+            postNoShow(route('admin.bookings.no-show', selectedNoShowBooking.id), {
+                onSuccess: () => {
+                    setSelectedNoShowBooking(null);
+                    resetNoShow();
+                },
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleAddPatient = (e) => {
+        e.preventDefault();
+        postAddPatient(route('admin.bookings.store'), {
             onSuccess: () => {
-                setSelectedNoShowBooking(null);
-                resetNoShow();
+                setIsAddingPatient(false);
+                resetAddPatient();
             },
             preserveScroll: true,
         });
@@ -141,9 +170,20 @@ export default function Show({ schedule, availableSchedules }) {
                                                         router.delete(route('admin.schedules.destroy', schedule.id));
                                                     }
                                                 }}
-                                                className="w-full py-4 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-100 dark:border-red-900/30"
+                                                className="w-full py-4 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 dark:hover:bg-red-900/40 transition-all border border-red-100 dark:border-red-900/30 mb-3"
                                             >
                                                 Hapus Jadwal Kosong
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {schedule.booked_count < schedule.quota && schedule.status !== 'full' && (
+                                        <div className={(!schedule.bookings || schedule.bookings.length === 0) ? '' : 'pt-6'}>
+                                            <button
+                                                onClick={() => setIsAddingPatient(true)}
+                                                className="w-full py-4 bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all border border-indigo-100 dark:border-indigo-900/30"
+                                            >
+                                                + Tambah Pasien Manual
                                             </button>
                                         </div>
                                     )}
@@ -327,6 +367,101 @@ export default function Show({ schedule, availableSchedules }) {
                                                         </div>
                                                     )}
 
+                                                    {booking.status === 'completed' && booking.session_checklist && Object.keys(booking.session_checklist).length > 0 && (
+                                                        <div className="p-6 bg-indigo-50 dark:bg-indigo-900/10 border-2 border-indigo-100 dark:border-indigo-800/30 rounded-3xl space-y-4 shadow-sm">
+                                                            <h4 className="text-[10px] font-black text-indigo-700 dark:text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                                                Checklist Sesi Hipnoterapi
+                                                            </h4>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                {booking.session_checklist.problem_name && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Masalah Klien</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.problem_name}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.problem_score && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Angka Gangguan Awal</p>
+                                                                        <p className="text-lg font-black text-indigo-600">{booking.session_checklist.problem_score}/10</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.desired_outcome && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Outcome Diinginkan</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.desired_outcome}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.outcome_indicator && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Indikator Outcome</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.outcome_indicator}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.induction_type?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Induksi</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.induction_type.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.deepening_technique?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Deepening</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.deepening_technique.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.core_method_type?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Metode Inti</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.core_method_type.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.suggestion_type?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Sugesti</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.suggestion_type.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.timeline_type?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Timeline</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.timeline_type.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.emerging_type?.length > 0 && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Emerging</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.emerging_type.join(', ')}</p>
+                                                                    </div>
+                                                                )}
+                                                                <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Abreaksi</p>
+                                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_abreaction ? 'Ya' : 'Tidak'}</p>
+                                                                </div>
+                                                                <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Segel Hipnotis</p>
+                                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_seal ? 'Ya' : 'Tidak'}</p>
+                                                                </div>
+                                                                <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Pengujian Hasil</p>
+                                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.has_result_test ? 'Ya' : 'Tidak'}</p>
+                                                                </div>
+                                                                {booking.session_checklist.final_problem_score && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Angka Masalah Akhir</p>
+                                                                        <p className="text-lg font-black text-emerald-600">{booking.session_checklist.final_problem_score}/10</p>
+                                                                    </div>
+                                                                )}
+                                                                {booking.session_checklist.has_exception && booking.session_checklist.exception_detail && (
+                                                                    <div className="p-3 bg-white dark:bg-gray-900 rounded-2xl sm:col-span-2">
+                                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Pengecualian</p>
+                                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{booking.session_checklist.exception_detail}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     {booking.reschedule_reason && (
                                                         <div className="mt-6 p-6 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-800/30 rounded-3xl">
                                                             <p className="text-[10px] font-black text-amber-700 dark:text-amber-500 uppercase flex items-center gap-2 mb-2">
@@ -472,8 +607,9 @@ export default function Show({ schedule, availableSchedules }) {
                                 onChange={(e) => setNoShowData('no_show_party', e.target.value)}
                                 required
                             >
-                                <option value="patient">Pasien Tidak Hadir</option>
-                                <option value="therapist">Praktisi Berhalangan / Batalkan</option>
+                                <option value="cancel">Batalkan Total (Slot Kembali Tersedia)</option>
+                                <option value="patient">Pasien Tidak Hadir (Slot Hangus)</option>
+                                <option value="therapist">Praktisi Berhalangan (Slot Hangus)</option>
                             </select>
                         </div>
 
@@ -483,10 +619,10 @@ export default function Show({ schedule, availableSchedules }) {
                                 id="no_show_reason"
                                 className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all resize-none dark:text-gray-200"
                                 rows="3"
-                                placeholder="Berikan detail singkat alasan..."
+                                placeholder={noShowData.no_show_party === 'cancel' ? "Opsional. Tidak perlu diisi jika membatalkan karena alasan umum." : "Berikan detail singkat alasan..."}
                                 value={noShowData.no_show_reason}
                                 onChange={(e) => setNoShowData('no_show_reason', e.target.value)}
-                                required
+                                required={noShowData.no_show_party !== 'cancel'}
                             ></textarea>
                         </div>
                     </div>
@@ -499,6 +635,62 @@ export default function Show({ schedule, availableSchedules }) {
                             className={`inline-flex items-center px-8 py-3 bg-red-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 active:scale-95 ${markingNoShow && 'opacity-25'}`}
                         >
                             Konfirmasi Pembatalan
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Modal: Add Patient */}
+            <Modal show={isAddingPatient} onClose={() => setIsAddingPatient(false)}>
+                <form onSubmit={handleAddPatient} className="p-8 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-[2.5rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Manual Tambah Pasien</h2>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="patient_id" value="Pilih Pasien" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="patient_id"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={addPatientData.patient_id}
+                                onChange={(e) => setAddPatientData('patient_id', e.target.value)}
+                                required
+                            >
+                                <option value="">-- Pilih Pasien --</option>
+                                {patients.map(p => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name} ({p.email})
+                                    </option>
+                                ))}
+                            </select>
+                            {addPatientErrors.patient_id && <p className="text-red-500 text-xs mt-1 font-bold">{addPatientErrors.patient_id}</p>}
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="package_type" value="Pilih Tipe Paket" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <select
+                                id="package_type"
+                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                value={addPatientData.package_type}
+                                onChange={(e) => setAddPatientData('package_type', e.target.value)}
+                                required
+                            >
+                                <option value="reguler">Reguler / Umum</option>
+                                <option value="hipnoterapi">Paket Hipnoterapi</option>
+                                <option value="upgrade">Paket Upgrade (Pengembangan Diri)</option>
+                                <option value="vip">Paket VIP</option>
+                            </select>
+                            {addPatientErrors.package_type && <p className="text-red-500 text-xs mt-1 font-bold">{addPatientErrors.package_type}</p>}
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setIsAddingPatient(false)} disabled={addingPatient} className="rounded-2xl px-6">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={addingPatient}
+                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 ${addingPatient && 'opacity-25'}`}
+                        >
+                            Konfirmasi Tambah
                         </button>
                     </div>
                 </form>

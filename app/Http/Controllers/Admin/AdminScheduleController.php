@@ -67,6 +67,7 @@ class AdminScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'therapist_id' => 'required|exists:users,id',
             'schedule_type' => 'required|in:consultation,class',
             'date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
@@ -81,22 +82,27 @@ class AdminScheduleController extends Controller
         $date = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
 
         // Check if exact same schedule slot exists to avoid duplicates
-        $overlap = Schedule::whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
+        $overlap = Schedule::where('therapist_id', $request->therapist_id)
+            ->whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
             ->whereRaw("SUBSTR(start_time, 1, 8) = ?", [$newStart])
             ->whereRaw("SUBSTR(end_time,   1, 8) = ?", [$newEnd])
             ->exists();
 
         if ($overlap) {
             return back()->withErrors([
-                'start_time' => 'Slot jadwal ini sudah tersedia di tanggal tersebut.',
+                'start_time' => 'Slot jadwal ini sudah tersedia di tanggal tersebut untuk terapis yang dipilih.',
             ]);
         }
 
         Schedule::create([
+            'therapist_id' => $request->therapist_id,
             'schedule_type' => $request->schedule_type,
             'date' => $date,
             'start_time' => $newStart,
             'end_time' => $newEnd,
+            'status' => 'available',
+            'quota' => $request->schedule_type === 'class' ? 10 : 1,
+            'booked_count' => 0,
         ]);
 
         return back()->with('success', 'Jadwal berhasil ditambahkan.');
@@ -114,9 +120,18 @@ class AdminScheduleController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        $patients = User::role('patient')
+            ->select('id', 'name', 'email')
+            ->whereHas('transactions', function ($q) {
+                $q->where('status', 'paid');
+            })
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Admin/Schedules/Show', [
             'schedule' => $schedule,
-            'availableSchedules' => $availableSchedules
+            'availableSchedules' => $availableSchedules,
+            'patients' => $patients
         ]);
     }
 

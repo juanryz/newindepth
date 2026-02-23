@@ -16,13 +16,13 @@ class AdminBookingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
-            if ($booking->patient) {
-                $booking->patient->append('profile_completion');
-                // Add a custom property for easier display in the list
-                $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
-            }
-            return $booking;
-        });
+                if ($booking->patient) {
+                    $booking->patient->append('profile_completion');
+                    // Add a custom property for easier display in the list
+                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+                }
+                return $booking;
+            });
 
         $therapists = User::role('therapist')
             ->select('id', 'name')
@@ -58,8 +58,7 @@ class AdminBookingController extends Controller
         if (in_array($booking->status, ['confirmed', 'in_progress']) && $oldTherapistId != $request->therapist_id) {
             try {
                 $booking->patient->notify(new \App\Notifications\TherapistAssigned($booking));
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to notify patient of therapist change: ' . $e->getMessage());
             }
         }
@@ -80,5 +79,64 @@ class AdminBookingController extends Controller
         ]);
 
         return back()->with('success', 'Detail booking berhasil diperbarui.');
+    }
+
+    public function cancel(Booking $booking, Request $request)
+    {
+        if ($booking->status === 'cancelled') {
+            return back()->withErrors(['error' => 'Sesi sudah dibatalkan.']);
+        }
+
+        // Free the schedule slot if it was confirmed
+        if (in_array($booking->status, ['confirmed', 'in_progress', 'pending_payment', 'pending_validation'])) {
+            $schedule = $booking->schedule;
+            if ($schedule) {
+                $schedule->decrement('booked_count');
+                if ($schedule->status === 'full') {
+                    $schedule->update(['status' => 'available']);
+                }
+            }
+        }
+
+        $booking->update(['status' => 'cancelled']);
+
+        if ($booking->transaction && $booking->transaction->status === 'pending') {
+            $booking->transaction->update(['status' => 'cancelled']);
+        }
+
+        return back()->with('success', 'Booking berhasil dibatalkan dan slot kembali tersedia.');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'patient_id' => 'required|exists:users,id',
+            'schedule_id' => 'required|exists:schedules,id',
+            'package_type' => 'required|in:reguler,hipnoterapi,upgrade,vip',
+        ]);
+
+        $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
+
+        if ($schedule->status === 'full' || $schedule->booked_count >= $schedule->quota) {
+            return back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);
+        }
+
+        Booking::create([
+            'booking_code' => 'B-' . strtoupper(uniqid()),
+            'patient_id' => $request->patient_id,
+            'therapist_id' => $schedule->therapist_id,
+            'schedule_id' => $schedule->id,
+            'original_schedule_id' => $schedule->id,
+            'package_type' => $request->package_type,
+            'status' => 'confirmed', // Admin langsung masuk confirmed
+            'amount' => 0, // Assume offline / manual pay
+        ]);
+
+        $schedule->increment('booked_count');
+        if ($schedule->booked_count >= $schedule->quota) {
+            $schedule->update(['status' => 'full']);
+        }
+
+        return back()->with('success', 'Pasien berhasil ditambahkan ke jadwal ini.');
     }
 }

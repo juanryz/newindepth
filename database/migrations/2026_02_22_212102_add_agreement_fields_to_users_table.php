@@ -11,10 +11,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('agreement_signed')->default(false)->after('gender');
-            $table->timestamp('agreement_signed_at')->nullable()->after('agreement_signed');
-            $table->longText('digital_signature')->nullable()->after('agreement_signed_at');
-            $table->json('agreement_data')->nullable()->after('digital_signature');
+            if (!Schema::hasColumn('users', 'agreement_signed')) {
+                $table->boolean('agreement_signed')->default(false)->after('gender');
+            }
+            if (!Schema::hasColumn('users', 'agreement_signed_at')) {
+                $table->timestamp('agreement_signed_at')->nullable()->after('agreement_signed');
+            }
+            if (!Schema::hasColumn('users', 'digital_signature')) {
+                $table->longText('digital_signature')->nullable()->after('agreement_signed_at');
+            }
+            if (!Schema::hasColumn('users', 'agreement_data')) {
+                $table->json('agreement_data')->nullable()->after('digital_signature');
+            }
         });
     }
 

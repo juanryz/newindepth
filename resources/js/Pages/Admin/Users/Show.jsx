@@ -216,52 +216,49 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 Ringkasan Profil & Bio
                                             </h3>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                                                <div className="space-y-6">
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Biodata Pribadi</p>
-                                                        <div className="space-y-3">
-                                                            {Object.entries(profileCompletion?.fields || {}).map(([key, data]) => (
-                                                                <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100/50 dark:border-gray-700/30">
-                                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">{data.label}</span>
-                                                                    {data.filled ? (
-                                                                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                                                    ) : (
-                                                                        <AlertTriangle className="w-4 h-4 text-rose-400" />
-                                                                    )}
-                                                                </div>
-                                                            ))}
-                                                        </div>
+                                            <div className="space-y-8">
+                                                {/* Biodata checklist - compact 2-col grid */}
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Biodata Pribadi</p>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                        {Object.entries(profileCompletion?.fields || {}).map(([key, data]) => (
+                                                            <div key={key} className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100/50 dark:border-gray-700/30">
+                                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight truncate mr-2">{data.label}</span>
+                                                                {data.filled ? (
+                                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                                                                ) : (
+                                                                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
+                                                                )}
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-6">
-
-                                                    {isTherapist && (
-                                                        <div>
-                                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Spesialisasi</p>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {(userModel.specialization || '').split(',').map((spec, i) => spec && (
-                                                                    <span key={i} className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 shadow-sm">
-                                                                        {spec.trim()}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
+                                                {isTherapist && (
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Spesialisasi</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {(userModel.specialization || '').split(',').map((spec, i) => spec && (
+                                                                <span key={i} className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 shadow-sm">
+                                                                    {spec.trim()}
+                                                                </span>
+                                                            ))}
                                                         </div>
-                                                    )}
-                                                </div>
+                                                    </div>
+                                                )}
 
-                                                <div className="space-y-6">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Dokumen Identitas (KTP)</p>
+                                                {/* KTP - large, full width */}
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Dokumen Identitas (KTP)</p>
                                                     {ktpDocumentPath ? (
                                                         <div className="relative group rounded-[2rem] overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                                            <img src={`/storage/${ktpDocumentPath}`} alt="KTP" className="w-full max-h-[200px] object-contain" />
+                                                            <img src={`/storage/${ktpDocumentPath}`} alt="KTP" className="w-full max-h-[420px] object-contain" />
                                                             <a href={`/storage/${ktpDocumentPath}`} target="_blank" rel="noreferrer" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                                                <span className="px-4 py-2 bg-white text-gray-900 rounded-full font-black text-[10px] uppercase tracking-widest">Detail</span>
+                                                                <span className="px-6 py-3 bg-white text-gray-900 rounded-full font-black text-xs uppercase tracking-widest shadow-xl">Lihat Ukuran Penuh</span>
                                                             </a>
                                                         </div>
                                                     ) : (
-                                                        <div className="h-[200px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-900/30 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[2rem]">
+                                                        <div className="h-[180px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-900/30 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[2rem]">
                                                             <FileText className="w-8 h-8 text-gray-200 mb-2" />
                                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Belum ada KTP</p>
                                                         </div>
@@ -546,10 +543,10 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                             <div className="max-h-[600px] overflow-y-auto">
                                                 <table className="w-full text-left border-collapse">
                                                     <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-10">
-                                                        <tr>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu & Sesi</th>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Praktisi/Pasien</th>
-                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
+                                                        <tr className="border-b border-gray-100 dark:border-gray-800/50">
+                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Waktu & Sesi</th>
+                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Praktisi/Pasien</th>
+                                                            <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Aksi</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
@@ -557,13 +554,13 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                             const d = booking.schedule ? new Date(`${booking.schedule.date.replace(/-/g, '/')} ${booking.schedule.start_time}`) : null;
                                                             return (
                                                                 <tr key={booking.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
-                                                                    <td className="px-8 py-6">
+                                                                    <td className="px-8 py-6 text-center">
                                                                         <p className="text-sm font-black text-gray-900 dark:text-white">
                                                                             {d && !isNaN(d.getTime()) ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
                                                                         </p>
                                                                         <p className="text-[10px] text-indigo-600 font-black uppercase mt-0.5">#{booking.booking_code}</p>
                                                                     </td>
-                                                                    <td className="px-8 py-6">
+                                                                    <td className="px-8 py-6 text-center">
                                                                         <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                                                             {isPatient ? (booking.therapist?.name || '-') : (booking.patient?.name || '-')}
                                                                         </p>
@@ -571,7 +568,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                             {booking.status}
                                                                         </span>
                                                                     </td>
-                                                                    <td className="px-8 py-6 text-right">
+                                                                    <td className="px-8 py-6 text-center">
                                                                         <button onClick={() => setSelectedBooking(booking)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all group">
                                                                             <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-indigo-600" />
                                                                         </button>
@@ -608,10 +605,12 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 <table className="w-full text-left">
                                                     <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-10">
                                                         <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">
-                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Invoice</th>
-                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Layanan & Jadwal</th>
-                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
-                                                            <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
+                                                            <th className="px-6 py-4 text-center">Invoice</th>
+                                                            <th className="px-6 py-4 text-center">Pengguna</th>
+                                                            <th className="px-6 py-4 text-center">Layanan & Jadwal</th>
+                                                            <th className="px-6 py-4 text-center">Nominal</th>
+                                                            <th className="px-6 py-4 text-center">Bukti</th>
+                                                            <th className="px-6 py-4 text-center">Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
@@ -620,15 +619,21 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                             const hasDiscount = tx.transactionable?.user_voucher?.voucher;
                                                             return (
                                                                 <tr key={tx.id} className="hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10 transition-colors">
-                                                                    <td className="px-6 py-5">
-                                                                        <div className="flex flex-col">
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        <div className="flex flex-col items-center">
                                                                             <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
                                                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
-                                                                            <span className="text-[9px] font-medium text-slate-500 mt-1">{new Date(tx.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                                                            <span className="text-[9px] font-medium text-slate-500 mt-1">{new Date(tx.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                                                                         </div>
                                                                     </td>
-                                                                    <td className="px-6 py-5">
-                                                                        <div className="flex flex-col gap-1">
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        <div className="flex flex-col items-center">
+                                                                            <span className="text-sm font-bold text-slate-900 dark:text-white">{tx.user?.name || userModel.name}</span>
+                                                                            <span className="text-xs text-slate-500">{tx.user?.email || userModel.email}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        <div className="flex flex-col items-center gap-1">
                                                                             <span className="text-[10px] font-black px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg border border-indigo-500/20 w-fit uppercase tracking-widest">
                                                                                 {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop() || 'Course'}
                                                                             </span>
@@ -636,22 +641,37 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                                 {isBooking ? `${tx.transactionable?.package_type || 'Package'}` : `${tx.transactionable?.title || 'Online Course'}`}
                                                                             </span>
                                                                             {tx.payment_agreement_data && (
-                                                                                <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center gap-1 uppercase mt-1">
+                                                                                <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center justify-center gap-1 uppercase mt-1">
                                                                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                                                                                     Agreement Signed
                                                                                 </span>
                                                                             )}
                                                                         </div>
                                                                     </td>
-                                                                    <td className="px-6 py-5">
-                                                                        <div className="flex flex-col">
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        <div className="flex flex-col items-center">
                                                                             <span className="text-sm font-black text-slate-900 dark:text-white">
                                                                                 Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}
                                                                             </span>
                                                                         </div>
                                                                     </td>
-                                                                    <td className="px-6 py-5 text-right">
-                                                                        <div className="flex flex-col items-end gap-2">
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        {tx.payment_proof ? (
+                                                                            <a
+                                                                                href={`/storage/${tx.payment_proof}`}
+                                                                                target="_blank"
+                                                                                rel="noreferrer"
+                                                                                className="inline-flex items-center justify-center gap-2 group/proof"
+                                                                            >
+                                                                                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-gold-500 group-hover/proof:text-white transition-all duration-300">
+                                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                                                </div>
+                                                                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Lihat</span>
+                                                                            </a>
+                                                                        ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Kosong</span>}
+                                                                    </td>
+                                                                    <td className="px-6 py-5 text-center">
+                                                                        <div className="flex flex-col items-center gap-2">
                                                                             <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
                                                                             ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
                                                                                     tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
@@ -661,12 +681,12 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                                 {tx.status === 'paid' ? 'Valid' : tx.status === 'rejected' ? 'Ditolak' : tx.status === 'pending' ? 'Menunggu' : tx.status}
                                                                             </span>
                                                                             {tx.status === 'paid' && tx.validated_at && (
-                                                                                <div className="flex flex-col items-end gap-1 mt-1">
-                                                                                    <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
-                                                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                                <div className="flex flex-col items-center gap-1 mt-1">
+                                                                                    <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center justify-center gap-1 w-full text-center">
+                                                                                        <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                                                         By: {tx.validated_by?.name || tx.validated_by_user?.name || 'Admin'}
                                                                                     </span>
-                                                                                    <span className="text-[9px] text-slate-400 font-bold">
+                                                                                    <span className="text-[9px] text-slate-400 font-bold block w-full text-center">
                                                                                         {new Date(tx.validated_at).toLocaleDateString('id-ID')}
                                                                                     </span>
                                                                                 </div>
@@ -702,9 +722,9 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                             <table className="w-full text-left">
                                                 <thead className="sticky top-0 bg-gray-50 dark:bg-gray-900 z-10">
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Tanggal</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu (WIB)</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Utilisasi</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Tanggal</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Waktu (WIB)</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Utilisasi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
@@ -806,6 +826,78 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 </div>
                                                 <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                                             </a>
+                                        </div>
+                                    )}
+
+                                    {selectedBooking.session_checklist && Object.keys(selectedBooking.session_checklist).length > 0 && (
+                                        <div className="pt-4">
+                                            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                <Clipboard className="w-4 h-4" /> Checklist Sesi Hipnoterapi
+                                            </p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {selectedBooking.session_checklist.problem_name && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Masalah</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.problem_name}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.problem_score && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Awal</p>
+                                                        <p className="text-sm font-black text-indigo-600">{selectedBooking.session_checklist.problem_score}/10</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.final_problem_score && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Akhir</p>
+                                                        <p className="text-sm font-black text-emerald-600">{selectedBooking.session_checklist.final_problem_score}/10</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.induction_type?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Induksi</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.induction_type.join(', ')}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.deepening_technique?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Deepening</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.deepening_technique.join(', ')}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.core_method_type?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Metode Inti</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.core_method_type.join(', ')}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.suggestion_type?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Sugesti</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.suggestion_type.join(', ')}</p>
+                                                    </div>
+                                                )}
+                                                {selectedBooking.session_checklist.timeline_type?.length > 0 && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Timeline</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.timeline_type.join(', ')}</p>
+                                                    </div>
+                                                )}
+                                                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Abreaksi</p>
+                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_abreaction ? 'Ya' : 'Tidak'}</p>
+                                                </div>
+                                                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Segel Hipnotis</p>
+                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_seal ? 'Ya' : 'Tidak'}</p>
+                                                </div>
+                                                {selectedBooking.session_checklist.desired_outcome && (
+                                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 col-span-2">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Outcome Diinginkan</p>
+                                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.desired_outcome}</p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

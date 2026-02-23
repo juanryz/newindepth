@@ -84,13 +84,13 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-slate-100/50 dark:bg-slate-800/50">
                                     <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
-                                        <th className="px-6 py-5">Invoice</th>
+                                        <th className="px-6 py-5 text-center">Invoice</th>
                                         <th className="px-6 py-5">Pengguna</th>
                                         <th className="px-6 py-5">Layanan & Jadwal</th>
                                         <th className="px-6 py-5">Nominal</th>
                                         <th className="px-6 py-5">Bukti</th>
                                         <th className="px-6 py-5">Status</th>
-                                        <th className="px-6 py-5 text-right">Aksi</th>
+                                        <th className="px-6 py-5 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -101,8 +101,8 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
 
                                         return (
                                             <tr key={tx.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
-                                                <td className="px-6 py-5">
-                                                    <div className="flex flex-col">
+                                                <td className="px-6 py-5 text-center">
+                                                    <div className="flex flex-col items-center">
                                                         <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
                                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
                                                     </div>
@@ -191,9 +191,9 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                                     tx.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-5 text-right">
+                                                <td className="px-6 py-5 text-center">
                                                     {tx.status === 'pending' && (
-                                                        <div className="flex justify-end gap-2">
+                                                        <div className="flex justify-center gap-2">
                                                             <button
                                                                 disabled={validating}
                                                                 onClick={() => handleValidate(tx)}
@@ -210,7 +210,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                         </div>
                                                     )}
                                                     {tx.status === 'paid' && tx.validated_at && (
-                                                        <div className="flex flex-col items-end gap-1">
+                                                        <div className="flex flex-col items-center gap-1">
                                                             <span className="text-[9px] text-slate-400 font-bold">
                                                                 ✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}
                                                             </span>
