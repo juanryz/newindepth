@@ -27,7 +27,7 @@ class DashboardController extends Controller
                 $daysSinceLastScreening = $screeningResult->completed_at->diffInDays(now());
                 if ($daysSinceLastScreening < 15) {
                     $canTakeScreening = false;
-                    $daysUntilNextScreening = (int)(15 - $daysSinceLastScreening);
+                    $daysUntilNextScreening = (int) (15 - $daysSinceLastScreening);
                 }
             }
 
@@ -43,8 +43,8 @@ class DashboardController extends Controller
                 ->where('patient_id', $user->id)
                 ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed'])
                 ->whereHas('schedule', function ($q) {
-                $q->whereDate('date', '>=', now()->toDateString());
-            })
+                    $q->whereDate('date', '>=', now()->toDateString());
+                })
                 ->latest()
                 ->first();
 
@@ -66,7 +66,7 @@ class DashboardController extends Controller
 
             // If not admin, filter by therapist_id
             if (!$user->hasAnyRole(['admin', 'super_admin'])) {
-                $baseBookingQuery->where('therapist_id', $user->id);
+                $baseBookingQuery->where('bookings.therapist_id', $user->id);
                 $baseCourseQuery->where('instructor_id', $user->id);
             }
 

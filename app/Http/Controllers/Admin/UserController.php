@@ -61,8 +61,8 @@ class UserController extends Controller
         if ($user->hasRole('therapist')) {
             $schedules = \App\Models\Schedule::withCount('bookings')
                 ->whereHas('bookings', function ($q) use ($user) {
-                $q->where('therapist_id', $user->id);
-            })
+                    $q->where('therapist_id', $user->id);
+                })
                 ->orWhere('therapist_id', $user->id) // If legacy link exists
                 ->orderBy('date', 'desc')
                 ->get();
@@ -154,9 +154,24 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        $user->delete();
+        try {
+            // Cleanup related data to avoid integrity constraint violations
+            $user->bookings()->delete();
+            $user->transactions()->delete();
+            $user->screeningResults()->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+            // If they are a therapist, handle their managed sessions
+            if ($user->hasRole('therapist')) {
+                \App\Models\Schedule::where('therapist_id', $user->id)->delete();
+                \App\Models\Booking::where('therapist_id', $user->id)->update(['therapist_id' => null]);
+            }
+
+            $user->delete();
+
+            return redirect()->route('admin.users.index')->with('success', 'User dan data terkait berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus user karena masih memiliki data aktif: ' . $e->getMessage());
+        }
     }
 
     public function agreement(User $user)
