@@ -8,7 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 export default function BlogForm({ post }) {
     const isEditing = !!post;
 
-    const { data, setData, post: formPost, put: formPut, processing, errors } = useForm({
+    const { data, setData, post: formPost, put: formPut, processing, errors, transform } = useForm({
         title: post?.title || '',
         excerpt: post?.excerpt || '',
         body: post?.body || '',
@@ -23,8 +23,11 @@ export default function BlogForm({ post }) {
         e.preventDefault();
 
         if (isEditing) {
-            formPost(route('admin.blog.update', post.id), {
+            transform((data) => ({
+                ...data,
                 _method: 'put',
+            }));
+            formPost(route('admin.blog.update', post.id), {
                 forceFormData: true,
             });
         } else {

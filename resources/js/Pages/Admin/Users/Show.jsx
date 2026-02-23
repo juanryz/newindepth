@@ -236,14 +236,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 </div>
 
                                                 <div className="space-y-6">
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Biografi / Catatan</p>
-                                                        <div className="p-5 rounded-[2rem] bg-indigo-50/30 dark:bg-indigo-950/20 border border-indigo-100/30 dark:border-indigo-800/20 min-h-[160px]">
-                                                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic">
-                                                                {userModel.bio ? `"${userModel.bio}"` : "Tidak ada biografi yang tersedia."}
-                                                            </p>
-                                                        </div>
-                                                    </div>
+
                                                     {isTherapist && (
                                                         <div>
                                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Spesialisasi</p>
