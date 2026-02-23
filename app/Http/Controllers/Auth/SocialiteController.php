@@ -48,6 +48,7 @@ class SocialiteController extends Controller
                 ]);
 
                 // Auto-assign the patient role
+                \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'patient', 'guard_name' => 'web']);
                 $user->assignRole('patient');
             }
 

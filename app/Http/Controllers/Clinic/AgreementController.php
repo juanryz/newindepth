@@ -26,9 +26,11 @@ class AgreementController extends Controller
                 'userModel' => $user,
             ]);
         }
-        $usia = ($user->screening_answers['usia'] ?? null) ?: ($user->screening_answers['age'] ?? null);
+        $answers = $user->screening_answers ?? [];
+        $usia = ($answers['usia'] ?? null) ?: ($answers['age'] ?? null);
+
         return Inertia::render('Clinic/InitialAgreement', [
-            'userAge' => $usia !== null ? (int)$usia : null,
+            'userAge' => $usia !== null ? (int) $usia : null,
         ]);
     }
 
