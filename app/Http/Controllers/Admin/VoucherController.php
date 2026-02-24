@@ -37,7 +37,7 @@ class VoucherController extends Controller
 
         Voucher::create($validated);
 
-        return redirect()->route('admin.vouchers.index')->with('success', 'Voucher berhasil dibuat.');
+        return redirect()->route('admin.pricing.vouchers.index')->with('success', 'Voucher berhasil dibuat.');
     }
 
     public function update(Request $request, Voucher $voucher)
@@ -53,12 +53,12 @@ class VoucherController extends Controller
 
         $voucher->update($validated);
 
-        return redirect()->route('admin.vouchers.index')->with('success', 'Voucher berhasil diupdate.');
+        return redirect()->route('admin.pricing.vouchers.index')->with('success', 'Voucher berhasil diupdate.');
     }
 
     public function destroy(Voucher $voucher)
     {
         $voucher->delete();
-        return redirect()->route('admin.vouchers.index')->with('success', 'Voucher dihapus.');
+        return redirect()->route('admin.pricing.vouchers.index')->with('success', 'Voucher dihapus.');
     }
 }
