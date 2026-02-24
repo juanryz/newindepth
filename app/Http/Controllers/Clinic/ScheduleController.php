@@ -166,7 +166,7 @@ class ScheduleController extends Controller
     {
         // Ensure the current therapist owns this booking's schedule-
         $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
-        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
             abort(403);
         }
 
@@ -184,8 +184,9 @@ class ScheduleController extends Controller
 
     public function activeSession(Request $request, Booking $booking)
     {
-        // Auth: therapist yang punya booking, atau admin
-        if ($booking->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
+        // Auth: therapist yang punya booking, atau admin/cs
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
             abort(403);
         }
 
@@ -208,7 +209,8 @@ class ScheduleController extends Controller
     public function completeSession(Request $request, Booking $booking)
     {
         // Ensure the current therapist owns this booking's schedule
-        if ($booking->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
             abort(403);
         }
 
@@ -236,7 +238,8 @@ class ScheduleController extends Controller
     public function rescheduleSession(Request $request, Booking $booking)
     {
         // Auth: therapist yang punya booking, atau admin
-        if ($booking->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
             abort(403);
         }
 
@@ -303,7 +306,8 @@ class ScheduleController extends Controller
     public function markNoShow(Request $request, Booking $booking)
     {
         // Auth: therapist yang punya booking, atau admin
-        if ($booking->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
             abort(403);
         }
 

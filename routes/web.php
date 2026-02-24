@@ -75,7 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     );
 
     // Therapist Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist|admin|super_admin')->group(
+    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':therapist|admin|super_admin|cs')->group(
         function () {
             Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
             Route::get('/schedules/patients/{user}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'patientDetail'])->name('schedules.patient-detail');
