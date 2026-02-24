@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function AffiliateAgreementContent() {
     return (
-        <div className="space-y-8">
-            <p className="italic underline underline-offset-4 decoration-indigo-200">Perjanjian ini mengikat secara hukum antara InDepth Mental Wellness (“Perusahaan”) dan Mitra Affiliate (“Affiliate”). Dengan mendaftar dan mengaktifkan akun affiliate, Affiliate menyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan di bawah ini tanpa keberatan.</p>
+        <div className="space-y-8 text-slate-800 dark:text-slate-300">
+            <p className="italic underline underline-offset-4 decoration-indigo-200 dark:decoration-indigo-800/50">Perjanjian ini mengikat secara hukum antara InDepth Mental Wellness (“Perusahaan”) dan Mitra Affiliate (“Affiliate”). Dengan mendaftar dan mengaktifkan akun affiliate, Affiliate menyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan di bawah ini tanpa keberatan.</p>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 1 – STATUS DAN RUANG LINGKUP</h4>
@@ -57,14 +57,14 @@ export default function AffiliateAgreementContent() {
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                             Tingkat 1 – Pelanggaran Ringan
                         </p>
-                        <p className="text-xs text-slate-500">Contoh: Kesalahan klaim minor, tidak mencantumkan disclaimer. Sanksi: Peringatan tertulis, koreksi wajib dalam 3 hari.</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Contoh: Kesalahan klaim minor, tidak mencantumkan disclaimer. Sanksi: Peringatan tertulis, koreksi wajib dalam 3 hari.</p>
                     </div>
                     <div className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
                         <p className="font-black text-amber-600 mb-1 flex items-center gap-2 text-sm">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                             Tingkat 2 – Pelanggaran Sedang
                         </p>
-                        <p className="text-xs text-slate-500">Contoh: Klaim berlebihan, promosi tidak etis, penyalahgunaan materi. Sanksi: Pembekuan komisi sementara, suspensi akun 7–30 hari, penghapusan komisi terkait.</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Contoh: Klaim berlebihan, promosi tidak etis, penyalahgunaan materi. Sanksi: Pembekuan komisi sementara, suspensi akun 7–30 hari, penghapusan komisi terkait.</p>
                     </div>
                     <div className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-red-100/30 dark:border-red-900/30 shadow-sm transition-all hover:shadow-md text-red-600">
                         <p className="font-black mb-1 flex items-center gap-2 text-sm">
