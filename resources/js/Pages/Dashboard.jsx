@@ -307,6 +307,21 @@ export default function Dashboard() {
                                 profileProgress={profileProgress}
                                 activeBooking={activeBooking}
                             />
+
+                            {hasScreening && (
+                                <GlassPanel className="!border-blue-200/50 dark:!border-blue-800/30 p-5 mt-4 relative overflow-hidden flex items-start sm:items-center gap-4">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-indigo-50/10 dark:from-blue-900/10 dark:to-transparent pointer-events-none" />
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm relative z-10">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                    </div>
+                                    <div className="relative z-10 flex-1 min-w-0">
+                                        <h4 className="text-sm font-black text-blue-900 dark:text-blue-200 uppercase tracking-wide">Proteksi Extra Pasien</h4>
+                                        <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1 leading-relaxed">
+                                            Anda mendapatkan proteksi layanan kematian selama terapi berlangsung sebesar potongan harga <strong>Rp 5.000.000</strong>.
+                                        </p>
+                                    </div>
+                                </GlassPanel>
+                            )}
                         </div>
                     )}
 

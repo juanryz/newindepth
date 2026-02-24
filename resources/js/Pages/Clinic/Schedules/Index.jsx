@@ -161,7 +161,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     };
 
     const handleEventClick = (info) => {
+        const isMine = info.event.extendedProps.is_mine;
         const booking = info.event.extendedProps.bookings?.[0];
+
         if (booking) {
             // Scroll to the booking in history tab or open detail
             setActiveTab('history');
@@ -175,6 +177,10 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                 }
             }, 100);
         } else {
+            if (!isMine) {
+                alert('Anda tidak dapat menghapus slot jadwal yang dibuat oleh praktisi lain.');
+                return;
+            }
             if (confirm('Slot ini masih kosong. Hapus slot ini?')) {
                 router.delete(route('schedules.destroy', info.event.id));
             }

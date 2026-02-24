@@ -53,7 +53,15 @@ class OrderManagementController extends Controller
             });
 
         // Transactions
-        $transactions = Transaction::with(['user', 'validatedBy', 'transactionable.therapist', 'transactionable.schedule', 'transactionable.userVoucher.voucher'])
+        $transactions = Transaction::with([
+            'user',
+            'validatedBy',
+            'transactionable' => function (\Illuminate\Database\Eloquent\Relations\MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    \App\Models\Booking::class => ['therapist', 'schedule', 'userVoucher.voucher'],
+                ]);
+            }
+        ])
             ->orderBy('created_at', 'desc')
             ->get();
 
