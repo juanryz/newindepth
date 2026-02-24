@@ -67,11 +67,6 @@ const calendarStyles = `
 function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], therapists = [], availableSchedules = [], filters = {} }) {
   const [activeTab, setActiveTab] = useState("schedules");
   const { flash, errors: pageErrors, auth } = usePage().props;
-  const handleStartSession = (bookingId) => {
-    if (confirm("Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.")) {
-      router.post(route("schedules.start", bookingId));
-    }
-  };
   const [isAdding, setIsAdding] = useState(false);
   const [therapistId, setTherapistId] = useState(filters.therapist_id || "");
   const [calendarView, setCalendarView] = useState("timeGridWeek");
@@ -700,7 +695,6 @@ function OrderManagementIndex({ schedules = [], bookings = [], transactions = []
                         /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/50", children: [
                           booking.schedule_id && /* @__PURE__ */ jsx(Link, { href: route("admin.schedules.show", booking.schedule_id), className: "px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 hover:text-indigo-500 transition-all", children: "Detail" }),
                           ["confirmed", "in_progress"].includes(booking.status) && /* @__PURE__ */ jsxs(Fragment, { children: [
-                            booking.status === "confirmed" && /* @__PURE__ */ jsx("button", { onClick: () => handleStartSession(booking.id), className: "px-2 py-1.5 bg-indigo-600 text-white text-[9px] font-black uppercase rounded-lg", children: "Mulai Sesi" }),
                             /* @__PURE__ */ jsx("button", { onClick: () => setReschedulingBooking(booking), className: "px-2 py-1.5 bg-amber-500 text-white text-[9px] font-black uppercase rounded-lg", children: "Reschedule" }),
                             /* @__PURE__ */ jsx("button", { onClick: () => setNoShowBooking(booking), className: "px-2 py-1.5 bg-rose-500 text-white text-[9px] font-black uppercase rounded-lg", children: "No-Show" })
                           ] })
