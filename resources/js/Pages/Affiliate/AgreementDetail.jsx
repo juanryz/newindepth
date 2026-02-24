@@ -41,7 +41,7 @@ export default function AgreementDetail({ userModel }) {
                             <h1 className="text-xl font-black tracking-tight mt-1">PERJANJIAN MITRA AFFILIATE</h1>
                         </div>
 
-                        <div className="p-8 sm:p-10 space-y-8">
+                        <div className="p-8 sm:p-10 space-y-8 text-slate-800 dark:text-white">
                             {/* Summary Box */}
                             <div className="flex flex-wrap gap-8 text-sm pb-8 border-b border-gray-100 dark:border-gray-700">
                                 <div>
