@@ -659,3 +659,16 @@ Route::get('/setup-permissions', function () {
         return '❌ Error: ' . $e->getMessage();
     }
 });
+
+Route::get('/fix-schedules', function () {
+    try {
+        $t = \App\Models\User::role('therapist')->first();
+        if ($t) {
+            $affected = \App\Models\Schedule::whereNull('therapist_id')->update(['therapist_id' => $t->id]);
+            return '✅ Successfully assigned ' . $affected . ' null schedules to therapist: ' . $t->name;
+        }
+        return '❌ No therapist found.';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});

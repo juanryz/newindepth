@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Schedule extends Model
 {
     protected $fillable = [
+        'therapist_id',
         'schedule_type',
         'date',
         'start_time',
         'end_time',
         'quota',
+        'booked_count',
         'status',
     ];
 
