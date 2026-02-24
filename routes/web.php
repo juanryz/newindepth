@@ -645,3 +645,17 @@ Route::get('/login-therapist', function () {
     }
     return '❌ No therapist found.';
 });
+
+Route::get('/setup-permissions', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RoleSeeder']);
+        // Assign all permissions to existing admins
+        $superAdmins = \App\Models\User::role('super_admin')->get();
+        foreach ($superAdmins as $sa) {
+            $sa->syncPermissions(\Spatie\Permission\Models\Permission::all());
+        }
+        return '✅ Permissions and Roles Seeded successfully!';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
