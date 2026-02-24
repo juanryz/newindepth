@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { A as AuthenticatedLayout } from "./AuthenticatedLayout-A9zMGcDB.js";
 import { usePage, useForm, Head, Link } from "@inertiajs/react";
 import { P as PrimaryButton } from "./PrimaryButton-DsRkdqwY.js";
-import AffiliateAgreementContent from "./AffiliateAgreementContent-D0pYN57b.js";
+import AffiliateAgreementContent from "./AffiliateAgreementContent-BWGUMIZF.js";
 import "@headlessui/react";
 import "./ThemeToggle-SHr-61ed.js";
 import "./LiquidBackground-CwZ70oWB.js";

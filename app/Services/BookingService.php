@@ -53,8 +53,13 @@ class BookingService
                 'upgrade' => 1500000,
                 default => 1000000,
             };
+
+            // Calculate PPN 11%
+            $taxAmount = $basePrice * 0.11;
+            $priceWithTax = $basePrice + $taxAmount;
+
             $uniqueCode = rand(101, 999);
-            $amount = $basePrice + $uniqueCode;
+            $amount = $priceWithTax + $uniqueCode;
 
             $booking->transaction()->create([
                 'user_id' => $patientId,

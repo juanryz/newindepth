@@ -82,7 +82,8 @@ function PaymentUpload({ booking, transaction }) {
                     /* @__PURE__ */ jsxs("p", { className: "text-2xl font-black text-indigo-600 dark:text-indigo-400", children: [
                       "Rp ",
                       new Intl.NumberFormat("id-ID").format(transaction.amount || 0)
-                    ] })
+                    ] }),
+                    /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest", children: "*Sudah termasuk PPN 11%" })
                   ] }),
                   /* @__PURE__ */ jsxs("div", { className: "flex-1 space-y-3", children: [
                     /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [

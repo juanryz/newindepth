@@ -367,7 +367,8 @@ function Welcome({ auth, articles, courses }) {
                 /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-400 line-through decoration-red-500/50 decoration-2", children: "Rp 2.000.000" }),
                 /* @__PURE__ */ jsx("span", { className: "text-3xl font-extrabold text-gray-900 dark:text-white", children: "Rp 1.000.000" })
               ] }),
-              /* @__PURE__ */ jsx("p", { className: "text-gray-500 dark:text-gray-400 mt-2 font-medium", children: "Per Sesi / Treatment" })
+              /* @__PURE__ */ jsx("p", { className: "text-gray-500 dark:text-gray-400 mt-2 font-medium", children: "Per Sesi / Treatment" }),
+              /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest", children: "*Harga belum termasuk PPN 11%" })
             ] }),
             /* @__PURE__ */ jsxs("ul", { className: "space-y-4 mb-8 flex-grow", children: [
               /* @__PURE__ */ jsxs("li", { className: "flex items-center gap-3 text-gray-600 dark:text-gray-300", children: [
@@ -395,7 +396,8 @@ function Welcome({ auth, articles, courses }) {
                 /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-400 line-through decoration-red-500/50 decoration-2", children: "Rp 3.000.000" }),
                 /* @__PURE__ */ jsx("span", { className: "text-3xl font-extrabold text-gray-900 dark:text-white", children: "Rp 1.500.000" })
               ] }),
-              /* @__PURE__ */ jsx("p", { className: "text-gray-500 dark:text-gray-400 mt-2 font-medium", children: "Per Paket Program" })
+              /* @__PURE__ */ jsx("p", { className: "text-gray-500 dark:text-gray-400 mt-2 font-medium", children: "Per Paket Program" }),
+              /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest", children: "*Harga belum termasuk PPN 11%" })
             ] }),
             /* @__PURE__ */ jsxs("ul", { className: "space-y-4 mb-8 flex-grow", children: [
               /* @__PURE__ */ jsxs("li", { className: "flex items-center gap-3 text-gray-600 dark:text-gray-300", children: [
@@ -424,7 +426,8 @@ function Welcome({ auth, articles, courses }) {
                 /* @__PURE__ */ jsx("span", { className: "text-sm text-transparent select-none", "aria-hidden": "true", children: "-" }),
                 /* @__PURE__ */ jsx("span", { className: "text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200", children: "Rp 8.000.000" })
               ] }),
-              /* @__PURE__ */ jsx("p", { className: "text-gold-500/80 mt-2 font-medium", children: "Prioritas & Kasus Kompleks" })
+              /* @__PURE__ */ jsx("p", { className: "text-gold-500/80 mt-2 font-medium", children: "Prioritas & Kasus Kompleks" }),
+              /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-gold-500/60 mt-1 uppercase tracking-widest", children: "*Harga belum termasuk PPN 11%" })
             ] }),
             /* @__PURE__ */ jsxs("ul", { className: "space-y-4 mb-8 flex-grow", children: [
               /* @__PURE__ */ jsxs("li", { className: "flex items-center gap-3 text-gray-300", children: [

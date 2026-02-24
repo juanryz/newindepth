@@ -3,7 +3,7 @@ import "react";
 import { Head, Link } from "@inertiajs/react";
 import { A as AuthenticatedLayout } from "./AuthenticatedLayout-A9zMGcDB.js";
 import { P as PrimaryButton } from "./PrimaryButton-DsRkdqwY.js";
-import AffiliateAgreementContent from "./AffiliateAgreementContent-D0pYN57b.js";
+import AffiliateAgreementContent from "./AffiliateAgreementContent-BWGUMIZF.js";
 import "@headlessui/react";
 import "./ThemeToggle-SHr-61ed.js";
 import "./LiquidBackground-CwZ70oWB.js";
@@ -35,7 +35,7 @@ function AgreementDetail({ userModel }) {
               /* @__PURE__ */ jsx("span", { className: "text-[10px] font-black uppercase tracking-[0.2em] opacity-70", children: "Sertifikat Kemitraan" }),
               /* @__PURE__ */ jsx("h1", { className: "text-xl font-black tracking-tight mt-1", children: "PERJANJIAN MITRA AFFILIATE" })
             ] }),
-            /* @__PURE__ */ jsxs("div", { className: "p-8 sm:p-10 space-y-8", children: [
+            /* @__PURE__ */ jsxs("div", { className: "p-8 sm:p-10 space-y-8 text-slate-800 dark:text-white", children: [
               /* @__PURE__ */ jsxs("div", { className: "flex flex-wrap gap-8 text-sm pb-8 border-b border-gray-100 dark:border-gray-700", children: [
                 /* @__PURE__ */ jsxs("div", { children: [
                   /* @__PURE__ */ jsx("p", { className: "text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1", children: "Nama Mitra" }),
@@ -57,7 +57,7 @@ function AgreementDetail({ userModel }) {
                   userModel.id
                 ] }) })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: "bg-slate-50 dark:bg-slate-900/30 p-8 rounded-2xl border border-slate-100 dark:border-slate-800", children: /* @__PURE__ */ jsx(AffiliateAgreementContent, {}) }),
+              /* @__PURE__ */ jsx("div", { className: "bg-slate-50 dark:bg-slate-800/60 p-8 rounded-2xl border border-slate-100 dark:border-slate-700", children: /* @__PURE__ */ jsx(AffiliateAgreementContent, {}) }),
               /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-12 pt-16 mt-16 border-t border-slate-100 dark:border-slate-800", children: [
                 /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
                   /* @__PURE__ */ jsx("p", { className: "text-[10px] text-slate-500 mb-4 uppercase tracking-[0.2em] font-black", children: "Mitra Affiliate" }),
