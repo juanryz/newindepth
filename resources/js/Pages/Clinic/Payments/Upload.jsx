@@ -90,6 +90,7 @@ export default function PaymentUpload({ booking, transaction }) {
                                 <div className="flex-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Nominal</p>
                                     <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">*Sudah termasuk PPN 11%</p>
                                 </div>
                                 <div className="flex-1 space-y-3">
                                     <div className="flex items-center gap-3">
