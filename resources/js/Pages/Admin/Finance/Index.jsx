@@ -106,11 +106,14 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
         <AuthenticatedLayout
             header={
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight tracking-tight uppercase">Manajemen Keuangan</h2>
-                    <div className="flex gap-3">
+                    <div>
+                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight tracking-tight uppercase">Manajemen Keuangan</h2>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Laporan, Pengeluaran &amp; Kas Kecil</p>
+                    </div>
+                    <div className="flex items-center gap-3">
                         <select
                             name="month"
-                            className="bg-white/50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-white transition-all cursor-pointer"
+                            className="h-10 px-4 bg-white/50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-white transition-all cursor-pointer"
                             value={filters.month}
                             onChange={handleFilterChange}
                         >
@@ -122,7 +125,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                         </select>
                         <select
                             name="year"
-                            className="bg-white/50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-white transition-all cursor-pointer"
+                            className="h-10 px-4 bg-white/50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 rounded-xl text-xs font-black uppercase tracking-widest focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-white transition-all cursor-pointer"
                             value={filters.year}
                             onChange={handleFilterChange}
                         >
@@ -132,10 +135,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                         </select>
                         <a
                             href={route('admin.reports.export-csv', filters)}
-                            className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20"
+                            className="inline-flex items-center h-10 px-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
                         >
                             <Download className="w-3 h-3 mr-2" />
-                            Export
+                            Export CSV
                         </a>
                     </div>
                 </div>
@@ -156,8 +159,8 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id)}
                                             className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id
-                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
+                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                                : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-4">
@@ -207,8 +210,8 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                 { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
                                                 <div key={i} className={`p-8 rounded-[2.5rem] shadow-xl border transition-all duration-500 ${stat.highlight
-                                                        ? 'bg-indigo-600 text-white border-transparent'
-                                                        : 'bg-white dark:bg-gray-900 border-white dark:border-gray-800'
+                                                    ? 'bg-indigo-600 text-white border-transparent'
+                                                    : 'bg-white dark:bg-gray-900 border-white dark:border-gray-800'
                                                     }`}>
                                                     <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${stat.highlight ? 'text-white/70' : 'text-gray-400'
                                                         }`}>{stat.label}</p>
@@ -387,8 +390,8 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                 </td>
                                                                 <td className="px-8 py-6">
                                                                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === 'in'
-                                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                                        : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                                                                         }`}>
                                                                         {tx.type === 'in' ? 'Isi Saldo (In)' : 'Keluar (Out)'}
                                                                     </span>

@@ -41,7 +41,7 @@ class OrderManagementController extends Controller
         });
 
         // Bookings
-        $bookings = Booking::with(['patient.screeningResults', 'schedule', 'therapist'])
+        $bookings = Booking::with(['patient.screeningResults', 'patient.roles', 'schedule', 'therapist'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {

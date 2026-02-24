@@ -346,16 +346,16 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                 </td>
                                                                 <td className="px-8 py-6">
                                                                     <div className="flex flex-wrap gap-1.5">
-                                                                        {role.permissions.slice(0, 10).map(perm => (
-                                                                            <span key={perm.id} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded text-[8px] font-bold uppercase tracking-tighter">
-                                                                                {perm.name.replace(/\./g, ' ')}
+                                                                        {(role.permissions || []).slice(0, 10).map(perm => (
+                                                                            <span key={perm.id} className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30 rounded text-[9px] font-black uppercase tracking-tighter shadow-sm">
+                                                                                {perm.name.replace(/[\._]/g, ' ')}
                                                                             </span>
                                                                         ))}
-                                                                        {role.permissions.length > 10 && (
-                                                                            <span className="text-[8px] font-black text-indigo-500 px-2 uppercase">+{role.permissions.length - 10} lainnya</span>
+                                                                        {(role.permissions || []).length > 10 && (
+                                                                            <span className="text-[9px] font-black text-indigo-500 px-2 uppercase my-auto">+{(role.permissions || []).length - 10} lainnya</span>
                                                                         )}
-                                                                        {role.permissions.length === 0 && (
-                                                                            <span className="text-[9px] text-gray-400 italic font-medium">Full Access (Super Admin) atau belum diatur</span>
+                                                                        {(!role.permissions || role.permissions.length === 0) && (
+                                                                            <span className="text-[10px] text-gray-400 italic font-medium px-2 py-1 bg-gray-50 dark:bg-gray-800/50 rounded-lg">Belum ada izin akses yang diatur</span>
                                                                         )}
                                                                     </div>
                                                                 </td>

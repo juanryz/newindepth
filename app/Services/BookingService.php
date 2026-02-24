@@ -79,7 +79,13 @@ class BookingService
     private function generateBookingCode(): string
     {
         $year = now()->year;
-        $count = Booking::whereYear('created_at', $year)->count() + 1;
-        return sprintf('BK-%d-%04d', $year, $count);
+        do {
+            // Use a count-based seed but randomize with suffix to prevent race conditions
+            $count = Booking::whereYear('created_at', $year)->count() + 1;
+            $suffix = rand(0, 9); // Extra randomness to avoid duplicate on concurrent requests
+            $code = sprintf('BK-%d-%04d', $year, $count + $suffix);
+        } while (Booking::where('booking_code', $code)->exists());
+
+        return $code;
     }
 }
