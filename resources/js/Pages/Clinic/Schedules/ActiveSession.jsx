@@ -76,13 +76,46 @@ const CHECKLIST_SECTIONS = [
 ];
 
 export default function ActiveSession({ booking, patient }) {
+    // Load draft from localStorage on mount
+    const [isLoaded, setIsLoaded] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         recording_link: booking.recording_link || '',
         therapist_notes: booking.therapist_notes || '',
         patient_visible_notes: booking.patient_visible_notes || '',
-        completion_outcome: booking.completion_outcome || 'Normal',
+        completion_outcome: booking.completion_outcome || '',
         session_checklist: booking.session_checklist || {},
     });
+
+    // Save to localStorage whenever data changes
+    useEffect(() => {
+        if (!isLoaded) {
+            const draft = localStorage.getItem(`session_draft_${booking.id}`);
+            if (draft) {
+                try {
+                    const parsed = JSON.parse(draft);
+                    setData({
+                        ...data,
+                        ...parsed,
+                        recording_link: parsed.recording_link || data.recording_link,
+                        therapist_notes: parsed.therapist_notes || data.therapist_notes,
+                        patient_visible_notes: parsed.patient_visible_notes || data.patient_visible_notes,
+                        session_checklist: parsed.session_checklist || data.session_checklist,
+                    });
+                } catch (e) {
+                    console.error("Failed to parse draft", e);
+                }
+            }
+            setIsLoaded(true);
+        } else {
+            localStorage.setItem(`session_draft_${booking.id}`, JSON.stringify({
+                recording_link: data.recording_link,
+                therapist_notes: data.therapist_notes,
+                patient_visible_notes: data.patient_visible_notes,
+                session_checklist: data.session_checklist,
+            }));
+        }
+    }, [data.recording_link, data.therapist_notes, data.patient_visible_notes, data.session_checklist]);
 
     const [timer, setTimer] = useState('00:00:00');
     const [showChecklist, setShowChecklist] = useState(false);
@@ -163,7 +196,19 @@ export default function ActiveSession({ booking, patient }) {
             alert('Mohon lengkapi semua checklist sesi terlebih dahulu.');
             return;
         }
-        post(route('schedules.complete', booking.id));
+        post(route('schedules.complete', booking.id), {
+            onSuccess: () => {
+                localStorage.removeItem(`session_draft_${booking.id}`);
+            },
+            onError: (err) => {
+                setShowChecklist(false);
+                if (err.recording_link) {
+                    alert('Error: ' + err.recording_link);
+                } else {
+                    alert('Gagal menyelesaikan sesi. Silakan periksa kembali data Anda.');
+                }
+            }
+        });
     };
 
     const renderField = (field) => {
@@ -279,6 +324,7 @@ export default function ActiveSession({ booking, patient }) {
                             <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter tabular-nums">{timer}</span>
                         </div>
                         <Link href={route('schedules.index')}
+                            onClick={() => { if (!confirm('Anda yakin ingin keluar dari sesi? Data draft akan tetap tersimpan di browser ini.')) return false; }}
                             className="flex items-center gap-2 px-6 py-3 bg-white/40 dark:bg-white/[0.03] backdrop-blur-xl hover:bg-white/60 dark:hover:bg-white/[0.08] text-gray-700 dark:text-gray-300 rounded-2xl text-xs font-black transition-all border border-white/40 dark:border-white/[0.08] shadow-sm uppercase tracking-widest">
                             <ArrowLeft className="w-4 h-4" /> Keluar
                         </Link>
@@ -317,13 +363,14 @@ export default function ActiveSession({ booking, patient }) {
                                     </div>
                                     <div className="relative group">
                                         <input type="url" value={data.recording_link} onChange={e => setData('recording_link', e.target.value)}
-                                            placeholder="Tempel link YouTube Live, Drive, atau Cloudflare..."
+                                            placeholder="https://www.youtube.com/live/..."
                                             className={`w-full pl-14 pr-6 py-5 bg-white/50 dark:bg-black/20 border-2 rounded-[1.5rem] focus:ring-8 transition-all font-bold tracking-tight ${errors.recording_link ? 'border-red-500/50 focus:ring-red-500/10' : 'border-transparent focus:border-indigo-500/30 focus:ring-indigo-500/10'} dark:text-white placeholder:text-gray-400`}
                                         />
                                         <div className="absolute left-5 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
                                             <Zap className="w-4 h-4 text-indigo-500" />
                                         </div>
                                     </div>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-2 ml-4 uppercase tracking-widest">Wajib diawali dengan https:// (Contoh: https://youtube.com/...)</p>
                                     {errors.recording_link && <p className="text-xs font-black text-red-500 mt-2 ml-4 uppercase tracking-widest">{errors.recording_link}</p>}
                                 </div>
 
@@ -403,10 +450,12 @@ export default function ActiveSession({ booking, patient }) {
                                                 </div>
                                             </div>
                                         )}
-                                        <Link href={route('schedules.patient-detail', { user: patient.id, from_booking_id: booking.id })}
+                                        <a href={route('schedules.patient-detail', { user: patient.id, from_booking_id: booking.id })}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-xl text-center">
-                                            Buka Rekam Medis Lengkap <ExternalLink className="w-3 h-3 opacity-50" />
-                                        </Link>
+                                            Buka Rekam Medis (Tab Baru) <ExternalLink className="w-3 h-3 opacity-50" />
+                                        </a>
                                     </div>
                                 </div>
                             </motion.div>
@@ -441,8 +490,16 @@ export default function ActiveSession({ booking, patient }) {
 
                             {/* Complete Session Button → opens checklist modal */}
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="pt-4">
-                                <button onClick={handleOpenChecklist} disabled={processing}
-                                    className="w-full py-8 bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 disabled:opacity-50 text-white rounded-[2.5rem] font-black text-xl shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all hover:scale-[1.02] active:scale-95 group flex items-center justify-center gap-4">
+                                {(!data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome) && (
+                                    <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                                        <p className="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest text-center leading-relaxed">
+                                            ⚠️ Lengkapi Rekaman Sesi, Observasi Klinis, Pesan Pasien, dan Hasil Sesi untuk mengaktifkan tombol penyelesaian.
+                                        </p>
+                                    </div>
+                                )}
+                                <button onClick={handleOpenChecklist}
+                                    disabled={processing || !data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome}
+                                    className="w-full py-8 bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 disabled:opacity-30 disabled:grayscale text-white rounded-[2.5rem] font-black text-xl shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all enabled:hover:scale-[1.02] enabled:active:scale-95 group flex items-center justify-center gap-4">
                                     <div className="p-2 bg-white/20 rounded-xl group-hover:rotate-12 transition-transform">
                                         <Save className="w-6 h-6" />
                                     </div>

@@ -431,124 +431,108 @@ export default function Dashboard() {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 <div className="lg:col-span-2 space-y-8">
-                                    {/* Upcoming Sessions */}
+
+                                    {/* ─── Upcoming Sessions — Premium Cards ─── */}
                                     <section>
                                         <SectionLabel>{isAdmin ? 'Seluruh Agenda Sesi Terdekat' : 'Agenda Sesi Terdekat'}</SectionLabel>
-                                        <GlassPanel className="p-2 overflow-hidden">
-                                            <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
-                                                <table className="w-full text-left">
-                                                    <thead className="sticky top-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl z-10">
-                                                        <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-slate-700/30">
-                                                            <th className="px-4 py-3">Waktu</th>
-                                                            <th className="px-4 py-3">Pasien</th>
-                                                            {isAdmin && <th className="px-4 py-3">Terapis</th>}
-                                                            <th className="px-4 py-3 text-right">Aksi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-white/30 dark:divide-slate-700/20">
-                                                        {therapistUpcomingSessions?.length > 0 ? (
-                                                            therapistUpcomingSessions.map((booking) => (
-                                                                <tr key={booking.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
-                                                                    <td className="px-4 py-4">
-                                                                        <div className="flex flex-col">
-                                                                            <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                                                                {new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                                                                            </span>
-                                                                            <span className="text-xs text-gray-500">
-                                                                                {booking.schedule.start_time.substring(0, 5)} WIB
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-4">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-xs">
-                                                                                {booking.patient?.name?.charAt(0)}
-                                                                            </div>
-                                                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
-                                                                        </div>
-                                                                    </td>
-                                                                    {isAdmin && (
-                                                                        <td className="px-4 py-4">
-                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name}</span>
-                                                                        </td>
-                                                                    )}
-                                                                    <td className="px-4 py-4 text-right">
-                                                                        <button
-                                                                            onClick={() => {
-                                                                                if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
-                                                                                    router.post(route('schedules.start', booking.id));
-                                                                                }
-                                                                            }}
-                                                                            className="text-xs font-black text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 uppercase tracking-widest"
-                                                                        >
-                                                                            Mulai Sesi
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        ) : (
-                                                            <tr>
-                                                                <td colSpan="3" className="px-4 py-8 text-center text-sm text-gray-500 italic">
-                                                                    Belum ada agenda sesi.
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
+                                        {therapistUpcomingSessions?.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {therapistUpcomingSessions.map((booking) => {
+                                                    const sched = booking.schedule;
+                                                    const dateObj = sched?.date ? new Date(sched.date) : null;
+                                                    const dayName = dateObj?.toLocaleDateString('id-ID', { weekday: 'short' });
+                                                    const dateStr = dateObj?.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                                                    const timeStr = sched?.start_time?.substring(0, 5);
+                                                    const endStr = sched?.end_time?.substring(0, 5);
+                                                    const packageColor = booking.package_type === 'vip'
+                                                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800/40'
+                                                        : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40';
+
+                                                    return (
+                                                        <motion.div
+                                                            key={booking.id}
+                                                            initial={{ opacity: 0, y: 8 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl border border-white/70 dark:border-white/[0.06] rounded-2xl p-5 flex items-center gap-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                                                        >
+                                                            {/* Date Block */}
+                                                            <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                                                                <span className="text-[9px] font-black uppercase tracking-widest opacity-80">{dayName}</span>
+                                                                <span className="text-2xl font-black leading-none">{dateObj?.getDate()}</span>
+                                                                <span className="text-[9px] font-black opacity-70">{dateObj?.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                                                            </div>
+
+                                                            {/* Info */}
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${packageColor}`}>
+                                                                        {booking.package_type?.toUpperCase() || 'SESI'}
+                                                                    </span>
+                                                                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
+                                                                        🕐 {timeStr} – {endStr} WIB
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2.5">
+                                                                    <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-black flex-shrink-0">
+                                                                        {booking.patient?.name?.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">{booking.patient?.name}</p>
+                                                                        {isAdmin && <p className="text-[10px] text-gray-400 font-bold">Terapis: {booking.therapist?.name || sched?.therapist?.name}</p>}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* CTA */}
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
+                                                                        router.post(route('schedules.start', booking.id));
+                                                                    }
+                                                                }}
+                                                                className="flex-shrink-0 px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/25 hover:from-indigo-700 hover:to-indigo-800 active:scale-95 transition-all"
+                                                            >
+                                                                Mulai
+                                                            </button>
+                                                        </motion.div>
+                                                    );
+                                                })}
                                             </div>
-                                        </GlassPanel>
+                                        ) : (
+                                            <GlassPanel className="py-14 flex flex-col items-center justify-center text-center">
+                                                <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center mb-4">
+                                                    <svg className="w-7 h-7 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                </div>
+                                                <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Tidak ada sesi terjadwal</p>
+                                                <p className="text-xs text-gray-400 mt-1">Tambah slot jadwal lewat menu Kelola Jadwal</p>
+                                            </GlassPanel>
+                                        )}
                                     </section>
 
-                                    {/* Past Sessions - Only for Admin */}
+                                    {/* ─── Past Sessions (Admin) ─── */}
                                     {isAdmin && (
                                         <section>
                                             <SectionLabel>Seluruh Riwayat Sesi Terakhir</SectionLabel>
-                                            <GlassPanel className="p-2 overflow-hidden">
-                                                <div className="overflow-x-auto max-h-[320px] overflow-y-auto custom-scrollbar">
-                                                    <table className="w-full text-left">
-                                                        <thead className="sticky top-0 bg-white dark:bg-gray-800 z-10 shadow-sm">
-                                                            <tr className="text-xs font-bold text-gray-400 uppercase border-b border-gray-50 dark:border-gray-700">
-                                                                <th className="px-4 py-3">Tanggal</th>
-                                                                <th className="px-4 py-3">Pasien</th>
-                                                                <th className="px-4 py-3">Terapis</th>
-                                                                <th className="px-4 py-3">Hasil</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
-                                                            {therapistPastSessions?.length > 0 ? (
-                                                                therapistPastSessions.map((booking) => (
-                                                                    <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                                                        <td className="px-4 py-4">
-                                                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                                                {new Date(booking.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                                            </span>
-                                                                        </td>
-                                                                        <td className="px-4 py-4">
-                                                                            <div className="flex items-center gap-3">
-                                                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{booking.patient?.name}</span>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-4 py-4">
-                                                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name}</span>
-                                                                        </td>
-                                                                        <td className="px-4 py-4">
-                                                                            <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-lg text-[10px] font-bold">
-                                                                                {booking.completion_outcome || 'Selesai'}
-                                                                            </span>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))
-                                                            ) : (
-                                                                <tr>
-                                                                    <td colSpan="4" className="px-4 py-8 text-center text-sm text-gray-500 italic">
-                                                                        Belum ada riwayat sesi.
-                                                                    </td>
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </GlassPanel>
+                                            <div className="space-y-2">
+                                                {therapistPastSessions?.length > 0 ? therapistPastSessions.map((booking) => (
+                                                    <div key={booking.id} className="bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl border border-white/70 dark:border-white/[0.06] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+                                                        <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-black flex-shrink-0">
+                                                            {booking.patient?.name?.charAt(0)}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-black text-gray-900 dark:text-white truncate">{booking.patient?.name}</p>
+                                                            <p className="text-[10px] font-bold text-gray-400">{booking.therapist?.name || booking.schedule?.therapist?.name} · {new Date(booking.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                        </div>
+                                                        <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 rounded-full text-[9px] font-black uppercase tracking-widest flex-shrink-0">
+                                                            {booking.completion_outcome || 'Selesai'}
+                                                        </span>
+                                                    </div>
+                                                )) : (
+                                                    <GlassPanel className="py-10 text-center">
+                                                        <p className="text-sm text-gray-400 italic">Belum ada riwayat sesi.</p>
+                                                    </GlassPanel>
+                                                )}
+                                            </div>
                                         </section>
                                     )}
                                 </div>

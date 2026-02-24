@@ -20,6 +20,44 @@ export default function Form({ therapists, onSuccess }) {
         { id: 'custom', name: 'Waktu Custom', start: '', end: '' },
     ];
 
+    // Returns today's date string YYYY-MM-DD in local time
+    const todayStr = () => {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    // Current time as HH:MM
+    const nowTimeStr = () => {
+        const now = new Date();
+        return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    };
+
+    const isToday = data.date === todayStr();
+
+    // Filter sessions: if selected date is today, hide sessions whose start time <= now
+    const availableSessions = SESSIONS.filter(s => {
+        if (s.id === 'custom') return true;
+        if (!isToday) return true;
+        // Keep only sessions that start strictly in the future
+        return s.start > nowTimeStr();
+    });
+
+    // When date changes, reset session if currently selected one is no longer available
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        setData('date', newDate);
+        // Reset session if it's today and the session is already past
+        if (newDate === todayStr() && data.session && data.session !== 'custom') {
+            const currentSession = SESSIONS.find(s => s.id === data.session);
+            if (currentSession && currentSession.start <= nowTimeStr()) {
+                setData('session', '');
+            }
+        }
+    };
+
     const submit = (e) => {
         e.preventDefault();
 
@@ -91,10 +129,10 @@ export default function Form({ therapists, onSuccess }) {
                     <input
                         type="date"
                         value={data.date}
-                        onChange={e => setData('date', e.target.value)}
+                        onChange={handleDateChange}
                         className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all"
                         required
-                        min={new Date().toISOString().split('T')[0]}
+                        min={todayStr()}
                     />
                     {errors.date && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.date}</div>}
                 </div>
@@ -108,11 +146,16 @@ export default function Form({ therapists, onSuccess }) {
                         required
                     >
                         <option value="" className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">Pilih Sesi...</option>
-                        {SESSIONS.map(s => (
+                        {availableSessions.map(s => (
                             <option key={s.id} value={s.id} className="text-slate-900 dark:text-white bg-white dark:bg-slate-800">{s.name}</option>
                         ))}
                     </select>
                     {errors.session && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.session}</div>}
+                    {isToday && availableSessions.filter(s => s.id !== 'custom').length === 0 && (
+                        <div className="text-amber-500 text-[10px] font-black mt-1 ml-1 uppercase">
+                            ⚠️ Semua sesi hari ini sudah lewat. Pilih tanggal besok atau gunakan Waktu Custom.
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -126,6 +169,7 @@ export default function Form({ therapists, onSuccess }) {
                             onChange={e => setData('start_time', e.target.value)}
                             className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all"
                             required={data.session === 'custom'}
+                            min={isToday ? nowTimeStr() : undefined}
                         />
                         {errors.start_time && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.start_time}</div>}
                     </div>
@@ -137,6 +181,7 @@ export default function Form({ therapists, onSuccess }) {
                             onChange={e => setData('end_time', e.target.value)}
                             className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 transition-all"
                             required={data.session === 'custom'}
+                            min={data.start_time || (isToday ? nowTimeStr() : undefined)}
                         />
                         {errors.end_time && <div className="text-rose-500 text-[10px] font-black mt-1 ml-1 uppercase">{errors.end_time}</div>}
                     </div>

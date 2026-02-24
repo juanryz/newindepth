@@ -42,17 +42,17 @@ class BookingService
                 'booking_code' => $this->generateBookingCode(),
                 'patient_id' => $patientId,
                 'schedule_id' => $schedule->id,
-                // therapist_id will be assigned by admin during payment validation
+                'therapist_id' => $schedule->therapist_id,
                 'package_type' => $data['package_type'],
                 'affiliate_ref_code' => cookie('ref_code'),
                 'status' => 'pending_payment',
             ]);
 
             $basePrice = match ($data['package_type']) {
-                    'vip' => 8000000,
-                    'upgrade' => 1500000,
-                    default => 1000000,
-                };
+                'vip' => 8000000,
+                'upgrade' => 1500000,
+                default => 1000000,
+            };
             $uniqueCode = rand(101, 999);
             $amount = $basePrice + $uniqueCode;
 
@@ -63,10 +63,10 @@ class BookingService
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => [
-                    'agreed_to_refund_policy' => (bool)($data['agree_refund'] ?? false),
-                    'agreed_to_final_payment' => (bool)($data['agree_final'] ?? false),
-                    'agreed_to_access_terms' => (bool)($data['agree_access'] ?? false),
-                    'agreed_to_no_chargeback' => (bool)($data['agree_chargeback'] ?? false),
+                    'agreed_to_refund_policy' => (bool) ($data['agree_refund'] ?? false),
+                    'agreed_to_final_payment' => (bool) ($data['agree_final'] ?? false),
+                    'agreed_to_access_terms' => (bool) ($data['agree_access'] ?? false),
+                    'agreed_to_no_chargeback' => (bool) ($data['agree_chargeback'] ?? false),
                     'timestamp' => now()->toDateTimeString(),
                     'user_agent' => request()->userAgent(),
                 ],

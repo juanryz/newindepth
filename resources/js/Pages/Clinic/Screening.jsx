@@ -286,9 +286,26 @@ export default function Screening() {
     // ── Submit ────────────────────────────────────────────────────────────────
     const handleSubmit = () => {
         setSubmitting(true);
+
+        let finalChatHistory = [];
+
+        // Step 9
+        const msg9 = aiMessages[9] || [{ role: 'assistant', content: aiOpeners[9] }];
+        finalChatHistory.push(...msg9);
+        if (msg9.length === 1 && stepData.detail_masalah) {
+            finalChatHistory.push({ role: 'user', content: stepData.detail_masalah });
+        }
+
+        // Step 10
+        const msg10 = aiMessages[10] || [{ role: 'assistant', content: aiOpeners[10] }];
+        finalChatHistory.push(...msg10);
+        if (msg10.length === 1 && stepData.outcome) {
+            finalChatHistory.push({ role: 'user', content: stepData.outcome });
+        }
+
         router.post(route('screening.store'), {
             step_data: stepData,
-            chat_history: chatHistory,
+            chat_history: finalChatHistory,
         }, {
             onError: () => setSubmitting(false),
         });

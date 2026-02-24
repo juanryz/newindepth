@@ -39,23 +39,25 @@ class TransactionValidationController extends Controller
                 if ($transaction->transactionable_type === \App\Models\Booking::class) {
                     $booking = $transaction->transactionable;
 
-                    // Auto-assign therapist randomly (excluding those already booked on this slot)
-                    $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
-                        ->whereIn('status', ['confirmed', 'completed'])
-                        ->whereNotNull('therapist_id')
-                        ->pluck('therapist_id')
-                        ->toArray();
+                    $therapistId = $booking->schedule->therapist_id;
 
-                    $available = User::role('therapist')
-                        ->whereNotIn('id', $bookedIds)
-                        ->get();
+                    if (!$therapistId) {
+                        $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
+                            ->whereIn('status', ['confirmed', 'completed'])
+                            ->whereNotNull('therapist_id')
+                            ->pluck('therapist_id')
+                            ->toArray();
 
-                    if ($available->count() === 0) {
-                        throw new \Exception('Gagal assign otomatis: Semua terapis sudah penuh di slot ini.');
+                        $available = User::role('therapist')
+                            ->whereNotIn('id', $bookedIds)
+                            ->get();
+
+                        if ($available->count() === 0) {
+                            throw new \Exception('Gagal assign otomatis: Semua terapis sudah penuh di slot ini atau tidak ada terapis di sistem.');
+                        }
+
+                        $therapistId = $available->random()->id;
                     }
-
-                    // Pick a random available therapist
-                    $therapistId = $available->random()->id;
 
                     $booking->update([
                         'status' => 'confirmed',

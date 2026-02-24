@@ -29,7 +29,7 @@ class ScheduleController extends Controller
             $bookingsQuery->where('therapist_id', $user->id);
         }
 
-        $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'completed'])
+        $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'in_progress', 'completed'])
             ->get()
             ->map(function ($booking) {
                 if ($booking->patient) {
@@ -37,7 +37,9 @@ class ScheduleController extends Controller
                 }
                 return $booking;
             })
-            ->sortBy('schedule.date')
+            ->sortBy(function ($booking) {
+                return $booking->schedule?->date . ' ' . $booking->schedule?->start_time;
+            })
             ->values();
 
         // Available schedules for rescheduling
@@ -55,43 +57,76 @@ class ScheduleController extends Controller
             ->get();
 
         $allSchedulesQuery = Schedule::with(['therapist', 'bookings.patient']);
+
+        // If not admin, show their own schedules + assigned bookings + all available
         if (!$isAdmin) {
-            // Only show schedules that have a booking assigned to this therapist
-            $allSchedulesQuery->whereHas('bookings', function ($sq) use ($user) {
-                $sq->where('therapist_id', $user->id);
+            $allSchedulesQuery->where(function ($q) use ($user) {
+                $q->where('therapist_id', $user->id)
+                    ->orWhereHas('bookings', function ($sq) use ($user) {
+                        $sq->where('therapist_id', $user->id);
+                    })
+                    ->orWhere('status', 'available');
             });
         }
 
         $allSchedules = $allSchedulesQuery->get();
 
-        $calendarSchedules = $allSchedules->map(function ($schedule) use ($user) {
+        $calendarSchedules = $allSchedules->map(function ($schedule) use ($user, $isAdmin) {
             $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
             $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
             $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
 
-            $myBooking = $schedule->bookings->where('therapist_id', $user->id)->first();
+            $myBooking = null;
+            if (!$isAdmin) {
+                $myBooking = $schedule->bookings->where('therapist_id', $user->id)->first();
+            }
 
-            // At this point, for therapists, myBooking will always exist due to the whereHas filter
+            $isMine = $isAdmin ? true : ($schedule->therapist_id === $user->id || $myBooking !== null);
+
             return [
                 'id' => $schedule->id,
-                'title' => $myBooking ? $myBooking->patient->name : 'Tugas Sesi',
+                'title' => ($myBooking && $myBooking->patient) ? $myBooking->patient->name : ($schedule->therapist ? $schedule->therapist->name : 'Tugas Sesi'),
                 'start' => $date . 'T' . $startTime,
                 'end' => $date . 'T' . $endTime,
                 'backgroundColor' => null, // Use default or component colors
                 'extendedProps' => [
-                    'bookings' => $schedule->bookings->where('therapist_id', $user->id)->values(),
+                    'bookings' => $isAdmin ? $schedule->bookings->values() : $schedule->bookings->where('therapist_id', $user->id)->values(),
                     'therapist' => $schedule->therapist,
                     'schedule_type' => $schedule->schedule_type,
                     'status' => $schedule->status,
-                    'is_mine' => true,
+                    'is_mine' => $isMine,
                 ]
             ];
         });
 
+        $mySchedules = [];
+        if (!$isAdmin) {
+            $mySchedules = Schedule::with(['bookings.patient'])
+                ->where('therapist_id', $user->id)
+                ->where('date', '>=', now()->toDateString())
+                ->orderBy('date')
+                ->orderBy('start_time')
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'id' => $schedule->id,
+                        'date' => $schedule->date,
+                        'start_time' => substr($schedule->start_time, 0, 5),
+                        'end_time' => substr($schedule->end_time, 0, 5),
+                        'quota' => $schedule->quota,
+                        'booked_count' => $schedule->booked_count,
+                        'status' => $schedule->status,
+                        'schedule_type' => $schedule->schedule_type,
+                        'patient_name' => $schedule->bookings->first()?->patient?->name,
+                    ];
+                });
+        }
+
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
             'availableSchedules' => $availableSchedules,
-            'calendarSchedules' => $calendarSchedules
+            'calendarSchedules' => $calendarSchedules,
+            'mySchedules' => $mySchedules,
         ]);
     }
 
@@ -129,8 +164,9 @@ class ScheduleController extends Controller
 
     public function startSession(Request $request, Booking $booking)
     {
-        // Ensure the current therapist owns this booking's schedule
-        if ($booking->therapist_id != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
+        // Ensure the current therapist owns this booking's schedule-
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin'])) {
             abort(403);
         }
 
@@ -186,6 +222,7 @@ class ScheduleController extends Controller
 
         $booking->update([
             'status' => 'completed',
+            'ended_at' => now(),
             'recording_link' => $request->recording_link,
             'therapist_notes' => $request->therapist_notes,
             'patient_visible_notes' => $request->patient_visible_notes,
@@ -296,6 +333,56 @@ class ScheduleController extends Controller
         }
 
         return redirect()->back()->with('success', 'Sesi telah ditandai sebagai tidak hadir.');
+    }
+
+    public function storeRecurring(Request $request)
+    {
+        $validated = $request->validate([
+            'days_of_week' => 'required|array|min:1',
+            'days_of_week.*' => 'integer|between:0,6', // 0=Sun,1=Mon,...,6=Sat
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'date_from' => 'required|date|after_or_equal:today',
+            'date_to' => 'required|date|after_or_equal:date_from',
+            'quota' => 'required|integer|min:1|max:20',
+            'schedule_type' => 'nullable|string|in:consultation,class',
+        ]);
+
+        $therapistId = $request->user()->id;
+        $start = \Carbon\Carbon::parse($validated['date_from']);
+        $end = \Carbon\Carbon::parse($validated['date_to']);
+        $days = array_map('intval', $validated['days_of_week']); // e.g. [1,2] = Mon,Tue
+
+        $created = 0;
+        $current = $start->copy();
+
+        while ($current->lte($end)) {
+            // dayOfWeek: 0=Sun,1=Mon,2=Tue,...,6=Sat (Carbon)
+            if (in_array($current->dayOfWeek, $days)) {
+                // Avoid duplicate slots for same therapist/date/time
+                $exists = Schedule::where('therapist_id', $therapistId)
+                    ->where('date', $current->toDateString())
+                    ->where('start_time', $validated['start_time'])
+                    ->exists();
+
+                if (!$exists) {
+                    Schedule::create([
+                        'therapist_id' => $therapistId,
+                        'date' => $current->toDateString(),
+                        'start_time' => $validated['start_time'],
+                        'end_time' => $validated['end_time'],
+                        'quota' => $validated['quota'],
+                        'booked_count' => 0,
+                        'status' => 'available',
+                        'schedule_type' => $validated['schedule_type'] ?? 'consultation',
+                    ]);
+                    $created++;
+                }
+            }
+            $current->addDay();
+        }
+
+        return redirect()->back()->with('success', "Berhasil menambahkan {$created} slot jadwal.");
     }
 
     public function store(Request $request)

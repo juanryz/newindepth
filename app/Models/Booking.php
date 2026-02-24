@@ -28,12 +28,14 @@ class Booking extends Model
         'rescheduled_at',
         'original_schedule_id',
         'package_type',
+        'ended_at',
     ];
 
     protected $casts = [
         'screening_answers' => 'json',
         'session_checklist' => 'json',
         'started_at' => 'datetime',
+        'ended_at' => 'datetime',
         'rescheduled_at' => 'datetime',
     ];
 

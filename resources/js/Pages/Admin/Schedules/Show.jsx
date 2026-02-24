@@ -22,6 +22,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
     const [selectedPatientDetail, setSelectedPatientDetail] = useState(null);
     const [patientSubTab, setPatientSubTab] = useState('summary');
     const [selectedCourseAgreement, setSelectedCourseAgreement] = useState(null);
+    const [showChecklist, setShowChecklist] = useState({});
 
     // Form states
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
@@ -192,20 +193,24 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Kapasitas Slot</p>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Kapasitas & Ketersediaan</p>
                                     <div className="flex items-end gap-3 mb-1">
-                                        <span className={`text-4xl font-black ${schedule.booked_count >= schedule.quota ? 'text-rose-500' : 'text-indigo-600'}`}>
-                                            {schedule.booked_count}
+                                        <span className={`text-4xl font-black ${schedule.booked_count >= 1 ? 'text-rose-500' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'text-gray-400' : 'text-emerald-500')}`}>
+                                            {schedule.booked_count >= 1 ? 'PENUH' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'KADALUARSA' : 'TERBUKA')}
                                         </span>
-                                        <span className="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-widest">/ {schedule.quota} Terdaftar</span>
                                     </div>
-                                    <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${(schedule.booked_count / schedule.quota) * 100}%` }}
-                                            className={`h-full ${schedule.booked_count >= schedule.quota ? 'bg-rose-500' : 'bg-gradient-to-r from-indigo-500 to-indigo-600'}`}
-                                        />
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <div className={`w-3 h-3 rounded-full ${schedule.booked_count >= 1 ? 'bg-rose-500' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'bg-gray-400' : 'bg-emerald-500 animate-pulse')}`} />
+                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                            {schedule.booked_count >= 1
+                                                ? `${schedule.booked_count} Pasien Terdaftar`
+                                                : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal sesi telah berlalu' : '1 Slot tersedia — menunggu 1 pasien')}
+                                        </span>
                                     </div>
+                                    <p className="text-[9px] font-bold text-gray-400 italic mt-2 leading-relaxed">
+                                        Setiap terapis menangani 1 pasien per slot.<br />
+                                        Slot lain di jam sama = terapis lain yang tersedia.
+                                    </p>
                                 </div>
 
                                 <div className="space-y-4">
@@ -313,7 +318,10 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                                             </div>
                                                             <div>
                                                                 <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-                                                                    {booking.patient?.name}
+                                                                    <Link href={route('admin.users.show', booking.patient?.id)} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group flex items-center gap-2">
+                                                                        {booking.patient?.name}
+                                                                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
+                                                                    </Link>
                                                                     {booking.package_type === 'vip' && <Star className="w-4 h-4 text-amber-500 fill-amber-500" />}
                                                                 </h4>
                                                                 <div className="text-xs font-bold text-gray-400 flex items-center gap-4 mt-1">
@@ -343,86 +351,99 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                                         {/* Patient Info Grid */}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                             <div className="space-y-4">
-                                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Integrasi Sesi</p>
-                                                                <div className="space-y-4">
-                                                                    <div className="grid grid-cols-2 gap-4">
-                                                                        <div className="relative">
-                                                                            <label className="text-[9px] font-black text-indigo-500 uppercase tracking-wider ml-1 mb-1 block">Status Sesi</label>
-                                                                            <select
-                                                                                value={editingDetails[booking.id]?.status || 'confirmed'}
-                                                                                onChange={(e) => handleDetailChange(booking.id, 'status', e.target.value)}
-                                                                                className="w-full bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700/50 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner"
-                                                                            >
-                                                                                <option value="confirmed">Confirmed</option>
-                                                                                <option value="completed">Completed</option>
-                                                                                <option value="no_show">No Show</option>
-                                                                                <option value="cancelled">Cancelled</option>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div className="relative">
-                                                                            <label className="text-[9px] font-black text-indigo-500 uppercase tracking-wider ml-1 mb-1 block">Hasil Outcome</label>
-                                                                            <select
-                                                                                value={editingDetails[booking.id]?.completion_outcome || 'Normal'}
-                                                                                onChange={(e) => handleDetailChange(booking.id, 'completion_outcome', e.target.value)}
-                                                                                className="w-full bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700/50 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner"
-                                                                            >
-                                                                                <option value="Normal">Normal</option>
-                                                                                <option value="Abnormal/Emergency">Emergency</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
+                                                                <div className="flex items-center justify-between px-1">
+                                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Integrasi Sesi</p>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setShowChecklist(prev => ({ ...prev, [booking.id]: !prev[booking.id] }))}
+                                                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${showChecklist[booking.id]
+                                                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20'
+                                                                            : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800/40 hover:bg-indigo-100'
+                                                                            }`}
+                                                                    >
+                                                                        <ClipboardList className="w-3.5 h-3.5" />
+                                                                        {showChecklist[booking.id] ? 'Sembunyikan' : 'Lihat Checklist Sesi'}
+                                                                    </button>
+                                                                </div>
 
-                                                                    <div className="relative">
-                                                                        <label className="text-[9px] font-black text-indigo-500 uppercase tracking-wider ml-1 mb-1 block">Metode yang Digunakan</label>
-                                                                        <select
-                                                                            value={editingDetails[booking.id]?.core_method || ''}
-                                                                            onChange={(e) => handleDetailChange(booking.id, 'core_method', e.target.value)}
-                                                                            className="w-full bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/30 rounded-2xl px-5 py-3.5 text-sm font-black text-indigo-700 dark:text-indigo-300 shadow-inner"
-                                                                        >
-                                                                            <option value="">-- Pilih Metode Terapis --</option>
-                                                                            {/* Default methods from active session */}
-                                                                            <option value="InDepth Solution">InDepth Solution</option>
-                                                                            <option value="InDepth Trance State">InDepth Trance State</option>
-                                                                            <option value="Supreme Trance State">Supreme Trance State</option>
-                                                                            <option value="NLP">Neuro Linguistic Programming (NLP)</option>
-                                                                            <option value="CBT">Cognitive Behavioral Therapy (CBT)</option>
-                                                                            {/* Dynamic methods from therapist profile */}
-                                                                            {(booking.therapist?.specialization || schedule.therapist?.specialization)?.split(',').map((s, idx) => (
-                                                                                <option key={idx} value={s.trim()}>{s.trim()}</option>
-                                                                            ))}
-                                                                        </select>
-                                                                    </div>
+                                                                {/* READ-ONLY Checklist Panel — hanya dari input terapis */}
+                                                                {showChecklist[booking.id] && (
+                                                                    <div className="p-6 bg-indigo-50/40 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-[1.5rem] space-y-4 animate-in fade-in duration-300">
+                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                                            <ClipboardList className="w-3 h-3" /> Checklist Hipnoterapi — Diisi oleh Terapis
+                                                                        </p>
 
-                                                                    <div className="relative">
-                                                                        <label className="text-[9px] font-black text-indigo-500 uppercase tracking-wider ml-1 mb-1 block">Link Rekaman (Optional)</label>
-                                                                        <input
-                                                                            type="text"
-                                                                            value={editingDetails[booking.id]?.recording_link || ''}
-                                                                            onChange={(e) => handleDetailChange(booking.id, 'recording_link', e.target.value)}
-                                                                            className="w-full bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700/50 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner"
-                                                                            placeholder="https://zoom.us/..."
-                                                                        />
+                                                                        {/* Status & Outcome — read only */}
+                                                                        <div className="grid grid-cols-2 gap-3">
+                                                                            <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl">
+                                                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Sesi</p>
+                                                                                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase ${booking.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                                                                                    booking.status === 'no_show' ? 'bg-rose-100 text-rose-700' :
+                                                                                        'bg-blue-100 text-blue-700'
+                                                                                    }`}>{booking.status}</span>
+                                                                            </div>
+                                                                            <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl">
+                                                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Hasil Outcome</p>
+                                                                                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase ${booking.completion_outcome === 'Abnormal/Emergency' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                                                                                    }`}>{booking.completion_outcome || 'Normal'}</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Core Method */}
+                                                                        <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl">
+                                                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Metode yang Digunakan</p>
+                                                                            <p className="text-sm font-black text-indigo-700 dark:text-indigo-300">
+                                                                                {booking.session_checklist?.core_method_type?.[0] || <span className="text-gray-400 font-bold italic text-xs">Belum diisi terapis</span>}
+                                                                            </p>
+                                                                        </div>
+
+                                                                        {/* Checklist items */}
+                                                                        {booking.session_checklist && Object.keys(booking.session_checklist).length > 0 ? (
+                                                                            <div className="space-y-2">
+                                                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Item Checklist</p>
+                                                                                {Object.entries(booking.session_checklist).filter(([k]) => k !== 'core_method_type').map(([key, val]) => (
+                                                                                    <div key={key} className="flex items-center justify-between py-2 px-4 bg-white dark:bg-slate-800 rounded-xl">
+                                                                                        <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 capitalize">{key.replace(/_/g, ' ')}</span>
+                                                                                        {typeof val === 'boolean' ? (
+                                                                                            val ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-gray-300" />
+                                                                                        ) : (
+                                                                                            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 max-w-[50%] text-right break-words">{Array.isArray(val) ? val.join(', ') : String(val)}</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="py-6 text-center text-[10px] font-bold text-gray-400 italic">
+                                                                                Checklist belum diisi oleh terapis
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Therapist notes read-only */}
+                                                                        {booking.therapist_notes && (
+                                                                            <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl">
+                                                                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Catatan Terapis</p>
+                                                                                <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-relaxed">{booking.therapist_notes}</p>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {booking.recording_link && (
+                                                                            <a href={booking.recording_link} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 rounded-2xl text-[10px] font-black text-indigo-600 hover:bg-indigo-50 transition-all">
+                                                                                <Video className="w-4 h-4" /> Lihat Rekaman Sesi
+                                                                            </a>
+                                                                        )}
                                                                     </div>
-                                                                    <div className="relative">
-                                                                        <label className="text-[9px] font-black text-indigo-500 uppercase tracking-wider ml-1 mb-1 block">Catatan Terapis (Internal/Klinis)</label>
-                                                                        <textarea
-                                                                            value={editingDetails[booking.id]?.therapist_notes || ''}
-                                                                            onChange={(e) => handleDetailChange(booking.id, 'therapist_notes', e.target.value)}
-                                                                            className="w-full bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700/50 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner resize-none"
-                                                                            rows="2"
-                                                                            placeholder="Input catatan klinis internal..."
-                                                                        />
-                                                                    </div>
-                                                                    <div className="relative">
-                                                                        <label className="text-[9px] font-black text-emerald-500 uppercase tracking-wider ml-1 mb-1 block">Pesan untuk Pasien (Muncul di Dashboard)</label>
-                                                                        <textarea
-                                                                            value={editingDetails[booking.id]?.patient_visible_notes || ''}
-                                                                            onChange={(e) => handleDetailChange(booking.id, 'patient_visible_notes', e.target.value)}
-                                                                            className="w-full bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner resize-none"
-                                                                            rows="2"
-                                                                            placeholder="Berikan semangat atau instruksi tugas..."
-                                                                        />
-                                                                    </div>
+                                                                )}
+
+                                                                {/* Admin-only: Pesan untuk pasien */}
+                                                                <div className="relative">
+                                                                    <label className="text-[9px] font-black text-emerald-500 uppercase tracking-wider ml-1 mb-1 block">Pesan untuk Pasien (Muncul di Dashboard)</label>
+                                                                    <textarea
+                                                                        value={editingDetails[booking.id]?.patient_visible_notes || ''}
+                                                                        onChange={(e) => handleDetailChange(booking.id, 'patient_visible_notes', e.target.value)}
+                                                                        className="w-full bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 rounded-2xl px-5 py-3.5 text-sm font-bold shadow-inner resize-none"
+                                                                        rows="2"
+                                                                        placeholder="Berikan semangat atau instruksi tugas..."
+                                                                    />
                                                                 </div>
                                                             </div>
 

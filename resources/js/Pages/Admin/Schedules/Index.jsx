@@ -19,8 +19,20 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
         const handleResize = () => {
             if (window.innerWidth < 1024) {
                 setView('timeGridDay');
+                if (calendarRef.current) {
+                    const api = calendarRef.current.getApi();
+                    if (api.view.type.includes('Grid') && api.view.type !== 'timeGridDay') {
+                        api.changeView('timeGridDay');
+                    }
+                }
             } else {
                 setView('timeGridWeek');
+                if (calendarRef.current) {
+                    const api = calendarRef.current.getApi();
+                    if (api.view.type.includes('Grid') && api.view.type !== 'dayGridMonth' && api.view.type !== 'timeGridWeek') {
+                        api.changeView('timeGridWeek');
+                    }
+                }
             }
         };
 
@@ -158,6 +170,15 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
             background-color: #4f46e5 !important;
             border-color: #4f46e5 !important;
             color: white !important;
+        }
+        @media (max-width: 767px) {
+            .fc-toolbar { flex-direction: column !important; gap: 8px !important; align-items: stretch !important; }
+            .fc-toolbar-title { font-size: 0.9rem !important; text-align: center; }
+            .fc-toolbar-chunk { display: flex !important; justify-content: center !important; flex-wrap: wrap !important; gap: 4px !important; }
+            .fc-button-primary { font-size: 9px !important; padding: 6px 10px !important; }
+            .fc .fc-col-header-cell-cushion { font-size: 9px !important; padding: 4px !important; border: none !important; }
+            .fc .fc-timegrid-slot-label-cushion { font-size: 9px !important; }
+            .fc-timegrid-slot { height: 3em !important; }
         }
     `;
 
@@ -299,31 +320,31 @@ function renderEventContent(eventInfo) {
     const isBooked = eventInfo.event.extendedProps.bookings?.length > 0;
 
     return (
-        <div className={`h-full w-full p-2 rounded-xl transition-all flex flex-col justify-center gap-1 group overflow-hidden ${isBooked
+        <div className={`h-full w-full p-1 sm:p-2 rounded-xl transition-all flex flex-col justify-center gap-0 sm:gap-1 group overflow-hidden ${isBooked
             ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20 shadow-inner'
             : 'bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm'
             }`}>
-            <div className="flex items-center justify-between pointer-events-none">
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none">
+            <div className="flex items-center justify-between pointer-events-none mb-0.5">
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-80 leading-tight truncate">
                     {eventInfo.timeText}
                 </span>
                 {isBooked && (
-                    <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>
                 )}
             </div>
 
-            <div className={`text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none ${isBooked ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+            <div className={`text-[10px] sm:text-xs font-black truncate leading-tight uppercase tracking-tight pointer-events-none ${isBooked ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                 {isBooked ? '✅ TERISI' : eventInfo.event.extendedProps.therapist?.name}
             </div>
 
             {!isBooked && (
-                <div className="text-[8px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest pointer-events-none">
+                <div className="text-[7.5px] sm:text-[8px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-widest pointer-events-none truncate">
                     {eventInfo.event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Konsultasi'}
                 </div>
             )}
 
             {isBooked && (
-                <div className="text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none">
+                <div className="text-[7.5px] sm:text-[8px] font-black text-white/70 uppercase tracking-widest pointer-events-none truncate">
                     {eventInfo.event.extendedProps.bookings.length} Pasien
                 </div>
             )}

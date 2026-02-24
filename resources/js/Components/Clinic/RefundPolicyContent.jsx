@@ -80,7 +80,7 @@ export default function RefundPolicyContent() {
     return (
         <div className="space-y-4">
             <p className="font-bold text-gray-900 dark:text-white mb-4 italic uppercase text-xs">Terakhir diperbarui: {REFUND_POLICY.updated}</p>
-            <div className="whitespace-pre-wrap text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+            <div className="whitespace-pre-wrap">
                 {REFUND_POLICY.content}
             </div>
         </div>

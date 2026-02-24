@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'index'])->name('schedules.index');
             Route::get('/schedules/patients/{user}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'patientDetail'])->name('schedules.patient-detail');
             Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
+            Route::post('/schedules/recurring', [\App\Http\Controllers\Clinic\ScheduleController::class, 'storeRecurring'])->name('schedules.store-recurring');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
             Route::post('/schedules/sessions/{booking}/start', [\App\Http\Controllers\Clinic\ScheduleController::class, 'startSession'])->name('schedules.start');
             Route::get('/schedules/sessions/{booking}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'activeSession'])->name('schedules.active-session');

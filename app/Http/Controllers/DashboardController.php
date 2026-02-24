@@ -97,9 +97,12 @@ class DashboardController extends Controller
 
             // Past sessions (completed)
             $therapistPastSessions = (clone $baseBookingQuery)
+                ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
+                ->select('bookings.*')
                 ->with(['patient', 'schedule.therapist', 'therapist'])
-                ->where('status', 'completed')
-                ->latest('updated_at')
+                ->where('bookings.status', 'completed')
+                ->orderBy('schedules.date', 'desc')
+                ->orderBy('schedules.start_time', 'desc')
                 ->take(10)
                 ->get();
 

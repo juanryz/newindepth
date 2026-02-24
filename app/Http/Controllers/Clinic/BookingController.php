@@ -47,9 +47,12 @@ class BookingController extends Controller
         $user = $request->user();
 
         $bookings = Booking::with(['therapist', 'schedule.therapist'])
+            ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
+            ->select('bookings.*')
             ->where('patient_id', $user->id)
-            ->whereIn('status', ['completed', 'confirmed'])
-            ->orderBy('created_at', 'desc')
+            ->whereIn('bookings.status', ['completed', 'confirmed'])
+            ->orderBy('schedules.date', 'desc')
+            ->orderBy('schedules.start_time', 'desc')
             ->paginate(10);
 
         // Hide internal therapist notes from patient view

@@ -12,9 +12,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [] }) {
-    const { auth, flash, errors } = usePage().props;
-    const isAdmin = auth.user.roles.some(r => ['admin', 'super_admin'].includes(r.name));
+
+
+export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [] }) {
+    const { auth, flash, errors: pageErrors } = usePage().props;
+    const isAdmin = auth.user?.roles?.some(r => ['admin', 'super_admin'].includes(r.name)) ?? false;
 
     const [selectedHistoryPatient, setSelectedHistoryPatient] = useState(null);
     const [selectedCompletingBooking, setSelectedCompletingBooking] = useState(null);
@@ -22,7 +24,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     const [selectedNoShowBooking, setSelectedNoShowBooking] = useState(null);
 
     const [activeTab, setActiveTab] = useState('calendar');
-    const [historyFilter, setHistoryFilter] = useState('pending'); // Default: Belum Selesai
+    const [historyFilter, setHistoryFilter] = useState('pending');
+    const [historyDateFrom, setHistoryDateFrom] = useState('');
+    const [historyDateTo, setHistoryDateTo] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
@@ -31,13 +35,34 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-    const { data: scheduleData, setData: setScheduleData, post: postSchedule, processing: addingSchedule, reset: resetSchedule, errors: scheduleErrors } = useForm({
-        date: '',
-        start_time: '',
-        end_time: '',
+
+    // Recurring availability form
+    const { data: recurData, setData: setRecurData, post: postRecur, processing: savingRecur, reset: resetRecur, errors: recurErrors } = useForm({
+        days_of_week: [],   // array of ints: 1=Mon,2=Tue,...,0=Sun
+        start_time: '09:00',
+        end_time: '12:00',
+        date_from: '',
+        date_to: '',
         quota: 1,
-        schedule_type: 'consultation'
+        schedule_type: 'consultation',
     });
+
+    const DAYS = [
+        { id: 1, short: 'Sen', long: 'Senin' },
+        { id: 2, short: 'Sel', long: 'Selasa' },
+        { id: 3, short: 'Rab', long: 'Rabu' },
+        { id: 4, short: 'Kam', long: 'Kamis' },
+        { id: 5, short: 'Jum', long: 'Jumat' },
+        { id: 6, short: 'Sab', long: 'Sabtu' },
+        { id: 0, short: 'Min', long: 'Minggu' },
+    ];
+
+    const toggleDay = (dayId) => {
+        const curr = recurData.days_of_week;
+        setRecurData('days_of_week', curr.includes(dayId) ? curr.filter(d => d !== dayId) : [...curr, dayId]);
+    };
+
+    const todayStr = new Date().toISOString().split('T')[0];
 
     const { data: completeData, setData: setCompleteData, post: postComplete, processing: completing, reset: resetComplete, errors: completeErrors } = useForm({
         recording_link: '',
@@ -130,11 +155,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const handleAddSchedule = (e) => {
         e.preventDefault();
-        postSchedule(route('schedules.store'), {
-            onSuccess: () => {
-                setIsAdding(false);
-                resetSchedule();
-            }
+        postRecur(route('schedules.store-recurring'), {
+            onSuccess: () => resetRecur(),
         });
     };
 
@@ -167,8 +189,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         const patientName = isBooked ? event.extendedProps.bookings[0].patient?.name : null;
 
         // Base styling for glass effect
-        let contentClass = "h-full w-full p-2 rounded-xl flex flex-col justify-center gap-1 overflow-hidden transition-all duration-300 ";
-        let textClass = "font-black truncate leading-tight uppercase tracking-tight pointer-events-none ";
+        let contentClass = "h-full w-full p-1 sm:p-2 rounded-xl flex flex-col justify-center gap-0 sm:gap-1 overflow-hidden transition-all duration-300 ";
+        let textClass = "font-black truncate leading-none uppercase tracking-tight pointer-events-none ";
 
         if (isMine) {
             if (status === 'in_progress') {
@@ -194,7 +216,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         return (
             <div className={contentClass}>
                 <div className="flex items-center justify-between pointer-events-none mb-0.5">
-                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60 leading-none">{eventInfo.timeText}</span>
+                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-60 leading-tight truncate">{eventInfo.timeText}</span>
                     {isMine && status === 'confirmed' && <div className="w-2 h-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_white]"></div>}
                 </div>
 
@@ -206,7 +228,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                     )}
                 </div>
 
-                <div className="text-[8px] font-bold opacity-60 uppercase tracking-widest pointer-events-none flex items-center gap-1">
+                <div className="text-[7.5px] sm:text-[8px] font-bold opacity-60 uppercase tracking-widest pointer-events-none flex items-center gap-1 truncate">
                     {event.extendedProps.schedule_type === 'class' ? '🎓 Kelas' : '👥 Sesi'}
                     {isMine && status === 'completed' && ' • SELESAI'}
                 </div>
@@ -333,10 +355,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         @media (max-width: 767px) {
             .fc-toolbar { flex-direction: column !important; gap: 8px !important; align-items: stretch !important; }
             .fc-toolbar-title { font-size: 0.9rem !important; text-align: center; }
-            .fc-toolbar-chunk { display: flex !important; justify-content: center !important; }
-            .fc-button-primary { font-size: 9px !important; padding: 4px 8px !important; }
-            .fc .fc-col-header-cell-cushion { font-size: 10px !important; }
-            .fc .fc-timegrid-slot-label-cushion { font-size: 10px !important; }
+            .fc-toolbar-chunk { display: flex !important; justify-content: center !important; flex-wrap: wrap !important; gap: 4px !important; }
+            .fc-button-primary { font-size: 9px !important; padding: 6px 10px !important; }
+            .fc .fc-col-header-cell-cushion { font-size: 9px !important; padding: 4px !important; }
+            .fc .fc-timegrid-slot-label-cushion { font-size: 9px !important; }
+            .fc-timegrid-slot { height: 3em !important; }
         }
     `;
 
@@ -355,220 +378,223 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
             <Head title="Kelola Jadwal Praktik" />
             <style>{calendarStyles}</style>
 
-            <div className="relative py-12 bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden transition-colors duration-700">
-                {/* Dynamic Background Blobs */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-40 dark:opacity-20 z-0">
-                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-indigo-400/30 to-purple-500/30 blur-[120px] rounded-full animate-pulse" style={{ animationDuration: '8s' }}></div>
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-gradient-to-tr from-cyan-400/20 to-emerald-400/20 blur-[100px] rounded-full animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
-                    <div className="absolute top-[20%] left-[20%] w-[30%] h-[30%] bg-gradient-to-r from-rose-400/10 to-orange-400/10 blur-[80px] rounded-full animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }}></div>
-                </div>
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    {/* Tabs Navigation */}
-                    <div className="flex gap-2 mb-6 md:mb-8 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl p-1 md:p-1.5 rounded-xl md:rounded-[1.5rem] w-full md:w-fit border border-white/40 dark:border-slate-700 shadow-lg shadow-black/5">
-                        <button
-                            onClick={() => setActiveTab('calendar')}
-                            className={`flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
-                        >
-                            Kalender
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('history')}
-                            className={`flex-1 md:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-900/50'}`}
-                        >
-                            Daftar Sesi
-                        </button>
-                    </div>
+                    {/* Flash */}
+                    {flash?.success && (
+                        <div className="p-4 text-sm text-green-800 dark:text-green-300 rounded-2xl bg-green-50/80 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 mb-4">{flash.success}</div>
+                    )}
+                    {(flash?.error || pageErrors?.error) && (
+                        <div className="p-4 text-sm text-red-800 dark:text-red-300 rounded-2xl bg-red-50/80 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 mb-4">
+                            {flash?.error || pageErrors?.error}
+                        </div>
+                    )}
 
-                    {/* Glass Calendar Container */}
-                    <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-white dark:border-slate-800 rounded-[3.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-all duration-700 p-2">
-                        <div className="bg-white dark:bg-slate-900/20 rounded-[3rem] p-3 sm:p-5 md:p-10 transition-colors">
-                            {activeTab === 'calendar' ? (
-                                <div className="animate-in fade-in duration-500">
-                                    <FullCalendar
-                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                        initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
-                                        headerToolbar={isMobile ? {
-                                            left: 'prev,next',
-                                            center: 'title',
-                                            right: 'timeGridDay,dayGridMonth'
-                                        } : {
-                                            left: 'prev,next today',
-                                            center: 'title',
-                                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                                        }}
-                                        titleFormat={{ year: 'numeric', month: 'long', day: 'numeric' }}
-                                        events={calendarSchedules}
-                                        eventClick={handleEventClick}
-                                        eventContent={renderEventContent}
-                                        height="auto"
-                                        slotMinTime="07:00:00"
-                                        slotMaxTime="22:00:00"
-                                        slotDuration={'01:00:00'}
-                                        allDaySlot={false}
-                                        nowIndicator={true}
-                                        locale="id"
-                                        expandRows={true}
-                                        stickyHeaderDates={true}
-                                    />
+                    <div className="flex flex-col lg:flex-row gap-8">
+
+                        {/* ── Sidebar ── */}
+                        <div className="lg:w-72 flex-shrink-0 space-y-4">
+                            <div className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-md rounded-[2rem] border border-gray-100 dark:border-gray-700/50 p-2 shadow-sm">
+                                {[
+                                    { id: 'calendar', label: 'Kalender', icon: '📅' },
+                                    { id: 'history', label: 'Daftar Sesi', icon: '📋', count: bookings?.filter(b => ['confirmed', 'in_progress'].includes(b.status)).length },
+                                    ...(!isAdmin ? [{ id: 'mySchedules', label: 'Jadwal Saya', icon: '✦', count: mySchedules.length }] : []),
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all duration-300 ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20 translate-x-1' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
+                                    >
+                                        <span className="text-lg">{tab.icon}</span>
+                                        <span className="flex-1 text-left uppercase tracking-widest text-[11px]">{tab.label}</span>
+                                        {tab.count > 0 && (
+                                            <span className={`w-6 h-6 rounded-full text-[9px] font-black flex items-center justify-center ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-rose-500 text-white animate-pulse'}`}>{tab.count}</span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Quick stats */}
+                            <div className="bg-indigo-50/50 dark:bg-indigo-950/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/30 p-6 space-y-4">
+                                <h4 className="text-[10px] font-black tracking-[0.2em] text-indigo-600 dark:text-indigo-500 uppercase">Ringkasan</h4>
+                                {[
+                                    { label: 'Total Sesi', value: bookings?.length ?? 0, color: 'text-gray-900 dark:text-white' },
+                                    { label: 'Akan Datang', value: bookings?.filter(b => b.status === 'confirmed').length ?? 0, color: 'text-indigo-600' },
+                                    { label: 'Slot Tersedia', value: mySchedules.length, color: 'text-emerald-600' },
+                                ].map(s => (
+                                    <div key={s.label} className="flex justify-between items-center">
+                                        <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{s.label}</span>
+                                        <span className={`text-lg font-black ${s.color}`}>{s.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* ── Content Area ── */}
+                        <div className="flex-1 min-w-0">
+
+                            {/* KALENDER */}
+                            {activeTab === 'calendar' && (
+                                <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm overflow-hidden">
+                                    <div className="p-8 border-b border-gray-100 dark:border-gray-700/50">
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                            <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Kalender Jadwal
+                                        </h3>
+                                        <div className="flex flex-wrap gap-4 mt-4 text-[10px] font-black uppercase tracking-widest">
+                                            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500"></span>Slot Anda</span>
+                                            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-rose-500"></span>Sedang Berlangsung</span>
+                                            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-indigo-500"></span>Tersedia</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 md:p-8">
+                                        <FullCalendar
+                                            key={isMobile ? 'mobile' : 'desktop'}
+                                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                            initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
+                                            headerToolbar={isMobile ? { left: 'prev,next', center: 'title', right: 'timeGridDay,dayGridMonth' } : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+                                            events={calendarSchedules}
+                                            eventClick={handleEventClick}
+                                            eventContent={renderEventContent}
+                                            height="auto"
+                                            slotMinTime="07:00:00"
+                                            slotMaxTime="22:00:00"
+                                            slotDuration="01:00:00"
+                                            allDaySlot={false}
+                                            nowIndicator={true}
+                                            locale="id"
+                                            expandRows={true}
+                                        />
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className="space-y-6 animate-in fade-in duration-500">
-                                    {/* Sub-Filter for History */}
-                                    <div className="flex gap-2 mb-8 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
-                                        <button
-                                            onClick={() => setHistoryFilter('pending')}
-                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'pending' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
-                                        >
-                                            Belum Selesai
-                                        </button>
-                                        <button
-                                            onClick={() => setHistoryFilter('completed')}
-                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'completed' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
-                                        >
-                                            Selesai
-                                        </button>
-                                        <button
-                                            onClick={() => setHistoryFilter('all')}
-                                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}
-                                        >
-                                            Semua
-                                        </button>
+                            )}
+
+                            {/* DAFTAR SESI */}
+                            {activeTab === 'history' && (
+                                <div className="space-y-6">
+                                    <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm p-8 pb-4">
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3 mb-6">
+                                            <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Daftar Sesi
+                                        </h3>
+                                        <div className="flex gap-2 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
+                                            {[['pending', 'Akan Datang'], ['completed', 'Selesai'], ['all', 'Semua']].map(([val, label]) => (
+                                                <button key={val} onClick={() => setHistoryFilter(val)}
+                                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === val ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}>
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row gap-4 items-end justify-between mt-6 pt-6 border-t border-gray-100 dark:border-gray-700/50">
+                                            <div className="grid grid-cols-2 gap-3 flex-1 w-full sm:w-auto">
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.1em] px-1">Dari Tanggal</label>
+                                                    <input type="date" value={historyDateFrom} onChange={e => setHistoryDateFrom(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xs font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.1em] px-1">Sampai Tanggal</label>
+                                                    <div className="flex gap-2">
+                                                        <input type="date" value={historyDateTo} onChange={e => setHistoryDateTo(e.target.value)} className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xs font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                        {(historyDateFrom || historyDateTo) && (
+                                                            <button onClick={() => { setHistoryDateFrom(''); setHistoryDateTo(''); }} className="p-2.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-xl hover:bg-rose-100 hover:text-rose-500 transition-colors">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {[
+                                                    {
+                                                        label: 'Minggu Ini', range: () => {
+                                                            const d = new Date();
+                                                            const day = d.getDay();
+                                                            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                                                            const mon = new Date(d.getFullYear(), d.getMonth(), diff);
+                                                            const sun = new Date(d.getFullYear(), d.getMonth(), diff + 6);
+                                                            setHistoryDateFrom(mon.toISOString().split('T')[0]);
+                                                            setHistoryDateTo(sun.toISOString().split('T')[0]);
+                                                        }
+                                                    },
+                                                    {
+                                                        label: 'Bulan Ini', range: () => {
+                                                            const d = new Date();
+                                                            setHistoryDateFrom(new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]);
+                                                            setHistoryDateTo(new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]);
+                                                        }
+                                                    },
+                                                    {
+                                                        label: 'Tahun Ini', range: () => {
+                                                            const d = new Date();
+                                                            setHistoryDateFrom(new Date(d.getFullYear(), 0, 1).toISOString().split('T')[0]);
+                                                            setHistoryDateTo(new Date(d.getFullYear(), 11, 31).toISOString().split('T')[0]);
+                                                        }
+                                                    }
+                                                ].map(btn => (
+                                                    <button key={btn.label} type="button" onClick={btn.range} className="px-4 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors border border-indigo-100/50 dark:border-indigo-900/50">
+                                                        {btn.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {bookings.filter(b => {
-                                        if (historyFilter === 'all') return true;
-                                        if (historyFilter === 'pending') return ['confirmed', 'in_progress'].includes(b.status);
-                                        return b.status === 'completed';
+                                        if (historyFilter === 'pending' && !['confirmed', 'in_progress'].includes(b.status)) return false;
+                                        if (historyFilter === 'completed' && b.status !== 'completed') return false;
+                                        if (historyDateFrom && b.schedule?.date && b.schedule.date < historyDateFrom) return false;
+                                        if (historyDateTo && b.schedule?.date && b.schedule.date > historyDateTo) return false;
+                                        return true;
                                     }).length === 0 ? (
-                                        <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
-                                            <p className="text-gray-400 font-medium italic">
-                                                {historyFilter === 'pending' ? 'Hore! Tidak ada sesi yang perlu diselesaikan.' : 'Belum ada sesi yang selesai.'}
-                                            </p>
+                                        <div className="text-center py-20 bg-white dark:bg-gray-800/40 rounded-[2.5rem] border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Tidak ada sesi ditemukan</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                                            {bookings.filter(b2 => {
-                                                if (historyFilter === 'all') return true;
-                                                if (historyFilter === 'pending') return ['confirmed', 'in_progress'].includes(b2.status);
-                                                return b2.status === 'completed';
-                                            }).map((booking) => {
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {bookings.filter(b => {
+                                                if (historyFilter === 'pending' && !['confirmed', 'in_progress'].includes(b.status)) return false;
+                                                if (historyFilter === 'completed' && b.status !== 'completed') return false;
+                                                if (historyDateFrom && b.schedule?.date && b.schedule.date < historyDateFrom) return false;
+                                                if (historyDateTo && b.schedule?.date && b.schedule.date > historyDateTo) return false;
+                                                return true;
+                                            }).map(booking => {
                                                 const isNoShow = booking.completion_outcome?.startsWith('No-Show');
                                                 const wasRescheduled = !!booking.rescheduled_at;
                                                 return (
-                                                    <div key={booking.id} id={`booking-${booking.id}`} className={`rounded-[2.5rem] border shadow-sm p-7 relative overflow-hidden flex flex-col transition-all duration-300 ${isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50' : booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/20 border-red-200 dark:border-red-800/50 ring-2 ring-red-500 shadow-xl' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50 ring-1 ring-indigo-50 dark:ring-indigo-900/30 hover:shadow-xl hover:border-indigo-200 dark:hover:border-indigo-700'}`}>
-                                                        {/* Status Badge */}
-                                                        <div className="absolute top-6 right-6 flex flex-col items-end gap-2">
-                                                            {/* "Baru" Pulse for recently updated confirmed bookings */}
-                                                            {booking.status === 'confirmed' && (new Date() - new Date(booking.updated_at)) < (24 * 60 * 60 * 1000) && (
-                                                                <span className="text-[9px] font-black px-2 py-0.5 rounded bg-amber-400 text-amber-900 animate-bounce shadow-lg shadow-amber-400/20">PASIEN BARU</span>
-                                                            )}
-                                                            <div className="text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700">
-                                                                {isNoShow ? (
-                                                                    <span className="text-orange-600 dark:text-orange-400">Tidak Hadir</span>
-                                                                ) : booking.status === 'completed' ? (
-                                                                    <span className="text-gray-500 dark:text-gray-400">Selesai</span>
-                                                                ) : booking.status === 'in_progress' ? (
-                                                                    <span className="text-red-600 dark:text-red-400 animate-pulse">Sedang Berlangsung</span>
-                                                                ) : (
-                                                                    <span className="text-indigo-600 dark:text-indigo-400">{wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}</span>
-                                                                )}
+                                                    <div key={booking.id} id={`booking-${booking.id}`}
+                                                        className={`rounded-[2.5rem] border shadow-sm p-7 flex flex-col transition-all ${isNoShow ? 'bg-orange-50/30 border-orange-200' : booking.status === 'completed' ? 'bg-gray-50/50 border-gray-200' : booking.status === 'in_progress' ? 'bg-red-50/30 border-red-200 ring-2 ring-red-500' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50'}`}>
+                                                        <div className="flex items-start justify-between mb-4">
+                                                            <div>
+                                                                <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">{booking.patient?.name || 'Pasien Tidak Dikenal'}</h4>
+                                                                <p className="text-xs text-gray-400 font-bold italic">{booking.patient?.email || '-'}</p>
                                                             </div>
+                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${isNoShow ? 'bg-orange-100 text-orange-600' : booking.status === 'completed' ? 'bg-gray-100 text-gray-500' : booking.status === 'in_progress' ? 'bg-red-100 text-red-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                                                                {isNoShow ? 'No-Show' : booking.status === 'completed' ? 'Selesai' : booking.status === 'in_progress' ? '🔴 Live' : wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}
+                                                            </span>
                                                         </div>
-
-                                                        <div className="mb-6 pr-24">
-                                                            <h4 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tight leading-none mb-1">{booking.patient.name}</h4>
-                                                            <p className="text-xs text-gray-400 font-bold italic">{booking.patient.email}</p>
-                                                            {isAdmin && (
-                                                                <div className="mt-3 flex items-center gap-2">
-                                                                    <span className="text-[10px] font-black text-white bg-indigo-500 px-2 py-0.5 rounded uppercase tracking-tighter">Terapis</span>
-                                                                    <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400">{booking.schedule?.therapist?.name}</span>
-                                                                </div>
-                                                            )}
+                                                        <div className="bg-indigo-50/50 dark:bg-slate-800 rounded-2xl p-4 mb-4 text-xs font-bold text-indigo-900 dark:text-indigo-300 space-y-1">
+                                                            <p>📅 {booking.schedule ? new Date(booking.schedule.date + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No Date'}</p>
+                                                            <p>🕐 {booking.schedule?.start_time?.substring(0, 5)} – {booking.schedule?.end_time?.substring(0, 5)} WIB</p>
+                                                            <p className="text-[10px] uppercase tracking-widest text-indigo-600/70 pt-1">Paket: {booking.package_type || 'REGULER'}</p>
                                                         </div>
-
-                                                        <div className="bg-indigo-50/50 dark:bg-slate-800 rounded-3xl p-5 mb-6 border border-indigo-100/50 dark:border-slate-700">
-                                                            <div className="flex items-center text-xs text-indigo-900 dark:text-indigo-300 font-black mb-2 uppercase tracking-widest">
-                                                                <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                                {new Date(booking.schedule.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                                            </div>
-                                                            <div className="flex items-center text-xs text-indigo-800 dark:text-indigo-400 font-bold">
-                                                                <svg className="w-4 h-4 mr-2 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                                {booking.schedule.start_time?.substring(0, 5)} - {booking.schedule.end_time?.substring(0, 5)} WIB
-                                                            </div>
-                                                            <div className="flex items-center text-[10px] font-black text-indigo-600 dark:text-indigo-500 mt-3 pt-3 border-t border-indigo-100/50 dark:border-slate-700 uppercase tracking-[0.2em]">
-                                                                Paket: {booking.package_type || 'REGULER'}
-                                                            </div>
-                                                        </div>
-
-                                                        {booking.status === 'completed' && (
-                                                            <div className="mb-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                                                                <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-1">Hasil / Outcome</p>
-                                                                <p className="text-sm font-bold text-emerald-700">{booking.completion_outcome || 'Normal'}</p>
-                                                            </div>
-                                                        )}
-
-                                                        <div className="flex flex-col gap-3 mt-auto">
-                                                            <Link
-                                                                href={route('schedules.patient-detail', booking.patient.id)}
-                                                                className="w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl transition-all uppercase tracking-widest flex items-center justify-center gap-2"
-                                                            >
-                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        <div className="flex flex-col gap-2 mt-auto">
+                                                            <Link href={booking.patient ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                                 Rekam Medis & Detail
                                                             </Link>
-
                                                             {booking.status === 'confirmed' && (
-                                                                <button
-                                                                    onClick={() => handleStartSession(booking.id)}
-                                                                    className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest active:scale-95"
-                                                                >
-                                                                    Mulai Sesi
-                                                                </button>
+                                                                <button onClick={() => handleStartSession(booking.id)} className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl shadow-lg uppercase">Mulai Sesi</button>
                                                             )}
-
-                                                            {booking.status === 'in_progress' ? (
-                                                                <Link
-                                                                    href={route('schedules.active-session', booking.id)}
-                                                                    className="w-full text-center text-xs font-black text-white bg-red-600 hover:bg-red-700 py-3 rounded-2xl transition-all shadow-lg shadow-red-600/20 uppercase tracking-widest"
-                                                                >
-                                                                    Selesaikan Sesi
-                                                                </Link>
-                                                            ) : booking.status === 'completed' && (
-                                                                <button
-                                                                    onClick={() => openCompleteModal(booking)}
-                                                                    className="w-full text-center text-xs font-black text-white bg-slate-900 hover:bg-slate-800 py-3 rounded-2xl transition-all uppercase tracking-widest"
-                                                                >
-                                                                    Update Data Sesi
-                                                                </button>
+                                                            {booking.status === 'in_progress' && (
+                                                                <Link href={route('schedules.active-session', booking.id)} className="w-full text-center text-xs font-black text-white bg-red-600 hover:bg-red-700 py-3 rounded-2xl uppercase">Selesaikan Sesi</Link>
                                                             )}
-
+                                                            {booking.status === 'completed' && (
+                                                                <button onClick={() => openCompleteModal(booking)} className="w-full text-center text-xs font-black text-white bg-slate-900 py-3 rounded-2xl uppercase">Update Data Sesi</button>
+                                                            )}
                                                             {['confirmed', 'in_progress'].includes(booking.status) && (
-                                                                <div className="flex gap-3">
-                                                                    <button
-                                                                        onClick={() => openRescheduleModal(booking)}
-                                                                        className="flex-1 text-center text-[9px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2.5 rounded-2xl transition-all uppercase tracking-[0.1em]"
-                                                                    >
-                                                                        Jadwal Ulang
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => openNoShowModal(booking)}
-                                                                        className="flex-1 text-center text-[9px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl transition-all uppercase tracking-[0.1em]"
-                                                                    >
-                                                                        Tidak Hadir
-                                                                    </button>
+                                                                <div className="flex gap-2">
+                                                                    <button onClick={() => openRescheduleModal(booking)} className="flex-1 text-[10px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2.5 rounded-2xl uppercase">Jadwal Ulang</button>
+                                                                    <button onClick={() => openNoShowModal(booking)} className="flex-1 text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">Tidak Hadir</button>
                                                                 </div>
-                                                            )}
-
-                                                            {booking.status === 'completed' && booking.recording_link && (
-                                                                <a
-                                                                    href={booking.recording_link}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
-                                                                    className="text-center text-[10px] font-black text-indigo-600 hover:underline mt-2 uppercase tracking-widest flex items-center justify-center gap-2"
-                                                                >
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                                    Lihat Rekaman
-                                                                </a>
                                                             )}
                                                         </div>
                                                     </div>
@@ -578,30 +604,149 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     )}
                                 </div>
                             )}
-                        </div>
-                    </div>
 
-                    {/* Status Legend */}
-                    <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Terisi</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Berlangsung</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-gray-400"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selesai</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tersedia</span>
+                            {/* JADWAL SAYA */}
+                            {activeTab === 'mySchedules' && !isAdmin && (
+                                <div className="space-y-6">
+                                    {/* Recurring form */}
+                                    <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm p-8 md:p-10">
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1 flex items-center gap-3">
+                                            <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Atur Ketersediaan Mingguan
+                                        </h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Pilih hari & jam — sistem otomatis buat slot untuk setiap hari yang dipilih</p>
+                                        <form onSubmit={handleAddSchedule} className="space-y-7">
+                                            <div>
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Hari Aktif <span className="text-rose-400">*</span>
+                                                    {recurErrors.days_of_week && <span className="ml-2 text-rose-500 normal-case font-bold">{recurErrors.days_of_week}</span>}
+                                                </label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {DAYS.map(day => {
+                                                        const active = recurData.days_of_week.includes(day.id);
+                                                        return (
+                                                            <button key={day.id} type="button" onClick={() => toggleDay(day.id)}
+                                                                className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-black transition-all border-2 ${active ? 'bg-indigo-600 text-white border-indigo-600 scale-105 shadow-lg shadow-indigo-500/30' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:border-indigo-300'}`}>
+                                                                <span className="text-[10px] uppercase tracking-widest">{day.short}</span>
+                                                                {active && <div className="w-1.5 h-1.5 rounded-full bg-white/70 mt-1"></div>}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                {recurData.days_of_week.length > 0 && (
+                                                    <p className="text-[10px] font-bold text-indigo-600 mt-2">✓ Aktif: {recurData.days_of_week.sort((a, b) => a - b).map(id => DAYS.find(d => d.id === id)?.long).join(', ')}</p>
+                                                )}
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {[['Jam Mulai', 'start_time', '06:00', '21:00'], ['Jam Selesai', 'end_time', '07:00', '22:00']].map(([lbl, field, min, max]) => (
+                                                    <div key={field}>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">{lbl} <span className="text-rose-400">*</span></label>
+                                                        <input type="time" min={min} max={max} value={recurData[field]} onChange={e => setRecurData(field, e.target.value)} required
+                                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-lg font-black text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                        {recurErrors[field] && <p className="text-rose-500 text-xs mt-1">{recurErrors[field]}</p>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div>
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Berlaku Dari <span className="text-rose-400">*</span></label>
+                                                    <input type="date" min={todayStr} value={recurData.date_from} onChange={e => setRecurData('date_from', e.target.value)} required
+                                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Berlaku Sampai <span className="text-rose-400">*</span></label>
+                                                    <input type="date" min={recurData.date_from || todayStr} value={recurData.date_to} onChange={e => setRecurData('date_to', e.target.value)} required
+                                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Kuota / Sesi</label>
+                                                    <input type="number" min={1} max={20} value={recurData.quota} onChange={e => setRecurData('quota', Number(e.target.value))}
+                                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                {['consultation', 'class'].map(type => (
+                                                    <button key={type} type="button" onClick={() => setRecurData('schedule_type', type)}
+                                                        className={`px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${recurData.schedule_type === type ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-600 border-gray-200 hover:border-emerald-300'}`}>
+                                                        {type === 'consultation' ? '👥 Konsultasi' : '🎓 Kelas'}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {recurData.days_of_week.length > 0 && recurData.date_from && recurData.date_to && (
+                                                <div className="p-5 bg-indigo-50/60 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
+                                                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Ringkasan</p>
+                                                    <p className="text-sm font-bold text-indigo-900 dark:text-indigo-200">
+                                                        Setiap {recurData.days_of_week.sort((a, b) => a - b).map(id => DAYS.find(d => d.id === id)?.long).join(' & ')}, {recurData.start_time}–{recurData.end_time} WIB
+                                                    </p>
+                                                    <p className="text-xs text-indigo-600 mt-0.5">
+                                                        dari {new Date(recurData.date_from + 'T00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} s/d {new Date(recurData.date_to + 'T00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            <button type="submit" disabled={savingRecur || recurData.days_of_week.length === 0 || !recurData.date_from || !recurData.date_to}
+                                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all disabled:opacity-40">
+                                                {savingRecur ? '⏳ Menyimpan...' : '✦ Terapkan Jadwal Ketersediaan'}
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    {/* Slot list */}
+                                    <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm overflow-hidden">
+                                        <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>Slot Mendatang
+                                                </h3>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Jadwal yang sudah Anda daftarkan</p>
+                                            </div>
+                                            {mySchedules.length > 0 && (
+                                                <span className="px-4 py-2 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase">{mySchedules.length} Slot</span>
+                                            )}
+                                        </div>
+                                        {mySchedules.length === 0 ? (
+                                            <div className="py-20 text-center">
+                                                <p className="text-gray-400 font-black text-sm uppercase tracking-widest">Belum ada slot terdaftar</p>
+                                                <p className="text-gray-300 text-xs mt-2">Gunakan form di atas untuk menambah ketersediaan mingguan</p>
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                {mySchedules.map(sc => {
+                                                    const d = new Date(sc.date + 'T00:00:00');
+                                                    return (
+                                                        <div key={sc.id} className="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
+                                                            <div className="flex items-center gap-5">
+                                                                <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
+                                                                    <span className="text-xs">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                                                                    <span className="text-xl leading-none">{d.getDate()}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{d.toLocaleDateString('id-ID', { weekday: 'long' })}, {d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                                    <p className="text-xs font-bold text-gray-400 mt-0.5">🕐 {sc.start_time?.substring(0, 5)} – {sc.end_time?.substring(0, 5)} WIB</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${sc.booked_count >= 1 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                                    {sc.booked_count >= 1 ? '✅ Terisi' : '🟢 Tersedia'}
+                                                                </span>
+                                                                {sc.booked_count === 0 && (
+                                                                    <button onClick={() => { if (confirm('Hapus slot ini?')) router.delete(route('schedules.destroy', sc.id)); }}
+                                                                        className="p-2 rounded-xl bg-rose-50 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-all">
+                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+
 
             {/* Modal: Patient History */}
             <Modal show={selectedHistoryPatient !== null} onClose={closeHistoryModal} maxWidth="2xl">
@@ -653,6 +798,17 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">
                                         Terapis: <span className="text-emerald-600">{hist.schedule?.therapist?.name}</span>
                                     </p>
+                                    {hist.started_at && (
+                                        <div className="mt-2 text-[10px] font-bold text-gray-500 uppercase flex flex-wrap gap-x-4 gap-y-1">
+                                            <span>Mulai: <span className="text-emerald-600 font-black">{new Date(hist.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</span></span>
+                                            {hist.ended_at && (
+                                                <span>Selesai: <span className="text-rose-600 font-black">{new Date(hist.ended_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</span></span>
+                                            )}
+                                            {hist.started_at && hist.ended_at && (
+                                                <span className="text-indigo-600 font-black px-2 py-0.5 bg-indigo-50 rounded-lg">Durasi: {Math.round((new Date(hist.ended_at) - new Date(hist.started_at)) / 60000)} Menit</span>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className="mt-3 text-xs bg-white/50 p-4 rounded-2xl border border-gray-100 text-gray-600 italic">
                                         <p className="font-black text-gray-400 uppercase text-[9px] tracking-widest mb-1 not-italic">Catatan Klinis</p>
                                         <p className="whitespace-pre-wrap">{hist.therapist_notes || 'Tidak ada catatan.'}</p>
@@ -848,6 +1004,6 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                     </div>
                 </form>
             </Modal>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

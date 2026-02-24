@@ -156,8 +156,8 @@ class ClinicReportController extends Controller
             $file = fopen('php://output', 'w');
 
             // Pemasukan Section
-            fputcsv($file, ['BAGIAN 1: PEMASUKAN (PENDAPATAN)']);
-            fputcsv($file, ['Tanggal', 'Invoice', 'Customer', 'Jenis', 'Nominal (Rp)']);
+            fputcsv($file, ['BAGIAN 1: PEMASUKAN (PENDAPATAN)'], ';');
+            fputcsv($file, ['Tanggal', 'Invoice', 'Customer', 'Jenis', 'Nominal (Rp)'], ';');
 
             $totalRevenue = 0;
             foreach ($transactions as $tx) {
@@ -168,15 +168,15 @@ class ClinicReportController extends Controller
                     $tx->user->name ?? 'Unknown',
                     $type,
                     $tx->amount
-                ]);
+                ], ';');
                 $totalRevenue += $tx->amount;
             }
-            fputcsv($file, ['', '', '', 'TOTAL PEMASUKAN', $totalRevenue]);
-            fputcsv($file, []); // Empty line
+            fputcsv($file, ['', '', '', 'TOTAL PEMASUKAN', $totalRevenue], ';');
+            fputcsv($file, [], ';'); // Empty line
 
             // Pengeluaran Section
-            fputcsv($file, ['BAGIAN 2: PENGELUARAN (BIAYA OPERASIONAL)']);
-            fputcsv($file, ['Tanggal', 'Kategori', 'Deskripsi', '', 'Nominal (Rp)']);
+            fputcsv($file, ['BAGIAN 2: PENGELUARAN (BIAYA OPERASIONAL)'], ';');
+            fputcsv($file, ['Tanggal', 'Kategori', 'Deskripsi', '', 'Nominal (Rp)'], ';');
 
             $totalExpenses = 0;
             foreach ($expenses as $ex) {
@@ -186,17 +186,17 @@ class ClinicReportController extends Controller
                     $ex->description,
                     '',
                     $ex->amount
-                ]);
+                ], ';');
                 $totalExpenses += $ex->amount;
             }
-            fputcsv($file, ['', '', '', 'TOTAL PENGELUARAN', $totalExpenses]);
-            fputcsv($file, []);
+            fputcsv($file, ['', '', '', 'TOTAL PENGELUARAN', $totalExpenses], ';');
+            fputcsv($file, [], ';');
 
             // Summary Section
-            fputcsv($file, ['RINGKASAN']);
-            fputcsv($file, ['Total Pemasukan', '', '', '', $totalRevenue]);
-            fputcsv($file, ['Total Pengeluaran', '', '', '', $totalExpenses]);
-            fputcsv($file, ['LABA BERSIH', '', '', '', $totalRevenue - $totalExpenses]);
+            fputcsv($file, ['RINGKASAN'], ';');
+            fputcsv($file, ['Total Pemasukan', '', '', '', $totalRevenue], ';');
+            fputcsv($file, ['Total Pengeluaran', '', '', '', $totalExpenses], ';');
+            fputcsv($file, ['LABA BERSIH', '', '', '', $totalRevenue - $totalExpenses], ';');
 
             fclose($file);
         };
