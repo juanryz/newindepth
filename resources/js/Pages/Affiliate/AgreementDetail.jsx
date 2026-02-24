@@ -64,7 +64,7 @@ export default function AgreementDetail({ userModel }) {
                                 </div>
                             </div>
 
-                            <div className="bg-slate-50 dark:bg-slate-900/30 p-8 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div className="bg-slate-50 dark:bg-slate-800/60 p-8 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <AffiliateAgreementContent />
                             </div>
 

@@ -3,11 +3,11 @@ import React from 'react';
 export default function AffiliateAgreementContent() {
     return (
         <div className="space-y-8 text-slate-800 dark:text-slate-300">
-            <p className="italic underline underline-offset-4 decoration-indigo-200 dark:decoration-indigo-800/50">Perjanjian ini mengikat secara hukum antara InDepth Mental Wellness (“Perusahaan”) dan Mitra Affiliate (“Affiliate”). Dengan mendaftar dan mengaktifkan akun affiliate, Affiliate menyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan di bawah ini tanpa keberatan.</p>
+            <p className="italic underline underline-offset-4 decoration-indigo-200 dark:decoration-indigo-800/50 text-slate-700 dark:text-slate-300 font-medium">Perjanjian ini mengikat secara hukum antara InDepth Mental Wellness (“Perusahaan”) dan Mitra Affiliate (“Affiliate”). Dengan mendaftar dan mengaktifkan akun affiliate, Affiliate menyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan di bawah ini tanpa keberatan.</p>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 1 – STATUS DAN RUANG LINGKUP</h4>
-                <ol className="list-decimal pl-5 space-y-2 text-sm">
+                <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 font-medium">
                     <li>Affiliate adalah mitra promosi independen dan bukan: Karyawan, Agen resmi, Perwakilan hukum, Cabang resmi.</li>
                     <li>Affiliate tidak memiliki kewenangan membuat pernyataan yang mengikat atas nama Perusahaan.</li>
                 </ol>
@@ -15,7 +15,7 @@ export default function AffiliateAgreementContent() {
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 2 – STRUKTUR KOMISI</h4>
-                <ol className="list-decimal pl-5 space-y-2 text-sm">
+                <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 font-medium">
                     <li>Komisi ditetapkan sebesar <span className="font-black text-indigo-600">5%</span> dari nilai transaksi bersih (setelah diskon/pajak).</li>
                     <li>Komisi hanya berlaku untuk transaksi: Valid, Tidak direfund, Tidak dibatalkan, Tidak terindikasi fraud.</li>
                     <li>Perusahaan berhak melakukan audit transaksi kapan saja.</li>
@@ -25,7 +25,7 @@ export default function AffiliateAgreementContent() {
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3 text-red-600 dark:text-red-400">PASAL 3 – LARANGAN KERAS</h4>
                 <p className="font-bold mb-2 uppercase tracking-wide text-[10px] text-slate-400">Affiliate dilarang keras:</p>
-                <ol className="list-decimal pl-5 space-y-1 text-sm">
+                <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300 font-medium">
                     <li>Melakukan self-referral dalam bentuk apa pun.</li>
                     <li>Membuat akun palsu untuk menghasilkan komisi.</li>
                     <li>Menggunakan metode spam (email, WhatsApp, DM massal).</li>
@@ -42,7 +42,7 @@ export default function AffiliateAgreementContent() {
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 4 – AUDIT DAN PENANGGUHAN</h4>
-                <ol className="list-decimal pl-5 space-y-2 text-sm">
+                <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 font-medium">
                     <li>Perusahaan berhak menahan komisi untuk proses verifikasi keaslian transaksi.</li>
                     <li>Perusahaan berhak meminta bukti metode promosi yang digunakan Affiliate.</li>
                     <li>Komisi dapat dibekukan hingga investigasi selesai dilakukan.</li>
@@ -78,7 +78,7 @@ export default function AffiliateAgreementContent() {
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 6 – PEMBATASAN TANGGUNG JAWAB</h4>
-                <ol className="list-decimal pl-5 space-y-1 text-sm">
+                <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300 font-medium">
                     <li>Perusahaan tidak menjamin jumlah komisi, volume transaksi, atau stabilitas sistem tanpa gangguan teknis.</li>
                     <li>Tanggung jawab maksimal Perusahaan terbatas pada komisi yang belum dibayarkan secara sah.</li>
                 </ol>
@@ -86,37 +86,37 @@ export default function AffiliateAgreementContent() {
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 7 – PEMUTUSAN SEPIHAK</h4>
-                <p className="text-sm">Perusahaan berhak menghentikan program affiliate atau akun affiliate kapan saja tanpa kewajiban memberikan alasan, terutama jika dianggap berisiko terhadap reputasi atau keamanan bisnis.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Perusahaan berhak menghentikan program affiliate atau akun affiliate kapan saja tanpa kewajiban memberikan alasan, terutama jika dianggap berisiko terhadap reputasi atau keamanan bisnis.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 8 – KLAUSUL GANTI RUGI (INDEMNITY)</h4>
-                <p className="text-sm">Affiliate setuju untuk membebaskan dan mengganti kerugian Perusahaan atas klaim akibat promosi affiliate, tuntutan klaim berlebihan, atau kerugian reputasi akibat tindakan affiliate.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Affiliate setuju untuk membebaskan dan mengganti kerugian Perusahaan atas klaim akibat promosi affiliate, tuntutan klaim berlebihan, atau kerugian reputasi akibat tindakan affiliate.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 9 – LARANGAN PENCEMARAN NAMA BAIK</h4>
-                <p className="text-sm">Affiliate dilarang menyebarkan tuduhan tanpa putusan hukum tetap atau mengancam reputasi bisnis untuk menekan payout. Pelanggaran dapat diproses sesuai hukum yang berlaku.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Affiliate dilarang menyebarkan tuduhan tanpa putusan hukum tetap atau mengancam reputasi bisnis untuk menekan payout. Pelanggaran dapat diproses sesuai hukum yang berlaku.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 10 – FORCE MAJEURE</h4>
-                <p className="text-sm">Perusahaan tidak bertanggung jawab atas gangguan akibat bencana alam, gangguan server, kebijakan pemerintah, atau keadaan darurat lainnya.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Perusahaan tidak bertanggung jawab atas gangguan akibat bencana alam, gangguan server, kebijakan pemerintah, atau keadaan darurat lainnya.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 11 – PERUBAHAN PROGRAM</h4>
-                <p className="text-sm">Perusahaan berhak mengubah besaran komisi, struktur sistem, atau menghentikan program affiliate kapan pun. Perubahan berlaku sejak diumumkan.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Perusahaan berhak mengubah besaran komisi, struktur sistem, atau menghentikan program affiliate kapan pun. Perubahan berlaku sejak diumumkan.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 12 – DOMISILI HUKUM</h4>
-                <p className="text-sm">Sengketa diselesaikan melalui musyawarah. Jika tidak tercapai kesepakatan, para pihak sepakat memilih domisili hukum di Pengadilan Negeri Semarang.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Sengketa diselesaikan melalui musyawarah. Jika tidak tercapai kesepakatan, para pihak sepakat memilih domisili hukum di Pengadilan Negeri Semarang.</p>
             </section>
 
             <section>
                 <h4 className="font-black text-slate-950 dark:text-white border-b-2 border-indigo-100 dark:border-indigo-900/30 pb-2 mb-3">PASAL 13 – KEABSAHAN PERSETUJUAN ELEKTRONIK</h4>
-                <p className="text-sm">Dengan mencentang persetujuan digital: Affiliate menyetujui seluruh isi perjanjian, tunduk pada UU ITE, dan mengikat secara hukum seperti tanda tangan fisik.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Dengan mencentang persetujuan digital: Affiliate menyetujui seluruh isi perjanjian, tunduk pada UU ITE, dan mengikat secara hukum seperti tanda tangan fisik.</p>
             </section>
         </div>
     );
