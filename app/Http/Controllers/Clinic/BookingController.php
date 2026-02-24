@@ -72,14 +72,18 @@ class BookingController extends Controller
     {
         $user = $request->user();
 
-        $bookings = Booking::with(['therapist', 'schedule.therapist', 'transaction', 'userVoucher.voucher'])
-            ->where('patient_id', $user->id)
+        $transactions = \App\Models\Transaction::with(['transactionable'])
+            ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        // Hide internal notes from patient view
-        $bookings->getCollection()->each(function ($booking) {
-            $booking->makeHidden(['therapist_notes']);
+        // eager load nested relations based on the type
+        $transactions->getCollection()->transform(function ($tx) {
+            if ($tx->transactionable_type === 'App\Models\Booking' && $tx->transactionable) {
+                $tx->transactionable->load(['therapist', 'schedule.therapist']);
+                $tx->transactionable->makeHidden(['therapist_notes']);
+            }
+            return $tx;
         });
 
         $profileProgress = null;
@@ -88,7 +92,7 @@ class BookingController extends Controller
         }
 
         return Inertia::render('Clinic/Bookings/TransactionHistory', [
-            'bookings' => $bookings,
+            'transactions' => $transactions,
             'profileProgress' => $profileProgress,
         ]);
     }

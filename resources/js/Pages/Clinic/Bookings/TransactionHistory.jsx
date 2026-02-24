@@ -2,12 +2,12 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function TransactionHistory({ bookings, profileProgress }) {
+export default function TransactionHistory({ transactions, profileProgress }) {
     const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Riwayat Transaksi & Reservasi</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Riwayat Transaksi</h2>}
         >
             <Head title="Riwayat Transaksi" />
 
@@ -16,7 +16,7 @@ export default function TransactionHistory({ bookings, profileProgress }) {
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
 
-                            {bookings.data.length === 0 ? (
+                            {!transactions || transactions.data.length === 0 ? (
                                 <div className="text-center py-12">
                                     <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -52,8 +52,8 @@ export default function TransactionHistory({ bookings, profileProgress }) {
                                     <table className="w-full text-left border-collapse">
                                         <thead>
                                             <tr className="border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                <th className="py-3 px-4">Invoice / Booking Code</th>
-                                                <th className="py-3 px-4">Paket Layanan</th>
+                                                <th className="py-3 px-4">Invoice / Kode Transaksi</th>
+                                                <th className="py-3 px-4">Paket / Layanan</th>
                                                 <th className="py-3 px-4">Terapis & Jadwal</th>
                                                 <th className="py-3 px-4">Total Transaksi</th>
                                                 <th className="py-3 px-4">Status</th>
@@ -61,54 +61,81 @@ export default function TransactionHistory({ bookings, profileProgress }) {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                            {bookings.data.map(booking => {
-                                                const isPendingPayment = booking.status === 'pending_payment';
-                                                const isPendingValidation = booking.status === 'pending_validation';
-                                                const isPendingScreening = booking.status === 'pending_screening';
-                                                const isConfirmed = booking.status === 'confirmed';
-                                                const isCompleted = booking.status === 'completed';
-                                                const isCancelled = booking.status === 'cancelled';
-                                                const amount = booking.transaction?.amount ? new Intl.NumberFormat('id-ID').format(booking.transaction.amount) : '-';
+                                            {transactions.data.map(tx => {
+                                                const isCourse = tx.transactionable_type?.includes('Course');
+                                                const isBooking = tx.transactionable_type?.includes('Booking');
+                                                const amount = tx.amount ? new Intl.NumberFormat('id-ID').format(tx.amount) : '-';
+
+                                                const status = tx.status || '';
+                                                const isPending = status === 'pending';
+                                                const isCompleted = status === 'completed';
+                                                const isDeclined = status === 'declined';
+                                                const isCancelled = status === 'cancelled';
 
                                                 return (
-                                                    <tr key={booking.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                    <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                         <td className="py-4 px-4 align-top">
-                                                            <div className="font-semibold text-indigo-600 dark:text-indigo-400">#{booking.booking_code}</div>
-                                                            <div className="text-xs text-gray-500 mt-1">{booking.transaction?.invoice_number || '-'}</div>
-                                                            <div className="text-xs text-gray-400 mt-1">{new Date(booking.created_at).toLocaleDateString('id-ID')}</div>
+                                                            <div className="font-semibold text-indigo-600 dark:text-indigo-400">#{tx.invoice_number || '-'}</div>
+                                                            {isBooking && <div className="text-xs text-gray-500 mt-1">Booking: {tx.transactionable?.booking_code || '-'}</div>}
+                                                            <div className="text-xs text-gray-400 mt-1">{new Date(tx.created_at).toLocaleDateString('id-ID')}</div>
                                                         </td>
                                                         <td className="py-4 px-4 align-top">
                                                             <div className="font-medium whitespace-nowrap">
-                                                                {booking.package_type === 'vip' ? 'Paket VIP' : booking.package_type === 'upgrade' ? 'Paket Upgrade' : 'Paket Hipnoterapi'}
+                                                                {isCourse ? (
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-black uppercase text-indigo-500">Kelas E-Learning</span>
+                                                                        <span>{tx.transactionable?.title || '-'}</span>
+                                                                    </div>
+                                                                ) : isBooking ? (
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-black uppercase text-emerald-500">Sesi Terapi</span>
+                                                                        <span>
+                                                                            {tx.transactionable?.package_type === 'vip' ? 'Paket VIP' : tx.transactionable?.package_type === 'upgrade' ? 'Paket Upgrade' : 'Paket Hipnoterapi'}
+                                                                        </span>
+                                                                    </div>
+                                                                ) : '-'}
                                                             </div>
                                                         </td>
                                                         <td className="py-4 px-4 align-top min-w-[200px]">
-                                                            <div className="font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name || '-'}</div>
-                                                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                                {booking.schedule ? new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
-                                                            </div>
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-                                                                {booking.schedule ? `${booking.schedule.start_time?.substring(0, 5) || '--:--'} - ${booking.schedule.end_time?.substring(0, 5) || '--:--'} WIB` : '-'}
-                                                            </div>
+                                                            {isBooking && tx.transactionable ? (
+                                                                <>
+                                                                    <div className="font-medium">{tx.transactionable?.therapist?.name || tx.transactionable?.schedule?.therapist?.name || '-'}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                                        {tx.transactionable?.schedule ? new Date(tx.transactionable.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
+                                                                        {tx.transactionable?.schedule ? `${tx.transactionable.schedule.start_time?.substring(0, 5) || '--:--'} - ${tx.transactionable.schedule.end_time?.substring(0, 5) || '--:--'} WIB` : '-'}
+                                                                    </div>
+                                                                </>
+                                                            ) : isCourse ? (
+                                                                <div className="text-sm text-gray-500 italic mt-2">Akses Selamanya</div>
+                                                            ) : '-'}
                                                         </td>
                                                         <td className="py-4 px-4 align-top font-semibold text-gray-700 dark:text-gray-300">
                                                             Rp {amount}
                                                         </td>
                                                         <td className="py-4 px-4 align-top">
-                                                            {isCompleted && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Selesai</span>}
-                                                            {isConfirmed && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Dikonfirmasi</span>}
-                                                            {isPendingPayment && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Menunggu Pembayaran</span>}
-                                                            {isPendingValidation && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Validasi Admin</span>}
-                                                            {isPendingScreening && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Skrining</span>}
-                                                            {isCancelled && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Dibatalkan</span>}
+                                                            {isCompleted && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Pembayaran Lunas</span>}
+                                                            {isPending && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Menunggu Pembayaran</span>}
+                                                            {isDeclined && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Ditolak</span>}
+                                                            {isCancelled && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Dibatalkan</span>}
                                                         </td>
                                                         <td className="py-4 px-4 align-top text-right whitespace-nowrap">
-                                                            <Link
-                                                                href={route('bookings.show', booking.id)}
-                                                                className="text-sm font-semibold text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-                                                            >
-                                                                Lihat Detail →
-                                                            </Link>
+                                                            {isBooking ? (
+                                                                <Link
+                                                                    href={route('bookings.show', tx.transactionable_id)}
+                                                                    className="text-sm font-semibold text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                                                >
+                                                                    Lihat Detail Booking →
+                                                                </Link>
+                                                            ) : isCourse && isCompleted ? (
+                                                                <Link
+                                                                    href={route('courses.show', tx.transactionable_id)}
+                                                                    className="text-sm font-semibold text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                                                                >
+                                                                    Mulai Belajar →
+                                                                </Link>
+                                                            ) : null}
                                                         </td>
                                                     </tr>
                                                 );
@@ -119,9 +146,9 @@ export default function TransactionHistory({ bookings, profileProgress }) {
                             )}
 
                             {/* Pagination Links */}
-                            {bookings.links && bookings.data.length > 0 && (
+                            {transactions?.links && transactions.data.length > 0 && (
                                 <div className="mt-6 flex flex-wrap justify-center gap-1">
-                                    {bookings.links.map((link, i) => (
+                                    {transactions.links.map((link, i) => (
                                         <div key={i}>
                                             {link.url === null ? (
                                                 <div
