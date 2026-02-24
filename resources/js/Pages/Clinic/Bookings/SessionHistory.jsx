@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
 
 export default function SessionHistory({ bookings }) {
     const [selectedBooking, setSelectedBooking] = useState(null);
@@ -158,12 +159,9 @@ export default function SessionHistory({ bookings }) {
             </div>
 
             {/* Detail Modal */}
-            {selectedBooking && (
-                <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setSelectedBooking(null)}>
-                    <div
-                        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-                        onClick={e => e.stopPropagation()}
-                    >
+            <Modal show={selectedBooking !== null} onClose={() => setSelectedBooking(null)} maxWidth="2xl">
+                {selectedBooking && (
+                    <div className="bg-white dark:bg-gray-800 w-full">
                         <div className="p-8 space-y-6">
                             {/* Header */}
                             <div className="flex justify-between items-start">
@@ -259,8 +257,8 @@ export default function SessionHistory({ bookings }) {
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </Modal>
         </AuthenticatedLayout>
     );
 }
