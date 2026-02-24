@@ -235,6 +235,7 @@ export default function Welcome({ auth, articles, courses }) {
                                     <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 1.000.000</span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Sesi / Treatment</p>
+                                <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                             </div>
 
                             <ul className="space-y-4 mb-8 flex-grow">
@@ -266,6 +267,7 @@ export default function Welcome({ auth, articles, courses }) {
                                     <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 1.500.000</span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Per Paket Program</p>
+                                <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                             </div>
 
                             <ul className="space-y-4 mb-8 flex-grow">
@@ -305,6 +307,7 @@ export default function Welcome({ auth, articles, courses }) {
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
                                 </div>
                                 <p className="text-gold-500/80 mt-2 font-medium">Prioritas & Kasus Kompleks</p>
+                                <p className="text-[9px] font-bold text-gold-500/60 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                             </div>
 
                             <ul className="space-y-4 mb-8 flex-grow">

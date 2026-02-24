@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function create(Booking $booking)
     {
-        if ((int)$booking->patient_id !== (int)auth()->id() && !auth()->user()->isStaff()) {
+        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -24,15 +24,30 @@ class PaymentController extends Controller
             return redirect()->route('bookings.show', $booking->id)->withErrors(['error' => 'Booking tidak dalam status menunggu pembayaran.']);
         }
 
+        $transaction = $booking->transaction;
+
+        // HOTFIX: Auto-correct old transactions that don't have the 11% PPN tax included yet
+        if ($transaction && $transaction->status === 'pending') {
+            $uniqueCode = $transaction->amount % 1000;
+            $baseAmount = $transaction->amount - $uniqueCode;
+
+            // Check if base amount is exactly the old price without tax
+            if (in_array($baseAmount, [1000000, 1500000, 8000000])) {
+                $newBase = $baseAmount * 1.11;
+                $transaction->amount = $newBase + $uniqueCode;
+                $transaction->save();
+            }
+        }
+
         return Inertia::render('Clinic/Payments/Upload', [
             'booking' => $booking->load('schedule.therapist'),
-            'transaction' => $booking->transaction,
+            'transaction' => $transaction,
         ]);
     }
 
     public function store(Request $request, Booking $booking)
     {
-        if ((int)$booking->patient_id !== (int)auth()->id() && !auth()->user()->isStaff()) {
+        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -59,23 +74,22 @@ class PaymentController extends Controller
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => array_merge($transaction->payment_agreement_data ?? [], [
-                    'agreed_to_refund_policy_at_upload' => (bool)$request->agree_refund,
-                    'agreed_to_final_payment_at_upload' => (bool)$request->agree_final,
-                    'agreed_to_access_terms_at_upload' => (bool)$request->agree_access,
-                    'agreed_to_no_chargeback_at_upload' => (bool)$request->agree_chargeback,
+                    'agreed_to_refund_policy_at_upload' => (bool) $request->agree_refund,
+                    'agreed_to_final_payment_at_upload' => (bool) $request->agree_final,
+                    'agreed_to_access_terms_at_upload' => (bool) $request->agree_access,
+                    'agreed_to_no_chargeback_at_upload' => (bool) $request->agree_chargeback,
                     'upload_timestamp' => now()->toDateTimeString(),
                     'upload_ip' => request()->ip(),
                     'upload_user_agent' => request()->userAgent(),
                 ]),
             ]);
-        }
-        else {
+        } else {
             // Fallback just in case
             $amount = match ($booking->package_type) {
-                    'vip' => 8000000,
-                    'upgrade' => 1500000,
-                    default => 1000000,
-                };
+                'vip' => 8000000,
+                'upgrade' => 1500000,
+                default => 1000000,
+            };
             $transaction = $booking->transaction()->create([
                 'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
@@ -87,10 +101,10 @@ class PaymentController extends Controller
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => [
-                    'agreed_to_refund_policy' => (bool)$request->agree_refund,
-                    'agreed_to_final_payment' => (bool)$request->agree_final,
-                    'agreed_to_access_terms' => (bool)$request->agree_access,
-                    'agreed_to_no_chargeback' => (bool)$request->agree_chargeback,
+                    'agreed_to_refund_policy' => (bool) $request->agree_refund,
+                    'agreed_to_final_payment' => (bool) $request->agree_final,
+                    'agreed_to_access_terms' => (bool) $request->agree_access,
+                    'agreed_to_no_chargeback' => (bool) $request->agree_chargeback,
                     'timestamp' => now()->toDateTimeString(),
                     'user_agent' => request()->userAgent(),
                 ],
@@ -103,8 +117,7 @@ class PaymentController extends Controller
         try {
             $admins = User::role(['cs', 'admin', 'super_admin'])->get();
             Notification::send($admins, new NewPaymentReceived($transaction));
-        }
-        catch (\Throwable $n) {
+        } catch (\Throwable $n) {
             \Illuminate\Support\Facades\Log::error('Admin Notification Failure: ' . $n->getMessage());
         }
 
