@@ -399,7 +399,8 @@ function BookingCreate({ schedules, packageOptions, screeningResult }) {
                         /* @__PURE__ */ jsxs("p", { className: "text-xl font-black text-gold-600", children: [
                           "Rp ",
                           new Intl.NumberFormat("id-ID").format(pkg.price)
-                        ] })
+                        ] }),
+                        /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest", children: "*Harga belum termasuk PPN 11%" })
                       ] }),
                       /* @__PURE__ */ jsx("p", { className: "text-[11px] font-medium text-gray-500 leading-relaxed", children: pkg.description })
                     ]
