@@ -88,11 +88,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [activeTab, setActiveTab] = useState('schedules');
     const { flash, errors: pageErrors, auth } = usePage().props;
 
-    const handleStartSession = (bookingId) => {
-        if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
-            router.post(route('schedules.start', bookingId));
-        }
-    };
+
 
     // ─── Schedule state ───
     const [isAdding, setIsAdding] = useState(false);
@@ -793,9 +789,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                                     )}
                                                                                     {['confirmed', 'in_progress'].includes(booking.status) && (
                                                                                         <>
-                                                                                            {booking.status === 'confirmed' && (
-                                                                                                <button onClick={() => handleStartSession(booking.id)} className="px-2 py-1.5 bg-indigo-600 text-white text-[9px] font-black uppercase rounded-lg">Mulai Sesi</button>
-                                                                                            )}
+
                                                                                             <button onClick={() => setReschedulingBooking(booking)} className="px-2 py-1.5 bg-amber-500 text-white text-[9px] font-black uppercase rounded-lg">Reschedule</button>
                                                                                             <button onClick={() => setNoShowBooking(booking)} className="px-2 py-1.5 bg-rose-500 text-white text-[9px] font-black uppercase rounded-lg">No-Show</button>
                                                                                         </>
