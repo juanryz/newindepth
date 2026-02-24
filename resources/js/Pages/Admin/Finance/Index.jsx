@@ -147,7 +147,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
             <Head title="Keuangan" />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)] transition-colors duration-500">
-                <div className="max-w-[1600px] mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="flex flex-col lg:flex-row gap-8">
 
                         {/* SIDE NAVIGATION */}

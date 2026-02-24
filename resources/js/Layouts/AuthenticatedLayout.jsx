@@ -183,7 +183,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {header && (
                 <header className="relative z-40 border-b border-white/20 dark:border-gray-800/30 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg shadow-[0_4px_30px_rgba(0,0,0,0.02)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {!route().current('dashboard') && !route().current('admin.blog.create') && !route().current('admin.blog.edit') && !route().current('courses.index') && !route().current('courses.show') && !route().current('lessons.show') && !route().current('admin.schedules.show') && !route().current('agreement.patient') && !route().current('agreement.show') && !route().current('schedules.patient-detail') && !route().current('affiliate.agreement.show') && !route().current('admin.roles.create') && !route().current('admin.roles.edit') && (
+                        {!route().current('dashboard') && !route().current('admin.blog.create') && !route().current('admin.blog.edit') && !route().current('courses.index') && !route().current('courses.show') && !route().current('lessons.show') && !route().current('admin.schedules.show') && !route().current('agreement.patient') && !route().current('agreement.show') && !route().current('schedules.patient-detail') && !route().current('affiliate.agreement.show') && !route().current('admin.roles.create') && !route().current('admin.roles.edit') && !route().current('admin.users.create') && !route().current('admin.users.edit') && (
                             <Link
                                 href={
                                     route().current('bookings.show') ? route('dashboard') :

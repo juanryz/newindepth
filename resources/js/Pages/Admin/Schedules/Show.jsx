@@ -196,7 +196,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Kapasitas & Ketersediaan</p>
                                     <div className="flex items-end gap-3 mb-1">
                                         <span className={`text-4xl font-black ${schedule.booked_count >= 1 ? 'text-rose-500' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'text-gray-400' : 'text-emerald-500')}`}>
-                                            {schedule.booked_count >= 1 ? 'PENUH' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'KADALUARSA' : 'TERBUKA')}
+                                            {schedule.booked_count >= 1 ? 'PENUH' : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'TIDAK TERSEDIA' : 'TERBUKA')}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 mt-2">
@@ -204,7 +204,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                         <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                                             {schedule.booked_count >= 1
                                                 ? `${schedule.booked_count} Pasien Terdaftar`
-                                                : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal sesi telah berlalu' : '1 Slot tersedia — menunggu 1 pasien')}
+                                                : (new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal waktu sesi telah berlalu' : '1 Slot tersedia — menunggu 1 pasien')}
                                         </span>
                                     </div>
                                     <p className="text-[9px] font-bold text-gray-400 italic mt-2 leading-relaxed">
@@ -216,8 +216,12 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                 <div className="space-y-4">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Aksi Cepat</p>
                                     <div className="flex flex-col gap-2">
-                                        <button onClick={() => setIsAddingPatient(true)} className="flex items-center justify-between px-5 py-3 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30 rounded-2xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-all font-black text-[10px] uppercase tracking-widest">
-                                            Tambah Pasien <Plus className="w-4 h-4" />
+                                        <button
+                                            onClick={() => setIsAddingPatient(true)}
+                                            disabled={new Date(`${schedule.date}T${schedule.start_time}`) < new Date()}
+                                            className={`flex items-center justify-between px-5 py-3 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed dark:bg-gray-800 dark:border-gray-700' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100'}`}
+                                        >
+                                            {new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal Kadaluarsa' : 'Tambah Pasien'} <Plus className="w-4 h-4" />
                                         </button>
                                         <button onClick={() => router.get(route('admin.schedules.index'))} className="flex items-center justify-between px-5 py-3 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all font-black text-[10px] uppercase tracking-widest">
                                             Kembali ke Kalender <Calendar className="w-4 h-4" />
