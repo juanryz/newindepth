@@ -398,13 +398,59 @@ export default function Welcome({ auth, articles, courses }) {
                 </div>
             </div>
 
-            {/* Director Profile Section (Saiful Anam) */}
+            {/* Leadership Section (Komisaris & Direktur) */}
             <div className="py-24 relative overflow-hidden">
                 {/* Background Decorations */}
                 <div className="absolute top-1/4 -right-20 w-96 h-96 bg-gold-500/10 rounded-full blur-[120px] pointer-events-none"></div>
                 <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-gold-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    {/* Komisaris Section */}
+                    <div className="flex flex-col lg:flex-row items-center gap-16 mb-24">
+                        {/* Image Column */}
+                        <div className="w-full lg:w-5/12">
+                            <div className="relative group">
+                                <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
+                                <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
+                                    <div className="absolute inset-0">
+                                        <img src="/images/julius-bambang.png" alt="Julius Bambang" className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" />
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-center">
+                                        <h3 className="text-2xl font-bold text-white mb-1">Julius Bambang</h3>
+                                        <p className="text-gold-400 font-medium tracking-widest uppercase text-xs">Komisaris / Owner</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content Column */}
+                        <div className="w-full lg:w-7/12">
+                            <div className="space-y-8">
+                                <div>
+                                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl leading-tight">Julius Bambang</h2>
+                                    <p className="mt-2 text-lg font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase text-sm">
+                                        Komisaris & Owner InDepth Mental Wellness
+                                    </p>
+                                    <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed italic border-l-4 border-gold-500/30 pl-6">
+                                        Berdedikasi dalam mendukung pengembangan ekosistem kesehatan mental yang profesional, inklusif, dan revolusioner di Indonesia.
+                                    </p>
+                                </div>
+
+                                <div className="p-8 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-[2.5rem] border border-gold-500/10 shadow-sm relative overflow-hidden group">
+                                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-gold-400/5 rounded-full blur-2xl"></div>
+                                    <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-4 text-lg">
+                                        <svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                        Visi & Kepemimpinan
+                                    </h4>
+                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                                        Sebagai pilar pendukung utama di balik InDepth Mental Wellness, Julius Bambang memastikan visi perusahaan untuk menjadi pusat pemulihan mental terdepan terwujud melalui manajemen yang transparan dan komitmen pada kualitas layanan yang tak tandingi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Direktur Section */}
                     <div className="flex flex-col lg:flex-row items-center gap-16">
                         {/* Image Column */}
                         <div className="w-full lg:w-5/12">
@@ -412,11 +458,11 @@ export default function Welcome({ auth, articles, courses }) {
                                 <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
                                 <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
                                     <div className="absolute inset-0">
-                                        <img src="/images/saiful-anam.png" alt="Saiful Anam" className="w-full h-full object-cover object-top" />
+                                        <img src="/images/saiful-anam.png" alt="Saiful Anam" className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
                                         <h3 className="text-2xl font-bold text-white mb-1">Saiful Anam</h3>
-                                        <p className="text-gold-400 font-medium">Direktur InDepth / Pakar Hipnoterapi</p>
+                                        <p className="text-gold-400 font-medium tracking-widest uppercase text-xs">Direktur / Pakar Hipnoterapi</p>
                                     </div>
                                 </div>
                             </div>
@@ -427,22 +473,22 @@ export default function Welcome({ auth, articles, courses }) {
                             <div className="space-y-8">
                                 <div>
                                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl leading-tight">Saiful Anam</h2>
-                                    <p className="mt-2 text-lg font-semibold text-gold-600 dark:text-gold-400 tracking-wide">
-                                        Direktur InDepth / Pakar Hipnoterapi
+                                    <p className="mt-2 text-lg font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase text-sm">
+                                        Direktur Utama InDepth / Pakar Hipnoterapi
                                     </p>
-                                    <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed italic">
+                                    <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 font-light leading-relaxed italic border-l-4 border-gold-500/30 pl-6">
                                         Mengajar hipnotis dan hipnoterapi secara konsisten sejak tahun 2004.
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
                                     {/* Books */}
-                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm">
+                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm relative overflow-hidden group">
                                         <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-4">
                                             <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.754 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                             Penulis Buku
                                         </h4>
-                                        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                                             <li className="flex items-start gap-2">
                                                 <span className="text-gold-500">•</span> 4 Jam Pintar Hipnosis
                                             </li>
@@ -456,12 +502,12 @@ export default function Welcome({ auth, articles, courses }) {
                                     </div>
 
                                     {/* Methods */}
-                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm">
+                                    <div className="p-6 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gold-500/10 shadow-sm relative overflow-hidden group">
                                         <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white mb-4">
                                             <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
                                             Penemu Metode
                                         </h4>
-                                        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
                                             <li className="flex items-start gap-2">
                                                 <span className="text-gold-500">•</span> Super Sadar & Metode Jessica
                                             </li>
@@ -477,13 +523,13 @@ export default function Welcome({ auth, articles, courses }) {
 
                                 {/* Stats Counter */}
                                 <div className="grid grid-cols-2 gap-6">
-                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20">
+                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20 group hover:border-gold-500/40 transition-colors">
                                         <div className="text-4xl font-extrabold text-gold-600 dark:text-gold-400 mb-1">17.000+</div>
-                                        <div className="text-sm font-bold text-gray-600 dark:text-gray-300 uppercase underline decoration-gold-500/30 decoration-4 text-left">Klien Personal</div>
+                                        <div className="text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest text-left">Klien Personal</div>
                                     </div>
-                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20">
+                                    <div className="p-6 bg-gradient-to-br from-gold-500/10 to-transparent rounded-3xl border border-gold-500/20 group hover:border-gold-500/40 transition-colors">
                                         <div className="text-4xl font-extrabold text-gold-600 dark:text-gold-400 mb-1">1150+</div>
-                                        <div className="text-sm font-bold text-gray-600 dark:text-gray-300 uppercase underline decoration-gold-500/30 decoration-4 text-left">Klien Korporasi</div>
+                                        <div className="text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest text-left">Klien Korporasi</div>
                                     </div>
                                 </div>
                             </div>
@@ -515,74 +561,76 @@ export default function Welcome({ auth, articles, courses }) {
 
 
             {/* Articles Section */}
-            {articles && articles.length > 0 && (
-                <div id="blog" className="py-24 relative z-10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Wawasan & Edukasi</h2>
-                            <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
-                                Blog & Artikel Terbaru
-                            </p>
-                            <p className="mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-400 mx-auto font-light">
-                                Pelajari lebih dalam tentang kesehatan mental, teknik relaksasi, dan pengembangan diri melalui konten pilihan kami.
-                            </p>
-                        </div>
+            {
+                articles && articles.length > 0 && (
+                    <div id="blog" className="py-24 relative z-10">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="text-center mb-16">
+                                <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Wawasan & Edukasi</h2>
+                                <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
+                                    Blog & Artikel Terbaru
+                                </p>
+                                <p className="mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-400 mx-auto font-light">
+                                    Pelajari lebih dalam tentang kesehatan mental, teknik relaksasi, dan pengembangan diri melalui konten pilihan kami.
+                                </p>
+                            </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {articles.map((article, idx) => (
-                                <motion.div
-                                    key={article.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                    className="group bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
-                                >
-                                    <div className="aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-900 relative">
-                                        {article.featured_image ? (
-                                            <img src={`/storage/${article.featured_image}`} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gold-50 dark:bg-gold-950/20">
-                                                <svg className="w-12 h-12 text-gold-200 dark:text-gold-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {articles.map((article, idx) => (
+                                    <motion.div
+                                        key={article.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                        className="group bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                                    >
+                                        <div className="aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-gray-900 relative">
+                                            {article.featured_image ? (
+                                                <img src={`/storage/${article.featured_image}`} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gold-50 dark:bg-gold-950/20">
+                                                    <svg className="w-12 h-12 text-gold-200 dark:text-gold-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                                                </div>
+                                            )}
+                                            <div className="absolute top-4 left-4">
+                                                <span className="px-3 py-1 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 border border-white/50 dark:border-gray-700 shadow-sm">
+                                                    {article.author?.name || 'InDepth Team'}
+                                                </span>
                                             </div>
-                                        )}
-                                        <div className="absolute top-4 left-4">
-                                            <span className="px-3 py-1 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 border border-white/50 dark:border-gray-700 shadow-sm">
-                                                {article.author?.name || 'InDepth Team'}
-                                            </span>
                                         </div>
-                                    </div>
-                                    <div className="p-8">
-                                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">
-                                            {article.published_at
-                                                ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-                                                : new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-                                            }
+                                        <div className="p-8">
+                                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">
+                                                {article.published_at
+                                                    ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                    : new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                }
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-gold-600 transition-colors line-clamp-2 leading-tight">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 font-medium leading-relaxed">
+                                                {article.excerpt || (article.body ? String(article.body).replace(/<[^>]*>?/gm, '').substring(0, 120) : '') + '...'}
+                                            </p>
+                                            <Link href={`/blog/${article.slug}`} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 group/link">
+                                                Baca Selengkapnya
+                                                <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                            </Link>
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-gold-600 transition-colors line-clamp-2 leading-tight">
-                                            {article.title}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 font-medium leading-relaxed">
-                                            {article.excerpt || (article.body ? String(article.body).replace(/<[^>]*>?/gm, '').substring(0, 120) : '') + '...'}
-                                        </p>
-                                        <Link href={`/blog/${article.slug}`} className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 group/link">
-                                            Baca Selengkapnya
-                                            <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                        </Link>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
 
-                        <div className="mt-16 text-center">
-                            <Link href="/blog" className="px-8 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-lg transition-all text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 mx-auto w-fit">
-                                Lihat Semua Artikel
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                            </Link>
+                            <div className="mt-16 text-center">
+                                <Link href="/blog" className="px-8 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md hover:shadow-lg transition-all text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 mx-auto w-fit">
+                                    Lihat Semua Artikel
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                </Link>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <DisclaimerSection />
 

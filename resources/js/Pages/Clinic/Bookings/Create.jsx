@@ -249,7 +249,6 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                     <div className="w-full p-6 bg-red-500/10 border border-red-500/20 rounded-3xl">
                                         <p className="text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-[0.2em] mb-2 text-center">Terjadi Kesalahan</p>
                                         <ul className="text-[10px] font-bold text-red-500/80 list-disc list-inside space-y-1 text-center">
-                                            {pageErrors.error && <li>{pageErrors.error}</li>}
                                             {Object.values(errors).map((err, i) => <li key={i}>{err}</li>)}
                                         </ul>
                                     </div>

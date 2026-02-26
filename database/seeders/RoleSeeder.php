@@ -12,7 +12,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient'];
+        $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient', 'santa_maria'];
         $permissions = [
             'view bookings',
             'create bookings',
@@ -25,6 +25,7 @@ class RoleSeeder extends Seeder
             'manage users',
             'publish blog posts',
             'manage courses',
+            'manage petty cash',
         ];
 
         foreach ($permissions as $p)
@@ -32,9 +33,10 @@ class RoleSeeder extends Seeder
         foreach ($roles as $r)
             \Spatie\Permission\Models\Role::firstOrCreate(['name' => $r]);
 
-        \Spatie\Permission\Models\Role::findByName('cs')->givePermissionTo(['validate transactions', 'view bookings', 'view all transactions']);
+        \Spatie\Permission\Models\Role::findByName('cs')->givePermissionTo(['validate transactions', 'view bookings', 'view all transactions', 'manage petty cash']);
         \Spatie\Permission\Models\Role::findByName('therapist')->givePermissionTo(['manage schedules', 'view own schedule', 'view bookings']);
         \Spatie\Permission\Models\Role::findByName('admin')->givePermissionTo(\Spatie\Permission\Models\Permission::all());
         \Spatie\Permission\Models\Role::findByName('super_admin')->givePermissionTo(\Spatie\Permission\Models\Permission::all());
+        \Spatie\Permission\Models\Role::findByName('santa_maria')->givePermissionTo(['manage petty cash', 'view reports']);
     }
 }

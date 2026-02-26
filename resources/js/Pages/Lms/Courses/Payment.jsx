@@ -82,17 +82,8 @@ export default function CoursePayment({ course, transaction, auth }) {
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center font-black text-xs text-indigo-600 dark:text-indigo-400">BCA</div>
                                                 <div className="min-w-0">
-                                                    <p className="text-base font-black text-slate-800 dark:text-white tracking-tight">8720394817</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">InDepth Mental Wellness</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-gold-50 dark:bg-gold-900/30 flex items-center justify-center font-black text-xs text-gold-600 dark:text-gold-400">MDR</div>
-                                                <div className="min-w-0">
-                                                    <p className="text-base font-black text-slate-800 dark:text-white tracking-tight">1390028471530</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">InDepth Mental Wellness</p>
+                                                    <p className="text-base font-black text-slate-800 dark:text-white tracking-tight">2520639058</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Julius Bambang</p>
                                                 </div>
                                             </div>
                                         </div>
