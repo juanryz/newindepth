@@ -15,6 +15,8 @@ export default function PaymentUpload({ booking, transaction }) {
 
     const { data, setData, post, processing, errors } = useForm({
         payment_bank: '',
+        payment_account_name: '',
+        payment_account_number: '',
         payment_method: 'Transfer Bank',
         payment_proof: null,
         agree_refund: true,
@@ -96,15 +98,15 @@ export default function PaymentUpload({ booking, transaction }) {
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
-                                            <p className="text-[10px] text-slate-400">a.n. JULIUS BAMBANG</p>
+                                            <p className="text-sm font-bold text-slate-800 dark:text-white">8720394817</p>
+                                            <p className="text-[10px] text-slate-400">a.n. InDepth Mental Wellness</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BNI</div>
+                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">MDR</div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">1883920627</p>
-                                            <p className="text-[10px] text-slate-400">a.n. SAIFUL ANAM</p>
+                                            <p className="text-sm font-bold text-slate-800 dark:text-white">1390028471530</p>
+                                            <p className="text-[10px] text-slate-400">a.n. InDepth Mental Wellness</p>
                                         </div>
                                     </div>
                                 </div>
@@ -119,22 +121,54 @@ export default function PaymentUpload({ booking, transaction }) {
 
                         <form onSubmit={submit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <InputLabel htmlFor="payment_bank" value="Bank Pengirim Anda" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
+                                <div className="md:col-span-2">
+                                    <InputLabel htmlFor="payment_bank" value="Nama Bank Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
                                     <TextInput
                                         id="payment_bank"
                                         type="text"
-                                        placeholder="Contoh: BCA / Mandiri / BNI"
+                                        placeholder="Contoh: BCA / Mandiri / BNI (Gunakan huruf)"
                                         className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
                                         value={data.payment_bank}
-                                        onChange={(e) => setData('payment_bank', e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // Optional: visual clue or filter for non-numbers if desired, but validation is better at backend
+                                            setData('payment_bank', val);
+                                        }}
                                         required
                                     />
                                     {errors.payment_bank && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_bank}</p>}
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="payment_proof" value="Preview Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
+                                    <InputLabel htmlFor="payment_account_number" value="Nomor Rekening Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                    <TextInput
+                                        id="payment_account_number"
+                                        type="text"
+                                        placeholder="Masukkan nomor rekening Anda"
+                                        className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
+                                        value={data.payment_account_number}
+                                        onChange={(e) => setData('payment_account_number', e.target.value)}
+                                        required
+                                    />
+                                    {errors.payment_account_number && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_number}</p>}
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="payment_account_name" value="Nama Pemilik Rekening" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                    <TextInput
+                                        id="payment_account_name"
+                                        type="text"
+                                        placeholder="Masukkan nama pemilik rekening"
+                                        className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
+                                        value={data.payment_account_name}
+                                        onChange={(e) => setData('payment_account_name', e.target.value)}
+                                        required
+                                    />
+                                    {errors.payment_account_name && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_name}</p>}
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <InputLabel htmlFor="payment_proof" value="Upload Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
                                     <div className="relative group">
                                         <input
                                             id="payment_proof"
@@ -146,13 +180,13 @@ export default function PaymentUpload({ booking, transaction }) {
                                         />
                                         <label
                                             htmlFor="payment_proof"
-                                            className="flex items-center justify-center w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white/30 dark:bg-white/[0.01] cursor-pointer transition-all gap-3 group"
+                                            className="flex items-center justify-center w-full p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white/30 dark:bg-white/[0.01] cursor-pointer transition-all gap-3 group"
                                         >
                                             <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                                             </div>
                                             <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
-                                                {data.payment_proof ? data.payment_proof.name : 'Pilih File Gambar'}
+                                                {data.payment_proof ? data.payment_proof.name : 'Pilih File Gambar Bukti Transfer'}
                                             </span>
                                         </label>
                                     </div>

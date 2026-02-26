@@ -198,6 +198,15 @@ class BookingController extends Controller
 
         $user = $request->user();
 
+        // Prevent new booking if an active one exists
+        $activeBooking = Booking::where('patient_id', $user->id)
+            ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed', 'in_progress'])
+            ->exists();
+
+        if ($activeBooking) {
+            return redirect()->back()->withErrors(['error' => 'Anda masih memiliki jadwal booking yang belum selesai. Selesaikan sesi saat ini sebelum membuat janji baru.']);
+        }
+
         if (!$user->hasCompletedScreening()) {
             return redirect()->route('screening.show')->withErrors(['error' => 'Selesaikan skrining terlebih dahulu.']);
         }

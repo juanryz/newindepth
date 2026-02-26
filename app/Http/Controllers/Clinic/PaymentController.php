@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function create(Booking $booking)
     {
-        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
+        if ((int)$booking->patient_id !== (int)auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
@@ -47,18 +47,22 @@ class PaymentController extends Controller
 
     public function store(Request $request, Booking $booking)
     {
-        if ((int) $booking->patient_id !== (int) auth()->id() && !auth()->user()->isStaff()) {
+        if ((int)$booking->patient_id !== (int)auth()->id() && !auth()->user()->isStaff()) {
             abort(403);
         }
 
         $request->validate([
             'payment_proof' => 'required|image|max:2048',
-            'payment_bank' => 'required|string|max:50',
+            'payment_bank' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s\.\-]+$/'], // Ensure bank name is text
+            'payment_account_number' => 'required|string|max:50',
+            'payment_account_name' => 'required|string|max:100',
             'payment_method' => 'required|string|max:50',
             'agree_refund' => 'required|accepted',
             'agree_final' => 'required|accepted',
             'agree_access' => 'required|accepted',
             'agree_chargeback' => 'required|accepted',
+        ], [
+            'payment_bank.regex' => 'Nama bank pengirim harus berupa tulisan (huruf), bukan angka.',
         ]);
 
         $path = $request->file('payment_proof')->store('payments', 'public');
@@ -74,22 +78,25 @@ class PaymentController extends Controller
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => array_merge($transaction->payment_agreement_data ?? [], [
-                    'agreed_to_refund_policy_at_upload' => (bool) $request->agree_refund,
-                    'agreed_to_final_payment_at_upload' => (bool) $request->agree_final,
-                    'agreed_to_access_terms_at_upload' => (bool) $request->agree_access,
-                    'agreed_to_no_chargeback_at_upload' => (bool) $request->agree_chargeback,
+                    'payment_account_number' => $request->payment_account_number,
+                    'payment_account_name' => $request->payment_account_name,
+                    'agreed_to_refund_policy_at_upload' => (bool)$request->agree_refund,
+                    'agreed_to_final_payment_at_upload' => (bool)$request->agree_final,
+                    'agreed_to_access_terms_at_upload' => (bool)$request->agree_access,
+                    'agreed_to_no_chargeback_at_upload' => (bool)$request->agree_chargeback,
                     'upload_timestamp' => now()->toDateTimeString(),
                     'upload_ip' => request()->ip(),
                     'upload_user_agent' => request()->userAgent(),
                 ]),
             ]);
-        } else {
+        }
+        else {
             // Fallback just in case
             $amount = match ($booking->package_type) {
-                'vip' => 8000000,
-                'upgrade' => 1500000,
-                default => 1000000,
-            };
+                    'vip' => 8000000,
+                    'upgrade' => 1500000,
+                    default => 1000000,
+                };
             $transaction = $booking->transaction()->create([
                 'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
@@ -101,10 +108,12 @@ class PaymentController extends Controller
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => [
-                    'agreed_to_refund_policy' => (bool) $request->agree_refund,
-                    'agreed_to_final_payment' => (bool) $request->agree_final,
-                    'agreed_to_access_terms' => (bool) $request->agree_access,
-                    'agreed_to_no_chargeback' => (bool) $request->agree_chargeback,
+                    'payment_account_number' => $request->payment_account_number,
+                    'payment_account_name' => $request->payment_account_name,
+                    'agreed_to_refund_policy' => (bool)$request->agree_refund,
+                    'agreed_to_final_payment' => (bool)$request->agree_final,
+                    'agreed_to_access_terms' => (bool)$request->agree_access,
+                    'agreed_to_no_chargeback' => (bool)$request->agree_chargeback,
                     'timestamp' => now()->toDateTimeString(),
                     'user_agent' => request()->userAgent(),
                 ],
@@ -117,7 +126,8 @@ class PaymentController extends Controller
         try {
             $admins = User::role(['cs', 'admin', 'super_admin'])->get();
             Notification::send($admins, new NewPaymentReceived($transaction));
-        } catch (\Throwable $n) {
+        }
+        catch (\Throwable $n) {
             \Illuminate\Support\Facades\Log::error('Admin Notification Failure: ' . $n->getMessage());
         }
 

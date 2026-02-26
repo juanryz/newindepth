@@ -13,6 +13,8 @@ export default function CoursePayment({ course, transaction, auth }) {
 
     const { data, setData, post, processing, errors } = useForm({
         payment_bank: '',
+        payment_account_number: '',
+        payment_account_name: '',
         payment_method: 'Transfer Bank',
         payment_proof: null,
     });
@@ -107,12 +109,12 @@ export default function CoursePayment({ course, transaction, auth }) {
 
                         <form onSubmit={submit} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
+                                <div className="space-y-2 md:col-span-2">
                                     <label htmlFor="payment_bank" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nama Bank Pengirim</label>
                                     <input
                                         id="payment_bank"
                                         type="text"
-                                        placeholder="Contoh: BCA / Mandiri / BNI"
+                                        placeholder="Contoh: BCA / Mandiri / BNI (Gunakan huruf)"
                                         className="w-full h-14 px-6 rounded-2xl bg-white/50 dark:bg-white/[0.02] border-white/60 dark:border-white/[0.06] focus:ring-2 focus:ring-gold-500 border-none shadow-inner font-bold text-sm"
                                         value={data.payment_bank}
                                         onChange={(e) => setData('payment_bank', e.target.value)}
@@ -122,6 +124,34 @@ export default function CoursePayment({ course, transaction, auth }) {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <label htmlFor="payment_account_number" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nomor Rekening Pengirim</label>
+                                    <input
+                                        id="payment_account_number"
+                                        type="text"
+                                        placeholder="Masukkan nomor rekening"
+                                        className="w-full h-14 px-6 rounded-2xl bg-white/50 dark:bg-white/[0.02] border-white/60 dark:border-white/[0.06] focus:ring-2 focus:ring-gold-500 border-none shadow-inner font-bold text-sm"
+                                        value={data.payment_account_number}
+                                        onChange={(e) => setData('payment_account_number', e.target.value)}
+                                        required
+                                    />
+                                    {errors.payment_account_number && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_number}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="payment_account_name" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nama Pemilik Rekening</label>
+                                    <input
+                                        id="payment_account_name"
+                                        type="text"
+                                        placeholder="Masukkan nama pemilik rekening"
+                                        className="w-full h-14 px-6 rounded-2xl bg-white/50 dark:bg-white/[0.02] border-white/60 dark:border-white/[0.06] focus:ring-2 focus:ring-gold-500 border-none shadow-inner font-bold text-sm"
+                                        value={data.payment_account_name}
+                                        onChange={(e) => setData('payment_account_name', e.target.value)}
+                                        required
+                                    />
+                                    {errors.payment_account_name && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_name}</p>}
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Bukti Transfer (JPG/PNG)</label>
                                     <div className="relative group">
                                         <input
@@ -137,8 +167,8 @@ export default function CoursePayment({ course, transaction, auth }) {
                                             className="flex items-center justify-center w-full h-14 px-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-gold-400 dark:hover:border-gold-500 bg-white/30 dark:bg-white/[0.01] cursor-pointer transition-all gap-3 group"
                                         >
                                             <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400 truncate max-w-[150px]">
-                                                {data.payment_proof ? data.payment_proof.name : 'Pilih File'}
+                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400 truncate max-w-[200px]">
+                                                {data.payment_proof ? data.payment_proof.name : 'Pilih File Gambar Bukti Transfer'}
                                             </span>
                                         </label>
                                     </div>

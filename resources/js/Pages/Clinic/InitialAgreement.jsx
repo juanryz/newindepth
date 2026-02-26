@@ -57,12 +57,18 @@ export default function InitialAgreement({ userAge }) {
 
     // Canvas logic based on generalized refs
     const startDrawing = (e, ref, setDrawing, setDrawn) => {
+        if (e.type === 'touchstart') {
+            e.preventDefault();
+        }
         const canvas = ref.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         const rect = canvas.getBoundingClientRect();
+
+        // Handle touch vs mouse coordinates
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
         ctx.beginPath();
         ctx.moveTo(clientX - rect.left, clientY - rect.top);
         setDrawing(true);
@@ -83,7 +89,10 @@ export default function InitialAgreement({ userAge }) {
         ctx.stroke();
     };
 
-    const stopDrawing = (ref, setDrawing, hasDrawn, signatureField) => {
+    const stopDrawing = (e, ref, setDrawing, hasDrawn, signatureField) => {
+        if (e && e.type === 'touchend') {
+            // Optional: e.preventDefault() here might break link clicks or other interactions
+        }
         setDrawing(false);
         const canvas = ref.current;
         if (canvas && hasDrawn) {
@@ -176,9 +185,11 @@ export default function InitialAgreement({ userAge }) {
     };
 
     const CheckboxItem = ({ id, label, checked, onChange }) => (
-        <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${checked ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300 dark:hover:border-indigo-600'}`}>
-            <input type="checkbox" id={id} checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 w-5 h-5 accent-indigo-600 rounded text-indigo-600 focus:ring-indigo-500" />
-            <span className={`text-sm leading-relaxed ${checked ? 'font-bold' : 'text-gray-700 dark:text-gray-300'}`}>{label}</span>
+        <label className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer select-none transition-all ${checked ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300 dark:hover:border-indigo-600'}`}>
+            <div className="pt-0.5">
+                <input type="checkbox" id={id} checked={checked} onChange={(e) => onChange(e.target.checked)} className="w-5 h-5 accent-indigo-600 rounded text-indigo-600 focus:ring-indigo-500" />
+            </div>
+            <span className={`text-base md:text-sm leading-relaxed ${checked ? 'font-bold' : 'text-gray-700 dark:text-gray-300'}`}>{label}</span>
         </label>
     );
 
@@ -197,8 +208,8 @@ export default function InitialAgreement({ userAge }) {
         >
             <Head title="Dokumen Persetujuan" />
 
-            <div className="py-12">
-                <div className="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-10">
+            <div className="py-6 md:py-12 min-h-[calc(100dvh-64px)] bg-gray-50/50 dark:bg-gray-900/50">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
 
 
@@ -260,11 +271,11 @@ export default function InitialAgreement({ userAge }) {
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Nama Wali Sah</label>
-                                                    <input type="text" value={data.nama_wali} onChange={e => setData('nama_wali', e.target.value)} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 focus:ring-amber-500 focus:border-amber-500" placeholder="Contoh: Budi Santoso" />
+                                                    <input type="text" value={data.nama_wali} onChange={e => setData('nama_wali', e.target.value)} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 text-base md:text-sm focus:ring-amber-500 focus:border-amber-500" placeholder="Contoh: Budi Santoso" />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Nomor Telepon Wali</label>
-                                                    <input type="text" value={data.telepon_wali} onChange={e => setData('telepon_wali', e.target.value)} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 focus:ring-amber-500 focus:border-amber-500" placeholder="08xxxxxxxxxx" />
+                                                    <input type="text" value={data.telepon_wali} onChange={e => setData('telepon_wali', e.target.value)} className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 text-base md:text-sm focus:ring-amber-500 focus:border-amber-500" placeholder="08xxxxxxxxxx" />
                                                 </div>
                                             </div>
                                         </div>
@@ -319,11 +330,11 @@ export default function InitialAgreement({ userAge }) {
                                                 height={170}
                                                 onMouseDown={(e) => startDrawing(e, canvasRef1, setIsDrawing1, setHasDrawn1)}
                                                 onMouseMove={(e) => draw(e, canvasRef1, isDrawing1)}
-                                                onMouseUp={() => stopDrawing(canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
-                                                onMouseOut={() => stopDrawing(canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
+                                                onMouseUp={(e) => stopDrawing(e, canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
+                                                onMouseOut={(e) => stopDrawing(e, canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
                                                 onTouchStart={(e) => startDrawing(e, canvasRef1, setIsDrawing1, setHasDrawn1)}
                                                 onTouchMove={(e) => draw(e, canvasRef1, isDrawing1)}
-                                                onTouchEnd={() => stopDrawing(canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
+                                                onTouchEnd={(e) => stopDrawing(e, canvasRef1, setIsDrawing1, hasDrawn1, 'signature_1')}
                                                 className="cursor-crosshair w-full h-full touch-none dark:invert"
                                             />
                                             {!hasDrawn1 && (
@@ -448,6 +459,7 @@ export default function InitialAgreement({ userAge }) {
                                 <ul className="list-disc pl-5 mb-6 space-y-1">
                                     <li>Apabila terdapat kelalaian yang terbukti secara hukum dari pihak InDepth, maka tanggung jawab maksimal tidak melebihi biaya layanan sesi tersebut.</li>
                                     <li>Tidak ada tanggung jawab atas kerugian tidak langsung, immaterial, atau kerugian lanjutan.</li>
+                                    <li>Jika akun dihapus dengan alasan apa pun, akun yang sudah terhapus tidak dapat melakukan klaim apa pun atau tuntutan ke InDepth.</li>
                                 </ul>
 
                                 <p className="font-bold mb-2">PASAL 11 - KERAHASIAAN DAN LARANGAN PENCEMARAN NAMA BAIK</p>
@@ -491,11 +503,11 @@ export default function InitialAgreement({ userAge }) {
                                             height={140}
                                             onMouseDown={(e) => startDrawing(e, canvasRef2, setIsDrawing2, setHasDrawn2)}
                                             onMouseMove={(e) => draw(e, canvasRef2, isDrawing2)}
-                                            onMouseUp={() => stopDrawing(canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
-                                            onMouseOut={() => stopDrawing(canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
+                                            onMouseUp={(e) => stopDrawing(e, canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
+                                            onMouseOut={(e) => stopDrawing(e, canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
                                             onTouchStart={(e) => startDrawing(e, canvasRef2, setIsDrawing2, setHasDrawn2)}
                                             onTouchMove={(e) => draw(e, canvasRef2, isDrawing2)}
-                                            onTouchEnd={() => stopDrawing(canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
+                                            onTouchEnd={(e) => stopDrawing(e, canvasRef2, setIsDrawing2, hasDrawn2, 'signature')}
                                             className="cursor-crosshair w-full h-full touch-none dark:invert"
                                         />
                                         {!hasDrawn2 && (

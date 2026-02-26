@@ -163,6 +163,24 @@ class User extends Authenticatable implements MustVerifyEmail
         return !is_null($this->screening_completed_at);
     }
 
+    public function canRescreen(): bool
+    {
+        if (!$this->hasCompletedScreening()) {
+            return true;
+        }
+
+        // Rule 1: 15 days have passed since last screening
+        if ($this->screening_completed_at->diffInDays(now()) >= 15) {
+            return true;
+        }
+
+        // Rule 2: Has a completed therapy session after the last screening
+        return $this->bookings()
+            ->where('status', 'completed')
+            ->where('updated_at', '>', $this->screening_completed_at)
+            ->exists();
+    }
+
     public function hasValidAgreement(): bool
     {
         if (is_null($this->agreement_signed_at)) {

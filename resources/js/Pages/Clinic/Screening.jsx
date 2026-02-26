@@ -122,6 +122,10 @@ export default function Screening() {
         wa: prefill.wa || '',
         gender: prefill.gender || '',
         usia: prefill.usia || '',
+        tinggi_badan: '',
+        berat_badan: '',
+        obesitas_mode: 'calculate',
+        obesitas_kg: '',
     });
 
     useEffect(() => {
@@ -156,10 +160,10 @@ export default function Screening() {
     // AI Opening messages per step
     const aiOpeners = {
         1: 'Halo 👋 Selamat datang di InDepth Mental Wellness. Saya akan menemani Anda melalui proses skrining singkat ini. Mari kita mulai dengan data diri Anda.',
-        2: 'Terima kasih. Sekarang, tolong ceritakan — apa masalah utama yang ingin Anda atasi? Anda bisa memilih lebih dari satu.',
-        3: 'Baik. Seberapa besar kondisi ini mengganggu kehidupan sehari-hari Anda? Geser slider di bawah sesuai perasaan Anda (1 = sangat ringan, 10 = sangat parah).',
-        4: 'Sudah berapa lama Anda mengalami kondisi ini?',
-        5: 'Untuk membantu kami lebih memahami, berapakah estimasi kelebihan berat badan Anda?',
+        2: 'Terima kasih. Sekarang, tolong ceritakan — apa masalah utama yang ingin Anda atasi?',
+        3: 'Mari kita ukur kondisi fisik Anda. Berapa tinggi dan berat badan Anda saat ini? Ini membantu kami menentukan program yang paling efektif untuk Anda.',
+        4: 'Baik. Seberapa besar kondisi ini mengganggu kehidupan sehari-hari Anda? Geser slider di bawah sesuai perasaan Anda (1 = sangat ringan, 10 = sangat parah).',
+        5: 'Sudah berapa lama Anda mengalami kondisi ini?',
         6: 'Apakah Anda pernah mendapatkan diagnosis dari profesional kesehatan sebelumnya?',
         7: 'Apakah saat ini Anda masih dalam perawatan atau pengobatan?',
         8: 'Upaya apa yang sudah pernah Anda lakukan untuk mengatasi kondisi ini?',
@@ -250,11 +254,14 @@ export default function Screening() {
             case 2:
                 return !!stepData.masalah_utama;
             case 3:
-                return stepData.skala != null;
+                if (stepData.obesitas_mode === 'manual') {
+                    return !!stepData.obesitas_kg;
+                }
+                return stepData.berat_badan && stepData.tinggi_badan;
             case 4:
-                return !!stepData.durasi;
+                return stepData.skala != null;
             case 5:
-                return !!stepData.obesitas_kg;
+                return !!stepData.durasi;
             case 6:
                 return !!stepData.diagnosis;
             case 7:
@@ -274,12 +281,12 @@ export default function Screening() {
         stepData.masalah_utama === 'Obesitas';
 
     const getNextStep = (current) => {
-        if (current === 4 && !needsObesitasStep()) return 6;
+        if (current === 2 && !needsObesitasStep()) return 4;
         return current + 1;
     };
 
     const getPrevStep = (current) => {
-        if (current === 6 && !needsObesitasStep()) return 4;
+        if (current === 4 && !needsObesitasStep()) return 2;
         return current - 1;
     };
 
@@ -331,9 +338,9 @@ export default function Screening() {
                 <div className="mt-4">
                     {step === 1 && <Step1 data={stepData} update={update} autofilled={autofilled} />}
                     {step === 2 && <Step2 data={stepData} update={update} />}
-                    {step === 3 && <Step3 data={stepData} update={update} />}
-                    {step === 4 && <Step4 data={stepData} update={update} />}
-                    {step === 5 && <Step5 data={stepData} update={update} />}
+                    {step === 3 && <Step3Obesitas data={stepData} update={update} />}
+                    {step === 4 && <Step4Skala data={stepData} update={update} />}
+                    {step === 5 && <Step5Durasi data={stepData} update={update} />}
                     {step === 6 && <Step6 data={stepData} update={update} />}
                     {step === 7 && <Step7 data={stepData} update={update} />}
                     {step === 8 && <Step8 data={stepData} toggleMulti={toggleMulti} />}
@@ -392,14 +399,14 @@ export default function Screening() {
     }
 
     const effectiveTotal = needsObesitasStep() ? 10 : 9;
-    const displayStep = step > 5 && !needsObesitasStep() ? step - 1 : step;
+    const displayStep = step > 2 && !needsObesitasStep() ? step - 1 : step;
 
     return (
         <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Skrining Klinis InDepth</h2>}>
             <Head title="Skrining Klinis" />
 
-            <div className="py-10">
-                <div className="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-6 min-h-[calc(100dvh-64px)] bg-gray-50/50 dark:bg-gray-900/50">
+                <div className="max-w-xl mx-auto px-4">
                     <div className="bg-white dark:bg-gray-800/60 backdrop-blur-xl border border-gray-100 dark:border-gray-700/50 rounded-2xl shadow-lg p-6 sm:p-8">
 
                         <ProgressBar current={displayStep} total={effectiveTotal} />
@@ -414,7 +421,7 @@ export default function Screening() {
                                 type="button"
                                 onClick={() => setStep(getPrevStep(step))}
                                 disabled={step === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 disabled:opacity-30 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 disabled:opacity-30 hover:text-gray-900 dark:hover:text-white transition-colors touch-manipulation"
                             >
                                 ← Sebelumnya
                             </button>
@@ -424,7 +431,7 @@ export default function Screening() {
                                     type="button"
                                     onClick={() => setStep(getNextStep(step))}
                                     disabled={!isStepValid()}
-                                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-semibold rounded-xl text-sm transition-colors shadow"
+                                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-semibold rounded-xl text-sm transition-colors shadow touch-manipulation"
                                 >
                                     Selanjutnya →
                                 </button>
@@ -433,7 +440,7 @@ export default function Screening() {
                                     type="button"
                                     onClick={handleSubmit}
                                     disabled={!isStepValid() || submitting}
-                                    className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-semibold rounded-xl text-sm transition-colors shadow"
+                                    className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-semibold rounded-xl text-sm transition-colors shadow touch-manipulation"
                                 >
                                     {submitting ? 'Menyimpan...' : '✅ Selesai & Lihat Rekomendasi'}
                                 </button>
@@ -458,7 +465,7 @@ function InputField({ label, type = 'text', value, onChange, required }) {
                 type={type}
                 value={value || ''}
                 onChange={e => onChange(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             />
         </div>
     );
@@ -482,7 +489,7 @@ function AutofillInputField({ label, type = 'text', value, onChange, required, a
                 type={type}
                 value={value || ''}
                 onChange={e => onChange(e.target.value)}
-                className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${autoFilled
+                className={`w-full px-4 py-2.5 rounded-xl border text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${autoFilled
                     ? 'border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-900/10'
                     : 'border-gray-200 dark:border-gray-600'
                     }`}
@@ -497,12 +504,12 @@ function RadioGroup({ options, value, onChange }) {
             {options.map(opt => (
                 <label
                     key={opt}
-                    className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all text-sm ${value === opt
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
+                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer select-none transition-all text-base md:text-sm ${value === opt
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 shadow-sm'
                         : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
                         }`}
                 >
-                    <input type="radio" checked={value === opt} onChange={() => onChange(opt)} className="text-indigo-600 accent-indigo-600" />
+                    <input type="radio" checked={value === opt} onChange={() => onChange(opt)} className="w-5 h-5 text-indigo-600 accent-indigo-600 focus:ring-indigo-500" />
                     {opt}
                 </label>
             ))}
@@ -517,12 +524,12 @@ function CheckboxGroup({ options, values, toggle }) {
             {options.map(opt => (
                 <label
                     key={opt}
-                    className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all text-sm ${arr.includes(opt)
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300'
+                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer select-none transition-all text-base md:text-sm ${arr.includes(opt)
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 shadow-sm'
                         : 'border-gray-200 dark:border-gray-600 hover:border-indigo-300 text-gray-700 dark:text-gray-300'
                         }`}
                 >
-                    <input type="checkbox" checked={arr.includes(opt)} onChange={() => toggle(opt)} className="accent-indigo-600 rounded" />
+                    <input type="checkbox" checked={arr.includes(opt)} onChange={() => toggle(opt)} className="w-5 h-5 accent-indigo-600 rounded text-indigo-600 focus:ring-indigo-500" />
                     {opt}
                 </label>
             ))}
@@ -616,8 +623,8 @@ function Step2({ data, update }) {
     return <RadioGroup options={MASALAH_OPTIONS} value={data.masalah_utama} onChange={(opt) => update('masalah_utama', opt)} />;
 }
 
-// STEP 3 — Skala Gangguan
-function Step3({ data, update }) {
+// STEP 4 — Skala Gangguan
+function Step4Skala({ data, update }) {
     const skala = data.skala ?? 5;
     const getLabel = (s) => {
         if (s <= 3) return { text: 'Ringan', color: 'text-green-600' };
@@ -636,7 +643,7 @@ function Step3({ data, update }) {
             <input
                 type="range" min={1} max={10} value={skala}
                 onChange={e => update('skala', parseInt(e.target.value))}
-                className="w-full accent-indigo-600 cursor-pointer"
+                className="w-full accent-indigo-600 cursor-pointer h-10"
             />
             <div className="flex justify-between text-xs text-gray-400">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <span key={n}>{n}</span>)}
@@ -645,8 +652,8 @@ function Step3({ data, update }) {
     );
 }
 
-// STEP 4 — Durasi
-function Step4({ data, update }) {
+// STEP 5 — Durasi
+function Step5Durasi({ data, update }) {
     return (
         <RadioGroup
             options={['< 1 bulan', '1–6 bulan', '6–12 bulan', '1–3 tahun', '> 3 tahun']}
@@ -656,14 +663,95 @@ function Step4({ data, update }) {
     );
 }
 
-// STEP 5 — Obesitas (conditional)
-function Step5({ data, update }) {
+// STEP 3 — Obesitas Breakdown (Height/Weight)
+function Step3Obesitas({ data, update }) {
+    const mode = data.obesitas_mode || 'calculate';
+    const berat = parseFloat(data.berat_badan || 0);
+    const tinggi = parseFloat(data.tinggi_badan || 0);
+    const gender = data.gender || 'Laki-laki';
+
+    // Broca Index Calculation
+    const base = tinggi - 100;
+    const idealWeight = gender === 'Perempuan' ? base - (base * 0.15) : base - (base * 0.10);
+    const difference = berat - idealWeight;
+
+    const getStatus = () => {
+        if (mode === 'manual') {
+            if (!data.obesitas_kg) return null;
+            if (data.obesitas_kg === '> 20 kg') return { text: 'Kategori: VIP (Kelebihan > 20kg)', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' };
+            if (data.obesitas_kg === '10–20 kg') return { text: 'Kategori: Reguler (Kelebihan 10-20kg)', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' };
+            return { text: 'Kategori: Reguler (Kelebihan 0-10kg)', color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' };
+        }
+        if (!berat || !tinggi) return null;
+        if (difference > 20) return { text: 'Kategori: VIP (Kelebihan > 20kg)', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' };
+        if (difference > 0) return { text: 'Kategori: Reguler (Kelebihan 1-20kg)', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' };
+        return { text: 'Berat Badan Ideal / Dibawah Ideal', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' };
+    };
+
+    const status = getStatus();
+
     return (
-        <RadioGroup
-            options={['0–10 kg', '10–20 kg', '> 20 kg']}
-            value={data.obesitas_kg}
-            onChange={v => update('obesitas_kg', v)}
-        />
+        <div className="space-y-6">
+            <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                <button
+                    type="button"
+                    onClick={() => update('obesitas_mode', 'calculate')}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'calculate' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500'}`}
+                >
+                    Hitung Otomatis
+                </button>
+                <button
+                    type="button"
+                    onClick={() => update('obesitas_mode', 'manual')}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${mode === 'manual' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500'}`}
+                >
+                    Pilih Langsung
+                </button>
+            </div>
+
+            {mode === 'calculate' ? (
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tinggi Badan (cm)</label>
+                        <input
+                            type="number" value={data.tinggi_badan || ''}
+                            onChange={e => update('tinggi_badan', e.target.value)}
+                            placeholder="Contoh: 170"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Berat Badan (kg)</label>
+                        <input
+                            type="number" value={data.berat_badan || ''}
+                            onChange={e => update('berat_badan', e.target.value)}
+                            placeholder="Contoh: 85"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                        />
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Berapa estimasi kelebihan berat badan Anda?</p>
+                    <RadioGroup
+                        options={['0–10 kg', '10–20 kg', '> 20 kg']}
+                        value={data.obesitas_kg}
+                        onChange={v => update('obesitas_kg', v)}
+                    />
+                </div>
+            )}
+
+            {status && (
+                <div className={`p-4 rounded-xl border border-transparent ${status.bg} transition-all`}>
+                    <p className={`text-sm font-bold ${status.color} mb-1`}>{status.text}</p>
+                    {mode === 'calculate' && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Berdasarkan perhitungan Broca Index, berat badan ideal Anda adalah sekitar <strong>{Math.round(idealWeight)} kg</strong>.
+                        </p>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -685,7 +773,7 @@ function Step6({ data, update }) {
                         value={data.hasil_diagnosis || ''}
                         onChange={e => update('hasil_diagnosis', e.target.value)}
                         placeholder="Contoh: Gangguan kecemasan umum (GAD)..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
                     />
                 </div>
             )}
@@ -734,7 +822,7 @@ function Step9({ data, update, onSendAi }) {
                     value={data.detail_masalah || ''}
                     onChange={e => update('detail_masalah', e.target.value)}
                     placeholder="Ceritakan apa yang Anda rasakan, kapan bermula, dan bagaimana kondisi ini memengaruhi hidup Anda..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
                 />
             )}
 
@@ -770,7 +858,7 @@ function Step9({ data, update, onSendAi }) {
                         onChange={e => setFollowUp(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                         placeholder="Ketik pesan lanjutan..."
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
                     />
                     <button
                         type="button"
@@ -813,7 +901,7 @@ function Step10({ data, update, onSendAi }) {
                     value={data.outcome || ''}
                     onChange={e => update('outcome', e.target.value)}
                     placeholder="Apa yang ingin Anda capai setelah program terapi? Seperti apa kondisi ideal yang Anda impikan?"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
                 />
             )}
 
@@ -849,7 +937,7 @@ function Step10({ data, update, onSendAi }) {
                         onChange={e => setFollowUp(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                         placeholder="Ketik pesan lanjutan..."
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
                     />
                     <button
                         type="button"
