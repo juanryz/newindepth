@@ -111,10 +111,11 @@ const severityColors = {
     'High Risk': 'bg-red-200 text-red-900 dark:bg-red-900/60 dark:text-red-200',
 };
 
-function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScreening }) {
+function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScreening, isProfileComplete }) {
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
     if (!screeningResult) {
+        if (isProfileComplete) return null; // Hide if profile is 100% complete
         /* Belum screening */
         return (
             <GlassPanel className="!border-amber-200/60 dark:!border-amber-700/30 p-5 relative overflow-hidden">
@@ -445,6 +446,7 @@ export default function Dashboard() {
                                 screeningResult={screeningResult}
                                 canTakeScreening={canTakeScreening}
                                 daysUntilNextScreening={daysUntilNextScreening}
+                                isProfileComplete={isProfileComplete}
                             />
 
                             <ServiceFlowGuide

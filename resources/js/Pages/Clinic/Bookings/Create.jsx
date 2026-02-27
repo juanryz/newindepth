@@ -166,7 +166,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                     <p className="text-xl font-black text-gold-600 dark:text-gold-400">Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}</p>
                                                     <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                                                 </div>
-                                                <p className="text-[11px] font-medium text-gray-500 dark:text-gray-300 leading-relaxed">{pkg.description}</p>
+                                                <div className="text-[11px] font-medium text-gray-600 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: pkg.description }} />
                                             </div>
                                         ))}
                                     </div>

@@ -67,11 +67,16 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                 const amount = tx.amount ? new Intl.NumberFormat('id-ID').format(tx.amount) : '-';
 
                                                 const status = tx.status || '';
-                                                const isPending = status === 'pending';
-                                                const isCompleted = status === 'completed' || status === 'paid';
-                                                const isDeclined = status === 'declined' || status === 'rejected';
-                                                const isCancelled = status === 'cancelled';
-                                                const isExpired = status === 'expired';
+                                                let isPending = status === 'pending';
+                                                let isCompleted = status === 'completed' || status === 'paid';
+                                                let isDeclined = status === 'declined' || status === 'rejected';
+                                                let isCancelled = status === 'cancelled';
+                                                let isExpired = status === 'expired';
+
+                                                if (isBooking && tx.transactionable?.status === 'cancelled') {
+                                                    isCancelled = true;
+                                                    isPending = false;
+                                                }
 
                                                 return (
                                                     <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">

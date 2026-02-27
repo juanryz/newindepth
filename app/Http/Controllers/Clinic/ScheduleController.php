@@ -267,8 +267,10 @@ class ScheduleController extends Controller
             abort(403);
         }
 
-        if (!in_array($booking->status, ['confirmed', 'in_progress'])) {
-            return redirect()->back()->withErrors(['error' => 'Hanya sesi yang dikonfirmasi atau berlangsung yang bisa dijadwal ulang.']);
+        // Allow rescheduling for confirmed/in_progress, or for pending states if it's admin
+        $allowedStatuses = ['confirmed', 'in_progress', 'pending_validation', 'pending_payment'];
+        if (!in_array($booking->status, $allowedStatuses)) {
+            return redirect()->back()->withErrors(['error' => 'Status sesi ini tidak dapat dijadwal ulang (hanya bisa dikonfirmasi atau menunggu).']);
         }
 
         $request->validate([
@@ -315,7 +317,7 @@ class ScheduleController extends Controller
             'reschedule_reason' => $request->reschedule_reason,
             'rescheduled_by' => $request->user()->id,
             'rescheduled_at' => now(),
-            'status' => 'confirmed', // Reset to confirmed if was in_progress
+            'status' => in_array($booking->status, ['in_progress', 'confirmed']) ? 'confirmed' : $booking->status, // Keep original status if pending
             'started_at' => null,
         ]);
 

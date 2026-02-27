@@ -247,11 +247,11 @@ export default function InitialAgreement({ userAge }) {
                                     <div className="pl-8">
                                         <p className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Apakah Anda masih rutin mengonsumsi obat psikiater atau menjalani perawatan medis berlanjut?</p>
                                         <div className="flex gap-4">
-                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Ya' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700'}`}>
+                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Ya' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'}`}>
                                                 <input type="radio" name="status_medis" value="Ya" checked={data.status_medis === 'Ya'} onChange={() => setData('status_medis', 'Ya')} className="accent-indigo-600" />
                                                 <span className="text-sm font-medium">Ya, masih berjalan</span>
                                             </label>
-                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Tidak' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700'}`}>
+                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Tidak' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'}`}>
                                                 <input type="radio" name="status_medis" value="Tidak" checked={data.status_medis === 'Tidak'} onChange={() => setData('status_medis', 'Tidak')} className="accent-indigo-600" />
                                                 <span className="text-sm font-medium">Tidak</span>
                                             </label>
@@ -483,7 +483,7 @@ export default function InitialAgreement({ userAge }) {
                                 </ul>
                             </div>
 
-                            <p className="font-bold mb-4 dark:text-gray-100">PASAL 14 - PERNYATAAN AKHIR</p>
+                            <p className="font-bold mb-4 text-gray-900 dark:text-gray-100">PASAL 14 - PERNYATAAN AKHIR</p>
                             <div className="space-y-3 mb-6">
                                 <CheckboxItem label="Saya menyatakan seluruh data benar dan lengkap." checked={data.agree_1} onChange={e => setData('agree_1', e)} />
                                 <CheckboxItem label="Saya telah membaca dan memahami seluruh isi perjanjian ini." checked={data.agree_2} onChange={e => setData('agree_2', e)} />
@@ -547,25 +547,25 @@ export default function InitialAgreement({ userAge }) {
 
                             <div className="space-y-4">
                                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
-                                    <h4 className="font-bold mb-2">1. Kebijakan Privasi</h4>
+                                    <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">1. Kebijakan Privasi</h4>
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">Saya menyetujui InDepth mengelola data pribadi saya sesuai kebijakan privasi untuk kepentingan layanan, riset internal, dan dokumentasi hukum.</p>
                                     <CheckboxItem label="Saya menyetujui Kebijakan Privasi." checked={data.privacy_policy} onChange={e => setData('privacy_policy', e)} />
                                 </div>
 
                                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
-                                    <h4 className="font-bold mb-2">2. Kebijakan Non-Refund</h4>
+                                    <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">2. Kebijakan Non-Refund</h4>
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">Sesuai Pasal 8, saya memahami bahwa seluruh pembayaran yang telah dilakukan bersifat final dan tidak dapat dikembalikan (non-refundable) apapun alasannya.</p>
                                     <CheckboxItem label="Saya menyetujui Kebijakan Non-Refund." checked={data.refund_policy} onChange={e => setData('refund_policy', e)} />
                                 </div>
 
                                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
-                                    <h4 className="font-bold mb-2">3. Perjanjian Afiliasi</h4>
+                                    <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">3. Perjanjian Afiliasi</h4>
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">Jika saya merujuk orang lain ke InDepth, saya menyetujui syarat & ketentuan komisi afiliasi yang berlaku di platform ini.</p>
                                     <CheckboxItem label="Saya menyetujui Syarat & Ketentuan Afiliasi." checked={data.affiliate_agreement} onChange={e => setData('affiliate_agreement', e)} />
                                 </div>
 
                                 <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
-                                    <h4 className="font-bold mb-2">4. Perjanjian Produk Digital & Kelas</h4>
+                                    <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">4. Perjanjian Produk Digital & Kelas</h4>
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">Akses ke materi e-learning dan kelas digital bersifat personal dan tidak boleh disebarluaskan atau digandakan tanpa izin tertulis.</p>
                                     <CheckboxItem label="Saya menyetujui Ketentuan Produk Digital & Kelas." checked={data.course_agreement} onChange={e => setData('course_agreement', e)} />
                                 </div>

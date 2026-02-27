@@ -198,8 +198,7 @@ export default function PaymentUpload({ booking, transaction }) {
                                         className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
                                         value={data.payment_bank}
                                         onChange={(e) => {
-                                            const val = e.target.value;
-                                            // Optional: visual clue or filter for non-numbers if desired, but validation is better at backend
+                                            const val = e.target.value.replace(/[0-9]/g, '');
                                             setData('payment_bank', val);
                                         }}
                                         required
@@ -215,7 +214,10 @@ export default function PaymentUpload({ booking, transaction }) {
                                         placeholder="Masukkan nomor rekening Anda"
                                         className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
                                         value={data.payment_account_number}
-                                        onChange={(e) => setData('payment_account_number', e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9]/g, '');
+                                            setData('payment_account_number', val);
+                                        }}
                                         required
                                     />
                                     {errors.payment_account_number && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_number}</p>}
@@ -229,7 +231,10 @@ export default function PaymentUpload({ booking, transaction }) {
                                         placeholder="Masukkan nama pemilik rekening"
                                         className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
                                         value={data.payment_account_name}
-                                        onChange={(e) => setData('payment_account_name', e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[0-9]/g, '');
+                                            setData('payment_account_name', val);
+                                        }}
                                         required
                                     />
                                     {errors.payment_account_name && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_name}</p>}
@@ -295,7 +300,7 @@ export default function PaymentUpload({ booking, transaction }) {
 
                 {/* Policy Modal */}
                 {showPolicyModal && (
-                    <div className="fixed inset-0 z-[99999] flex items-start justify-center p-4 pt-8 pb-8 overflow-y-auto bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="fixed inset-0 z-[999999] flex items-start justify-center p-4 pt-8 pb-8 overflow-y-auto bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
                         <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden flex flex-col max-h-none md:max-h-[90vh] animate-in zoom-in duration-300 my-auto">
                             <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white relative flex-shrink-0">
                                 <h2 className="text-2xl font-black uppercase tracking-tighter">KEBIJAKAN NON-REFUND</h2>

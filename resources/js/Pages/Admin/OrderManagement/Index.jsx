@@ -109,6 +109,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({ rejection_reason: '' });
     const [validatingTx, setValidatingTx] = useState(null);
     const [validationChoiceTx, setValidationChoiceTx] = useState(null);
+    const [validateReschedTx, setValidateReschedTx] = useState(null);
 
     // ─── Admin Voucher state ───
     const [voucherTxId, setVoucherTxId] = useState(null);
@@ -402,7 +403,25 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     // ─── Handlers ───
     const handleEventClick = (info) => router.visit(route('admin.schedules.show', info.event.id));
     const handleAssign = (bookingId) => patch(route('admin.bookings.assign-therapist', bookingId), { onSuccess: () => setEditingBooking(null) });
-    const handleReschedule = (e) => { e.preventDefault(); postReschedule(route('admin.bookings.reschedule', reschedulingBooking.id), { onSuccess: () => { setReschedulingBooking(null); resetReschedule(); } }); };
+    const handleReschedule = (e) => {
+        e.preventDefault();
+        if (validateReschedTx) {
+            router.post(route('admin.transactions.validate', validateReschedTx.id), {
+                new_schedule_id: rescheduleData.new_schedule_id,
+                reschedule_reason: rescheduleData.reschedule_reason,
+            }, {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    setReschedulingBooking(null);
+                    setValidateReschedTx(null);
+                    resetReschedule();
+                }
+            });
+        } else {
+            postReschedule(route('admin.bookings.reschedule', reschedulingBooking.id), { onSuccess: () => { setReschedulingBooking(null); resetReschedule(); } });
+        }
+    };
     const handleNoShow = (e) => { e.preventDefault(); postNoShow(route('admin.bookings.no-show', noShowBooking.id), { onSuccess: () => { setNoShowBooking(null); resetNoShow(); } }); };
     const handleValidate = (tx) => {
         setValidatingTx(tx.id);
@@ -1505,7 +1524,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                             <div className="flex gap-3 pt-2">
                                 <button
                                     type="button"
-                                    onClick={() => setReschedulingBooking(null)}
+                                    onClick={() => {
+                                        setReschedulingBooking(null);
+                                        setValidateReschedTx(null);
+                                    }}
                                     className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
                                 >
                                     Batal
@@ -1652,6 +1674,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                         <button
                             onClick={() => {
                                 setValidateReschedTx(validationChoiceTx);
+                                if (validationChoiceTx?.transactionable) {
+                                    setReschedulingBooking(validationChoiceTx.transactionable);
+                                }
                                 setValidationChoiceTx(null);
                             }}
                             className="group flex items-center justify-between p-6 bg-indigo-50 dark:bg-indigo-950/20 border-2 border-indigo-100 dark:border-indigo-800 rounded-2xl hover:border-indigo-500 transition-all text-left"
