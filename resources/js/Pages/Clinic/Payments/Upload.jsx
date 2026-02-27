@@ -25,7 +25,7 @@ export default function PaymentUpload({ booking, transaction }) {
         agree_chargeback: true,
     });
 
-    const [showPolicyModal, setShowPolicyModal] = useState(false);
+    const [showPolicyModal, setShowPolicyModal] = useState(true);
     const [voucherCode, setVoucherCode] = useState('');
     const isVoucherApplied = !!booking.user_voucher_id || !!transaction.payment_agreement_data?.applied_voucher_id;
 

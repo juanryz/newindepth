@@ -358,13 +358,22 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                     >
                                         <div className="flex justify-between items-center mb-6">
                                             <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil (Petty Cash)</h3>
-                                            <button
-                                                onClick={() => setIsPettyCashModalOpen(true)}
-                                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
-                                            >
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Input Transaksi Kas
-                                            </button>
+                                            <div className="flex items-center gap-3">
+                                                <Link
+                                                    href={route('admin.petty-cash.index')}
+                                                    className="inline-flex items-center px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-amber-500/20 active:scale-95"
+                                                >
+                                                    <FileText className="w-4 h-4 mr-2" />
+                                                    Pengajuan Dana
+                                                </Link>
+                                                <button
+                                                    onClick={() => setIsPettyCashModalOpen(true)}
+                                                    className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                                                >
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Input Transaksi Kas
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">

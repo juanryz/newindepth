@@ -9,18 +9,14 @@ export default function VerifyEmail({ status }) {
     const COOLDOWN_TIME = 60; // 1 minute cooldown
 
     const [timeLeft, setTimeLeft] = useState(() => {
-        // Start with cooldown active since email is sent on registration
         const lastSent = localStorage.getItem('verify_email_last_sent');
         if (lastSent) {
             const elapsed = Math.floor((Date.now() - parseInt(lastSent)) / 1000);
             if (elapsed < COOLDOWN_TIME) {
                 return COOLDOWN_TIME - elapsed;
             }
-            return 0;
         }
-        // First time visiting the page — email just sent, start cooldown
-        localStorage.setItem('verify_email_last_sent', Date.now().toString());
-        return COOLDOWN_TIME;
+        return 0;
     });
 
     useEffect(() => {

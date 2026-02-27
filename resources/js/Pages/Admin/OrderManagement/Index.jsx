@@ -136,6 +136,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [txFilterDateTo, setTxFilterDateTo] = useState('');
 
     const filteredTransactions = (transactions || []).filter(tx => {
+        // Only show transactions that have payment proof or are already processed
+        if (!tx.payment_proof && tx.status === 'pending') return false;
+
         if (txFilterStatus && tx.status !== txFilterStatus) return false;
         if (txFilterSearch) {
             const q = txFilterSearch.toLowerCase();
@@ -253,6 +256,26 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
             return true;
         });
     }, [activityLog, logFilterType, logFilterSearch, logFilterDateFrom, logFilterDateTo]);
+
+    // ─── Pagination states ───
+    const [txPage, setTxPage] = useState(1);
+    const [bookPage, setBookPage] = useState(1);
+    const [logPage, setLogPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Reset page to 1 on filter changes
+    useEffect(() => { setTxPage(1); }, [txFilterSearch, txFilterStatus, txFilterDateFrom, txFilterDateTo]);
+    useEffect(() => { setBookPage(1); }, [bkFilterSearch, bkFilterStatus, bkFilterDateFrom, bkFilterDateTo]);
+    useEffect(() => { setLogPage(1); }, [logFilterType, logFilterSearch, logFilterDateFrom, logFilterDateTo]);
+
+    const txCurrent = filteredTransactions.slice((txPage - 1) * itemsPerPage, txPage * itemsPerPage);
+    const txTotalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+
+    const bookCurrent = filteredBookings.slice((bookPage - 1) * itemsPerPage, bookPage * itemsPerPage);
+    const bookTotalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+
+    const logCurrent = filteredLog.slice((logPage - 1) * itemsPerPage, logPage * itemsPerPage);
+    const logTotalPages = Math.ceil(filteredLog.length / itemsPerPage);
 
 
     const downloadCSVBookings = () => {
@@ -733,7 +756,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
-                                                        {filteredBookings.map((booking) => (
+                                                        {bookCurrent.map((booking) => (
                                                             <tr key={booking.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                                                                 <td className="px-6 py-5">
                                                                     <div className="flex flex-col">
@@ -746,6 +769,13 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div>
                                                                             <div className="text-sm font-bold text-gray-900 dark:text-white">{booking.patient?.name}</div>
                                                                             <div className="text-xs text-gray-500">{booking.patient?.email}</div>
+                                                                            {booking.patient?.phone && <div className="text-xs text-gray-400 mt-0.5">{booking.patient.phone}</div>}
+                                                                            {booking.patient?.id && (
+                                                                                <Link href={route('admin.users.show', { id: booking.patient.id })} className="text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-400 mt-2 flex items-center gap-1 w-fit group/link">
+                                                                                    Lihat Pasien
+                                                                                    <svg className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                                                                                </Link>
+                                                                            )}
                                                                         </div>
                                                                         <div className="flex items-center gap-3">
                                                                             <div className="flex flex-col">
@@ -820,7 +850,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                 </td>
                                                             </tr>
                                                         ))}
-                                                        {filteredBookings.length === 0 && (
+                                                        {bookCurrent.length === 0 && (
                                                             <tr><td colSpan="5" className="px-8 py-20 text-center">
                                                                 <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-xs">Tidak ada booking yang cocok.</p>
                                                                 {(bkFilterStatus || bkFilterSearch || bkFilterDateFrom || bkFilterDateTo) && (
@@ -830,6 +860,30 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         )}
                                                     </tbody>
                                                 </table>
+                                                {/* Pagination - Bookings */}
+                                                {filteredBookings.length > 0 && (
+                                                    <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between bg-white dark:bg-gray-800/50">
+                                                        <span className="text-xs font-bold text-gray-500">
+                                                            Menampilkan {(bookPage - 1) * itemsPerPage + 1} sampai {Math.min(bookPage * itemsPerPage, filteredBookings.length)} dari {filteredBookings.length}
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setBookPage(p => Math.max(1, p - 1))}
+                                                                disabled={bookPage === 1}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Prev
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setBookPage(p => Math.min(bookTotalPages, p + 1))}
+                                                                disabled={bookPage === bookTotalPages}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Next
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </motion.div>
@@ -968,7 +1022,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
-                                                        {filteredTransactions.map((tx) => {
+                                                        {txCurrent.map((tx) => {
                                                             const scheduleInfo = formatSchedule(tx);
                                                             const isBooking = tx.transactionable_type?.includes('Booking');
                                                             const hasDiscount = tx.transactionable?.user_voucher?.voucher;
@@ -1000,6 +1054,13 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div className="flex flex-col">
                                                                             <span className="text-sm font-bold text-gray-900 dark:text-white">{tx.user?.name}</span>
                                                                             <span className="text-xs text-gray-500">{tx.user?.email}</span>
+                                                                            {tx.user?.phone && <span className="text-xs text-gray-400 mt-0.5">{tx.user.phone}</span>}
+                                                                            {tx.user?.id && (
+                                                                                <Link href={route('admin.users.show', { id: tx.user.id })} className="text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-400 mt-2 flex items-center gap-1 w-fit group/link">
+                                                                                    Lihat Pasien
+                                                                                    <svg className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                                                                                </Link>
+                                                                            )}
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-6 py-5">
@@ -1124,7 +1185,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                 </tr>
                                                             );
                                                         })}
-                                                        {filteredTransactions.length === 0 && (
+                                                        {txCurrent.length === 0 && (
                                                             <tr><td colSpan="7" className="px-8 py-20 text-center">
                                                                 <CheckCircle2 className="w-10 h-10 text-gray-200 mx-auto mb-3" />
                                                                 <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-xs">Tidak ada transaksi yang cocok.</p>
@@ -1135,6 +1196,30 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         )}
                                                     </tbody>
                                                 </table>
+                                                {/* Pagination - Transactions */}
+                                                {filteredTransactions.length > 0 && (
+                                                    <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between bg-white dark:bg-gray-800/50">
+                                                        <span className="text-xs font-bold text-gray-500">
+                                                            Menampilkan {(txPage - 1) * itemsPerPage + 1} sampai {Math.min(txPage * itemsPerPage, filteredTransactions.length)} dari {filteredTransactions.length}
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setTxPage(p => Math.max(1, p - 1))}
+                                                                disabled={txPage === 1}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Prev
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setTxPage(p => Math.min(txTotalPages, p + 1))}
+                                                                disabled={txPage === txTotalPages}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Next
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </motion.div>
@@ -1237,8 +1322,8 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                             </div>
 
                                             {/* Timeline */}
-                                            <div className="px-8 py-6">
-                                                {filteredLog.length === 0 ? (
+                                            <div className="px-8 py-6 pb-20">
+                                                {logCurrent.length === 0 ? (
                                                     <div className="py-20 text-center">
                                                         <Activity className="w-12 h-12 text-gray-200 mx-auto mb-4" />
                                                         <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Tidak ada aktivitas yang cocok.</p>
@@ -1250,7 +1335,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                     <div className="relative">
                                                         <div className="absolute left-[27px] top-0 bottom-0 w-0.5 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
                                                         <div className="space-y-1">
-                                                            {filteredLog.map((log) => {
+                                                            {logCurrent.map((log) => {
                                                                 const colorMap = {
                                                                     emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
                                                                     amber: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50',
@@ -1296,6 +1381,31 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                     </div>
                                                                 );
                                                             })}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Pagination - Logs */}
+                                                {activityLog.length > 0 && (
+                                                    <div className="mt-8 pt-4 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between">
+                                                        <span className="text-xs font-bold text-gray-500">
+                                                            Menampilkan {(logPage - 1) * itemsPerPage + 1} sampai {Math.min(logPage * itemsPerPage, filteredLog.length)} dari {filteredLog.length}
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setLogPage(p => Math.max(1, p - 1))}
+                                                                disabled={logPage === 1}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Prev
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setLogPage(p => Math.min(logTotalPages, p + 1))}
+                                                                disabled={logPage === logTotalPages}
+                                                                className="px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                            >
+                                                                Next
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 )}

@@ -156,17 +156,17 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                 className={`relative rounded-2xl border-2 p-6 transition-all duration-300 cursor-pointer flex flex-col ${data.package_type === pkg.id ? 'border-gold-500 bg-gold-50/50 dark:bg-gold-900/30 shadow-lg' : (packageOptions.is_vip_only && pkg.id !== 'vip' ? 'opacity-40 grayscale cursor-not-allowed' : 'border-gray-100 dark:border-gray-800 bg-white/40 dark:bg-gray-800/40 hover:border-gold-300')}`}
                                                 onClick={() => (!packageOptions.is_vip_only || pkg.id === 'vip') && setData('package_type', pkg.id)}>
                                                 <div className="flex justify-between items-start mb-4">
-                                                    <h4 className="font-black text-sm uppercase tracking-widest">{pkg.name}</h4>
+                                                    <h4 className="font-black text-sm uppercase tracking-widest text-gray-900 dark:text-white">{pkg.name}</h4>
                                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${data.package_type === pkg.id ? 'border-gold-500 bg-gold-500' : 'border-gray-300'}`}>
                                                         {data.package_type === pkg.id && <div className="w-2 h-2 rounded-full bg-white" />}
                                                     </div>
                                                 </div>
                                                 <div className="mb-4">
-                                                    {pkg.original_price && <div className="text-[10px] text-gray-400 line-through">Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}</div>}
-                                                    <p className="text-xl font-black text-gold-600">Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}</p>
-                                                    <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
+                                                    {pkg.original_price && <div className="text-[10px] text-gray-400 dark:text-gray-500 line-through">Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}</div>}
+                                                    <p className="text-xl font-black text-gold-600 dark:text-gold-400">Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}</p>
+                                                    <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                                                 </div>
-                                                <p className="text-[11px] font-medium text-gray-500 leading-relaxed">{pkg.description}</p>
+                                                <p className="text-[11px] font-medium text-gray-500 dark:text-gray-300 leading-relaxed">{pkg.description}</p>
                                             </div>
                                         ))}
                                     </div>

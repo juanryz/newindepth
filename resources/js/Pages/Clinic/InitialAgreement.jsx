@@ -483,18 +483,18 @@ export default function InitialAgreement({ userAge }) {
                                 </ul>
                             </div>
 
-                            <p className="font-bold mb-4">PASAL 14 - PERNYATAAN AKHIR</p>
+                            <p className="font-bold mb-4 dark:text-gray-100">PASAL 14 - PERNYATAAN AKHIR</p>
                             <div className="space-y-3 mb-6">
                                 <CheckboxItem label="Saya menyatakan seluruh data benar dan lengkap." checked={data.agree_1} onChange={e => setData('agree_1', e)} />
                                 <CheckboxItem label="Saya telah membaca dan memahami seluruh isi perjanjian ini." checked={data.agree_2} onChange={e => setData('agree_2', e)} />
                                 <CheckboxItem label="Saya menyetujui seluruh ketentuan tanpa keberatan." checked={data.agree_3} onChange={e => setData('agree_3', e)} />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center mt-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center mt-8 text-gray-900 dark:text-gray-200">
                                 <div>
                                     <p className="mb-2">Tanggal: {signDate}</p>
                                     <p className="mb-2">Lokasi: InDepth Mental Wellness</p>
-                                    <p className="mb-2 font-bold mt-4 border-t pt-4">Tanda Tangan Klien:</p>
+                                    <p className="mb-2 font-bold mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">Tanda Tangan Klien:</p>
 
                                     <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-1 bg-gray-50 dark:bg-gray-700 relative group mx-auto" style={{ width: 300, height: 150 }}>
                                         <canvas
@@ -517,7 +517,7 @@ export default function InitialAgreement({ userAge }) {
                                         )}
                                     </div>
                                     <div className="mt-2 flex justify-center gap-2">
-                                        <button type="button" onClick={() => clearCanvas(canvasRef2, setHasDrawn2, 'signature')} className="text-xs text-red-600 hover:text-red-800 underline">Ulangi Tanda Tangan</button>
+                                        <button type="button" onClick={() => clearCanvas(canvasRef2, setHasDrawn2, 'signature')} className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline">Ulangi Tanda Tangan</button>
                                     </div>
                                     <p className="mt-3 font-semibold underline">{user.name}</p>
                                 </div>
@@ -525,13 +525,13 @@ export default function InitialAgreement({ userAge }) {
                                 <div>
                                     <p className="mb-2 invisible">Spacing</p>
                                     <p className="mb-2 invisible">Spacing</p>
-                                    <p className="mb-2 font-bold mt-4 border-t pt-4">Tanda Tangan Perwakilan InDepth:</p>
+                                    <p className="mb-2 font-bold mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">Tanda Tangan Perwakilan InDepth:</p>
 
                                     <div className="flex items-center justify-center h-[150px]">
                                         <img src="/images/saiful-anam-signature.jpeg" alt="Tanda Tangan Saiful Anam" className="h-[120px] object-contain mix-blend-multiply dark:mix-blend-normal dark:invert opacity-90" />
                                     </div>
                                     <p className="mt-4 font-semibold underline">Saiful Anam</p>
-                                    <p className="text-sm">Direktur Utama InDepth Mental Wellness</p>
+                                    <p className="text-sm dark:text-gray-300">Direktur Utama InDepth Mental Wellness</p>
                                 </div>
                             </div>
 

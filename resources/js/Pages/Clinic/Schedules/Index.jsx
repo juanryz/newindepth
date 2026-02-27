@@ -30,6 +30,12 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     const [isAdding, setIsAdding] = useState(false);
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
+    // Schedule pagination
+    const [schedulePage, setSchedulePage] = useState(1);
+    const scheduleItemsPerPage = 10;
+    const currentSchedules = mySchedules.slice((schedulePage - 1) * scheduleItemsPerPage, schedulePage * scheduleItemsPerPage);
+    const totalSchedulePages = Math.ceil(mySchedules.length / scheduleItemsPerPage);
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
@@ -713,7 +719,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             </div>
                                         ) : (
                                             <div className="divide-y divide-gray-50 dark:divide-gray-800">
-                                                {mySchedules.length > 0 ? mySchedules.map((sc, i) => {
+                                                {currentSchedules.length > 0 ? currentSchedules.map((sc, i) => {
                                                     // Robust date parsing: handle YYYY-MM-DD or ISO strings
                                                     const dateOnly = sc.date.includes('T') ? sc.date.split('T')[0] : sc.date;
                                                     const d = new Date(dateOnly + 'T00:00:00');
@@ -744,6 +750,31 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                         </div>
                                                     );
                                                 }) : null}
+
+                                                {/* Pagination */}
+                                                {mySchedules.length > 0 && (
+                                                    <div className="px-8 py-5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/20">
+                                                        <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                                            Menampilkan {(schedulePage - 1) * scheduleItemsPerPage + 1} sampai {Math.min(schedulePage * scheduleItemsPerPage, mySchedules.length)} dari {mySchedules.length} SLOT
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setSchedulePage(p => Math.max(1, p - 1))}
+                                                                disabled={schedulePage === 1}
+                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700"
+                                                            >
+                                                                PREV
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setSchedulePage(p => Math.min(totalSchedulePages, p + 1))}
+                                                                disabled={schedulePage === totalSchedulePages}
+                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700"
+                                                            >
+                                                                NEXT
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
