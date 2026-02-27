@@ -398,7 +398,7 @@ function P(t3, e2, o2, n2) {
   const r2 = new C(t3, e2, o2, n2);
   return t3 ? r2.toString() : r2;
 }
-const appName = "InDepth Mental Wellness";
+const appName = "Laravel";
 createServer(
   (page) => createInertiaApp({
     page,
