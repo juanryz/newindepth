@@ -100,12 +100,12 @@ function PaymentUpload({ booking, transaction }) {
                       "Rp ",
                       new Intl.NumberFormat("id-ID").format(transaction.amount || 0)
                     ] }),
-                    transaction.payment_agreement_data?.discount_amount > 0 && /* @__PURE__ */ jsxs("p", { className: "text-[10px] text-emerald-600 font-bold mt-1", children: [
-                      "(Sudah termasuk diskon Rp ",
-                      new Intl.NumberFormat("id-ID").format(transaction.payment_agreement_data.discount_amount),
-                      ")"
-                    ] }),
-                    /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest", children: "*Sudah termasuk PPN 11%" })
+                    (transaction.payment_agreement_data?.discount_amount > 0 || booking.user_voucher?.voucher?.discount_amount > 0) && /* @__PURE__ */ jsx("div", { className: "mt-2 space-y-1", children: /* @__PURE__ */ jsxs("p", { className: "text-[10px] text-emerald-600 font-bold flex items-center gap-1", children: [
+                      /* @__PURE__ */ jsx("svg", { className: "w-3 h-3", fill: "currentColor", viewBox: "0 0 20 20", children: /* @__PURE__ */ jsx("path", { fillRule: "evenodd", d: "M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z", clipRule: "evenodd" }) }),
+                      "Terpotong Voucher: Rp ",
+                      new Intl.NumberFormat("id-ID").format(transaction.payment_agreement_data?.discount_amount || booking.user_voucher?.voucher?.discount_amount || 0)
+                    ] }) }),
+                    /* @__PURE__ */ jsx("p", { className: "text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest", children: "*Sudah termasuk PPN 11% dan kode unik" })
                   ] }),
                   /* @__PURE__ */ jsx("div", { className: "flex-1 space-y-3", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
                     /* @__PURE__ */ jsx("div", { className: "w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]", children: "BCA" }),

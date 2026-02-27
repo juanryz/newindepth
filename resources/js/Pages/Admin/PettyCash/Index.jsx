@@ -23,8 +23,8 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
-    const [activeTab, setActiveTab] = useState('all');
+export default function PettyCashIndex({ proposals, currentBalance, userRole, auth, filters }) {
+
     const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -33,7 +33,10 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
     const [selectedProof, setSelectedProof] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-    const isSantaMaria = userRole.includes('santa_maria') || userRole.includes('super_admin');
+    const isSantaMaria = userRole.some(role =>
+        role.toLowerCase().replace(/_/g, ' ') === 'santa maria' ||
+        role.toLowerCase() === 'santa_maria'
+    );
 
     const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
         type: 'spending',
@@ -42,7 +45,8 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
         amount: '',
     });
 
-    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove } = useForm({
+    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
+        payment_method: 'transfer',
         transfer_proof: null,
     });
 
@@ -71,7 +75,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
         if (proposal.type === 'funding') {
             setIsApproveModalOpen(true);
         } else {
-            router.post(route('admin.petty-cash.proposals.approve', proposal.id));
+            router.post(route('admin.petty-cash.proposals.approve', proposal.id), {}, {
+                preserveScroll: true
+            });
         }
     };
 
@@ -81,7 +87,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
             onSuccess: () => {
                 setIsApproveModalOpen(false);
                 resetApprove();
-            }
+            },
+            forceFormData: true,
+            preserveScroll: true
         });
     };
 
@@ -123,6 +131,15 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
         router.post(route('admin.petty-cash.proofs.reject', proofId));
     };
 
+    const activeTab = filters.status || 'all';
+
+    const handleTabChange = (status) => {
+        router.get(route('admin.petty-cash.index'), { status }, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
@@ -138,7 +155,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
             header={
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">Workflow Kas Kecil</h2>
+                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">Workflow Kas Kecil Internal</h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Approval & Monitoring System</p>
                     </div>
                 </div>
@@ -154,7 +171,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                         <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 flex items-center justify-between overflow-hidden relative group">
                             <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo Kas Kecil Saat Ini</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo Kas Kecil Internal</p>
                                 <h3 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">Rp {currentBalance.toLocaleString('id-ID')}</h3>
                             </div>
                             <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl">
@@ -167,14 +184,12 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                 <h4 className="text-xl font-black uppercase tracking-tight">Sistem Kas Terintegrasi</h4>
                                 <p className="text-indigo-100/70 text-[11px] font-bold uppercase tracking-widest mt-1">Gunakan formulir ini untuk permohonan dana dan pengajuan belanja operasional.</p>
                             </div>
-                            {!isSantaMaria && (
-                                <button
-                                    onClick={() => setIsProposalModalOpen(true)}
-                                    className="px-8 py-4 bg-white text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all"
-                                >
-                                    Buat Pengajuan Baru
-                                </button>
-                            )}
+                            <button
+                                onClick={() => setIsProposalModalOpen(true)}
+                                className="px-8 py-4 bg-white text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all"
+                            >
+                                Buat Pengajuan Baru
+                            </button>
                         </div>
                     </div>
 
@@ -186,13 +201,14 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                 { id: 'pending', label: 'Menunggu' },
                                 { id: 'approved', label: 'Disetujui' },
                                 { id: 'completed', label: 'Selesai' },
+                                { id: 'rejected', label: 'Ditolak' },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
+                                    onClick={() => handleTabChange(tab.id)}
                                     className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id
-                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                            : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                         }`}
                                 >
                                     {tab.label}
@@ -232,10 +248,18 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                 </div>
                                                 <div>
                                                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${proposal.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                        {proposal.type === 'funding' ? 'Replenishment / Isi Saldo' : 'Spending / Belanja Operasional'}
+                                                        {proposal.type === 'funding' ? 'Isi Saldo (In)' : 'Belanja Operasional (Out)'}
                                                     </span>
                                                     <h4 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{proposal.title}</h4>
-                                                    <p className="text-xs text-gray-500 mt-1 font-bold">Oleh: {proposal.user?.name} • {new Date(proposal.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+                                                    <p className="text-xs text-gray-500 mt-1 font-bold flex items-center flex-wrap gap-y-1">
+                                                        <span>Oleh: {proposal.user?.name}</span>
+                                                        {proposal.approver && (
+                                                            <span className={`ml-2 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${proposal.status === 'rejected' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'}`}>
+                                                                {proposal.status === 'rejected' ? 'Ditolak' : 'Disetujui'}: {proposal.approver.name}
+                                                            </span>
+                                                        )}
+                                                        <span className="ml-2">• {new Date(proposal.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</span>
+                                                    </p>
                                                 </div>
                                             </div>
 
@@ -265,7 +289,10 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                 </h3>
                                                 <div className="mt-4 flex justify-center xl:justify-end">
                                                     <span className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(proposal.status)}`}>
-                                                        {proposal.status}
+                                                        {proposal.status === 'pending' ? 'Menunggu' :
+                                                            proposal.status === 'approved' ? 'Disetujui' :
+                                                                proposal.status === 'completed' ? 'Selesai' :
+                                                                    proposal.status === 'rejected' ? 'Ditolak' : proposal.status}
                                                     </span>
                                                 </div>
                                             </div>
@@ -330,7 +357,14 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                                 <h6 className="text-xl font-black text-gray-900 dark:text-white">Rp {parseFloat(proof.amount_spent).toLocaleString('id-ID')}</h6>
                                                             </div>
                                                             <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(proof.status)}`}>
-                                                                {proof.status}
+                                                                {proof.status === 'pending' ? 'Menunggu' :
+                                                                    proof.status === 'approved' ? 'Disetujui' :
+                                                                        proof.status === 'rejected' ? 'Ditolak' : proof.status}
+                                                                {proof.approver && (
+                                                                    <div className="text-[7px] mt-1 opacity-70 text-right">
+                                                                        By: {proof.approver.name}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <p className="text-xs font-bold text-gray-500 mb-4 line-clamp-2">{proof.description}</p>
@@ -457,16 +491,46 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                     </p>
 
                     <div className="space-y-6">
-                        <div className="relative group">
-                            <InputLabel value="Upload Bukti Transfer (JPG/PNG)" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all"
-                                onChange={e => setApproveData('transfer_proof', e.target.files[0])}
-                                required
-                            />
+                        <div>
+                            <InputLabel value="Metode Pengiriman Dana" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                            <div className="flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setApproveData('payment_method', 'transfer')}
+                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'transfer' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}
+                                >
+                                    Transfer Bank
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setApproveData('payment_method', 'cash')}
+                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'cash' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400'}`}
+                                >
+                                    Tunai / Cash
+                                </button>
+                            </div>
                         </div>
+
+                        {approveData.payment_method === 'transfer' && (
+                            <div className="relative group">
+                                <InputLabel value="Upload Bukti Transfer (JPG/PNG)" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all"
+                                    onChange={e => setApproveData('transfer_proof', e.target.files[0])}
+                                    required={approveData.payment_method === 'transfer'}
+                                />
+                            </div>
+                        )}
+
+                        {approveData.payment_method === 'cash' && (
+                            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl">
+                                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed">
+                                    Konfirmasi penyerahan dana secara tunai. Saldo kas kecil akan langsung bertambah setelah Bapak menekan tombol "Konfirmasi" di bawah.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="mt-10 flex gap-4">
@@ -506,7 +570,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                             disabled={processingReject}
                             className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
                         >
-                            Tolak Selamanya
+                            Konfirmasi Penolakan
                         </button>
                     </div>
                 </form>

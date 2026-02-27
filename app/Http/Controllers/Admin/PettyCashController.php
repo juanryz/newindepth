@@ -11,11 +11,15 @@ use Inertia\Inertia;
 
 class PettyCashController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $proposals = PettyCashProposal::with(['user', 'approver', 'proofs.approver'])
-            ->latest()
-            ->paginate(10);
+        $query = PettyCashProposal::with(['user', 'approver', 'proofs.approver'])->latest();
+
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $proposals = $query->paginate(10)->withQueryString();
 
         $currentBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
             - PettyCashTransaction::where('type', 'out')->sum('amount');
@@ -24,6 +28,7 @@ class PettyCashController extends Controller
             'proposals' => $proposals,
             'currentBalance' => (float) $currentBalance,
             'userRole' => auth()->user()->roles->pluck('name')->toArray(),
+            'filters' => $request->only(['status']),
         ]);
     }
 
@@ -48,28 +53,36 @@ class PettyCashController extends Controller
     {
         if ($proposal->type === 'funding') {
             $request->validate([
-                'transfer_proof' => 'required|image|max:2048',
+                'payment_method' => 'required|in:transfer,cash',
+                'transfer_proof' => $request->payment_method === 'transfer' ? 'required|image|mimes:jpeg,png,jpg|max:2048' : 'nullable',
             ]);
 
-            $path = $request->file('transfer_proof')->store('petty_cash/funding', 'public');
+            $path = null;
+            if ($request->hasFile('transfer_proof')) {
+                $path = $request->file('transfer_proof')->store('petty-cash/replenishment', 'public');
+            }
 
             $proposal->update([
                 'status' => 'completed',
                 'approved_by' => auth()->id(),
                 'approved_at' => now(),
                 'transfer_proof' => $path,
+                'payment_method' => $request->payment_method,
             ]);
 
-            // record transaction
+            // Create inflow transaction
             PettyCashTransaction::create([
-                'transaction_date' => now()->toDateString(),
+                'transaction_date' => now(),
                 'amount' => $proposal->amount,
                 'type' => 'in',
-                'description' => "Pengisian Saldo: " . $proposal->title,
+                'description' => "Replenishment: " . $proposal->title,
                 'recorded_by' => auth()->id(),
+                'payment_method' => $request->payment_method,
+                'receipt' => $path,
                 'balance_after' => $this->calculateNewBalance('in', $proposal->amount),
             ]);
 
+            return back()->with('success', 'Permohonan dana berhasil disetujui and saldo telah bertambah.');
         } else {
             $proposal->update([
                 'status' => 'approved',

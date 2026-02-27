@@ -12,8 +12,7 @@ import { S as SecondaryButton } from "./SecondaryButton-D0HLp6wy.js";
 import "@headlessui/react";
 import "./ThemeToggle-SHr-61ed.js";
 import "./LiquidBackground-CwZ70oWB.js";
-function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
-  const [activeTab, setActiveTab] = useState("all");
+function PettyCashIndex({ proposals, currentBalance, userRole, auth, filters }) {
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -21,14 +20,17 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [selectedProof, setSelectedProof] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const isSantaMaria = userRole.includes("santa_maria") || userRole.includes("super_admin");
+  const isSantaMaria = userRole.some(
+    (role) => role.toLowerCase().replace(/_/g, " ") === "santa maria" || role.toLowerCase() === "santa_maria"
+  );
   const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
     type: "spending",
     title: "",
     description: "",
     amount: ""
   });
-  const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove } = useForm({
+  const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
+    payment_method: "transfer",
     transfer_proof: null
   });
   const { data: rejectData, setData: setRejectData, post: postReject, processing: processingReject, reset: resetReject, errors: rejectErrors } = useForm({
@@ -53,7 +55,9 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
     if (proposal.type === "funding") {
       setIsApproveModalOpen(true);
     } else {
-      router.post(route("admin.petty-cash.proposals.approve", proposal.id));
+      router.post(route("admin.petty-cash.proposals.approve", proposal.id), {}, {
+        preserveScroll: true
+      });
     }
   };
   const submitApproveFunding = (e) => {
@@ -62,7 +66,9 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
       onSuccess: () => {
         setIsApproveModalOpen(false);
         resetApprove();
-      }
+      },
+      forceFormData: true,
+      preserveScroll: true
     });
   };
   const handleReject = (proposal) => {
@@ -97,6 +103,13 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
   const rejectProof = (proofId) => {
     router.post(route("admin.petty-cash.proofs.reject", proofId));
   };
+  const activeTab = filters.status || "all";
+  const handleTabChange = (status) => {
+    router.get(route("admin.petty-cash.index"), { status }, {
+      preserveState: true,
+      preserveScroll: true
+    });
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -115,7 +128,7 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
     AuthenticatedLayout,
     {
       header: /* @__PURE__ */ jsx("div", { className: "flex justify-between items-center", children: /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx("h2", { className: "font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight", children: "Workflow Kas Kecil" }),
+        /* @__PURE__ */ jsx("h2", { className: "font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight", children: "Workflow Kas Kecil Internal" }),
         /* @__PURE__ */ jsx("p", { className: "text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1", children: "Approval & Monitoring System" })
       ] }) }),
       children: [
@@ -125,7 +138,7 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
             /* @__PURE__ */ jsxs("div", { className: "bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 flex items-center justify-between overflow-hidden relative group", children: [
               /* @__PURE__ */ jsx("div", { className: "absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" }),
               /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2", children: "Saldo Kas Kecil Saat Ini" }),
+                /* @__PURE__ */ jsx("p", { className: "text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2", children: "Saldo Kas Kecil Internal" }),
                 /* @__PURE__ */ jsxs("h3", { className: "text-3xl font-black text-indigo-600 dark:text-indigo-400", children: [
                   "Rp ",
                   currentBalance.toLocaleString("id-ID")
@@ -138,7 +151,7 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
                 /* @__PURE__ */ jsx("h4", { className: "text-xl font-black uppercase tracking-tight", children: "Sistem Kas Terintegrasi" }),
                 /* @__PURE__ */ jsx("p", { className: "text-indigo-100/70 text-[11px] font-bold uppercase tracking-widest mt-1", children: "Gunakan formulir ini untuk permohonan dana dan pengajuan belanja operasional." })
               ] }),
-              !isSantaMaria && /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx(
                 "button",
                 {
                   onClick: () => setIsProposalModalOpen(true),
@@ -152,11 +165,12 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
             { id: "all", label: "Semua Status" },
             { id: "pending", label: "Menunggu" },
             { id: "approved", label: "Disetujui" },
-            { id: "completed", label: "Selesai" }
+            { id: "completed", label: "Selesai" },
+            { id: "rejected", label: "Ditolak" }
           ].map((tab) => /* @__PURE__ */ jsx(
             "button",
             {
-              onClick: () => setActiveTab(tab.id),
+              onClick: () => handleTabChange(tab.id),
               className: `px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"}`,
               children: tab.label
             },
@@ -181,13 +195,22 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
                       /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
                         /* @__PURE__ */ jsx("div", { className: `p-4 rounded-3xl ${proposal.type === "funding" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20" : "bg-rose-50 text-rose-600 dark:bg-rose-900/20"}`, children: proposal.type === "funding" ? /* @__PURE__ */ jsx(ArrowUpCircle, { className: "w-8 h-8" }) : /* @__PURE__ */ jsx(ArrowDownCircle, { className: "w-8 h-8" }) }),
                         /* @__PURE__ */ jsxs("div", { children: [
-                          /* @__PURE__ */ jsx("span", { className: `text-[10px] font-black uppercase tracking-[0.2em] ${proposal.type === "funding" ? "text-emerald-500" : "text-rose-500"}`, children: proposal.type === "funding" ? "Replenishment / Isi Saldo" : "Spending / Belanja Operasional" }),
+                          /* @__PURE__ */ jsx("span", { className: `text-[10px] font-black uppercase tracking-[0.2em] ${proposal.type === "funding" ? "text-emerald-500" : "text-rose-500"}`, children: proposal.type === "funding" ? "Isi Saldo (In)" : "Belanja Operasional (Out)" }),
                           /* @__PURE__ */ jsx("h4", { className: "text-2xl font-black text-gray-900 dark:text-white tracking-tight", children: proposal.title }),
-                          /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 mt-1 font-bold", children: [
-                            "Oleh: ",
-                            proposal.user?.name,
-                            " • ",
-                            new Date(proposal.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })
+                          /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 mt-1 font-bold flex items-center flex-wrap gap-y-1", children: [
+                            /* @__PURE__ */ jsxs("span", { children: [
+                              "Oleh: ",
+                              proposal.user?.name
+                            ] }),
+                            proposal.approver && /* @__PURE__ */ jsxs("span", { className: `ml-2 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${proposal.status === "rejected" ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"}`, children: [
+                              proposal.status === "rejected" ? "Ditolak" : "Disetujui",
+                              ": ",
+                              proposal.approver.name
+                            ] }),
+                            /* @__PURE__ */ jsxs("span", { className: "ml-2", children: [
+                              "• ",
+                              new Date(proposal.created_at).toLocaleDateString("id-ID", { dateStyle: "long" })
+                            ] })
                           ] })
                         ] })
                       ] }),
@@ -207,7 +230,7 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
                           "Rp ",
                           parseFloat(proposal.amount).toLocaleString("id-ID")
                         ] }),
-                        /* @__PURE__ */ jsx("div", { className: "mt-4 flex justify-center xl:justify-end", children: /* @__PURE__ */ jsx("span", { className: `px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(proposal.status)}`, children: proposal.status }) })
+                        /* @__PURE__ */ jsx("div", { className: "mt-4 flex justify-center xl:justify-end", children: /* @__PURE__ */ jsx("span", { className: `px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(proposal.status)}`, children: proposal.status === "pending" ? "Menunggu" : proposal.status === "approved" ? "Disetujui" : proposal.status === "completed" ? "Selesai" : proposal.status === "rejected" ? "Ditolak" : proposal.status }) })
                       ] }),
                       /* @__PURE__ */ jsxs("div", { className: "w-full space-y-3", children: [
                         !isSantaMaria && proposal.status === "approved" && proposal.type === "spending" && /* @__PURE__ */ jsxs(
@@ -269,7 +292,13 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
                             parseFloat(proof.amount_spent).toLocaleString("id-ID")
                           ] })
                         ] }),
-                        /* @__PURE__ */ jsx("div", { className: `px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(proof.status)}`, children: proof.status })
+                        /* @__PURE__ */ jsxs("div", { className: `px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(proof.status)}`, children: [
+                          proof.status === "pending" ? "Menunggu" : proof.status === "approved" ? "Disetujui" : proof.status === "rejected" ? "Ditolak" : proof.status,
+                          proof.approver && /* @__PURE__ */ jsxs("div", { className: "text-[7px] mt-1 opacity-70 text-right", children: [
+                            "By: ",
+                            proof.approver.name
+                          ] })
+                        ] })
                       ] }),
                       /* @__PURE__ */ jsx("p", { className: "text-xs font-bold text-gray-500 mb-4 line-clamp-2", children: proof.description }),
                       /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
@@ -403,19 +432,45 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
             ] }),
             " untuk menyelesaikan pengisian Kas Kecil."
           ] }),
-          /* @__PURE__ */ jsx("div", { className: "space-y-6", children: /* @__PURE__ */ jsxs("div", { className: "relative group", children: [
-            /* @__PURE__ */ jsx(InputLabel, { value: "Upload Bukti Transfer (JPG/PNG)", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
-            /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "file",
-                accept: "image/*",
-                className: "w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all",
-                onChange: (e) => setApproveData("transfer_proof", e.target.files[0]),
-                required: true
-              }
-            )
-          ] }) }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Metode Pengiriman Dana", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsxs("div", { className: "flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl", children: [
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setApproveData("payment_method", "transfer"),
+                    className: `flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === "transfer" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400"}`,
+                    children: "Transfer Bank"
+                  }
+                ),
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setApproveData("payment_method", "cash"),
+                    className: `flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === "cash" ? "bg-emerald-600 text-white shadow-lg" : "text-gray-400"}`,
+                    children: "Tunai / Cash"
+                  }
+                )
+              ] })
+            ] }),
+            approveData.payment_method === "transfer" && /* @__PURE__ */ jsxs("div", { className: "relative group", children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Upload Bukti Transfer (JPG/PNG)", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsx(
+                "input",
+                {
+                  type: "file",
+                  accept: "image/*",
+                  className: "w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all",
+                  onChange: (e) => setApproveData("transfer_proof", e.target.files[0]),
+                  required: approveData.payment_method === "transfer"
+                }
+              )
+            ] }),
+            approveData.payment_method === "cash" && /* @__PURE__ */ jsx("div", { className: "p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl", children: /* @__PURE__ */ jsx("p", { className: "text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed", children: 'Konfirmasi penyerahan dana secara tunai. Saldo kas kecil akan langsung bertambah setelah Bapak menekan tombol "Konfirmasi" di bawah.' }) })
+          ] }),
           /* @__PURE__ */ jsxs("div", { className: "mt-10 flex gap-4", children: [
             /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsApproveModalOpen(false), className: "flex-1 justify-center !rounded-2xl", children: "Batal" }),
             /* @__PURE__ */ jsx(
@@ -453,7 +508,7 @@ function PettyCashIndex({ proposals, currentBalance, userRole, auth }) {
                 type: "submit",
                 disabled: processingReject,
                 className: "flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all",
-                children: "Tolak Selamanya"
+                children: "Konfirmasi Penolakan"
               }
             )
           ] })

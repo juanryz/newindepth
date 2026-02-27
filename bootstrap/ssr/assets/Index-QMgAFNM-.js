@@ -3,7 +3,7 @@ import { useState } from "react";
 import { A as AuthenticatedLayout } from "./AuthenticatedLayout-A9zMGcDB.js";
 import { useForm, Head, router } from "@inertiajs/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, ArrowDownCircle, Wallet, ChevronRight, Plus, Receipt, Trash2, Download } from "lucide-react";
+import { LayoutDashboard, ArrowDownCircle, Wallet, History, ChevronRight, Plus, Receipt, Trash2, CheckCircle2, XCircle, Image, Download } from "lucide-react";
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, PieChart, Pie, Cell, Legend } from "recharts";
 import { M as Modal } from "./Modal-BSrLMD0w.js";
 import { T as TextInput } from "./TextInput-DcEnl-Ka.js";
@@ -14,16 +14,21 @@ import "@headlessui/react";
 import "./ThemeToggle-SHr-61ed.js";
 import "./LiquidBackground-CwZ70oWB.js";
 const PIE_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#a855f7", "#06b6d4"];
-function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
+function FinanceIndex({ reports, expenses, pettyCash, filters, auth, userRole }) {
   const [activeTab, setActiveTab] = useState("reports");
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const tabs = [
     { id: "reports", label: "Ringkasan Laporan", icon: LayoutDashboard },
     { id: "expenses", label: "Biaya Operasional", icon: ArrowDownCircle },
-    { id: "petty_cash", label: "Kas Kecil (Petty Cash)", icon: Wallet }
+    { id: "petty_cash", label: "Kas Kecil Internal", icon: Wallet },
+    { id: "log", label: "Menu Log", icon: History }
   ];
+  const isSantaMaria = userRole.some(
+    (role) => role.toLowerCase().replace(/_/g, " ") === "santa maria" || role.toLowerCase() === "santa_maria"
+  );
   const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
     description: "",
     category: "",
@@ -38,6 +43,22 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
     description: "",
     category: "",
     receipt: null
+  });
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [selectedProposal, setSelectedProposal] = useState(null);
+  const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
+    payment_method: "transfer",
+    transfer_proof: null
+  });
+  const { data: rejectData, setData: setRejectData, post: postReject, processing: processingReject, reset: resetReject, errors: rejectErrors } = useForm({
+    rejection_reason: ""
+  });
+  const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
+    type: "spending",
+    title: "",
+    description: "",
+    amount: ""
   });
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -77,6 +98,49 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
         preserveScroll: true
       });
     }
+  };
+  const handleApprove = (proposal) => {
+    setSelectedProposal(proposal);
+    if (proposal.type === "funding") {
+      setIsApproveModalOpen(true);
+    } else {
+      router.post(route("admin.petty-cash.proposals.approve", proposal.id), {}, { preserveScroll: true });
+    }
+  };
+  const submitApproveFunding = (e) => {
+    e.preventDefault();
+    postApprove(route("admin.petty-cash.proposals.approve", selectedProposal.id), {
+      onSuccess: () => {
+        setIsApproveModalOpen(false);
+        resetApprove();
+      },
+      forceFormData: true,
+      preserveScroll: true
+    });
+  };
+  const handleReject = (proposal) => {
+    setSelectedProposal(proposal);
+    setIsRejectModalOpen(true);
+  };
+  const submitReject = (e) => {
+    e.preventDefault();
+    postReject(route("admin.petty-cash.proposals.reject", selectedProposal.id), {
+      onSuccess: () => {
+        setIsRejectModalOpen(false);
+        resetReject();
+      },
+      preserveScroll: true
+    });
+  };
+  const submitProposal = (e) => {
+    e.preventDefault();
+    postProposal(route("admin.petty-cash.proposals.store"), {
+      onSuccess: () => {
+        resetProposal();
+        setIsProposalModalOpen(false);
+      },
+      preserveScroll: true
+    });
   };
   return /* @__PURE__ */ jsxs(
     AuthenticatedLayout,
@@ -143,16 +207,16 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
               tab.id
             )) }),
             /* @__PURE__ */ jsxs("div", { className: "mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-800", children: [
-              /* @__PURE__ */ jsx("h4", { className: "text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4", children: "Kas Kecil Tersedia" }),
+              /* @__PURE__ */ jsx("h4", { className: "text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4", children: "Kas Kecil Internal" }),
               /* @__PURE__ */ jsxs("p", { className: "text-2xl font-black text-gray-900 dark:text-white", children: [
                 "Rp ",
                 pettyCash.currentBalance.toLocaleString("id-ID")
               ] }),
               /* @__PURE__ */ jsxs("div", { className: "mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-[10px] font-black uppercase tracking-widest", children: [
-                /* @__PURE__ */ jsx("span", { className: "text-gray-400", children: "Total Pemasukan Bulan ini:" }),
-                /* @__PURE__ */ jsxs("span", { className: "text-indigo-600", children: [
+                /* @__PURE__ */ jsx("span", { className: "text-gray-400", children: "Total Dana Masuk Bulan ini:" }),
+                /* @__PURE__ */ jsxs("span", { className: "text-emerald-600", children: [
                   "Rp ",
-                  reports.stats.revenue.toLocaleString("id-ID")
+                  reports.stats.petty_cash_inflow.toLocaleString("id-ID")
                 ] })
               ] })
             ] })
@@ -166,9 +230,10 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                 exit: { opacity: 0, y: -20 },
                 className: "space-y-8",
                 children: [
-                  /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6", children: [
+                  /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6", children: [
                     { label: "Total Pemasukan", val: reports.stats.revenue, color: "indigo" },
-                    { label: "Biaya Operasional", val: reports.stats.expenses, color: "rose" },
+                    { label: "Biaya Operasional", val: reports.stats.operational_expenses, color: "rose" },
+                    { label: "Kas Kecil Internal", val: reports.stats.petty_cash_balance, color: "orange" },
                     { label: "Komisi Afiliasi", val: reports.stats.commissions, color: "amber" },
                     { label: "Laba Bersih", val: reports.stats.netIncome, color: "emerald", highlight: true }
                   ].map((stat, i) => /* @__PURE__ */ jsxs("div", { className: `p-8 rounded-[2.5rem] shadow-xl border transition-all duration-500 ${stat.highlight ? "bg-indigo-600 text-white border-transparent" : "bg-white dark:bg-gray-900 border-white dark:border-gray-800"}`, children: [
@@ -196,7 +261,7 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                       ] }) }) })
                     ] }),
                     /* @__PURE__ */ jsxs("div", { className: "bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500", children: [
-                      /* @__PURE__ */ jsx("h3", { className: "text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase", children: "Kategori Pengeluaran" }),
+                      /* @__PURE__ */ jsx("h3", { className: "text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase", children: "Kategori Pengeluaran (Inc. Kas Internal)" }),
                       /* @__PURE__ */ jsx("div", { className: "h-[350px]", children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(PieChart, { children: [
                         /* @__PURE__ */ jsx(
                           Pie,
@@ -298,22 +363,104 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                 className: "space-y-6",
                 children: [
                   /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center mb-6", children: [
-                    /* @__PURE__ */ jsx("h3", { className: "text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase", children: "Buku Kas Kecil (Petty Cash)" }),
-                    /* @__PURE__ */ jsxs(
-                      "button",
-                      {
-                        onClick: () => setIsPettyCashModalOpen(true),
-                        className: "inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95",
-                        children: [
-                          /* @__PURE__ */ jsx(Plus, { className: "w-4 h-4 mr-2" }),
-                          "Input Transaksi Kas"
-                        ]
-                      }
-                    )
+                    /* @__PURE__ */ jsx("h3", { className: "text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase", children: "Buku Kas Kecil Internal" }),
+                    /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
+                      /* @__PURE__ */ jsxs(
+                        "button",
+                        {
+                          onClick: () => setIsProposalModalOpen(true),
+                          className: "inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-600/20 active:scale-95",
+                          children: [
+                            /* @__PURE__ */ jsx(Plus, { className: "w-4 h-4 mr-2" }),
+                            "Buat Pengajuan Baru"
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxs(
+                        "button",
+                        {
+                          onClick: () => setIsPettyCashModalOpen(true),
+                          className: "inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95",
+                          children: [
+                            /* @__PURE__ */ jsx(Receipt, { className: "w-4 h-4 mr-2" }),
+                            "Catat Transaksi (Realisasi)"
+                          ]
+                        }
+                      )
+                    ] })
                   ] }),
+                  /* @__PURE__ */ jsxs("div", { className: "mb-10", children: [
+                    /* @__PURE__ */ jsx("h4", { className: "text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1", children: "Daftar Pengajuan & Status Approval" }),
+                    /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500", children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "min-w-full divide-y divide-gray-100 dark:divide-gray-800", children: [
+                      /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: "bg-gray-50/50 dark:bg-gray-800/50", children: [
+                        /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Pengajuan" }),
+                        /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Operator & Log" }),
+                        /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Jenis" }),
+                        /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Nominal" }),
+                        /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Status" })
+                      ] }) }),
+                      /* @__PURE__ */ jsxs("tbody", { className: "divide-y divide-gray-50 dark:divide-gray-800", children: [
+                        pettyCash.proposals.map((p) => /* @__PURE__ */ jsxs("tr", { className: "hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all", children: [
+                          /* @__PURE__ */ jsxs("td", { className: "px-8 py-6", children: [
+                            /* @__PURE__ */ jsx("div", { className: "font-bold text-gray-900 dark:text-white truncate max-w-[200px]", children: p.title }),
+                            /* @__PURE__ */ jsx("div", { className: "text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest", children: new Date(p.created_at).toLocaleDateString("id-ID") })
+                          ] }),
+                          /* @__PURE__ */ jsxs("td", { className: "px-8 py-6", children: [
+                            /* @__PURE__ */ jsx("div", { className: "text-xs font-bold text-gray-600 dark:text-gray-400", children: p.user?.name }),
+                            p.approver && /* @__PURE__ */ jsxs("div", { className: "text-[9px] text-emerald-600 dark:text-emerald-400 mt-1 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded inline-block", children: [
+                              "Log: ",
+                              p.approver.name
+                            ] })
+                          ] }),
+                          /* @__PURE__ */ jsx("td", { className: "px-8 py-6", children: /* @__PURE__ */ jsx("span", { className: `text-[10px] font-black uppercase tracking-widest ${p.type === "funding" ? "text-emerald-500" : "text-rose-500"}`, children: p.type === "funding" ? "Isi Saldo (In)" : "Belanja (Out)" }) }),
+                          /* @__PURE__ */ jsxs("td", { className: "px-8 py-6 text-right font-black text-sm text-gray-900 dark:text-white", children: [
+                            "Rp ",
+                            parseFloat(p.amount).toLocaleString("id-ID")
+                          ] }),
+                          /* @__PURE__ */ jsx("td", { className: "px-8 py-6 text-center", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center gap-2", children: [
+                            /* @__PURE__ */ jsx("span", { className: `px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.status === "pending" ? "bg-amber-100 text-amber-700" : p.status === "approved" ? "bg-indigo-100 text-indigo-700" : p.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`, children: p.status === "pending" ? "Menunggu" : p.status === "approved" ? "Disetujui" : p.status === "completed" ? "Selesai" : p.status === "rejected" ? "Ditolak" : p.status }),
+                            isSantaMaria && p.status === "pending" && /* @__PURE__ */ jsxs("div", { className: "flex gap-1 mt-1", children: [
+                              /* @__PURE__ */ jsx(
+                                "button",
+                                {
+                                  onClick: () => handleApprove(p),
+                                  className: "p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm",
+                                  title: "Setujui",
+                                  children: /* @__PURE__ */ jsx(CheckCircle2, { className: "w-3 h-3" })
+                                }
+                              ),
+                              /* @__PURE__ */ jsx(
+                                "button",
+                                {
+                                  onClick: () => handleReject(p),
+                                  className: "p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm",
+                                  title: "Tolak",
+                                  children: /* @__PURE__ */ jsx(XCircle, { className: "w-3 h-3" })
+                                }
+                              )
+                            ] }),
+                            p.type === "funding" && p.transfer_proof && /* @__PURE__ */ jsxs(
+                              "button",
+                              {
+                                onClick: () => setSelectedReceipt(`/storage/${p.transfer_proof}`),
+                                className: "mt-1 flex items-center gap-1 text-[8px] font-black uppercase tracking-tighter text-indigo-600 hover:text-indigo-800 transition-colors",
+                                children: [
+                                  /* @__PURE__ */ jsx(Image, { className: "w-2.5 h-2.5" }),
+                                  " Lihat Bukti TF"
+                                ]
+                              }
+                            )
+                          ] }) })
+                        ] }, p.id)),
+                        pettyCash.proposals.length === 0 && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "4", className: "px-8 py-10 text-center text-gray-400 italic text-xs", children: "Belum ada pengajuan." }) })
+                      ] })
+                    ] }) }) })
+                  ] }),
+                  /* @__PURE__ */ jsx("h4", { className: "text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1", children: "Riwayat Transaksi Realisasi" }),
                   /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500", children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "min-w-full divide-y divide-gray-100 dark:divide-gray-800", children: [
                     /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: "bg-gray-50/50 dark:bg-gray-800/50", children: [
                       /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Tgl / Deskripsi" }),
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Pencatat" }),
                       /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Tipe" }),
                       /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Nominal" }),
                       /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Saldo Akhir" }),
@@ -329,7 +476,8 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                             tx.category || "-"
                           ] })
                         ] }),
-                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6", children: /* @__PURE__ */ jsx("span", { className: `px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === "in" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"}`, children: tx.type === "in" ? "Isi Saldo (In)" : "Keluar (Out)" }) }),
+                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6", children: /* @__PURE__ */ jsx("div", { className: "text-xs font-bold text-gray-600 dark:text-gray-400", children: tx.recorder?.name || "-" }) }),
+                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6", children: /* @__PURE__ */ jsx("span", { className: `px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === "in" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"}`, children: tx.type === "in" ? "Isi Saldo (In)" : "Belanja (Out)" }) }),
                         /* @__PURE__ */ jsxs("td", { className: `px-8 py-6 text-right font-black text-sm ${tx.type === "in" ? "text-emerald-600" : "text-rose-600"}`, children: [
                           tx.type === "in" ? "+" : "-",
                           " Rp ",
@@ -344,12 +492,50 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                           /* @__PURE__ */ jsx("button", { onClick: () => deletePettyCash(tx.id), className: "p-2 text-rose-600", children: /* @__PURE__ */ jsx(Trash2, { className: "w-4 h-4" }) })
                         ] }) })
                       ] }, tx.id)),
-                      pettyCash.transactions.length === 0 && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "5", className: "px-8 py-16 text-center text-gray-400 italic", children: "Belum ada riwayat transaksi kas kecil." }) })
+                      pettyCash.transactions.length === 0 && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "6", className: "px-8 py-16 text-center text-gray-400 italic", children: "Belum ada riwayat transaksi kas kecil." }) })
                     ] })
                   ] }) }) })
                 ]
               },
               "petty_cash"
+            ),
+            activeTab === "log" && /* @__PURE__ */ jsxs(
+              motion.div,
+              {
+                initial: { opacity: 0, x: 20 },
+                animate: { opacity: 1, x: 0 },
+                exit: { opacity: 0, x: -20 },
+                className: "space-y-6",
+                children: [
+                  /* @__PURE__ */ jsx("div", { className: "flex items-center justify-between mb-4", children: /* @__PURE__ */ jsx("h4", { className: "text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1", children: "Log Aktivitas Kas Kecil" }) }),
+                  /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500", children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "min-w-full divide-y divide-gray-100 dark:divide-gray-800", children: [
+                    /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: "bg-gray-50/50 dark:bg-gray-800/50", children: [
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Waktu / Deskripsi" }),
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Pencatat" }),
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Tipe" }),
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Nominal" }),
+                      /* @__PURE__ */ jsx("th", { className: "px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest", children: "Aksi" })
+                    ] }) }),
+                    /* @__PURE__ */ jsxs("tbody", { className: "divide-y divide-gray-50 dark:divide-gray-800", children: [
+                      pettyCash.transactions.map((tx) => /* @__PURE__ */ jsxs("tr", { className: "hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all", children: [
+                        /* @__PURE__ */ jsxs("td", { className: "px-8 py-6", children: [
+                          /* @__PURE__ */ jsx("div", { className: "font-bold text-gray-900 dark:text-white leading-tight", children: tx.description }),
+                          /* @__PURE__ */ jsx("div", { className: "text-[9px] text-indigo-500 mt-1 font-black uppercase tracking-widest", children: new Date(tx.created_at).toLocaleString("id-ID") })
+                        ] }),
+                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6 text-xs font-bold text-gray-500 dark:text-gray-400", children: tx.recorder?.name || "Sistem" }),
+                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6", children: /* @__PURE__ */ jsx("span", { className: `px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === "in" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`, children: tx.type === "in" ? "Isi Saldo" : "Belanja" }) }),
+                        /* @__PURE__ */ jsxs("td", { className: `px-8 py-6 text-right font-black text-sm ${tx.type === "in" ? "text-emerald-600" : "text-rose-600"}`, children: [
+                          "Rp ",
+                          tx.amount.toLocaleString("id-ID")
+                        ] }),
+                        /* @__PURE__ */ jsx("td", { className: "px-8 py-6 text-right", children: tx.receipt && /* @__PURE__ */ jsx("button", { onClick: () => setSelectedReceipt(`/storage/${tx.receipt}`), className: "p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all", children: /* @__PURE__ */ jsx(Receipt, { className: "w-4 h-4" }) }) })
+                      ] }, tx.id)),
+                      pettyCash.transactions.length === 0 && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "5", className: "px-8 py-16 text-center text-gray-400 italic", children: "Belum ada log aktivitas." }) })
+                    ] })
+                  ] }) }) })
+                ]
+              },
+              "log"
             )
           ] }) })
         ] }) }) }),
@@ -544,6 +730,177 @@ function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
                 onClick: () => setSelectedReceipt(null),
                 className: "mt-8 px-10 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all",
                 children: "Tutup Preview"
+              }
+            )
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(Modal, { show: isApproveModalOpen, onClose: () => setIsApproveModalOpen(false), children: /* @__PURE__ */ jsxs("form", { onSubmit: submitApproveFunding, className: "p-10 dark:bg-gray-900 rounded-[3rem]", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight", children: "Konfirmasi Pengiriman Dana" }),
+          /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500 mb-8 font-serif leading-relaxed", children: [
+            "Silakan unggah bukti transfer dana sebesar ",
+            /* @__PURE__ */ jsxs("span", { className: "text-emerald-600 font-bold", children: [
+              "Rp ",
+              parseFloat(selectedProposal?.amount || 0).toLocaleString("id-ID")
+            ] }),
+            " untuk menyelesaikan pengisian Kas Kecil."
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Metode Pengiriman Dana", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsxs("div", { className: "flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl", children: [
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setApproveData("payment_method", "transfer"),
+                    className: `flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === "transfer" ? "bg-indigo-600 text-white shadow-lg" : "text-gray-400"}`,
+                    children: "Transfer Bank"
+                  }
+                ),
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => setApproveData("payment_method", "cash"),
+                    className: `flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === "cash" ? "bg-emerald-600 text-white shadow-lg" : "text-gray-400"}`,
+                    children: "Tunai / Cash"
+                  }
+                )
+              ] })
+            ] }),
+            approveData.payment_method === "transfer" && /* @__PURE__ */ jsxs("div", { className: "relative group", children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Upload Bukti Transfer (JPG/PNG)", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsx(
+                "input",
+                {
+                  type: "file",
+                  accept: "image/*",
+                  className: "w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all",
+                  onChange: (e) => setApproveData("transfer_proof", e.target.files[0]),
+                  required: approveData.payment_method === "transfer"
+                }
+              )
+            ] }),
+            approveData.payment_method === "cash" && /* @__PURE__ */ jsx("div", { className: "p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl", children: /* @__PURE__ */ jsx("p", { className: "text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed", children: 'Konfirmasi penyerahan dana secara tunai. Saldo kas kecil akan langsung bertambah setelah Bapak menekan tombol "Konfirmasi" di bawah.' }) })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-10 flex gap-4", children: [
+            /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsApproveModalOpen(false), className: "flex-1 justify-center !rounded-2xl", children: "Batal" }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "submit",
+                disabled: processingApprove,
+                className: "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all",
+                children: "Konfirmasi & Kirim"
+              }
+            )
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(Modal, { show: isRejectModalOpen, onClose: () => setIsRejectModalOpen(false), children: /* @__PURE__ */ jsxs("form", { onSubmit: submitReject, className: "p-10 dark:bg-gray-900 rounded-[3rem]", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight", children: "Tolak Pengajuan" }),
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 mb-8 font-serif", children: "Berikan alasan mengapa pengajuan ini ditolak guna transparansi pelaporan." }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx(InputLabel, { value: "Alasan Penolakan", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+            /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                className: "w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-rose-500 focus:border-rose-500 h-32",
+                value: rejectData.rejection_reason,
+                onChange: (e) => setRejectData("rejection_reason", e.target.value),
+                required: true
+              }
+            ),
+            /* @__PURE__ */ jsx(InputError, { message: rejectErrors.rejection_reason })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-10 flex gap-4", children: [
+            /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsRejectModalOpen(false), className: "flex-1 justify-center !rounded-2xl", children: "Batal" }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "submit",
+                disabled: processingReject,
+                className: "flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all",
+                children: "Tolak Selamanya"
+              }
+            )
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(Modal, { show: isProposalModalOpen, onClose: () => setIsProposalModalOpen(false), children: /* @__PURE__ */ jsxs("form", { onSubmit: submitProposal, className: "p-10 dark:bg-gray-900 rounded-[3rem]", children: [
+          /* @__PURE__ */ jsx("h2", { className: "text-2xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tight", children: "Buat Pengajuan Kas Kecil" }),
+          /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+            /* @__PURE__ */ jsxs("div", { className: "flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl", children: [
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setProposalData("type", "spending"),
+                  className: `flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === "spending" ? "bg-indigo-600 text-white shadow-xl" : "text-gray-400"}`,
+                  children: "Pengajuan Belanja"
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setProposalData("type", "funding"),
+                  className: `flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === "funding" ? "bg-emerald-600 text-white shadow-xl" : "text-gray-400"}`,
+                  children: "Permohonan Dana"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Judul Pengajuan", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsx(
+                TextInput,
+                {
+                  className: "w-full !rounded-2xl",
+                  value: proposalData.title,
+                  onChange: (e) => setProposalData("title", e.target.value),
+                  placeholder: "Misal: Belanja ATK Kantor"
+                }
+              ),
+              /* @__PURE__ */ jsx(InputError, { message: proposalErrors.title })
+            ] }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Nominal Budget Dimohon", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsxs("div", { className: "relative", children: [
+                /* @__PURE__ */ jsx("span", { className: "absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400", children: "Rp" }),
+                /* @__PURE__ */ jsx(
+                  TextInput,
+                  {
+                    type: "number",
+                    className: "w-full !rounded-2xl !pl-12",
+                    value: proposalData.amount,
+                    onChange: (e) => setProposalData("amount", e.target.value),
+                    placeholder: "0"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsx(InputError, { message: proposalErrors.amount })
+            ] }),
+            /* @__PURE__ */ jsxs("div", { children: [
+              /* @__PURE__ */ jsx(InputLabel, { value: "Detail Keperluan", className: "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" }),
+              /* @__PURE__ */ jsx(
+                "textarea",
+                {
+                  className: "w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 p-4",
+                  value: proposalData.description,
+                  onChange: (e) => setProposalData("description", e.target.value),
+                  placeholder: "Jelaskan secara detail barang apa saja yang akan dibeli..."
+                }
+              ),
+              /* @__PURE__ */ jsx(InputError, { message: proposalErrors.description })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-10 flex gap-4", children: [
+            /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsProposalModalOpen(false), className: "flex-1 justify-center !rounded-2xl", children: "Batal" }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "submit",
+                disabled: processingProposal,
+                className: "flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20",
+                children: "Kirim Pengajuan"
               }
             )
           ] })

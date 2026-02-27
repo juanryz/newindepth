@@ -15,6 +15,7 @@ class PettyCashTransaction extends Model
         'receipt',
         'recorded_by',
         'balance_after',
+        'payment_method',
     ];
 
     public function recorder()

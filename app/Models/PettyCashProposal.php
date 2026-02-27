@@ -17,6 +17,7 @@ class PettyCashProposal extends Model
         'rejection_reason',
         'approved_at',
         'transfer_proof',
+        'payment_method',
     ];
 
     protected $casts = [
@@ -31,11 +32,11 @@ class PettyCashProposal extends Model
 
     public function approver()
     {
-        return $this->belongsTo(User::class , 'approved_by');
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function proofs()
     {
-        return $this->hasMany(PettyCashProof::class , 'proposal_id');
+        return $this->hasMany(PettyCashProof::class, 'proposal_id');
     }
 }
