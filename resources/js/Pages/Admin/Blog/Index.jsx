@@ -1,10 +1,18 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function BlogIndex({ posts }) {
     const { flash } = usePage().props;
+
+    const handleDelete = (id) => {
+        if (confirm('Hapus artikel ini permanen?')) {
+            router.delete(route('admin.blog.destroy', id), {
+                preserveScroll: true,
+            });
+        }
+    };
 
     return (
         <AuthenticatedLayout
@@ -66,15 +74,12 @@ export default function BlogIndex({ posts }) {
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-black space-x-4">
                                                     <a href={`/blog/${post.slug || ''}`} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
                                                     <Link href={`/admin/blog/${post.id}/edit`} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
-                                                    <Link
-                                                        href={`/admin/blog/${post.id}`}
-                                                        method="delete"
-                                                        as="button"
-                                                        onBefore={() => confirm('Hapus artikel ini permanen?')}
+                                                    <button
+                                                        onClick={() => handleDelete(post.id)}
                                                         className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition-colors"
                                                     >
                                                         Hapus
-                                                    </Link>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
