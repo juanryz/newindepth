@@ -428,15 +428,15 @@ export default function Welcome({ auth, articles, courses }) {
                     {/* Komisaris Section */}
                     <div className="flex flex-col lg:flex-row items-center gap-12 mb-24">
                         {/* Image Column */}
-                        <div className="w-full lg:w-5/12">
+                        <div className="w-full lg:w-5/12 lg:-mt-12">
                             <div className="relative group">
                                 <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
-                                <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
+                                <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[3/4] bg-gray-100 dark:bg-gray-800">
                                     <div className="absolute inset-0">
                                         <img
                                             src="/images/julius-bambang.png"
                                             alt="Julius Bambang"
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                                         />
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-center">
