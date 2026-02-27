@@ -15,12 +15,7 @@ import {
     Search,
     Download,
     Eye,
-    Receipt,
-    History,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
-    Image as ImageIcon
+    Receipt
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -34,24 +29,17 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
 
-export default function FinanceIndex({ reports, expenses, pettyCash, filters, auth, userRole }) {
+export default function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
     const [activeTab, setActiveTab] = useState('reports');
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
-    const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
 
     const tabs = [
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
         { id: 'expenses', label: 'Biaya Operasional', icon: ArrowDownCircle },
-        { id: 'petty_cash', label: 'Kas Kecil Internal', icon: Wallet },
-        { id: 'log', label: 'Menu Log', icon: History },
+        { id: 'petty_cash', label: 'Kas Kecil (Petty Cash)', icon: Wallet },
     ];
-
-    const isSantaMaria = userRole.some(role =>
-        role.toLowerCase().replace(/_/g, ' ') === 'santa maria' ||
-        role.toLowerCase() === 'santa_maria'
-    );
 
     const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
         description: '',
@@ -68,26 +56,6 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
         description: '',
         category: '',
         receipt: null,
-    });
-
-    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-    const [selectedProposal, setSelectedProposal] = useState(null);
-
-    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
-        payment_method: 'transfer',
-        transfer_proof: null,
-    });
-
-    const { data: rejectData, setData: setRejectData, post: postReject, processing: processingReject, reset: resetReject, errors: rejectErrors } = useForm({
-        rejection_reason: '',
-    });
-
-    const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
-        type: 'spending',
-        title: '',
-        description: '',
-        amount: '',
     });
 
     const handleFilterChange = (e) => {
@@ -132,56 +100,6 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                 preserveScroll: true
             });
         }
-    };
-
-    const handleApprove = (proposal) => {
-        setSelectedProposal(proposal);
-        if (proposal.type === 'funding') {
-            setIsApproveModalOpen(true);
-        } else {
-            router.post(route('admin.petty-cash.proposals.approve', proposal.id), {}, { preserveScroll: true });
-        }
-    };
-
-    const submitApproveFunding = (e) => {
-        e.preventDefault();
-        postApprove(route('admin.petty-cash.proposals.approve', selectedProposal.id), {
-            onSuccess: () => {
-                setIsApproveModalOpen(false);
-                resetApprove();
-            },
-            forceFormData: true,
-            preserveScroll: true
-        });
-    };
-
-
-
-    const handleReject = (proposal) => {
-        setSelectedProposal(proposal);
-        setIsRejectModalOpen(true);
-    };
-
-    const submitReject = (e) => {
-        e.preventDefault();
-        postReject(route('admin.petty-cash.proposals.reject', selectedProposal.id), {
-            onSuccess: () => {
-                setIsRejectModalOpen(false);
-                resetReject();
-            },
-            preserveScroll: true
-        });
-    };
-
-    const submitProposal = (e) => {
-        e.preventDefault();
-        postProposal(route('admin.petty-cash.proposals.store'), {
-            onSuccess: () => {
-                resetProposal();
-                setIsProposalModalOpen(false);
-            },
-            preserveScroll: true
-        });
     };
 
     return (
@@ -260,13 +178,13 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
 
                                 {/* FINANCE SUMMARY CARD */}
                                 <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-800">
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Kas Kecil Internal</h4>
+                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Kas Kecil Tersedia</h4>
                                     <p className="text-2xl font-black text-gray-900 dark:text-white">
                                         Rp {pettyCash.currentBalance.toLocaleString('id-ID')}
                                     </p>
                                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                                        <span className="text-gray-400">Total Dana Masuk Bulan ini:</span>
-                                        <span className="text-emerald-600">Rp {reports.stats.petty_cash_inflow.toLocaleString('id-ID')}</span>
+                                        <span className="text-gray-400">Total Pemasukan Bulan ini:</span>
+                                        <span className="text-indigo-600">Rp {reports.stats.revenue.toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -284,11 +202,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         className="space-y-8"
                                     >
                                         {/* Status Stats Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                                             {[
                                                 { label: 'Total Pemasukan', val: reports.stats.revenue, color: 'indigo' },
-                                                { label: 'Biaya Operasional', val: reports.stats.operational_expenses, color: 'rose' },
-                                                { label: 'Kas Kecil Internal', val: reports.stats.petty_cash_balance, color: 'orange' },
+                                                { label: 'Biaya Operasional', val: reports.stats.expenses, color: 'rose' },
                                                 { label: 'Komisi Afiliasi', val: reports.stats.commissions, color: 'amber' },
                                                 { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
@@ -325,7 +242,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                             </div>
 
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Kategori Pengeluaran (Inc. Kas Internal)</h3>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Kategori Pengeluaran</h3>
                                                 <div className="h-[350px]">
                                                     <ResponsiveContainer width="100%" height="100%">
                                                         <PieChart>
@@ -440,129 +357,22 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         className="space-y-6"
                                     >
                                         <div className="flex justify-between items-center mb-6">
-                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil Internal</h3>
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => setIsProposalModalOpen(true)}
-                                                    className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
-                                                >
-                                                    <Plus className="w-4 h-4 mr-2" />
-                                                    Buat Pengajuan Baru
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsPettyCashModalOpen(true)}
-                                                    className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
-                                                >
-                                                    <Receipt className="w-4 h-4 mr-2" />
-                                                    Catat Transaksi (Realisasi)
-                                                </button>
-                                            </div>
+                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil (Petty Cash)</h3>
+                                            <button
+                                                onClick={() => setIsPettyCashModalOpen(true)}
+                                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                                            >
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Input Transaksi Kas
+                                            </button>
                                         </div>
 
-                                        {/* PROPOSALS SECTION */}
-                                        <div className="mb-10">
-                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Daftar Pengajuan & Status Approval</h4>
-                                            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <div className="overflow-x-auto">
-                                                    <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
-                                                        <thead>
-                                                            <tr className="bg-gray-50/50 dark:bg-gray-800/50">
-                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pengajuan</th>
-                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Operator & Log</th>
-                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Jenis</th>
-                                                                <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
-                                                                <th className="px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                                                            {pettyCash.proposals.map((p) => (
-                                                                <tr key={p.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                                                                    <td className="px-8 py-6">
-                                                                        <div className="font-bold text-gray-900 dark:text-white truncate max-w-[200px]">{p.title}</div>
-                                                                        <div className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">
-                                                                            {new Date(p.created_at).toLocaleDateString('id-ID')}
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-8 py-6">
-                                                                        <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{p.user?.name}</div>
-                                                                        {p.approver && (
-                                                                            <div className="text-[9px] text-emerald-600 dark:text-emerald-400 mt-1 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded inline-block">
-                                                                                Log: {p.approver.name}
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="px-8 py-6">
-                                                                        <span className={`text-[10px] font-black uppercase tracking-widest ${p.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                                            {p.type === 'funding' ? 'Isi Saldo (In)' : 'Belanja (Out)'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-8 py-6 text-right font-black text-sm text-gray-900 dark:text-white">
-                                                                        Rp {parseFloat(p.amount).toLocaleString('id-ID')}
-                                                                    </td>
-                                                                    <td className="px-8 py-6 text-center">
-                                                                        <div className="flex flex-col items-center gap-2">
-                                                                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                                                                p.status === 'approved' ? 'bg-indigo-100 text-indigo-700' :
-                                                                                    p.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                                                                                }`}>
-                                                                                {p.status === 'pending' ? 'Menunggu' :
-                                                                                    p.status === 'approved' ? 'Disetujui' :
-                                                                                        p.status === 'completed' ? 'Selesai' :
-                                                                                            p.status === 'rejected' ? 'Ditolak' : p.status}
-                                                                            </span>
-
-                                                                            {/* Aksi Santa Maria */}
-                                                                            {isSantaMaria && p.status === 'pending' && (
-                                                                                <div className="flex gap-1 mt-1">
-                                                                                    <button
-                                                                                        onClick={() => handleApprove(p)}
-                                                                                        className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
-                                                                                        title="Setujui"
-                                                                                    >
-                                                                                        <CheckCircle2 className="w-3 h-3" />
-                                                                                    </button>
-                                                                                    <button
-                                                                                        onClick={() => handleReject(p)}
-                                                                                        className="p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                                                                                        title="Tolak"
-                                                                                    >
-                                                                                        <XCircle className="w-3 h-3" />
-                                                                                    </button>
-                                                                                </div>
-                                                                            )}
-
-                                                                            {/* Lihat Bukti Transfer Funding */}
-                                                                            {p.type === 'funding' && p.transfer_proof && (
-                                                                                <button
-                                                                                    onClick={() => setSelectedReceipt(`/storage/${p.transfer_proof}`)}
-                                                                                    className="mt-1 flex items-center gap-1 text-[8px] font-black uppercase tracking-tighter text-indigo-600 hover:text-indigo-800 transition-colors"
-                                                                                >
-                                                                                    <ImageIcon className="w-2.5 h-2.5" /> Lihat Bukti TF
-                                                                                </button>
-                                                                            )}
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                            {pettyCash.proposals.length === 0 && (
-                                                                <tr>
-                                                                    <td colSpan="4" className="px-8 py-10 text-center text-gray-400 italic text-xs">Belum ada pengajuan.</td>
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Riwayat Transaksi Realisasi</h4>
                                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
                                             <div className="overflow-x-auto">
                                                 <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                     <thead>
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
                                                             <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tgl / Deskripsi</th>
-                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pencatat</th>
                                                             <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipe</th>
                                                             <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
                                                             <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Saldo Akhir</th>
@@ -579,14 +389,11 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-8 py-6">
-                                                                    <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{tx.recorder?.name || '-'}</div>
-                                                                </td>
-                                                                <td className="px-8 py-6">
                                                                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === 'in'
                                                                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                                                         : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                                                                         }`}>
-                                                                        {tx.type === 'in' ? 'Isi Saldo (In)' : 'Belanja (Out)'}
+                                                                        {tx.type === 'in' ? 'Isi Saldo (In)' : 'Keluar (Out)'}
                                                                     </span>
                                                                 </td>
                                                                 <td className={`px-8 py-6 text-right font-black text-sm ${tx.type === 'in' ? 'text-emerald-600' : 'text-rose-600'
@@ -608,68 +415,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                         ))}
                                                         {pettyCash.transactions.length === 0 && (
                                                             <tr>
-                                                                <td colSpan="6" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-                                {activeTab === 'log' && (
-                                    <motion.div
-                                        key="log"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-6"
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Log Aktivitas Kas Kecil</h4>
-                                        </div>
-                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <div className="overflow-x-auto">
-                                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
-                                                    <thead>
-                                                        <tr className="bg-gray-50/50 dark:bg-gray-800/50">
-                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu / Deskripsi</th>
-                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pencatat</th>
-                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipe</th>
-                                                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
-                                                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Aksi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                                                        {pettyCash.transactions.map((tx) => (
-                                                            <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                                                                <td className="px-8 py-6">
-                                                                    <div className="font-bold text-gray-900 dark:text-white leading-tight">{tx.description}</div>
-                                                                    <div className="text-[9px] text-indigo-500 mt-1 font-black uppercase tracking-widest">
-                                                                        {new Date(tx.created_at).toLocaleString('id-ID')}
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                                    {tx.recorder?.name || 'Sistem'}
-                                                                </td>
-                                                                <td className="px-8 py-6">
-                                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === 'in' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                                                                        {tx.type === 'in' ? 'Isi Saldo' : 'Belanja'}
-                                                                    </span>
-                                                                </td>
-                                                                <td className={`px-8 py-6 text-right font-black text-sm ${tx.type === 'in' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                                    Rp {tx.amount.toLocaleString('id-ID')}
-                                                                </td>
-                                                                <td className="px-8 py-6 text-right">
-                                                                    {tx.receipt && (
-                                                                        <button onClick={() => setSelectedReceipt(`/storage/${tx.receipt}`)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"><Receipt className="w-4 h-4" /></button>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                        {pettyCash.transactions.length === 0 && (
-                                                            <tr>
-                                                                <td colSpan="5" className="px-8 py-16 text-center text-gray-400 italic">Belum ada log aktivitas.</td>
+                                                                <td colSpan="5" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
                                                             </tr>
                                                         )}
                                                     </tbody>
@@ -860,174 +606,6 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                     </div>
                 </div>
             )}
-
-            {/* Approve Funding Modal */}
-            <Modal show={isApproveModalOpen} onClose={() => setIsApproveModalOpen(false)}>
-                <form onSubmit={submitApproveFunding} className="p-10 dark:bg-gray-900 rounded-[3rem]">
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight">Konfirmasi Pengiriman Dana</h2>
-                    <p className="text-sm text-gray-500 mb-8 font-serif leading-relaxed">
-                        Silakan unggah bukti transfer dana sebesar <span className="text-emerald-600 font-bold">Rp {parseFloat(selectedProposal?.amount || 0).toLocaleString('id-ID')}</span> untuk menyelesaikan pengisian Kas Kecil.
-                    </p>
-
-                    <div className="space-y-6">
-                        <div>
-                            <InputLabel value="Metode Pengiriman Dana" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                            <div className="flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl">
-                                <button
-                                    type="button"
-                                    onClick={() => setApproveData('payment_method', 'transfer')}
-                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'transfer' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}
-                                >
-                                    Transfer Bank
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setApproveData('payment_method', 'cash')}
-                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'cash' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400'}`}
-                                >
-                                    Tunai / Cash
-                                </button>
-                            </div>
-                        </div>
-
-                        {approveData.payment_method === 'transfer' && (
-                            <div className="relative group">
-                                <InputLabel value="Upload Bukti Transfer (JPG/PNG)" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all"
-                                    onChange={e => setApproveData('transfer_proof', e.target.files[0])}
-                                    required={approveData.payment_method === 'transfer'}
-                                />
-                            </div>
-                        )}
-
-                        {approveData.payment_method === 'cash' && (
-                            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl">
-                                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed">
-                                    Konfirmasi penyerahan dana secara tunai. Saldo kas kecil akan langsung bertambah setelah Bapak menekan tombol "Konfirmasi" di bawah.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mt-10 flex gap-4">
-                        <SecondaryButton onClick={() => setIsApproveModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
-                        <button
-                            type="submit"
-                            disabled={processingApprove}
-                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
-                        >
-                            Konfirmasi & Kirim
-                        </button>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* Reject Modal */}
-            <Modal show={isRejectModalOpen} onClose={() => setIsRejectModalOpen(false)}>
-                <form onSubmit={submitReject} className="p-10 dark:bg-gray-900 rounded-[3rem]">
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight">Tolak Pengajuan</h2>
-                    <p className="text-sm text-gray-500 mb-8 font-serif">Berikan alasan mengapa pengajuan ini ditolak guna transparansi pelaporan.</p>
-
-                    <div>
-                        <InputLabel value="Alasan Penolakan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                        <textarea
-                            className="w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-rose-500 focus:border-rose-500 h-32"
-                            value={rejectData.rejection_reason}
-                            onChange={e => setRejectData('rejection_reason', e.target.value)}
-                            required
-                        />
-                        <InputError message={rejectErrors.rejection_reason} />
-                    </div>
-
-                    <div className="mt-10 flex gap-4">
-                        <SecondaryButton onClick={() => setIsRejectModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
-                        <button
-                            type="submit"
-                            disabled={processingReject}
-                            className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
-                        >
-                            Tolak Selamanya
-                        </button>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* Create Proposal Modal */}
-            <Modal show={isProposalModalOpen} onClose={() => setIsProposalModalOpen(false)}>
-                <form onSubmit={submitProposal} className="p-10 dark:bg-gray-900 rounded-[3rem]">
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tight">Buat Pengajuan Kas Kecil</h2>
-
-                    <div className="space-y-6">
-                        <div className="flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl">
-                            <button
-                                type="button"
-                                onClick={() => setProposalData('type', 'spending')}
-                                className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === 'spending' ? 'bg-indigo-600 text-white shadow-xl' : 'text-gray-400'}`}
-                            >
-                                Pengajuan Belanja
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setProposalData('type', 'funding')}
-                                className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === 'funding' ? 'bg-emerald-600 text-white shadow-xl' : 'text-gray-400'}`}
-                            >
-                                Permohonan Dana
-                            </button>
-                        </div>
-
-                        <div>
-                            <InputLabel value="Judul Pengajuan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                            <TextInput
-                                className="w-full !rounded-2xl"
-                                value={proposalData.title}
-                                onChange={e => setProposalData('title', e.target.value)}
-                                placeholder="Misal: Belanja ATK Kantor"
-                            />
-                            <InputError message={proposalErrors.title} />
-                        </div>
-
-                        <div>
-                            <InputLabel value="Nominal Budget Dimohon" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                            <div className="relative">
-                                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">Rp</span>
-                                <TextInput
-                                    type="number"
-                                    className="w-full !rounded-2xl !pl-12"
-                                    value={proposalData.amount}
-                                    onChange={e => setProposalData('amount', e.target.value)}
-                                    placeholder="0"
-                                />
-                            </div>
-                            <InputError message={proposalErrors.amount} />
-                        </div>
-
-                        <div>
-                            <InputLabel value="Detail Keperluan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                            <textarea
-                                className="w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 p-4"
-                                value={proposalData.description}
-                                onChange={e => setProposalData('description', e.target.value)}
-                                placeholder="Jelaskan secara detail barang apa saja yang akan dibeli..."
-                            />
-                            <InputError message={proposalErrors.description} />
-                        </div>
-                    </div>
-
-                    <div className="mt-10 flex gap-4">
-                        <SecondaryButton onClick={() => setIsProposalModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
-                        <button
-                            type="submit"
-                            disabled={processingProposal}
-                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20"
-                        >
-                            Kirim Pengajuan
-                        </button>
-                    </div>
-                </form>
-            </Modal>
         </AuthenticatedLayout>
     );
 }

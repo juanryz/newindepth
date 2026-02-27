@@ -24,6 +24,8 @@ class ClearDatabaseData extends Command
         'transactions',
         'commissions',
         'expenses',
+        'petty_cash_proofs',
+        'petty_cash_proposals',
         'petty_cash_transactions',
 
         // Voucher
