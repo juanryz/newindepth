@@ -74,7 +74,7 @@ class ClearDatabaseData extends Command
 
         $this->table(
             ['Status', 'Tabel'],
-            collect($this->tablesToClear)->map(fn($t) => ['🗑️  Akan dihapus', $t])->toArray()
+            collect($this->tablesToClear)->map(fn($t) => ['🧹 Isi dikosongkan', $t])->toArray()
         );
 
         $this->newLine();
