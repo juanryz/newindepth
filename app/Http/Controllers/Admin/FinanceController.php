@@ -39,7 +39,15 @@ class FinanceController extends Controller
             ->whereYear('transaction_date', $year)
             ->sum('amount');
 
+        $pettyCashInflow = PettyCashTransaction::where('type', 'in')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->sum('amount');
+
         $totalExpensesSum = $expensesSum + $pettyCashExpenses;
+
+        $pettyCashBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
+            - PettyCashTransaction::where('type', 'out')->sum('amount');
 
         $netIncome = $revenue - $commissions - $totalExpensesSum;
 
@@ -95,8 +103,8 @@ class FinanceController extends Controller
             ->latest()
             ->get();
 
-        $pettyCashBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
-            - PettyCashTransaction::where('type', 'out')->sum('amount');
+        // $pettyCashBalance moved up to be included in stats array if needed
+        // but it was already here, keeping it dry.
 
         return Inertia::render('Admin/Finance/Index', [
             'reports' => [
@@ -104,7 +112,9 @@ class FinanceController extends Controller
                     'revenue' => (float) $revenue,
                     'commissions' => (float) $commissions,
                     'operational_expenses' => (float) $expensesSum,
-                    'petty_cash_expenses' => (float) $pettyCashExpenses,
+                    'petty_cash_expenses' => (float) $pettyCashExpenses, // keeping legacy name for safety or removing if unused
+                    'petty_cash_balance' => (float) $pettyCashBalance,
+                    'petty_cash_inflow' => (float) $pettyCashInflow,
                     'expenses' => (float) $totalExpensesSum,
                     'netIncome' => (float) $netIncome,
                 ],

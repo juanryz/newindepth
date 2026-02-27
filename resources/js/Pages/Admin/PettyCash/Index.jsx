@@ -33,7 +33,10 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
     const [selectedProof, setSelectedProof] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-    const isSantaMaria = userRole.includes('santa_maria');
+    const isSantaMaria = userRole.some(role =>
+        role.toLowerCase().replace(/_/g, ' ') === 'santa maria' ||
+        role.toLowerCase() === 'santa_maria'
+    );
 
     const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
         type: 'spending',
@@ -42,7 +45,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
         amount: '',
     });
 
-    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove } = useForm({
+    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
         payment_method: 'transfer',
         transfer_proof: null,
     });
@@ -72,7 +75,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
         if (proposal.type === 'funding') {
             setIsApproveModalOpen(true);
         } else {
-            router.post(route('admin.petty-cash.proposals.approve', proposal.id));
+            router.post(route('admin.petty-cash.proposals.approve', proposal.id), {}, {
+                preserveScroll: true
+            });
         }
     };
 
@@ -82,7 +87,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
             onSuccess: () => {
                 setIsApproveModalOpen(false);
                 resetApprove();
-            }
+            },
+            forceFormData: true,
+            preserveScroll: true
         });
     };
 

@@ -45,9 +45,13 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
         { id: 'expenses', label: 'Biaya Operasional', icon: ArrowDownCircle },
         { id: 'petty_cash', label: 'Kas Kecil Internal', icon: Wallet },
+        { id: 'log', label: 'Menu Log', icon: History },
     ];
 
-    const isSantaMaria = userRole.includes('santa_maria');
+    const isSantaMaria = userRole.some(role =>
+        role.toLowerCase().replace(/_/g, ' ') === 'santa maria' ||
+        role.toLowerCase() === 'santa_maria'
+    );
 
     const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
         description: '',
@@ -70,7 +74,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [selectedProposal, setSelectedProposal] = useState(null);
 
-    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove } = useForm({
+    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove, errors: approveErrors } = useForm({
         payment_method: 'transfer',
         transfer_proof: null,
     });
@@ -146,9 +150,12 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                 setIsApproveModalOpen(false);
                 resetApprove();
             },
+            forceFormData: true,
             preserveScroll: true
         });
     };
+
+
 
     const handleReject = (proposal) => {
         setSelectedProposal(proposal);
@@ -258,8 +265,8 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         Rp {pettyCash.currentBalance.toLocaleString('id-ID')}
                                     </p>
                                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                                        <span className="text-gray-400">Total Pemasukan Bulan ini:</span>
-                                        <span className="text-indigo-600">Rp {reports.stats.revenue.toLocaleString('id-ID')}</span>
+                                        <span className="text-gray-400">Total Dana Masuk Bulan ini:</span>
+                                        <span className="text-emerald-600">Rp {reports.stats.petty_cash_inflow.toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -281,7 +288,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                             {[
                                                 { label: 'Total Pemasukan', val: reports.stats.revenue, color: 'indigo' },
                                                 { label: 'Biaya Operasional', val: reports.stats.operational_expenses, color: 'rose' },
-                                                { label: 'Kas Kecil Internal', val: reports.stats.petty_cash_expenses, color: 'orange' },
+                                                { label: 'Kas Kecil Internal', val: reports.stats.petty_cash_balance, color: 'orange' },
                                                 { label: 'Komisi Afiliasi', val: reports.stats.commissions, color: 'amber' },
                                                 { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
@@ -602,6 +609,67 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                         {pettyCash.transactions.length === 0 && (
                                                             <tr>
                                                                 <td colSpan="6" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                                {activeTab === 'log' && (
+                                    <motion.div
+                                        key="log"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Log Aktivitas Kas Kecil</h4>
+                                        </div>
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                    <thead>
+                                                        <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Waktu / Deskripsi</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pencatat</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipe</th>
+                                                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
+                                                            <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                        {pettyCash.transactions.map((tx) => (
+                                                            <tr key={tx.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
+                                                                <td className="px-8 py-6">
+                                                                    <div className="font-bold text-gray-900 dark:text-white leading-tight">{tx.description}</div>
+                                                                    <div className="text-[9px] text-indigo-500 mt-1 font-black uppercase tracking-widest">
+                                                                        {new Date(tx.created_at).toLocaleString('id-ID')}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                                    {tx.recorder?.name || 'Sistem'}
+                                                                </td>
+                                                                <td className="px-8 py-6">
+                                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === 'in' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                                                        {tx.type === 'in' ? 'Isi Saldo' : 'Belanja'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className={`px-8 py-6 text-right font-black text-sm ${tx.type === 'in' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                                    Rp {tx.amount.toLocaleString('id-ID')}
+                                                                </td>
+                                                                <td className="px-8 py-6 text-right">
+                                                                    {tx.receipt && (
+                                                                        <button onClick={() => setSelectedReceipt(`/storage/${tx.receipt}`)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"><Receipt className="w-4 h-4" /></button>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        {pettyCash.transactions.length === 0 && (
+                                                            <tr>
+                                                                <td colSpan="5" className="px-8 py-16 text-center text-gray-400 italic">Belum ada log aktivitas.</td>
                                                             </tr>
                                                         )}
                                                     </tbody>
