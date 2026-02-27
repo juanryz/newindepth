@@ -235,8 +235,11 @@ export default function ActiveSession({ booking, patient }) {
         setForceCompleting(true);
         setSessionAlert(null);
         // Auto-fill outcome if not set
-        if (!data.completion_outcome) setData('completion_outcome', 'Normal');
+        const finalData = { ...data, is_auto: true };
+        if (!finalData.completion_outcome) finalData.completion_outcome = 'Normal';
+
         post(route('schedules.complete', booking.id), {
+            data: finalData,
             onSuccess: () => localStorage.removeItem(`session_draft_${booking.id}`),
             onError: () => setForceCompleting(false),
         });

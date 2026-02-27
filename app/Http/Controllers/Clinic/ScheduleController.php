@@ -214,25 +214,35 @@ class ScheduleController extends Controller
             abort(403);
         }
 
+        $isAuto = $request->boolean('is_auto');
+
         $request->validate([
-            'recording_link' => 'required|url',
+            'recording_link' => $isAuto ? 'nullable|url' : 'required|url',
             'therapist_notes' => 'nullable|string',
             'patient_visible_notes' => 'nullable|string',
-            'completion_outcome' => 'required|string|in:Normal,Abnormal/Emergency',
+            'completion_outcome' => $isAuto ? 'nullable|string' : 'required|string|in:Normal,Abnormal/Emergency',
             'session_checklist' => 'nullable|array',
         ]);
+
+        $therapistNotes = $request->therapist_notes;
+        $patientNotes = $request->patient_visible_notes;
+
+        if ($isAuto) {
+            $therapistNotes = ($therapistNotes ? $therapistNotes . "\n\n" : "") . "[Sesi ditutup otomatis oleh sistem karena melebihi durasi 95 menit]";
+            $patientNotes = ($patientNotes ? $patientNotes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.";
+        }
 
         $booking->update([
             'status' => 'completed',
             'ended_at' => now(),
             'recording_link' => $request->recording_link,
-            'therapist_notes' => $request->therapist_notes,
-            'patient_visible_notes' => $request->patient_visible_notes,
-            'completion_outcome' => $request->completion_outcome,
+            'therapist_notes' => $therapistNotes,
+            'patient_visible_notes' => $patientNotes,
+            'completion_outcome' => $request->completion_outcome ?? 'Normal',
             'session_checklist' => $request->session_checklist,
         ]);
 
-        return redirect()->route('schedules.patient-detail', $booking->patient_id)->with('success', 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');
+        return redirect()->route('schedules.patient-detail', $booking->patient_id)->with('success', $isAuto ? 'Sesi ditutup otomatis oleh sistem.' : 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');
     }
 
     public function rescheduleSession(Request $request, Booking $booking)
