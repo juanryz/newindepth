@@ -109,6 +109,25 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({ rejection_reason: '' });
     const [validatingTx, setValidatingTx] = useState(null);
 
+    // ─── Admin Voucher state ───
+    const [voucherTxId, setVoucherTxId] = useState(null);
+    const [adminVoucherCode, setAdminVoucherCode] = useState('');
+    const [applyingVoucher, setApplyingVoucher] = useState(false);
+    const { post: postVoucher, errors: voucherErrors } = useForm();
+
+    const handleAdminApplyVoucher = (tx) => {
+        if (!adminVoucherCode.trim()) return;
+        setApplyingVoucher(true);
+        router.post(route('vouchers.apply-by-code'), {
+            code: adminVoucherCode,
+            transaction_id: tx.id,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => { setVoucherTxId(null); setAdminVoucherCode(''); },
+            onFinish: () => setApplyingVoucher(false),
+        });
+    };
+
     // ─── Transaction filters ───
     const [txFilterStatus, setTxFilterStatus] = useState('');
     const [txFilterSearch, setTxFilterSearch] = useState('');
@@ -1040,23 +1059,58 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         </span>
                                                                     </td>
                                                                     <td className="px-6 py-5 text-center">
-                                                                        {tx.status === 'pending' && (
-                                                                            <div className="flex justify-center gap-2">
-                                                                                <button disabled={validatingTx === tx.id} onClick={() => handleValidate(tx)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">{validatingTx === tx.id ? '...' : 'Validasi'}</button>
-                                                                                <button onClick={() => setSelectedReject(tx)} className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all">Tolak</button>
-                                                                            </div>
-                                                                        )}
-                                                                        {tx.status === 'paid' && tx.validated_at && (
-                                                                            <div className="flex flex-col items-center gap-1">
-                                                                                <span className="text-[9px] text-gray-400 font-bold">✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}</span>
-                                                                                {tx.validated_by && (
-                                                                                    <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
-                                                                                        <CheckCircle2 className="w-3 h-3" />
-                                                                                        {tx.validated_by_user?.name || tx.validated_by?.name || 'Admin'}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            {tx.status === 'pending' && (
+                                                                                <div className="flex justify-center gap-2">
+                                                                                    <button disabled={validatingTx === tx.id} onClick={() => handleValidate(tx)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">{validatingTx === tx.id ? '...' : 'Validasi'}</button>
+                                                                                    <button onClick={() => setSelectedReject(tx)} className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all">Tolak</button>
+                                                                                </div>
+                                                                            )}
+                                                                            {tx.status === 'paid' && tx.validated_at && (
+                                                                                <div className="flex flex-col items-center gap-1">
+                                                                                    <span className="text-[9px] text-gray-400 font-bold">✓ {new Date(tx.validated_at).toLocaleDateString('id-ID')}</span>
+                                                                                    {tx.validated_by && (
+                                                                                        <span className="text-[9px] font-black text-indigo-500 uppercase flex items-center gap-1">
+                                                                                            <CheckCircle2 className="w-3 h-3" />
+                                                                                            {tx.validated_by_user?.name || tx.validated_by?.name || 'Admin'}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                            {/* Admin Voucher Button */}
+                                                                            {tx.status === 'pending' && !tx.payment_agreement_data?.applied_voucher_id && (
+                                                                                <>
+                                                                                    {voucherTxId === tx.id ? (
+                                                                                        <div className="flex flex-col gap-1.5 w-full mt-1">
+                                                                                            <input
+                                                                                                autoFocus
+                                                                                                className="w-full px-3 py-1.5 text-[10px] font-bold bg-white dark:bg-gray-900 border border-indigo-200 dark:border-indigo-800 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none uppercase tracking-wider"
+                                                                                                placeholder="Kode voucher..."
+                                                                                                value={adminVoucherCode}
+                                                                                                onChange={e => setAdminVoucherCode(e.target.value.toUpperCase())}
+                                                                                                onKeyDown={e => e.key === 'Escape' && setVoucherTxId(null)}
+                                                                                            />
+                                                                                            <div className="flex gap-1">
+                                                                                                <button
+                                                                                                    disabled={!adminVoucherCode || applyingVoucher}
+                                                                                                    onClick={() => handleAdminApplyVoucher(tx)}
+                                                                                                    className="flex-1 py-1 bg-indigo-600 text-white text-[9px] font-black uppercase rounded-lg disabled:opacity-50"
+                                                                                                >{applyingVoucher ? '...' : 'Terapkan'}</button>
+                                                                                                <button onClick={() => { setVoucherTxId(null); setAdminVoucherCode(''); }} className="flex-1 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 text-[9px] font-black uppercase rounded-lg">Batal</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <button
+                                                                                            onClick={() => { setVoucherTxId(tx.id); setAdminVoucherCode(''); }}
+                                                                                            className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-100 transition-all"
+                                                                                        >🏷️ Diskon</button>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                            {tx.payment_agreement_data?.applied_voucher_code && (
+                                                                                <span className="text-[9px] font-black text-emerald-500 uppercase mt-1">✓ {tx.payment_agreement_data.applied_voucher_code}</span>
+                                                                            )}
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             );

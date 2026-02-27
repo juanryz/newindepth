@@ -292,6 +292,13 @@ export default function Welcome({ auth, articles, courses }) {
 
                         {/* VIP Package */}
                         <div className="relative bg-gray-900/90 dark:bg-black/40 backdrop-blur-2xl border-2 border-gold-500/50 rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(208,170,33,0.15)] hover:shadow-[0_30px_60px_rgba(208,170,33,0.25)] transition-all duration-500 group flex flex-col md:-translate-y-4">
+                            {/* Promo ribbon top-right */}
+                            <div className="absolute -top-3 -right-3 w-20 h-20 flex items-center justify-center">
+                                <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
+                                    <span className="text-white font-black text-[11px] text-center leading-none uppercase">50%<br />OFF</span>
+                                </div>
+                            </div>
+
                             {/* VIP Badge */}
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-gold-500 to-yellow-500 rounded-full text-white text-xs font-bold shadow-lg uppercase tracking-widest whitespace-nowrap">
                                 Intensive Care
@@ -302,11 +309,24 @@ export default function Welcome({ auth, articles, courses }) {
                                     Paket VIP
                                     <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                 </h3>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-transparent select-none" aria-hidden="true">-</span>
-                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
+                                <div className="flex flex-col gap-0.5">
+                                    {/* Harga asli dicoret */}
+                                    <span className="text-base font-bold text-gray-500 line-through decoration-rose-500">Rp 8.000.000</span>
+                                    {/* Harga setelah diskon 50% */}
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 4.000.000</span>
                                 </div>
-                                <p className="text-gold-500/80 mt-2 font-medium">Prioritas & Kasus Kompleks</p>
+
+                                {/* Promo labels */}
+                                <div className="flex flex-wrap items-center gap-2 mt-3">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md shadow-rose-500/30">
+                                        🔥 DISKON 50%
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                        ⏳ s/d 31 Maret 2026
+                                    </span>
+                                </div>
+
+                                <p className="text-gold-500/80 mt-3 font-medium">Prioritas & Kasus Kompleks</p>
                                 <p className="text-[9px] font-bold text-gold-500/60 mt-1 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                             </div>
 
@@ -326,7 +346,7 @@ export default function Welcome({ auth, articles, courses }) {
                             </ul>
 
                             <Link href="/register?package=vip" className="block text-center py-4 px-6 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-extrabold shadow-[0_10px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 hover:-translate-y-1 mt-auto">
-                                Ambil Paket VIP
+                                Ambil Paket VIP — Hemat 50%
                             </Link>
                         </div>
                     </div>
@@ -406,14 +426,18 @@ export default function Welcome({ auth, articles, courses }) {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     {/* Komisaris Section */}
-                    <div className="flex flex-col lg:flex-row items-center gap-16 mb-24">
+                    <div className="flex flex-col lg:flex-row items-center gap-12 mb-24">
                         {/* Image Column */}
                         <div className="w-full lg:w-5/12">
                             <div className="relative group">
                                 <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-70"></div>
                                 <div className="relative rounded-[2.5rem] overflow-hidden border border-gold-500/20 shadow-2xl aspect-[4/5] bg-gray-100 dark:bg-gray-800">
                                     <div className="absolute inset-0">
-                                        <img src="/images/julius-bambang.png" alt="Julius Bambang" className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" />
+                                        <img
+                                            src="/images/julius-bambang.png"
+                                            alt="Julius Bambang"
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-center">
                                         <h3 className="text-2xl font-bold text-white mb-1">Julius Bambang</h3>
@@ -451,7 +475,7 @@ export default function Welcome({ auth, articles, courses }) {
                     </div>
 
                     {/* Direktur Section */}
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                    <div className="flex flex-col lg:flex-row items-center gap-12">
                         {/* Image Column */}
                         <div className="w-full lg:w-5/12">
                             <div className="relative group">

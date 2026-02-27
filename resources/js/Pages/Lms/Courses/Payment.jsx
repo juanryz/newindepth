@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
 import LiquidBackground from '@/Components/LiquidBackground';
 
 const GlassPanel = ({ children, className = '', ...props }) => (
@@ -18,6 +18,23 @@ export default function CoursePayment({ course, transaction, auth }) {
         payment_method: 'Transfer Bank',
         payment_proof: null,
     });
+
+    const [voucherCode, setVoucherCode] = useState('');
+    const [voucherApplying, setVoucherApplying] = useState(false);
+    const isVoucherApplied = !!transaction.payment_agreement_data?.applied_voucher_id;
+
+    const applyVoucher = () => {
+        if (!voucherCode.trim()) return;
+        setVoucherApplying(true);
+        router.post(route('vouchers.apply-by-code'), {
+            code: voucherCode,
+            transaction_id: transaction.id,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => setVoucherCode(''),
+            onFinish: () => setVoucherApplying(false),
+        });
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -76,6 +93,11 @@ export default function CoursePayment({ course, transaction, auth }) {
                                         <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">
                                             Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}
                                         </p>
+                                        {transaction.payment_agreement_data?.discount_amount > 0 && (
+                                            <p className="text-[10px] text-emerald-600 font-bold mt-1">
+                                                (Sudah termasuk diskon Rp {new Intl.NumberFormat('id-ID').format(transaction.payment_agreement_data.discount_amount)})
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex-1 space-y-4">
                                         <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
@@ -88,6 +110,35 @@ export default function CoursePayment({ course, transaction, auth }) {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Voucher Input */}
+                                <div className="pt-6 border-t border-gold-100/50 dark:border-white/5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Punya Kode Voucher?</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            className="flex-1 px-6 rounded-xl bg-white/50 dark:bg-white/[0.02] border border-gold-100 dark:border-white/[0.06] text-sm py-2 focus:ring-2 focus:ring-gold-500 outline-none"
+                                            placeholder="Masukkan kode voucher disini"
+                                            value={voucherCode}
+                                            onChange={(e) => setVoucherCode(e.target.value)}
+                                            disabled={isVoucherApplied}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={applyVoucher}
+                                            className={`px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isVoucherApplied
+                                                ? 'bg-emerald-100 text-emerald-600 border border-emerald-200 cursor-default'
+                                                : 'bg-gold-600 text-white hover:bg-gold-700 disabled:opacity-50'
+                                                }`}
+                                            disabled={!voucherCode || isVoucherApplied || voucherApplying}
+                                        >
+                                            {isVoucherApplied ? '✓ Terpasang' : voucherApplying ? 'Memproses...' : 'Terapkan'}
+                                        </button>
+                                    </div>
+                                    {pageErrors.voucher_code && <p className="text-[10px] text-red-500 font-bold mt-2">{pageErrors.voucher_code}</p>}
+                                    {transaction.payment_agreement_data?.applied_voucher_code && (
+                                        <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Kode <strong>{transaction.payment_agreement_data.applied_voucher_code}</strong> berhasil diterapkan</p>
+                                    )}
                                 </div>
                             </div>
                         </div>

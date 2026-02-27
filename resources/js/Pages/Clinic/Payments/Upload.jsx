@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -26,6 +26,23 @@ export default function PaymentUpload({ booking, transaction }) {
     });
 
     const [showPolicyModal, setShowPolicyModal] = useState(false);
+    const [voucherCode, setVoucherCode] = useState('');
+    const isVoucherApplied = !!booking.user_voucher_id || !!transaction.payment_agreement_data?.applied_voucher_id;
+
+    const [voucherApplying, setVoucherApplying] = useState(false);
+
+    const applyVoucher = () => {
+        if (!voucherCode.trim()) return;
+        setVoucherApplying(true);
+        router.post(route('vouchers.apply-by-code'), {
+            code: voucherCode,
+            booking_id: booking.id,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => setVoucherCode(''),
+            onFinish: () => setVoucherApplying(false),
+        });
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -88,10 +105,17 @@ export default function PaymentUpload({ booking, transaction }) {
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
                                 Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat:
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-6">
+                            <div className="flex flex-col sm:flex-row gap-6 mb-6">
                                 <div className="flex-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Nominal</p>
-                                    <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}</p>
+                                    <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                                        Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}
+                                    </p>
+                                    {transaction.payment_agreement_data?.discount_amount > 0 && (
+                                        <p className="text-[10px] text-emerald-600 font-bold mt-1">
+                                            (Sudah termasuk diskon Rp {new Intl.NumberFormat('id-ID').format(transaction.payment_agreement_data.discount_amount)})
+                                        </p>
+                                    )}
                                     <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">*Sudah termasuk PPN 11%</p>
                                 </div>
                                 <div className="flex-1 space-y-3">
@@ -103,6 +127,35 @@ export default function PaymentUpload({ booking, transaction }) {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Voucher Input */}
+                            <div className="pt-6 border-t border-slate-100 dark:border-white/5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Punya Kode Voucher?</label>
+                                <div className="flex gap-2">
+                                    <TextInput
+                                        className="flex-1 !rounded-xl !bg-white/50 dark:!bg-white/[0.02] !border-slate-200 dark:!border-white/[0.06] !text-sm !py-2"
+                                        placeholder="Masukkan kode voucher disini"
+                                        value={voucherCode}
+                                        onChange={(e) => setVoucherCode(e.target.value)}
+                                        disabled={isVoucherApplied}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={applyVoucher}
+                                        className={`px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isVoucherApplied
+                                            ? 'bg-emerald-100 text-emerald-600 border border-emerald-200 cursor-default'
+                                            : 'bg-slate-900 text-white hover:bg-black dark:bg-white/10 dark:hover:bg-white/20 disabled:opacity-50'
+                                            }`}
+                                        disabled={!voucherCode || isVoucherApplied || voucherApplying}
+                                    >
+                                        {isVoucherApplied ? '✓ Terpasang' : voucherApplying ? 'Memproses...' : 'Terapkan'}
+                                    </button>
+                                </div>
+                                {pageErrors.voucher_code && <p className="text-[10px] text-red-500 font-bold mt-2">{pageErrors.voucher_code}</p>}
+                                {transaction.payment_agreement_data?.applied_voucher_code && (
+                                    <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Kode <strong>{transaction.payment_agreement_data.applied_voucher_code}</strong> berhasil diterapkan</p>
+                                )}
                             </div>
                         </div>
 

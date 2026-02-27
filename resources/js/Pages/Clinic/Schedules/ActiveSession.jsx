@@ -118,7 +118,12 @@ export default function ActiveSession({ booking, patient }) {
     }, [data.recording_link, data.therapist_notes, data.patient_visible_notes, data.session_checklist]);
 
     const [timer, setTimer] = useState('00:00:00');
+    const [elapsedMinutes, setElapsedMinutes] = useState(0);
     const [showChecklist, setShowChecklist] = useState(false);
+    const [sessionAlert, setSessionAlert] = useState(null); // null | '30' | '80' | 'force'
+    const [alertDismissed30, setAlertDismissed30] = useState(false);
+    const [alertDismissed80, setAlertDismissed80] = useState(false);
+    const [forceCompleting, setForceCompleting] = useState(false);
     const latestScreening = patient.screening_results?.[0];
 
     useEffect(() => {
@@ -126,13 +131,28 @@ export default function ActiveSession({ booking, patient }) {
         const interval = setInterval(() => {
             const now = new Date();
             const diff = Math.floor((now - startTime) / 1000);
+            const mins = Math.floor(diff / 60);
             const h = Math.floor(diff / 3600).toString().padStart(2, '0');
             const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
             const s = (diff % 60).toString().padStart(2, '0');
             setTimer(`${h}:${m}:${s}`);
+            setElapsedMinutes(mins);
+
+            // Popup at 30 minutes
+            if (mins >= 30 && mins < 31 && !alertDismissed30) {
+                setSessionAlert('30');
+            }
+            // Popup at 80 minutes
+            if (mins >= 80 && mins < 81 && !alertDismissed80) {
+                setSessionAlert('80');
+            }
+            // Force complete at 95 minutes
+            if (mins >= 95 && !forceCompleting) {
+                setSessionAlert('force');
+            }
         }, 1000);
         return () => clearInterval(interval);
-    }, [booking.started_at]);
+    }, [booking.started_at, alertDismissed30, alertDismissed80, forceCompleting]);
 
     const updateChecklist = (key, value) => {
         setData('session_checklist', { ...data.session_checklist, [key]: value });
@@ -210,6 +230,18 @@ export default function ActiveSession({ booking, patient }) {
             }
         });
     };
+    // Force complete: auto-submit with whatever data we have
+    const handleForceComplete = () => {
+        setForceCompleting(true);
+        setSessionAlert(null);
+        // Auto-fill outcome if not set
+        if (!data.completion_outcome) setData('completion_outcome', 'Normal');
+        post(route('schedules.complete', booking.id), {
+            onSuccess: () => localStorage.removeItem(`session_draft_${booking.id}`),
+            onError: () => setForceCompleting(false),
+        });
+    };
+
 
     const renderField = (field) => {
         const cl = data.session_checklist;
@@ -321,7 +353,16 @@ export default function ActiveSession({ booking, patient }) {
                     <div className="flex items-center gap-3">
                         <div className="hidden md:flex flex-col items-end mr-4">
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Durasi Aktif</span>
-                            <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter tabular-nums">{timer}</span>
+                            <span className={`text-2xl font-black tracking-tighter tabular-nums ${elapsedMinutes >= 95 ? 'text-red-600 animate-pulse'
+                                : elapsedMinutes >= 80 ? 'text-amber-500'
+                                    : 'text-indigo-600 dark:text-indigo-400'
+                                }`}>{timer}</span>
+                            {elapsedMinutes >= 80 && elapsedMinutes < 95 && (
+                                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest animate-pulse">Segera selesai!</span>
+                            )}
+                            {elapsedMinutes >= 95 && (
+                                <span className="text-[9px] font-black text-red-500 uppercase tracking-widest animate-pulse">WAKTU HABIS</span>
+                            )}
                         </div>
                         <Link href={route('schedules.index')}
                             onClick={() => { if (!confirm('Anda yakin ingin keluar dari sesi? Data draft akan tetap tersimpan di browser ini.')) return false; }}
@@ -412,6 +453,36 @@ export default function ActiveSession({ booking, patient }) {
                                         className="w-full p-8 bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-emerald-500/30 focus:ring-8 focus:ring-emerald-500/10 rounded-[2rem] transition-all dark:text-white leading-relaxed resize-none font-bold text-base"
                                     ></textarea>
                                 </div>
+
+                                {/* Inline Checklist Sections */}
+                                <div className="mt-12 pt-12 border-t border-white/20 dark:border-white/10">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div>
+                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+                                                <CheckSquare className="w-6 h-6 text-indigo-500" />
+                                                Checklist Sesi
+                                            </h3>
+                                            <p className="text-sm font-medium text-gray-500 mt-1">Lengkapi semua item untuk dapat menyelesaikan sesi ini.</p>
+                                        </div>
+                                        <div className="text-right flex flex-col items-end">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Progress</span>
+                                            <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{progress.filled}/{progress.total}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {CHECKLIST_SECTIONS.map((section) => (
+                                            <div key={section.key} className="bg-gray-50/50 dark:bg-white/[0.02] rounded-[2rem] border border-gray-100/50 dark:border-gray-800/50 p-6">
+                                                <div className="flex items-center gap-3 mb-5">
+                                                    <span className="text-xl">{section.icon}</span>
+                                                    <span className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">{section.title}</span>
+                                                </div>
+                                                {section.fields.map(field => renderField(field))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
                             </motion.div>
                         </div>
 
@@ -488,25 +559,25 @@ export default function ActiveSession({ booking, patient }) {
                                 </div>
                             </motion.div>
 
-                            {/* Complete Session Button → opens checklist modal */}
+                            {/* Complete Session Button */}
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="pt-4">
-                                {(!data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome) && (
+                                {(!data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome || !isChecklistComplete()) && (
                                     <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
                                         <p className="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest text-center leading-relaxed">
-                                            ⚠️ Lengkapi Rekaman Sesi, Observasi Klinis, Pesan Pasien, dan Hasil Sesi untuk mengaktifkan tombol penyelesaian.
+                                            ⚠️ Lengkapi Rekaman Sesi, Observasi Klinis, Pesan Pasien, Hasil Sesi, dan semua ITEM CHECKLIST ({progress.filled}/{progress.total}).
                                         </p>
                                     </div>
                                 )}
-                                <button onClick={handleOpenChecklist}
-                                    disabled={processing || !data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome}
+                                <button onClick={handleFinalSubmit}
+                                    disabled={processing || !data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome || !isChecklistComplete()}
                                     className="w-full py-8 bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 disabled:opacity-30 disabled:grayscale text-white rounded-[2.5rem] font-black text-xl shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all enabled:hover:scale-[1.02] enabled:active:scale-95 group flex items-center justify-center gap-4">
                                     <div className="p-2 bg-white/20 rounded-xl group-hover:rotate-12 transition-transform">
                                         <Save className="w-6 h-6" />
                                     </div>
-                                    SELESAIKAN SESI
+                                    {processing ? 'MEMPROSES...' : 'SELESAIKAN SESI'}
                                 </button>
                                 <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-6 px-10 leading-loose">
-                                    Klik untuk mengisi checklist sesi dan menyelesaikan sesi.
+                                    Klik tombol di atas jika sudah mengisi seluruh data.
                                 </p>
                             </motion.div>
                         </div>
@@ -514,68 +585,67 @@ export default function ActiveSession({ booking, patient }) {
                 </div>
             </div>
 
-            {/* ========== CHECKLIST MODAL ========== */}
+
+            {/* ========== SESSION TIMER ALERTS ========== */}
             <AnimatePresence>
-                {showChecklist && (
+                {sessionAlert && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[99999] flex items-start justify-center overflow-y-auto py-12 px-4">
-                        {/* Backdrop */}
-                        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md" onClick={() => setShowChecklist(false)} />
+                        className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
+                        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => {
+                            if (sessionAlert !== 'force') {
+                                if (sessionAlert === '30') setAlertDismissed30(true);
+                                if (sessionAlert === '80') setAlertDismissed80(true);
+                                setSessionAlert(null);
+                            }
+                        }} />
+                        <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 text-center border overflow-hidden">
 
-                        {/* Modal content */}
-                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                            className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border border-white/20 dark:border-slate-800 z-10">
-
-                            {/* Header */}
-                            <div className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-t-[3rem] border-b border-gray-100 dark:border-gray-800 px-8 py-6 flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-                                        <CheckSquare className="w-6 h-6 text-indigo-500" />
-                                        Checklist Sesi
-                                    </h2>
-                                    <p className="text-xs font-bold text-gray-500 mt-1">Lengkapi semua item sebelum menyelesaikan sesi.</p>
-                                </div>
-                                <button onClick={() => setShowChecklist(false)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                    <X className="w-6 h-6 text-gray-400" />
-                                </button>
-                            </div>
-
-                            {/* Progress */}
-                            <div className="px-8 pt-6 pb-2">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Progress</span>
-                                    <span className="text-sm font-black text-indigo-600">{progress.filled}/{progress.total}</span>
-                                </div>
-                                <div className="w-full h-3 bg-gray-200/50 dark:bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full transition-all duration-500 ease-out"
-                                        style={{ width: `${(progress.filled / progress.total) * 100}%` }} />
-                                </div>
-                            </div>
-
-                            {/* Checklist Sections */}
-                            <div className="px-8 py-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                                {CHECKLIST_SECTIONS.map((section) => (
-                                    <div key={section.key} className="bg-gray-50/50 dark:bg-white/[0.02] rounded-[2rem] border border-gray-100/50 dark:border-gray-800/50 p-6">
-                                        <div className="flex items-center gap-3 mb-5">
-                                            <span className="text-xl">{section.icon}</span>
-                                            <span className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">{section.title}</span>
-                                        </div>
-                                        {section.fields.map(field => renderField(field))}
+                            {sessionAlert === '30' && (
+                                <>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500 rounded-t-full"></div>
+                                    <div className="mx-auto w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <Clock className="w-10 h-10 text-indigo-500" />
                                     </div>
-                                ))}
-                            </div>
+                                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">30 Menit Berlalu</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Anda telah melakukan sesi setengah jam. Durasi ideal maksimal adalah 60 menit.</p>
+                                    <button onClick={() => { setAlertDismissed30(true); setSessionAlert(null); }}
+                                        className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-indigo-500/30">
+                                        Lanjutkan Sesi
+                                    </button>
+                                </>
+                            )}
 
-                            {/* Footer with submit */}
-                            <div className="sticky bottom-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-b-[3rem] border-t border-gray-100 dark:border-gray-800 px-8 py-6 flex flex-col gap-3">
-                                <button onClick={handleFinalSubmit} disabled={processing || !isChecklistComplete()}
-                                    className="w-full py-5 bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3">
-                                    <Save className="w-5 h-5" />
-                                    {processing ? 'Memproses...' : !isChecklistComplete() ? `LENGKAPI ${progress.total - progress.filled} ITEM LAGI` : 'SIMPAN & SELESAIKAN SESI'}
-                                </button>
-                                <button onClick={() => setShowChecklist(false)} className="w-full py-3 text-gray-400 hover:text-gray-600 font-black text-[10px] uppercase tracking-widest transition-colors">
-                                    Kembali ke Sesi
-                                </button>
-                            </div>
+                            {sessionAlert === '80' && (
+                                <>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-amber-500 rounded-t-full"></div>
+                                    <div className="mx-auto w-20 h-20 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <AlertCircle className="w-10 h-10 text-amber-500 animate-pulse" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Peringatan: 80 Menit!</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Sesi ini sudah berjalan terlalu lama. Sistem akan <b>otomatis menyelesaikan sesi</b> dalam 15 menit lagi.</p>
+                                    <button onClick={() => { setAlertDismissed80(true); setSessionAlert(null); }}
+                                        className="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-amber-500/30">
+                                        Siapkan Penutupan
+                                    </button>
+                                </>
+                            )}
+
+                            {sessionAlert === 'force' && (
+                                <>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-red-600 rounded-t-full"></div>
+                                    <div className="mx-auto w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <Clock className="w-10 h-10 text-red-600 animate-spin-slow" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Waktu Habis (95 Menit)</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Sesi ini telah melewati batas toleransi maksimal sistem. Sesi akan ditutup sekarang.</p>
+                                    <button onClick={handleForceComplete} disabled={forceCompleting}
+                                        className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-red-500/30 flex justify-center items-center gap-2">
+                                        {forceCompleting ? 'Memproses...' : 'Selesaikan Otomatis'}
+                                    </button>
+                                </>
+                            )}
+
                         </motion.div>
                     </motion.div>
                 )}

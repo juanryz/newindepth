@@ -52,6 +52,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class , 'store'])->name('agreement.store');
 
 
+    // Voucher apply-by-code — accessible by all authenticated users (patients AND staff/admin)
+    Route::post('/vouchers/apply-by-code', [\App\Http\Controllers\Clinic\VoucherController::class , 'applyByCode'])->name('vouchers.apply-by-code');
+
     // Patient Routes
     Route::middleware([\Spatie\Permission\Middleware\RoleMiddleware::class . ':patient'])->group(
         function () {
@@ -194,7 +197,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Notifications
         Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class , 'markAsRead'])->name('notifications.read');
-        Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class , 'markAllAsRead'])->name('notifications.readAll');    });
+        Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class , 'markAllAsRead'])->name('notifications.readAll');
+    });
 
 
 // Public / LMS Routes (Protected by Auth where necessary inside controllers)
@@ -277,7 +281,8 @@ Route::get('/setup-sync-slots', function () {
         }
         catch (\Throwable $e) {
             return '❌ Error: ' . $e->getMessage();
-        }    });
+        }
+    });
 
 require __DIR__ . '/auth.php';
 
