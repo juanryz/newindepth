@@ -194,6 +194,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                 { id: 'pending', label: 'Menunggu' },
                                 { id: 'approved', label: 'Disetujui' },
                                 { id: 'completed', label: 'Selesai' },
+                                { id: 'rejected', label: 'Ditolak' },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -243,9 +244,13 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                         {proposal.type === 'funding' ? 'Isi Saldo (In)' : 'Belanja Operasional (Out)'}
                                                     </span>
                                                     <h4 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{proposal.title}</h4>
-                                                    <p className="text-xs text-gray-500 mt-1 font-bold">
-                                                        Oleh: {proposal.user?.name}
-                                                        {proposal.approver && <span className="text-emerald-500 ml-2">• Disetujui: {proposal.approver.name}</span>}
+                                                    <p className="text-xs text-gray-500 mt-1 font-bold flex items-center flex-wrap gap-y-1">
+                                                        <span>Oleh: {proposal.user?.name}</span>
+                                                        {proposal.approver && (
+                                                            <span className={`ml-2 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${proposal.status === 'rejected' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'}`}>
+                                                                {proposal.status === 'rejected' ? 'Ditolak' : 'Disetujui'}: {proposal.approver.name}
+                                                            </span>
+                                                        )}
                                                         <span className="ml-2">• {new Date(proposal.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</span>
                                                     </p>
                                                 </div>
@@ -348,6 +353,11 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                                 {proof.status === 'pending' ? 'Menunggu' :
                                                                     proof.status === 'approved' ? 'Disetujui' :
                                                                         proof.status === 'rejected' ? 'Ditolak' : proof.status}
+                                                                {proof.approver && (
+                                                                    <div className="text-[7px] mt-1 opacity-70 text-right">
+                                                                        By: {proof.approver.name}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <p className="text-xs font-bold text-gray-500 mb-4 line-clamp-2">{proof.description}</p>

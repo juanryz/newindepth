@@ -461,6 +461,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                         <thead>
                                                             <tr className="bg-gray-50/50 dark:bg-gray-800/50">
                                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pengajuan</th>
+                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Operator & Log</th>
                                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Jenis</th>
                                                                 <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
                                                                 <th className="px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
@@ -470,10 +471,18 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                             {pettyCash.proposals.map((p) => (
                                                                 <tr key={p.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                                                                     <td className="px-8 py-6">
-                                                                        <div className="font-bold text-gray-900 dark:text-white">{p.title}</div>
+                                                                        <div className="font-bold text-gray-900 dark:text-white truncate max-w-[200px]">{p.title}</div>
                                                                         <div className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">
-                                                                            Oleh: {p.user?.name}
+                                                                            {new Date(p.created_at).toLocaleDateString('id-ID')}
                                                                         </div>
+                                                                    </td>
+                                                                    <td className="px-8 py-6">
+                                                                        <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{p.user?.name}</div>
+                                                                        {p.approver && (
+                                                                            <div className="text-[9px] text-emerald-600 dark:text-emerald-400 mt-1 font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded inline-block">
+                                                                                Log: {p.approver.name}
+                                                                            </div>
+                                                                        )}
                                                                     </td>
                                                                     <td className="px-8 py-6">
                                                                         <span className={`text-[10px] font-black uppercase tracking-widest ${p.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
@@ -494,23 +503,35 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                                         p.status === 'completed' ? 'Selesai' :
                                                                                             p.status === 'rejected' ? 'Ditolak' : p.status}
                                                                             </span>
+
+                                                                            {/* Aksi Santa Maria */}
                                                                             {isSantaMaria && p.status === 'pending' && (
                                                                                 <div className="flex gap-1 mt-1">
                                                                                     <button
                                                                                         onClick={() => handleApprove(p)}
-                                                                                        className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"
+                                                                                        className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
                                                                                         title="Setujui"
                                                                                     >
                                                                                         <CheckCircle2 className="w-3 h-3" />
                                                                                     </button>
                                                                                     <button
                                                                                         onClick={() => handleReject(p)}
-                                                                                        className="p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all"
+                                                                                        className="p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                                                                                         title="Tolak"
                                                                                     >
                                                                                         <XCircle className="w-3 h-3" />
                                                                                     </button>
                                                                                 </div>
+                                                                            )}
+
+                                                                            {/* Lihat Bukti Transfer Funding */}
+                                                                            {p.type === 'funding' && p.transfer_proof && (
+                                                                                <button
+                                                                                    onClick={() => setSelectedReceipt(`/storage/${p.transfer_proof}`)}
+                                                                                    className="mt-1 flex items-center gap-1 text-[8px] font-black uppercase tracking-tighter text-indigo-600 hover:text-indigo-800 transition-colors"
+                                                                                >
+                                                                                    <ImageIcon className="w-2.5 h-2.5" /> Lihat Bukti TF
+                                                                                </button>
                                                                             )}
                                                                         </div>
                                                                     </td>
@@ -534,6 +555,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                     <thead>
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
                                                             <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tgl / Deskripsi</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pencatat</th>
                                                             <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipe</th>
                                                             <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
                                                             <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Saldo Akhir</th>
@@ -548,6 +570,9 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                     <div className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest leading-none">
                                                                         {new Date(tx.transaction_date).toLocaleDateString('id-ID')} - {tx.category || '-'}
                                                                     </div>
+                                                                </td>
+                                                                <td className="px-8 py-6">
+                                                                    <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{tx.recorder?.name || '-'}</div>
                                                                 </td>
                                                                 <td className="px-8 py-6">
                                                                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tx.type === 'in'
@@ -576,7 +601,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                         ))}
                                                         {pettyCash.transactions.length === 0 && (
                                                             <tr>
-                                                                <td colSpan="5" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
+                                                                <td colSpan="6" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
                                                             </tr>
                                                         )}
                                                     </tbody>
