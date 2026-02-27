@@ -15,9 +15,9 @@ export default function Form({ therapists, onSuccess }) {
         { id: '1', name: 'Sesi 1 (08:00 - 10:00)', start: '08:00', end: '10:00' },
         { id: '2', name: 'Sesi 2 (10:00 - 12:00)', start: '10:00', end: '12:00' },
         { id: '3', name: 'Sesi 3 (13:00 - 15:00)', start: '13:00', end: '15:00' },
-        { id: '4', name: 'Sesi 4 (17:00 - 19:00)', start: '17:00', end: '19:00' },
-        { id: '5', name: 'Sesi 5 (19:00 - 21:00)', start: '19:00', end: '21:00' },
-        { id: 'custom', name: 'Waktu Custom', start: '', end: '' },
+        { id: '4', name: 'Sesi 4 (15:00 - 17:00)', start: '15:00', end: '17:00' },
+        { id: '5', name: 'Sesi 5 (18:00 - 20:00)', start: '18:00', end: '20:00' },
+        { id: 'custom', name: 'Waktu Custom (Otomatis Bagi 2 Jam)', start: '', end: '' },
     ];
 
     // Returns today's date string YYYY-MM-DD in local time

@@ -255,6 +255,7 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                 ref={calendarRef}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                 view={view}
+                                weekends={false}
                                 headerToolbar={{
                                     left: 'prev,next',
                                     center: 'title',

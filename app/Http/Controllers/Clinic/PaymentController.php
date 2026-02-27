@@ -31,8 +31,9 @@ class PaymentController extends Controller
             $uniqueCode = $transaction->amount % 1000;
             $baseAmount = $transaction->amount - $uniqueCode;
 
-            // Check if base amount is exactly the old price without tax
-            if (in_array($baseAmount, [1000000, 1500000, 8000000])) {
+            // Updated: check against dynamic package base prices if needed, 
+            // but for hotfix simplicity we can just check if it's missing the 11% tax
+            if ($baseAmount >= 1000000 && ($baseAmount % 100000 == 0) && ($baseAmount % 1.11 != 0)) {
                 $newBase = $baseAmount * 1.11;
                 $transaction->amount = $newBase + $uniqueCode;
                 $transaction->save();
@@ -91,11 +92,9 @@ class PaymentController extends Controller
             ]);
         } else {
             // Fallback just in case
-            $amount = match ($booking->package_type) {
-                'vip' => 8000000,
-                'upgrade' => 1500000,
-                default => 1000000,
-            };
+            $package = \App\Models\Package::where('slug', $booking->package_type)->first();
+            $basePrice = $package ? $package->current_price : 1000000;
+            $amount = ($basePrice * 1.11) + rand(101, 999);
             $transaction = $booking->transaction()->create([
                 'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),

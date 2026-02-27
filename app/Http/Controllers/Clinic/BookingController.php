@@ -118,13 +118,17 @@ class BookingController extends Controller
         $now = \Illuminate\Support\Carbon::now('Asia/Jakarta');
         $toDate = $now->copy()->addDays(14);
 
+        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
+
         $rawSchedules = Schedule::where('schedule_type', 'consultation')
             ->where('date', '>=', $now->toDateString())
             ->where('date', '<=', $toDate->toDateString())
             ->where('status', 'available')
+            ->whereRaw("NOT ({$weekendSql})") // Sab/Min Libur
             ->withCount([
                 'bookings' => function ($query) {
-                    $query->whereIn('status', ['confirmed', 'pending_payment', 'pending_validation']);
+                    $query->where('status', 'confirmed'); // Kuota hanya berkurang jika sudah divalidasi (confirmed)
                 }
             ])
             ->orderBy('date')
@@ -151,37 +155,35 @@ class BookingController extends Controller
             ->latest('completed_at')
             ->first();
 
+        $packages = \App\Models\Package::where('is_active', true)->get();
+        $mappedPackages = [];
+        foreach ($packages as $pkg) {
+            $mappedPackages[$pkg->slug] = [
+                'id' => $pkg->slug,
+                'name' => $pkg->name,
+                'price' => $pkg->current_price,
+                'original_price' => $pkg->discount_percentage > 0 ? $pkg->base_price : null,
+                'description' => $pkg->description,
+            ];
+        }
+
         $packageOptions = [
             'recommended' => $recommended,
             'is_vip_only' => $isVipOnly,
-            'packages' => [
-                'hipnoterapi' => [
-                    'id' => 'hipnoterapi',
-                    'name' => 'Paket Hipnoterapi',
-                    'price' => 1000000,
-                    'original_price' => 2000000,
-                    'description' => 'Terapi Hipnotis Klinis, Konsultasi Awal & Relaksasi Pikiran Bawah Sadar.',
-                ],
-                'upgrade' => [
-                    'id' => 'upgrade',
-                    'name' => 'Paket Upgrade (Pengembangan Diri)',
-                    'price' => 1500000,
-                    'original_price' => 3000000,
-                    'description' => 'Pemrograman Ulang Mindset, Peningkatan Percaya Diri & Teknik NLP Praktis.',
-                ],
-                'vip' => [
-                    'id' => 'vip',
-                    'name' => 'Paket VIP (Intensive Care)',
-                    'price' => 8000000,
-                    'description' => 'Prioritas Jadwal Utama, Terapi Kasus Kompleks & Pendampingan Eksklusif.',
-                ]
-            ]
+            'packages' => $mappedPackages
         ];
+
+        $activeBooking = Booking::where('patient_id', $user->id)
+            ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed', 'rescheduled'])
+            ->with(['schedule', 'transaction'])
+            ->latest()
+            ->first();
 
         return Inertia::render('Clinic/Bookings/Create', [
             'schedules' => $schedules,
             'packageOptions' => $packageOptions,
             'screeningResult' => $screeningResult,
+            'activeBooking' => $activeBooking,
         ]);
     }
 
@@ -290,8 +292,8 @@ class BookingController extends Controller
             $booking->transaction->update(['status' => 'cancelled']);
         }
 
-        return redirect()->route('dashboard')
-            ->with('success', 'Pesanan berhasil dibatalkan.');
+        return redirect()->route('bookings.create')
+            ->with('success', 'Pesanan lama dibatalkan. Silakan pilih jadwal baru Anda.');
     }
 
     private function ensureGenericSchedulesExist()
@@ -311,7 +313,19 @@ class BookingController extends Controller
         $startDate = \Illuminate\Support\Carbon::now('Asia/Jakarta')->startOfDay();
         $endDate = $startDate->copy()->addDays(14);
 
+        // Hapus paksa jika ada jadwal sabtu/minggu yang terselip
+        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
+
+        \App\Models\Schedule::where('date', '>=', $startDate->toDateString())
+            ->whereRaw($weekendSql)
+            ->whereDoesntHave('bookings')
+            ->delete();
+
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            if ($date->isWeekend())
+                continue;
+
             foreach ($slotsArray as $slot) {
                 \Illuminate\Support\Facades\DB::table('schedules')->updateOrInsert(
                     [

@@ -48,11 +48,8 @@ class BookingService
                 'status' => 'pending_payment',
             ]);
 
-            $basePrice = match ($data['package_type']) {
-                'vip' => 8000000,
-                'upgrade' => 1500000,
-                default => 1000000,
-            };
+            $package = \App\Models\Package::where('slug', $data['package_type'])->first();
+            $basePrice = $package ? $package->current_price : 1000000;
 
             // Calculate PPN 11%
             $taxAmount = $basePrice * 0.11;
@@ -76,6 +73,9 @@ class BookingService
                     'user_agent' => request()->userAgent(),
                 ],
             ]);
+
+            // Notify patient that booking is created and needs payment
+            $booking->patient->notify(new \App\Notifications\BookingCreated($booking));
 
             return $booking;
         });

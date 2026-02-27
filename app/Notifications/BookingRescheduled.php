@@ -15,7 +15,7 @@ class BookingRescheduled extends Notification
 
     public function __construct(Booking $booking, $reason)
     {
-        $this->booking = $booking;
+        $this->booking = $booking->load('schedule');
         $this->reason = $reason;
     }
 

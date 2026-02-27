@@ -19,15 +19,42 @@ class TransactionValidationController extends Controller
             ->paginate(15);
 
         $therapists = User::role('therapist')->select('id', 'name')->get();
+        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
+
+        $availableSchedules = \App\Models\Schedule::where('date', '>=', now()->toDateString())
+            ->where('status', 'available')
+            ->whereRaw("NOT ({$weekendSql})")
+            ->whereColumn('booked_count', '<', 'quota')
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
 
         return Inertia::render('Admin/Clinic/Transactions/Index', [
             'transactions' => $transactions,
             'therapists' => $therapists,
+            'availableSchedules' => $availableSchedules,
+        ]);
+    }
+
+    public function expired()
+    {
+        $transactions = Transaction::with(['user'])
+            ->where('status', 'expired')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return Inertia::render('Admin/Clinic/Transactions/Expired', [
+            'transactions' => $transactions,
         ]);
     }
 
     public function validatePayment(Request $request, Transaction $transaction)
     {
+        if (!$transaction->payment_proof) {
+            return back()->with('error', 'Tidak dapat memvalidasi: Bukti pembayaran belum diunggah oleh pasien.');
+        }
+
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($request, $transaction) {
                 $transaction->update([
@@ -38,11 +65,37 @@ class TransactionValidationController extends Controller
 
                 if ($transaction->transactionable_type === \App\Models\Booking::class) {
                     $booking = $transaction->transactionable;
+                    $schedule = $booking->schedule;
 
-                    $therapistId = $booking->schedule->therapist_id;
+                    // Handle Reschedule during Validation
+                    if ($request->new_schedule_id && $request->new_schedule_id != $booking->schedule_id) {
+                        $newSchedule = \App\Models\Schedule::findOrFail($request->new_schedule_id);
+                        if ($newSchedule->booked_count >= $newSchedule->quota) {
+                            throw new \Exception('Jadwal baru yang dipilih sudah penuh.');
+                        }
+
+                        // Reference to old schedule for cleanup if any
+                        $oldSchedule = $booking->schedule;
+
+                        $booking->update([
+                            'schedule_id' => $newSchedule->id,
+                            'reschedule_reason' => 'Dipindahkan oleh admin saat validasi pembayaran.',
+                            'rescheduled_by' => auth()->id(),
+                            'rescheduled_at' => now(),
+                        ]);
+
+                        $schedule = $newSchedule; // Use the new one for the rest of logic
+                    } else {
+                        // Check if current schedule is already full
+                        if ($schedule && $schedule->booked_count >= $schedule->quota) {
+                            throw new \Exception('Jadwal asli sudah penuh. Silakan pilih jadwal lain (Reschedule) lewat pop-up validasi.');
+                        }
+                    }
+
+                    $therapistId = $booking->therapist_id ?? $schedule->therapist_id;
 
                     if (!$therapistId) {
-                        $bookedIds = \App\Models\Booking::where('schedule_id', $booking->schedule_id)
+                        $bookedIds = \App\Models\Booking::where('schedule_id', $schedule->id)
                             ->whereIn('status', ['confirmed', 'completed'])
                             ->whereNotNull('therapist_id')
                             ->pluck('therapist_id')
@@ -64,7 +117,6 @@ class TransactionValidationController extends Controller
                         'therapist_id' => $therapistId,
                     ]);
 
-                    $schedule = $booking->schedule;
                     if ($schedule) {
                         $schedule->increment('booked_count');
                         if ($schedule->booked_count >= $schedule->quota) {
@@ -73,10 +125,18 @@ class TransactionValidationController extends Controller
                     }
 
                     try {
-                        \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
+                        // 1. Notify Database (Reliable)
                         $transaction->user->notify(new \App\Notifications\BookingConfirmed($booking));
 
-                        // Notify the assigned therapist
+                        // 2. If Rescheduled, send explicit notification for that too
+                        if ($request->new_schedule_id && $request->new_schedule_id != $booking->schedule_id) {
+                            $transaction->user->notify(new \App\Notifications\BookingRescheduled($booking, 'Dipindahkan oleh admin saat validasi pembayaran.'));
+                        }
+
+                        // 3. Notify Mail (External)
+                        \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\BookingConfirmed($booking));
+
+                        // 4. Notify the assigned therapist
                         if ($booking->therapist) {
                             $booking->therapist->notify(new \App\Notifications\NewAssignmentForTherapist($booking));
                         }
@@ -121,6 +181,7 @@ class TransactionValidationController extends Controller
         }
 
         \Illuminate\Support\Facades\Mail::to($transaction->user->email)->send(new \App\Mail\PaymentRejected($transaction));
+        $transaction->user->notify(new \App\Notifications\PaymentRejected($transaction));
 
         return redirect()->back()->with('success', 'Transaksi ditolak.');
     }

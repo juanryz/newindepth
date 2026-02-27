@@ -17,7 +17,7 @@ const POLICIES = {
     }
 };
 
-export default function BookingCreate({ schedules, packageOptions, screeningResult }) {
+export default function BookingCreate({ schedules, packageOptions, screeningResult, activeBooking }) {
     const { errors: pageErrors } = usePage().props;
 
     const [step, setStep] = useState(1);
@@ -180,7 +180,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                     <h3 className="text-lg font-black uppercase tracking-tighter">3. Pilih Waktu Konsultasi</h3>
                                 </div>
                                 <div className="p-6">
-                                    <TimeSlotPicker schedules={schedules} selectedScheduleId={data.schedule_id} onSelect={(id) => setData('schedule_id', id)} />
+                                    <TimeSlotPicker schedules={schedules} selectedScheduleId={data.schedule_id} onSelect={(id) => setData('schedule_id', id)} activeBooking={activeBooking} />
                                     {errors.schedule_id && <p className="text-xs font-bold text-red-600 mt-4 uppercase tracking-widest">{errors.schedule_id}</p>}
                                 </div>
 

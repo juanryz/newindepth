@@ -100,13 +100,26 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                             {isPendingScreening && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Skrining</span>}
                                                             {isCancelled && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Dibatalkan</span>}
                                                         </td>
-                                                        <td className="py-4 px-4 align-top text-right whitespace-nowrap">
+                                                        <td className="py-4 px-4 align-top text-right space-y-2">
                                                             <Link
                                                                 href={route('bookings.show', booking.id)}
-                                                                className="text-sm font-semibold text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                                                className="block text-sm font-semibold text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                                                             >
                                                                 Lihat Detail →
                                                             </Link>
+                                                            {isPendingPayment && (
+                                                                <Link
+                                                                    href={route('bookings.cancel', booking.id)}
+                                                                    method="post"
+                                                                    as="button"
+                                                                    onClick={(e) => {
+                                                                        if (!confirm('Batalkan booking ini untuk memilih jadwal baru?')) e.preventDefault();
+                                                                    }}
+                                                                    className="block text-[10px] font-black uppercase text-red-500 hover:text-red-700 transition-colors text-right w-full"
+                                                                >
+                                                                    Ganti Jadwal
+                                                                </Link>
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 );

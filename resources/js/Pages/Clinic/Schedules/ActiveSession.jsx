@@ -122,6 +122,7 @@ export default function ActiveSession({ booking, patient }) {
     const [showChecklist, setShowChecklist] = useState(false);
     const [sessionAlert, setSessionAlert] = useState(null); // null | '30' | '80' | 'force'
     const [alertDismissed30, setAlertDismissed30] = useState(false);
+    const [alertDismissed60, setAlertDismissed60] = useState(false);
     const [alertDismissed80, setAlertDismissed80] = useState(false);
     const [forceCompleting, setForceCompleting] = useState(false);
     const latestScreening = patient.screening_results?.[0];
@@ -142,6 +143,10 @@ export default function ActiveSession({ booking, patient }) {
             if (mins >= 30 && mins < 31 && !alertDismissed30) {
                 setSessionAlert('30');
             }
+            // Popup at 60 minutes
+            if (mins >= 60 && mins < 61 && !alertDismissed60) {
+                setSessionAlert('60');
+            }
             // Popup at 80 minutes
             if (mins >= 80 && mins < 81 && !alertDismissed80) {
                 setSessionAlert('80');
@@ -152,7 +157,7 @@ export default function ActiveSession({ booking, patient }) {
             }
         }, 1000);
         return () => clearInterval(interval);
-    }, [booking.started_at, alertDismissed30, alertDismissed80, forceCompleting]);
+    }, [booking.started_at, alertDismissed30, alertDismissed60, alertDismissed80, forceCompleting]);
 
     const updateChecklist = (key, value) => {
         setData('session_checklist', { ...data.session_checklist, [key]: value });
@@ -597,6 +602,7 @@ export default function ActiveSession({ booking, patient }) {
                         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => {
                             if (sessionAlert !== 'force') {
                                 if (sessionAlert === '30') setAlertDismissed30(true);
+                                if (sessionAlert === '60') setAlertDismissed60(true);
                                 if (sessionAlert === '80') setAlertDismissed80(true);
                                 setSessionAlert(null);
                             }
@@ -615,6 +621,20 @@ export default function ActiveSession({ booking, patient }) {
                                     <button onClick={() => { setAlertDismissed30(true); setSessionAlert(null); }}
                                         className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-indigo-500/30">
                                         Lanjutkan Sesi
+                                    </button>
+                                </>
+                            )}
+                            {sessionAlert === '60' && (
+                                <>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500 rounded-t-full"></div>
+                                    <div className="mx-auto w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <Clock className="w-10 h-10 text-indigo-500 animate-pulse" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">60 Menit Berlalu</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Sesi ini telah berlangsung selama 1 jam. Anda sebaiknya mulai menyimpulkan dan menutup sesi.</p>
+                                    <button onClick={() => { setAlertDismissed60(true); setSessionAlert(null); }}
+                                        className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-indigo-500/30">
+                                        Lanjutkan Penutupan
                                     </button>
                                 </>
                             )}

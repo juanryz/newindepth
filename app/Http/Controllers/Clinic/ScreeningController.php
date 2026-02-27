@@ -20,6 +20,14 @@ class ScreeningController extends Controller
             ->latest('completed_at')
             ->first();
 
+        $activeBooking = \App\Models\Booking::where('patient_id', $user->id)
+            ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed', 'in_progress'])
+            ->exists();
+
+        if ($activeBooking) {
+            return redirect()->route('dashboard')->with('error', 'Selesaikan sesi aktif/pembayaran Anda terlebih dahulu sebelum melakukan skrining ulang.');
+        }
+
         $showResults = false;
         if ($screeningResult && $screeningResult->completed_at) {
             if ($screeningResult->completed_at->diffInDays(now()) < 15) {
@@ -63,6 +71,14 @@ class ScreeningController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user()->fresh();
+
+        $activeBooking = \App\Models\Booking::where('patient_id', $user->id)
+            ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed', 'in_progress'])
+            ->exists();
+
+        if ($activeBooking) {
+            return redirect()->route('dashboard')->with('error', 'Selesaikan sesi aktif/pembayaran Anda terlebih dahulu.');
+        }
 
         $lastResult = \App\Models\ScreeningResult::where('user_id', $user->id)
             ->whereNotNull('completed_at')

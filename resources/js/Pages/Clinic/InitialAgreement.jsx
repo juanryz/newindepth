@@ -220,7 +220,7 @@ export default function InitialAgreement({ userAge }) {
                             <div className="mb-8 border-b pb-6 dark:border-gray-700 text-center">
                                 <span className="inline-block py-1 px-3 text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3 rounded-full">DOKUMEN 1 DARI 2</span>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Form Pernyataan Awal & Persetujuan Layanan</h3>
-                                <p className="text-sm text-gray-500 mt-2">Harap baca dengan teliti dan centang seluruh pernyataan di bawah ini.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Harap baca dengan teliti dan centang seluruh pernyataan di bawah ini.</p>
                             </div>
 
                             <div className="space-y-10">
@@ -247,11 +247,11 @@ export default function InitialAgreement({ userAge }) {
                                     <div className="pl-8">
                                         <p className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Apakah Anda masih rutin mengonsumsi obat psikiater atau menjalani perawatan medis berlanjut?</p>
                                         <div className="flex gap-4">
-                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Ya' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800' : 'border-gray-200 dark:border-gray-700'}`}>
+                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Ya' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700'}`}>
                                                 <input type="radio" name="status_medis" value="Ya" checked={data.status_medis === 'Ya'} onChange={() => setData('status_medis', 'Ya')} className="accent-indigo-600" />
                                                 <span className="text-sm font-medium">Ya, masih berjalan</span>
                                             </label>
-                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Tidak' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800' : 'border-gray-200 dark:border-gray-700'}`}>
+                                            <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer flex-1 justify-center transition-colors ${data.status_medis === 'Tidak' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200' : 'border-gray-200 dark:border-gray-700'}`}>
                                                 <input type="radio" name="status_medis" value="Tidak" checked={data.status_medis === 'Tidak'} onChange={() => setData('status_medis', 'Tidak')} className="accent-indigo-600" />
                                                 <span className="text-sm font-medium">Tidak</span>
                                             </label>
@@ -358,7 +358,7 @@ export default function InitialAgreement({ userAge }) {
                             <div className="mb-4 border-b pb-6 dark:border-gray-700 text-center">
                                 <span className="inline-block py-1 px-3 text-xs font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 mb-3 rounded-full">DOKUMEN 2 DARI 2</span>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">SURAT PERJANJIAN LAYANAN HIPNOTERAPI</h3>
-                                <p className="text-sm text-gray-500 mt-2">InDepth Mental Wellness</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">InDepth Mental Wellness</p>
                             </div>
 
                             <div className="bg-gray-50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 p-6 sm:p-8 rounded-lg text-sm text-gray-800 dark:text-gray-100 max-h-[500px] overflow-y-auto font-serif leading-relaxed mb-6 shadow-inner relative">
@@ -528,7 +528,7 @@ export default function InitialAgreement({ userAge }) {
                                     <p className="mb-2 font-bold mt-4 border-t pt-4">Tanda Tangan Perwakilan InDepth:</p>
 
                                     <div className="flex items-center justify-center h-[150px]">
-                                        <img src="/images/saiful-anam-signature.jpeg" alt="Tanda Tangan Saiful Anam" className="h-[120px] object-contain mix-blend-multiply dark:invert opacity-90" />
+                                        <img src="/images/saiful-anam-signature.jpeg" alt="Tanda Tangan Saiful Anam" className="h-[120px] object-contain mix-blend-multiply dark:mix-blend-normal dark:invert opacity-90" />
                                     </div>
                                     <p className="mt-4 font-semibold underline">Saiful Anam</p>
                                     <p className="text-sm">Direktur Utama InDepth Mental Wellness</p>
@@ -542,7 +542,7 @@ export default function InitialAgreement({ userAge }) {
                             <div className="mb-8 border-b pb-6 dark:border-gray-700 text-center">
                                 <span className="inline-block py-1 px-3 text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 mb-3 rounded-full">DOKUMEN 3 DARI 3</span>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Kebijakan & Perjanjian Tambahan</h3>
-                                <p className="text-sm text-gray-500 mt-2">Persetujuan untuk operasional, layanan afiliasi, dan produk digital.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Persetujuan untuk operasional, layanan afiliasi, dan produk digital.</p>
                             </div>
 
                             <div className="space-y-4">

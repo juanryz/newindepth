@@ -23,22 +23,28 @@ class VoucherController extends Controller
             ->where('user_id', $user->id)
             ->orderByDesc('claimed_at')
             ->get()
-            ->map(fn($uv) => [
-                'id' => $uv->id,
-                'code' => $uv->voucher->code,
-                'description' => $uv->voucher->description,
-                'discount_amount' => $uv->voucher->discount_amount,
-                'type' => $uv->voucher->type,
-                'claimed_at' => $uv->claimed_at,
-                'expired_at' => $uv->expired_at,
-                'used_at' => $uv->used_at,
-                'is_active' => $uv->isActive(),
-                'is_expired' => $uv->isExpired(),
-                'is_used' => $uv->isUsed(),
-            ]);
+            ->map(function ($uv) {
+                /** @var \App\Models\UserVoucher $uv */
+                return [
+                    'id' => $uv->id,
+                    'code' => $uv->voucher->code,
+                    'description' => $uv->voucher->description,
+                    'discount_amount' => $uv->voucher->discount_amount,
+                    'type' => $uv->voucher->type,
+                    'claimed_at' => $uv->claimed_at,
+                    'expired_at' => $uv->expired_at,
+                    'used_at' => $uv->used_at,
+                    'is_active' => $uv->isActive(),
+                    'is_expired' => $uv->isExpired(),
+                    'is_used' => $uv->isUsed(),
+                ];
+            });
+
+        $packages = \App\Models\Package::where('is_active', true)->orderBy('base_price', 'asc')->get();
 
         return Inertia::render('Clinic/Vouchers/Index', [
             'userVouchers' => $userVouchers,
+            'packages' => $packages,
         ]);
     }
 

@@ -1,0 +1,189 @@
+﻿
+  GET|HEAD        / ........ 
+  GET|HEAD        admin/blog admin.blog.index ÔÇ║ Admin\BlogPostCMSController@indÔÇª
+  POST            admin/blog admin.blog.store ÔÇ║ Admin\BlogPostCMSController@stoÔÇª
+  GET|HEAD        admin/blog/create admin.blog.create ÔÇ║ Admin\BlogPostCMSControllÔÇª
+  GET|HEAD        admin/blog/{blog} admin.blog.show ÔÇ║ Admin\BlogPostCMSControÔÇª
+  PUT|PATCH       admin/blog/{blog} admin.blog.update ÔÇ║ Admin\BlogPostCMSControllÔÇª
+  DELETE          admin/blog/{blog} admin.blog.destroy ÔÇ║ Admin\BlogPostCMSControlleÔÇª
+  GET|HEAD        admin/blog/{blog}/edit admin.blog.edit ÔÇ║ Admin\BlogPostCMSCÔÇª
+  GET|HEAD        admin/clinic/bookings admin.bÔÇª
+  POST            admin/clinic/bookings admin.bookings.store ÔÇ║ Admin\AdminBookingConÔÇª
+  PATCH           admin/clinic/bookings/{booking}/assign-therapist admin.bookings.assign-therapist ÔÇ║ AdmiÔÇª
+  POST            admin/clinic/bookings/{booking}/cancel admin.bookings.cancel ÔÇ║ AdminÔÇª
+  PATCH           admin/clinic/bookings/{booking}/details admin.bookings.update-details ÔÇ║ Admin\AdminÔÇª
+  POST            admin/clinic/bookings/{booking}/no-show admin.bookings.no-show ÔÇ║ CliniÔÇª
+  POST            admin/clinic/bookings/{booking}/reschedule admin.bookings.reschedule ÔÇ║ Clinic\ScÔÇª
+  GET|HEAD        admin/clinic/schedules/{schedule} admin.schedules.show ÔÇ║ Admin\AdmÔÇª
+  GET|HEAD        admin/courses admin.courses.index ÔÇ║ Admin\CourseCMSController@ÔÇª
+  POST            admin/courses admin.courses.store ÔÇ║ Admin\CourseCMSController@ÔÇª
+  GET|HEAD        admin/courses/create admin.courses.create ÔÇ║ Admin\CourseCMSContrÔÇª
+  GET|HEAD        admin/courses/{course} admin.courses.show ÔÇ║ Admin\CourseCMSCÔÇª
+  PUT|PATCH       admin/courses/{course} admin.courses.update ÔÇ║ Admin\CourseCMSConÔÇª
+  DELETE          admin/courses/{course} admin.courses.destroy ÔÇ║ Admin\CourseCMSContÔÇª
+  GET|HEAD        admin/courses/{course}/edit admin.courses.edit ÔÇ║ Admin\CoursÔÇª
+  GET|HEAD        admin/courses/{course}/lessons admin.courses.lessons.index ÔÇ║ Admin\LesÔÇª
+  POST            admin/courses/{course}/lessons admin.courses.lessons.store ÔÇ║ Admin\LesÔÇª
+  GET|HEAD        admin/courses/{course}/lessons/create admin.courses.lessons.create ÔÇ║ AdmÔÇª
+  PUT|PATCH       admin/courses/{course}/lessons/{lesson} admin.courses.lessons.update ÔÇ║ AÔÇª
+  DELETE          admin/courses/{course}/lessons/{lesson} admin.courses.lessons.destroy ÔÇ║ AdÔÇª
+  GET|HEAD        admin/courses/{course}/lessons/{lesson}/edit admin.courses.lessons.eÔÇª
+  GET|HEAD        admin/expenses admin.expensesÔÇª
+  POST            admin/expenses admin.expenses.store ÔÇ║ Admin\FinanceController@storeEÔÇª
+  DELETE          admin/expenses/{expense} admin.expenses.destroy ÔÇ║ Admin\FinanceControlleÔÇª
+  GET|HEAD        admin/finance admin.finance.index ÔÇ║ Admin\FinanceController@ÔÇª
+  POST            admin/finance/expenses admin.finance.expenses.store ÔÇ║ Admin\FinanceControlleÔÇª
+  DELETE          admin/finance/expenses/{expense} admin.finance.expenses.destroy ÔÇ║ Admin\FinanceCÔÇª
+  POST            admin/finance/petty-cash admin.finance.petty-cash.store ÔÇ║ Admin\FinanceControlleÔÇª
+  DELETE          admin/finance/petty-cash/{transaction} admin.finance.petty-cash.destroy ÔÇ║ Admin\FinaÔÇª
+  GET|HEAD        admin/order-management admin.orders.index ÔÇ║ Admin\OrderManagementCoÔÇª
+  GET|HEAD        admin/petty-cash admin.petty-cash.index ÔÇ║ Admin\PettyCashControllÔÇª
+  POST            admin/petty-cash/proofs/{proof}/approve admin.petty-cash.proofs.approve ÔÇ║ Admin\PÔÇª
+  POST            admin/petty-cash/proofs/{proof}/reject admin.petty-cash.proofs.reject ÔÇ║ Admin\PÔÇª
+  POST            admin/petty-cash/proposals admin.petty-cash.proposals.store ÔÇ║ Admin\PettyCaÔÇª
+  POST            admin/petty-cash/proposals/{proposal}/approve admin.petty-cash.proposals.approve ÔÇ║ AdmiÔÇª
+  POST            admin/petty-cash/proposals/{proposal}/proofs admin.petty-cash.proofs.store ÔÇ║ ÔÇª
+  POST            admin/petty-cash/proposals/{proposal}/reject admin.petty-cash.proposals.reject ÔÇ║ AdmiÔÇª
+  GET|HEAD        admin/pricing admin.pricing.index ÔÇ║ Admin\PricingController@ÔÇª
+  PATCH           admin/pricing/packages/{package} admin.pricing.packages.update ÔÇ║ Admin\PricingÔÇª
+  GET|HEAD        admin/pricing/vouchers admin.pricing.vouchers.index ÔÇ║ Admin\PricingCoÔÇª
+  POST            admin/pricing/vouchers admin.pricing.vouchers.store ÔÇ║ Admin\PricingControlleÔÇª
+  PATCH           admin/pricing/vouchers/{voucher} admin.pricing.vouchers.update ÔÇ║ Admin\PricingÔÇª
+  DELETE          admin/pricing/vouchers/{voucher} admin.pricing.vouchers.destroy ÔÇ║ Admin\PricingCÔÇª
+  GET|HEAD        admin/reports admin.reports.ÔÇª
+  GET|HEAD        admin/reports/export-csv admin.reports.export-csv ÔÇ║ Admin\FinanceContÔÇª
+  GET|HEAD        admin/roles admin.roles.index ÔÇ║ Admin\RoleController@inÔÇª
+  POST            admin/roles admin.roles.store ÔÇ║ Admin\RoleController@stÔÇª
+  GET|HEAD        admin/roles/create admin.roles.create ÔÇ║ Admin\RoleControlÔÇª
+  GET|HEAD        admin/roles/{role} admin.roles.show ÔÇ║ Admin\RoleContrÔÇª
+  PUT|PATCH       admin/roles/{role} admin.roles.update ÔÇ║ Admin\RoleControlÔÇª
+  DELETE          admin/roles/{role} admin.roles.destroy ÔÇ║ Admin\RoleControllÔÇª
+  GET|HEAD        admin/roles/{role}/edit admin.roles.edit ÔÇ║ Admin\RoleÔÇª
+  GET|HEAD        admin/schedules admin.scheduleÔÇª
+  POST            admin/schedules admin.schedules.store ÔÇ║ Admin\AdminScheduleControlleÔÇª
+  POST            admin/schedules/bulk-disable admin.schedules.bulk-disable ÔÇ║ Admin\AdminScheduleCoÔÇª
+  DELETE          admin/schedules/{schedule} admin.schedules.destroy ÔÇ║ Admin\AdminScheduleÔÇª
+  GET|HEAD        admin/transactions admin.transactions.index ÔÇ║ Admin\TransactionValidationControÔÇª
+  GET|HEAD        admin/transactions/expired admin.transactions.expired ÔÇ║ Admin\TransactionValidationÔÇª
+  POST            admin/transactions/{transaction}/reject admin.transactions.reject ÔÇ║ Admin\TransactionValÔÇª
+  POST            admin/transactions/{transaction}/validate admin.transactions.validate ÔÇ║ Admin\TransactionValÔÇª
+  GET|HEAD        admin/users admin.users.index ÔÇ║ Admin\UserController@inÔÇª
+  POST            admin/users admin.users.store ÔÇ║ Admin\UserController@stÔÇª
+  GET|HEAD        admin/users/create admin.users.create ÔÇ║ Admin\UserControlÔÇª
+  GET|HEAD        admin/users/{user} admin.users.show ÔÇ║ Admin\UserContrÔÇª
+  PUT|PATCH       admin/users/{user} admin.users.update ÔÇ║ Admin\UserControlÔÇª
+  DELETE          admin/users/{user} admin.users.destroy ÔÇ║ Admin\UserControllÔÇª
+  GET|HEAD        admin/users/{user}/agreement admin.users.agreement ÔÇ║ Admin\UserÔÇª
+  GET|HEAD        admin/users/{user}/edit admin.users.edit ÔÇ║ Admin\UserÔÇª
+  POST            affiliate/agreement affiliate.agreement.store ÔÇ║ Affiliate\CommissionController@stoÔÇª
+  GET|HEAD        affiliate/agreement/view affiliate.agreement.show ÔÇ║ Affiliate\CommissionControllÔÇª
+  GET|HEAD        affiliate/dashboard affiliate.dashboard ÔÇ║ Affiliate\CommissionContrÔÇª
+  GET|HEAD        agreement agreement.show ÔÇ║ Clinic\AgreementController@shoÔÇª
+  POST            agreement agreement.store ÔÇ║ Clinic\AgreementController@storÔÇª
+  POST            api/ai-chat ai-chat ÔÇ║ AiChatController@cÔÇª
+  GET|HEAD        api/user . 
+  GET|HEAD        auth/google auth.google ÔÇ║ Auth\SocialiteController@redirectToGooÔÇª
+  GET|HEAD        auth/google/callback Auth\SocialiteController@handleGoÔÇª
+  GET|HEAD        blog blogÔÇª
+  GET|HEAD        blog/{slug} blog.show ÔÇ║ BlogController@sÔÇª
+  POST            bookings ÔÇª
+  GET|HEAD        bookings/create bookings.create ÔÇ║ Clinic\BookingControllerÔÇª
+  GET|HEAD        bookings/history bookings.history ÔÇ║ Clinic\BookingController@sessioÔÇª
+  GET|HEAD        bookings/transactions bookings.transactions ÔÇ║ Clinic\BookingController@transÔÇª
+  GET|HEAD        bookings/{booking} bookings.show ÔÇ║ Clinic\BookingContrÔÇª
+  POST            bookings/{booking}/cancel bookings.cancel ÔÇ║ Clinic\BookingÔÇª
+  GET|HEAD        confirm-password password.confirm ÔÇ║ Auth\ConfirmablePasswordControlÔÇª
+  POST            confirm-password Auth\ConfirmablePasswordControllÔÇª
+  GET|HEAD        courses cÔÇª
+  GET|HEAD        courses/{course} courses.show ÔÇ║ Lms\CourseControlÔÇª
+  POST            courses/{course}/enroll courses.enroll ÔÇ║ Lms\CourseCoÔÇª
+  GET|HEAD        courses/{course}/lessons/{lesson} lessons.show ÔÇ║ ÔÇª
+  GET|HEAD        courses/{course}/payment courses.payment ÔÇ║ Lms\CourseCoÔÇª
+  POST            courses/{course}/payment courses.payment.store ÔÇ║ Lms\CourseControlÔÇª
+  GET|HEAD        dashboard dashboard ÔÇ║ DashboardController@indeÔÇª
+  GET|HEAD        disclaimer disclaimÔÇª
+  POST            email/verification-notification verification.send ÔÇ║ Auth\EmailVerificationNotifÔÇª
+  GET|HEAD        fix-schedules 
+  GET|HEAD        forgot-password password.request ÔÇ║ Auth\PasswordResetLinkControllerÔÇª
+  POST            forgot-password password.email ÔÇ║ Auth\PasswordResetLinkControlleÔÇª
+  GET|HEAD        login logÔÇª
+  POST            login AutÔÇª
+  GET|HEAD        login-therapist 
+  POST            logout loÔÇª
+  GET|HEAD        metode meÔÇª
+  GET|HEAD        my-courses courses.my ÔÇ║ Lms\CourseController@myCoursÔÇª
+  POST            notifications/read-all notifications.readAll ÔÇ║ NotificationControllerÔÇª
+  POST            notifications/{id}/read notifications.read ÔÇ║ NotificationControÔÇª
+  PUT             password ÔÇª
+  GET|HEAD        patients/{user}/agreement agreement.patient ÔÇ║ Clinic\AgreementControllerÔÇª
+  GET|HEAD        payments/upload/{booking} payments.create ÔÇ║ Clinic\PaymentÔÇª
+  POST            payments/{booking} payments.store ÔÇ║ Clinic\PaymentControÔÇª
+  GET|HEAD        privacy pÔÇª
+  GET|HEAD        profile pÔÇª
+  PATCH           profile pÔÇª
+  DELETE          profile pÔÇª
+  POST            profile/agreement profile.agreement.update ÔÇ║ ProfileController@updateÔÇª
+  GET|HEAD        profile/documents profile.documents ÔÇ║ ProfileController@ÔÇª
+  POST            profile/documents profile.documents.update ÔÇ║ ProfileController@updateÔÇª
+  GET|HEAD        register ÔÇª
+  POST            register ÔÇª
+  POST            resend/webhook resend.webhook ÔÇ║ Resend\Laravel ÔÇ║ WebhookController@handleWÔÇª
+  POST            reset-password password.store ÔÇ║ Auth\NewPasswordControllerÔÇª
+  GET|HEAD        reset-password/{token} password.reset ÔÇ║ Auth\NewPasswordConÔÇª
+  GET|HEAD        sanctum/csrf-cookie sanctum.csrf-cookie ÔÇ║ Laravel\Sanctum ÔÇ║ CsrfCookieContÔÇª
+  GET|HEAD        schedules schedules.index ÔÇ║ Clinic\ScheduleController@indeÔÇª
+  POST            schedules schedules.store ÔÇ║ Clinic\ScheduleController@storÔÇª
+  GET|HEAD        schedules/patients/{user} schedules.patient-detail ÔÇ║ Clinic\ScheduleControlÔÇª
+  POST            schedules/recurring schedules.store-recurring ÔÇ║ Clinic\ScheduleController@stoÔÇª
+  GET|HEAD        schedules/sessions/{booking} schedules.active-session ÔÇ║ Clinic\ScheduleContÔÇª
+  POST            schedules/sessions/{booking}/complete schedules.complete ÔÇ║ Clinic\SchedÔÇª
+  POST            schedules/sessions/{booking}/no-show schedules.no-show ÔÇ║ Clinic\SÔÇª
+  POST            schedules/sessions/{booking}/reschedule schedules.reschedule ÔÇ║ Clinic\SchedÔÇª
+  POST            schedules/sessions/{booking}/start schedules.start ÔÇ║ Clinic\SchedÔÇª
+  DELETE          schedules/{schedule} schedules.destroy ÔÇ║ Clinic\ScheduleControÔÇª
+  GET|HEAD        screening screening.show ÔÇ║ Clinic\ScreeningController@shoÔÇª
+  POST            screening screening.store ÔÇ║ Clinic\ScreeningController@storÔÇª
+  POST            screening/chat screening.chat ÔÇ║ Clinic\ScreeningController@chatMÔÇª
+  GET|HEAD        setup-clear-cache 
+  GET|HEAD        setup-db-fix 
+  GET|HEAD        setup-dummy 
+  GET|HEAD        setup-log 
+  GET|HEAD        setup-migrate 
+  GET|HEAD        setup-notifications 
+  GET|HEAD        setup-permissions 
+  GET|HEAD        setup-phpinfo 
+  GET|HEAD        setup-schedules 
+  GET|HEAD        setup-super-admin 
+  GET|HEAD        setup-sync-slots 
+  GET|HEAD        sitemap.xml 
+  GET|HEAD        storage/{path} storageÔÇª
+  PUT             storage/{path} storage.local.ÔÇª
+  GET|HEAD        terms terÔÇª
+  GET|HEAD        testimoni testimonials.indeÔÇª
+  GET|HEAD        therapist/courses therapist.courses.index ÔÇ║ Therapist\CourseControlÔÇª
+  POST            therapist/courses therapist.courses.store ÔÇ║ Therapist\CourseControlÔÇª
+  GET|HEAD        therapist/courses/create therapist.courses.create ÔÇ║ Therapist\CourseCÔÇª
+  GET|HEAD        therapist/courses/{course} therapist.courses.show ÔÇ║ Therapist\CouÔÇª
+  PUT|PATCH       therapist/courses/{course} therapist.courses.update ÔÇ║ Therapist\CoursÔÇª
+  DELETE          therapist/courses/{course} therapist.courses.destroy ÔÇ║ Therapist\CourseÔÇª
+  GET|HEAD        therapist/courses/{course}/edit therapist.courses.edit ÔÇ║ TherapisÔÇª
+  GET|HEAD        therapist/courses/{course}/lessons therapist.courses.lessons.index ÔÇ║ TherapÔÇª
+  POST            therapist/courses/{course}/lessons therapist.courses.lessons.store ÔÇ║ TherapÔÇª
+  GET|HEAD        therapist/courses/{course}/lessons/create therapist.courses.lessons.create ÔÇ║ ÔÇª
+  GET|HEAD        therapist/courses/{course}/lessons/{lesson} therapist.courses.lessons.shoÔÇª
+  PUT|PATCH       therapist/courses/{course}/lessons/{lesson} therapist.courses.lessons.update ÔÇª
+  DELETE          therapist/courses/{course}/lessons/{lesson} therapist.courses.lessons.destroy  ÔÇª
+  GET|HEAD        therapist/courses/{course}/lessons/{lesson}/edit therapist.courses.lessonÔÇª
+  GET|HEAD        therapists therapists.index ÔÇ║ TherapistController@indÔÇª
+  GET|HEAD        therapists/{user} therapists.show ÔÇ║ TherapistControÔÇª
+  GET|HEAD        up ....... 
+  GET|HEAD        verify-email verification.notice ÔÇ║ Auth\EmailVerificationPromptControÔÇª
+  GET|HEAD        verify-email/{id}/{hash} verification.verify ÔÇ║ Auth\VerifÔÇª
+  GET|HEAD        verify-success verification.sÔÇª
+  GET|HEAD        vouchers ÔÇª
+  POST            vouchers/apply vouchers.apply ÔÇ║ Clinic\VoucherControllerÔÇª
+  POST            vouchers/apply-by-code vouchers.apply-by-code ÔÇ║ Clinic\VoucherControllÔÇª
+  POST            vouchers/claim vouchers.claim ÔÇ║ Clinic\VoucherControllerÔÇª
+
+        Showing [185] routes
+

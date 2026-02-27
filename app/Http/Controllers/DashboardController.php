@@ -41,9 +41,12 @@ class DashboardController extends Controller
             // Fetch active booking: including pending ones requiring action
             $activeBooking = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
                 ->where('patient_id', $user->id)
-                ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed'])
-                ->whereHas('schedule', function ($q) {
-                    $q->whereDate('date', '>=', now()->toDateString());
+                ->where(function ($q) {
+                    $q->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed'])
+                        ->whereHas('schedule', function ($sq) {
+                            $sq->whereDate('date', '>=', now()->toDateString());
+                        })
+                        ->orWhere('status', 'in_progress');
                 })
                 ->latest()
                 ->first();
@@ -112,6 +115,15 @@ class DashboardController extends Controller
                 'total_patients' => (clone $baseBookingQuery)->distinct()->count('patient_id'),
                 'active_courses' => (clone $baseCourseQuery)->count(),
             ];
+
+            if ($user->hasAnyRole(['admin', 'super_admin'])) {
+                $therapistStats['stacked_status'] = [
+                    'confirmed' => \App\Models\Booking::where('status', 'confirmed')->count(),
+                    'pending' => \App\Models\Booking::whereIn('status', ['pending_payment', 'pending_validation'])->count(),
+                    'completed' => \App\Models\Booking::where('status', 'completed')->count(),
+                    'cancelled' => \App\Models\Booking::whereIn('status', ['cancelled', 'expired'])->count(),
+                ];
+            }
         }
 
         return Inertia::render('Dashboard', [

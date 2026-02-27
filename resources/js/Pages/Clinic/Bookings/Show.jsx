@@ -62,6 +62,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                     {isPendingPayment && 'Terapis telah menyetujui skrining Anda. Silakan lanjutkan ke pembayaran.'}
                                     {isPendingValidation && 'Bukti pembayaran Anda sedang diverifikasi oleh tim kami.'}
                                     {isPendingScreening && 'Admin/Terapis sedang meninjau form skrining Anda.'}
+                                    {booking.status === 'cancelled' && 'Pesanan / Jadwal ini telah dibatalkan dan tidak lagi aktif.'}
                                 </p>
                             </div>
                         </div>
@@ -169,6 +170,16 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                         Rp {new Intl.NumberFormat('id-ID').format(booking.transaction?.amount || 0)}
                                     </span>
                                 </div>
+                                <div className="flex justify-between items-center py-2">
+                                    <span className="text-gray-600 dark:text-gray-400">Status</span>
+                                    <span className={`font-bold px-3 py-1 text-xs rounded-full ${isConfirmed || isCompleted ? 'bg-green-100 text-green-700' :
+                                            booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                                'bg-yellow-100 text-yellow-700'
+                                        }`}>
+                                        {booking.status === 'cancelled' ? 'DIBATALKAN' :
+                                            isConfirmed || isCompleted ? 'LUNAS / SELESAI' : 'MENUNGGU'}
+                                    </span>
+                                </div>
                                 {isPendingPayment && (
                                     <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-lg text-sm text-orange-800 dark:text-orange-300">
                                         <span className="font-bold flex items-center gap-2 mb-1">
@@ -180,29 +191,31 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 )}
 
                                 {/* REDAKSI UNTUK DASHBOARD / INVOICE */}
-                                <div className="mt-6 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                    <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                        Kebijakan & Ketentuan Final
-                                    </h4>
-                                    <div className="space-y-3">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                            Pembayaran Anda telah diterima dan bersifat <strong>FINAL</strong> sesuai kebijakan InDepth Mental Wellness. Transaksi ini tidak dapat dibatalkan dan tidak dapat direfund.
-                                        </p>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {[
-                                                'Menyetujui Kebijakan Non-Refund',
-                                                'Menyetujui Persetujuan Elektronik (UU ITE)',
-                                                'Mengunci slot waktu / akses sistem',
-                                            ].map((text, i) => (
-                                                <div key={i} className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    {text}
-                                                </div>
-                                            ))}
+                                {(isConfirmed || isCompleted || isPendingValidation) && (
+                                    <div className="mt-6 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                            Kebijakan & Ketentuan Final
+                                        </h4>
+                                        <div className="space-y-3">
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                                Pembayaran Anda telah diterima dan bersifat <strong>FINAL</strong> sesuai kebijakan InDepth Mental Wellness. Transaksi ini tidak dapat dibatalkan dan tidak dapat direfund.
+                                            </p>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {[
+                                                    'Menyetujui Kebijakan Non-Refund',
+                                                    'Menyetujui Persetujuan Elektronik (UU ITE)',
+                                                    'Mengunci slot waktu / akses sistem',
+                                                ].map((text, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        {text}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -250,7 +263,20 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                     )}
 
                     {isPendingPayment && (
-                        <div className="mt-6 flex justify-end items-center">
+                        <div className="mt-6 flex justify-between items-center gap-4">
+                            <Link
+                                href={route('bookings.cancel', booking.id)}
+                                method="post"
+                                as="button"
+                                onClick={(e) => {
+                                    if (!confirm('Apakah Anda yakin ingin membatalkan/mengganti jadwal ini?')) {
+                                        e.preventDefault();
+                                    }
+                                }}
+                                className="text-sm font-bold text-red-600 dark:text-red-400 hover:underline px-2"
+                            >
+                                Batalkan & Ganti Jadwal
+                            </Link>
                             <Link href={route('payments.create', booking.id)}>
                                 <PrimaryButton className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold">Lanjutkan ke Pembayaran</PrimaryButton>
                             </Link>

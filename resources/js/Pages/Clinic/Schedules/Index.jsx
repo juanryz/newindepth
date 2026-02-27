@@ -53,8 +53,6 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         { id: 3, short: 'Rab', long: 'Rabu' },
         { id: 4, short: 'Kam', long: 'Kamis' },
         { id: 5, short: 'Jum', long: 'Jumat' },
-        { id: 6, short: 'Sab', long: 'Sabtu' },
-        { id: 0, short: 'Min', long: 'Minggu' },
     ];
 
     const toggleDay = (dayId) => {
@@ -447,7 +445,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Kalender Jadwal
                                         </h3>
-                                        <div className="flex flex-wrap gap-4 mt-4 text-[10px] font-black uppercase tracking-widest">
+                                        <div className="flex flex-wrap gap-4 mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-200">
                                             <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500"></span>Slot Anda</span>
                                             <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-rose-500"></span>Sedang Berlangsung</span>
                                             <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-indigo-500"></span>Tersedia</span>
@@ -459,6 +457,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                             initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
                                             headerToolbar={isMobile ? { left: 'prev,next', center: 'title', right: 'timeGridDay,dayGridMonth' } : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+                                            weekends={false}
                                             events={calendarSchedules}
                                             eventClick={handleEventClick}
                                             eventContent={renderEventContent}
@@ -485,7 +484,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         <div className="flex gap-2 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
                                             {[['pending', 'Akan Datang'], ['completed', 'Selesai'], ['all', 'Semua']].map(([val, label]) => (
                                                 <button key={val} onClick={() => setHistoryFilter(val)}
-                                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === val ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'}`}>
+                                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === val ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}>
                                                     {label}
                                                 </button>
                                             ))}
@@ -568,7 +567,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                 const wasRescheduled = !!booking.rescheduled_at;
                                                 return (
                                                     <div key={booking.id} id={`booking-${booking.id}`}
-                                                        className={`rounded-[2.5rem] border shadow-sm p-7 flex flex-col transition-all ${isNoShow ? 'bg-orange-50/30 border-orange-200' : booking.status === 'completed' ? 'bg-gray-50/50 border-gray-200' : booking.status === 'in_progress' ? 'bg-red-50/30 border-red-200 ring-2 ring-red-500' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50'}`}>
+                                                        className={`rounded-[2.5rem] border shadow-sm p-7 flex flex-col transition-all ${isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800/30' : booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700' : booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/10 border-red-200 dark:border-red-800/30 ring-2 ring-red-500' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50'}`}>
                                                         <div className="flex items-start justify-between mb-4">
                                                             <div>
                                                                 <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">{booking.patient?.name || 'Pasien Tidak Dikenal'}</h4>
@@ -619,7 +618,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1 flex items-center gap-3">
                                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Atur Ketersediaan Mingguan
                                         </h3>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Pilih hari & jam — sistem otomatis buat slot untuk setiap hari yang dipilih</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Pilih hari & jam — sistem otomatis membagi slot 2 jam & LIBUR SABTU MINGGU</p>
                                         <form onSubmit={handleAddSchedule} className="space-y-7">
                                             <div>
                                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Hari Aktif <span className="text-rose-400">*</span>
@@ -662,7 +661,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                     <input type="date" min={recurData.date_from || todayStr} value={recurData.date_to} onChange={e => setRecurData('date_to', e.target.value)} required
                                                         className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
                                                 </div>
-                                                <div>
+                                                <div className="md:col-span-1 hidden">
                                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Kuota / Sesi</label>
                                                     <input type="number" min={1} max={20} value={recurData.quota} onChange={e => setRecurData('quota', Number(e.target.value))}
                                                         className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20" />
@@ -714,8 +713,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             </div>
                                         ) : (
                                             <div className="divide-y divide-gray-50 dark:divide-gray-800">
-                                                {mySchedules.map(sc => {
-                                                    const d = new Date(sc.date + 'T00:00:00');
+                                                {mySchedules.length > 0 ? mySchedules.map((sc, i) => {
+                                                    // Robust date parsing: handle YYYY-MM-DD or ISO strings
+                                                    const dateOnly = sc.date.includes('T') ? sc.date.split('T')[0] : sc.date;
+                                                    const d = new Date(dateOnly + 'T00:00:00');
+                                                    const isValidDate = !isNaN(d.getTime());
                                                     return (
                                                         <div key={sc.id} className="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
                                                             <div className="flex items-center gap-5">
@@ -729,7 +731,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-3">
-                                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${sc.booked_count >= 1 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
                                                                     {sc.booked_count >= 1 ? '✅ Terisi' : '🟢 Tersedia'}
                                                                 </span>
                                                                 {sc.booked_count === 0 && (
@@ -741,7 +743,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             </div>
                                                         </div>
                                                     );
-                                                })}
+                                                }) : null}
                                             </div>
                                         )}
                                     </div>
@@ -763,7 +765,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Kelengkapan Profil</p>
-                                <p className="font-black text-gray-800">{selectedHistoryPatient?.patient_profile_stats?.percentage || 0}% Lengkap</p>
+                                <p className="font-black text-gray-800 dark:text-gray-200">{selectedHistoryPatient?.patient_profile_stats?.percentage || 0}% Lengkap</p>
                             </div>
                             <div>
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Hasil Skrining</p>
@@ -785,20 +787,20 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             </div>
                             <div className="sm:col-span-2">
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Pesan Admin (Skrining)</p>
-                                <p className="italic text-gray-600 text-xs bg-white p-4 rounded-2xl border border-gray-100">{selectedHistoryPatient?.screening_results?.[0]?.admin_notes || 'Tidak ada catatan admin.'}</p>
+                                <p className="italic text-gray-600 dark:text-gray-400 text-xs bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">{selectedHistoryPatient?.screening_results?.[0]?.admin_notes || 'Tidak ada catatan.'}</p>
                             </div>
                         </div>
                     </div>
 
-                    <h3 className="text-sm font-black text-gray-900 mb-4 px-2 uppercase tracking-widest">Riwayat Sesi Sebelumnya</h3>
+                    <h3 className="text-sm font-black text-gray-900 dark:text-white mb-4 px-2 uppercase tracking-widest">Riwayat Sesi Sebelumnya</h3>
                     <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
                         {selectedHistoryPatient?.bookings?.map(hist => (
-                            <div key={hist.id} className={`p-6 rounded-[2rem] border flex gap-5 transition-all ${hist.status === 'completed' ? 'bg-indigo-50/30 border-indigo-100' : 'bg-white border-gray-100'}`}>
-                                <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center font-black ${hist.status === 'completed' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            <div key={hist.id} className={`p-6 rounded-[2rem] border flex gap-5 transition-all ${hist.status === 'completed' ? 'bg-indigo-50/30 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/30' : 'bg-white dark:bg-slate-900 border-gray-100 dark:border-gray-700'}`}>
+                                <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center font-black ${hist.status === 'completed' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-200'}`}>
                                     {hist.status === 'completed' ? '✓' : '...'}
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-black text-gray-900 text-sm uppercase tracking-tight">
+                                    <h4 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight">
                                         {new Date(hist.schedule?.date || '').toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                                     </h4>
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">
@@ -811,16 +813,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                 <span>Selesai: <span className="text-rose-600 font-black">{new Date(hist.ended_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</span></span>
                                             )}
                                             {hist.started_at && hist.ended_at && (
-                                                <span className="text-indigo-600 font-black px-2 py-0.5 bg-indigo-50 rounded-lg">Durasi: {Math.round((new Date(hist.ended_at) - new Date(hist.started_at)) / 60000)} Menit</span>
+                                                <span className="text-indigo-600 dark:text-indigo-400 font-black px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/40 rounded-lg">Durasi: {Math.round((new Date(hist.ended_at) - new Date(hist.started_at)) / 60000)} Menit</span>
                                             )}
                                         </div>
                                     )}
-                                    <div className="mt-3 text-xs bg-white/50 p-4 rounded-2xl border border-gray-100 text-gray-600 italic">
-                                        <p className="font-black text-gray-400 uppercase text-[9px] tracking-widest mb-1 not-italic">Catatan Klinis</p>
+                                    <div className="mt-3 text-xs bg-white/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-400 italic">
+                                        <p className="font-black text-gray-400 dark:text-gray-500 uppercase text-[9px] tracking-widest mb-1 not-italic">Catatan Klinis</p>
                                         <p className="whitespace-pre-wrap">{hist.therapist_notes || 'Tidak ada catatan.'}</p>
                                     </div>
                                     {hist.recording_link && (
-                                        <a href={hist.recording_link} target="_blank" rel="noreferrer" className="text-[10px] font-black text-indigo-600 hover:underline mt-4 flex items-center gap-2 uppercase tracking-widest">
+                                        <a href={hist.recording_link} target="_blank" rel="noreferrer" className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:underline mt-4 flex items-center gap-2 uppercase tracking-widest">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             Link Rekaman Sesi
                                         </a>
@@ -850,7 +852,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <TextInput
                                 id="recording_link"
                                 type="url"
-                                className="mt-1 block w-full rounded-2xl border-gray-200"
+                                className="mt-1 block w-full rounded-2xl border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white"
                                 placeholder="https://youtu.be/..."
                                 value={completeData.recording_link}
                                 onChange={(e) => setCompleteData('recording_link', e.target.value)}
@@ -862,7 +864,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="completion_outcome" value="Status Selesai Sesi" />
                             <select
                                 id="completion_outcome"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
                                 value={completeData.completion_outcome}
                                 onChange={(e) => setCompleteData('completion_outcome', e.target.value)}
                                 required
@@ -876,7 +878,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="patient_visible_notes" value="Pesan untuk Pasien (Dashboard Pasien)" />
                             <textarea
                                 id="patient_visible_notes"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
                                 rows="3"
                                 placeholder="Tuliskan homework atau ringkasan singkat untuk pasien..."
                                 value={completeData.patient_visible_notes}
@@ -888,7 +890,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="therapist_notes" value="Catatan Klinis (Privat)" />
                             <textarea
                                 id="therapist_notes"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 rows="4"
                                 placeholder="Tuliskan perkembangan klinis detail..."
                                 value={completeData.therapist_notes}
@@ -921,7 +923,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Baru" />
                             <select
                                 id="new_schedule_id"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
                                 value={rescheduleData.new_schedule_id}
                                 onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
                                 required
@@ -941,7 +943,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan" />
                             <textarea
                                 id="reschedule_reason"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 rows="3"
                                 placeholder="Tuliskan alasan rescheduling..."
                                 value={rescheduleData.reschedule_reason}
@@ -975,7 +977,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="no_show_party" value="Keterangan Ketidakhadiran" />
                             <select
                                 id="no_show_party"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-red-500 focus:ring-red-500 text-sm font-bold"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-red-500 focus:ring-red-500 text-sm font-bold"
                                 value={noShowData.no_show_party}
                                 onChange={(e) => setNoShowData('no_show_party', e.target.value)}
                                 required
@@ -989,7 +991,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <InputLabel htmlFor="no_show_reason" value="Keterangan Tambahan" />
                             <textarea
                                 id="no_show_reason"
-                                className="mt-1 block w-full border-gray-200 rounded-2xl shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
+                                className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
                                 rows="3"
                                 placeholder="Detail ketidakhadiran..."
                                 value={noShowData.no_show_reason}

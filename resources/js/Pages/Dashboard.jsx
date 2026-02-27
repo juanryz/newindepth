@@ -13,7 +13,7 @@ const SectionLabel = ({ children, className = '' }) => (
     <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-500 dark:from-slate-500 dark:to-slate-600 mb-5 ml-1 ${className}`}>{children}</h3>
 );
 
-function QuickCard({ href, title, description, iconPath, color, disabled = false, disabledText = 'Lengkapi profil & screening' }) {
+function QuickCard({ href, title, description, iconPath, color, disabled = false, disabledText = 'Lengkapi profil & screening', onClick }) {
     const base = `group flex gap-4 items-start p-5 rounded-2xl h-full transition-all duration-300 bg-white/50 dark:bg-white/[0.03] backdrop-blur-xl border border-white/70 dark:border-white/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.15)]`;
     const cls = disabled
         ? `${base} opacity-40 cursor-not-allowed pointer-events-none select-none`
@@ -39,7 +39,7 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3, scale: 1.01 }} whileTap={{ scale: 0.98 }} className="h-full">
-            <Link href={href} className={cls}>
+            <Link href={href} onClick={onClick} className={cls}>
                 <div className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center ${color} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath} /></svg>
                 </div>
@@ -51,6 +51,56 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
         </motion.div>
     );
 }
+
+const PaymentCountdown = ({ scheduleDate, startTime }) => {
+    const [timeLeft, setTimeLeft] = React.useState('');
+
+    React.useEffect(() => {
+        if (!scheduleDate || !startTime) return;
+
+        const interval = setInterval(() => {
+            if (!scheduleDate || !startTime) {
+                setTimeLeft('--j --m --d');
+                return;
+            }
+
+            const now = new Date();
+
+            // Handle Laravel/Carbon ISO strings (YYYY-MM-DDTHH:MM:SS...)
+            const datePart = scheduleDate.includes('T') ? scheduleDate.split('T')[0] : scheduleDate.split(' ')[0];
+            // Start time usually HH:MM:SS
+            const timePart = startTime;
+
+            const sched = new Date(`${datePart}T${timePart}`);
+
+            if (isNaN(sched.getTime())) {
+                setTimeLeft('--j --m --d');
+                return;
+            }
+
+            // Batas waktu adalah 2 jam sebelum jadwal dimulai
+            const deadline = new Date(sched.getTime() - (2 * 60 * 60 * 1000));
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                setTimeLeft('Waktu Konfirmasi Habis');
+            } else {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                setTimeLeft(`${hours}j ${mins}m ${secs}d lagi`);
+            }
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [scheduleDate, startTime]);
+
+    return (
+        <div className="mt-2 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span className="text-sm font-black text-red-600 dark:text-red-400 tabular-nums">{timeLeft}</span>
+        </div>
+    );
+};
 
 /* Severity label → colour mapping */
 const severityColors = {
@@ -202,12 +252,14 @@ function ActiveBookingCard({ booking }) {
         'pending_payment': 'Menunggu Pembayaran',
         'pending_validation': 'Menunggu Validasi Admin',
         'confirmed': 'Jadwal Dikonfirmasi',
+        'in_progress': 'Sesi Sedang Berlangsung',
     };
 
     const statusColors = {
         'pending_payment': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
         'pending_validation': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
         'confirmed': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+        'in_progress': 'bg-red-500 text-white animate-pulse',
     };
 
     const formatGoogleCalDate = (date, time) => {
@@ -216,32 +268,53 @@ function ActiveBookingCard({ booking }) {
 
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sesi+Hipnoterapi+-+InDepth&dates=${formatGoogleCalDate(schedule.date, schedule.start_time)}/${formatGoogleCalDate(schedule.date, schedule.end_time)}&details=Sesi+Hipnoterapi+bersama+Terapis:+${therapist?.name || 'Akan diinfokan'}`;
 
+    const isInProgress = status === 'in_progress';
+
     return (
-        <GlassPanel className="!border-indigo-200/50 dark:!border-indigo-800/20 p-6 mb-8 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10 dark:to-transparent pointer-events-none" />
-            <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-400/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+        <GlassPanel className={`p-6 mb-8 relative overflow-hidden transition-all duration-500 ${isInProgress ? '!border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]' : '!border-indigo-200/50 dark:!border-indigo-800/20'}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br from-transparent pointer-events-none ${isInProgress ? 'from-red-500/10' : 'from-indigo-50/50 dark:from-indigo-900/10'}`} />
+            {isInProgress && (
+                <div className="absolute top-0 right-0 p-4">
+                    <span className="flex h-3 w-3 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                </div>
+            )}
 
             <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg text-indigo-900 dark:text-indigo-300">Jadwal Aktif Anda</h3>
-                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full backdrop-blur ${statusColors[status] || 'bg-slate-100 text-slate-800'}`}>
+                        <h3 className={`font-bold text-lg ${isInProgress ? 'text-red-600 dark:text-red-400' : 'text-indigo-900 dark:text-indigo-300'}`}>
+                            {isInProgress ? '🔴 Sesi Sedang Berlangsung' : 'Jadwal Aktif Anda'}
+                        </h3>
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur ${statusColors[status] || 'bg-slate-100 text-slate-800'}`}>
                             {statusLabels[status] || status}
                         </span>
                     </div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                        <p><strong className="text-slate-900 dark:text-slate-200">Kode:</strong> #{booking_code}</p>
-                        <p><strong className="text-slate-900 dark:text-slate-200">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} - {schedule.end_time?.substring(0, 5) || '--:--'} WIB)</p>
-                        <p><strong className="text-slate-900 dark:text-slate-200">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Kode Booking:</strong> #{booking_code}</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} WIB)</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
                     </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
-                    <Link href={route('bookings.show', booking.id)} className="inline-flex justify-center items-center px-4 py-2.5 bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl border border-indigo-200/50 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 text-sm font-bold rounded-2xl hover:bg-indigo-50/60 transition-all shadow-sm">Lihat Detail</Link>
-                    <a href={gcalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        Tambahkan ke Kalender
-                    </a>
+                    <Link
+                        href={route('bookings.show', booking.id)}
+                        className={`inline-flex justify-center items-center px-6 py-3 text-sm font-black rounded-2xl transition-all shadow-sm border ${isInProgress
+                            ? 'bg-red-600 border-red-500 text-white hover:bg-red-700 shadow-red-600/20'
+                            : 'bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl border-indigo-200/50 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/60'
+                            }`}
+                    >
+                        {isInProgress ? 'MASUK KE RUANG SESI' : 'LIHAT DETAIL'}
+                    </Link>
+                    {!isInProgress && (
+                        <a href={gcalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-wide">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            Simpan Kalender
+                        </a>
+                    )}
                 </div>
             </div>
         </GlassPanel>
@@ -261,6 +334,17 @@ export default function Dashboard() {
     const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
 
     const hasScreening = !!screeningResult;
+    const hasActiveBooking = !!activeBooking;
+
+    const [showBookingBlocked, setShowBookingBlocked] = useState(false);
+
+    const handleBookingClick = (e) => {
+        if (hasActiveBooking) {
+            e.preventDefault();
+            setShowBookingBlocked(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     return (
         <AuthenticatedLayout
@@ -293,6 +377,66 @@ export default function Dashboard() {
                     <div className="absolute top-[30%] left-[40%] w-[25vw] h-[25vw] rounded-full bg-rose-400/[0.04] dark:bg-rose-600/[0.02] blur-[80px] animate-blob animation-delay-4000" />
                 </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
+
+                    {/* ============== ACTIVE BOOKING BLOCK ALERT ============== */}
+                    {showBookingBlocked && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500/50 rounded-3xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-xl shadow-amber-500/10"
+                        >
+                            <div className="w-16 h-16 rounded-2xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 animate-pulse">
+                                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <div className="flex-1 text-center sm:text-left">
+                                <h3 className="text-lg font-black text-amber-900 dark:text-amber-200 uppercase tracking-tight">Selesaikan Sesi Aktif</h3>
+                                <p className="text-sm text-amber-800/80 dark:text-amber-400 font-medium mt-1">
+                                    Anda belum bisa membuat jadwal baru karena masih memiliki sesi yang sedang berlangsung atau menunggu validasi. Selesaikan sesi Anda terlebih dahulu untuk melanjutkan.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowBookingBlocked(false)}
+                                className="px-6 py-2 bg-amber-900/10 hover:bg-amber-900/20 text-amber-900 dark:text-amber-300 rounded-xl font-bold text-xs uppercase transition-all"
+                            >
+                                Tutup
+                            </button>
+                        </motion.div>
+                    )}
+
+                    {/* ============== PAYMENT REMINDER ALERT ============== */}
+                    {isPatient && activeBooking?.status === 'pending_payment' && (
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="relative overflow-hidden group"
+                        >
+                            <GlassPanel className="!border-red-500/40 dark:!border-red-500/20 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/10 p-6 flex flex-col md:flex-row items-center gap-6 shadow-2xl shadow-red-500/10">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg className="w-24 h-24 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+                                </div>
+
+                                <div className="w-14 h-14 bg-red-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 animate-bounce shadow-lg shadow-red-600/30">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+
+                                <div className="flex-1 text-center md:text-left z-10">
+                                    <h3 className="text-xl font-black text-red-900 dark:text-red-200 leading-tight">Konfirmasi Pembayaran Diperlukan!</h3>
+                                    <p className="text-sm text-red-700/80 dark:text-red-400 font-bold mt-1">
+                                        Segera selesaikan pembayaran untuk mengamankan slot Anda. <span className="text-red-600 dark:text-red-500 underline uppercase tracking-tighter">Batas waktu 2 jam sebelum jadwal dimulai.</span>
+                                    </p>
+                                    <PaymentCountdown scheduleDate={activeBooking.schedule?.date} startTime={activeBooking.schedule?.start_time} />
+                                </div>
+
+                                <Link
+                                    href={route('payments.create', activeBooking.id)}
+                                    className="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-red-600/20 flex items-center gap-2 group-hover:scale-105 active:scale-95 z-10"
+                                >
+                                    Bayar Sekarang
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </Link>
+                            </GlassPanel>
+                        </motion.div>
+                    )}
 
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
                     {isPatient && (
@@ -374,8 +518,8 @@ export default function Dashboard() {
                                     )}
                                     <QuickCard
                                         href={route('admin.pricing.vouchers.index')}
-                                        title="Manajemen Harga"
-                                        description="Atur paket & voucher diskon"
+                                        title="Harga & Voucher"
+                                        description="Kelola tarif layanan dan kode promo"
                                         iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                         color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
                                     />
@@ -415,7 +559,7 @@ export default function Dashboard() {
                     )}
 
                     {/* ============== THERAPIST SECTION ============== */}
-                    {isTherapist && !isAdmin && (
+                    {isTherapist && (
                         <div className="space-y-8">
                             <section>
                                 <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}</SectionLabel>
@@ -440,6 +584,54 @@ export default function Dashboard() {
                                     </Link>
                                 </div>
                             </section>
+
+                            {/* Stacked Status Bar (Admin Only) */}
+                            {isAdmin && therapistStats?.stacked_status && (
+                                <section>
+                                    <SectionLabel>Komposisi Status Reservasi</SectionLabel>
+                                    <GlassPanel className="p-8">
+                                        <div className="flex h-10 w-full rounded-2xl overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-800/50">
+                                            {(() => {
+                                                const total = Object.values(therapistStats.stacked_status).reduce((a, b) => a + b, 0) || 1;
+                                                const segments = [
+                                                    { key: 'completed', color: 'bg-emerald-500', label: 'Selesai' },
+                                                    { key: 'confirmed', color: 'bg-indigo-500', label: 'Dikonfirmasi' },
+                                                    { key: 'pending', color: 'bg-amber-500', label: 'Menunggu' },
+                                                    { key: 'cancelled', color: 'bg-rose-500', label: 'Batal/Exp' },
+                                                ];
+                                                return segments.map(seg => {
+                                                    const val = therapistStats.stacked_status[seg.key] || 0;
+                                                    const pct = (val / total) * 100;
+                                                    if (pct === 0) return null;
+                                                    return (
+                                                        <div
+                                                            key={seg.key}
+                                                            style={{ width: `${pct}%` }}
+                                                            className={`${seg.color} transition-all duration-1000 flex items-center justify-center text-[8px] font-black text-white uppercase tracking-tighter truncate px-1`}
+                                                            title={`${seg.label}: ${val}`}
+                                                        >
+                                                            {pct > 10 ? seg.label : ''}
+                                                        </div>
+                                                    );
+                                                });
+                                            })()}
+                                        </div>
+                                        <div className="flex flex-wrap gap-6 mt-6">
+                                            {[
+                                                { label: 'Selesai', color: 'bg-emerald-500', val: therapistStats.stacked_status.completed },
+                                                { label: 'Dikonfirmasi', color: 'bg-indigo-500', val: therapistStats.stacked_status.confirmed },
+                                                { label: 'Menunggu', color: 'bg-amber-500', val: therapistStats.stacked_status.pending },
+                                                { label: 'Dibatalkan', color: 'bg-rose-500', val: therapistStats.stacked_status.cancelled },
+                                            ].map(item => (
+                                                <div key={item.label} className="flex items-center gap-2.5">
+                                                    <div className={`w-3 h-3 rounded-full ${item.color} shadow-sm`} />
+                                                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{item.label}: <span className="text-slate-900 dark:text-white">{item.val}</span></span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </GlassPanel>
+                                </section>
+                            )}
 
                             {/* Ongoing Sessions */}
                             {therapistActiveSessions?.length > 0 && (
@@ -546,9 +738,6 @@ export default function Dashboard() {
                                             </div>
                                         ) : (
                                             <GlassPanel className="py-14 flex flex-col items-center justify-center text-center">
-                                                <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center mb-4">
-                                                    <svg className="w-7 h-7 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                </div>
                                                 <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Tidak ada sesi terjadwal</p>
                                                 <p className="text-xs text-gray-400 mt-1">Tambah slot jadwal lewat menu Kelola Jadwal</p>
                                             </GlassPanel>
@@ -633,6 +822,7 @@ export default function Dashboard() {
                                             color="bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
                                             disabled={!isProfileComplete}
                                             disabledText="Anda harus melengkapi profil hingga 100% sebelum membuat janji temu"
+                                            onClick={handleBookingClick}
                                         />
 
                                         <QuickCard
@@ -648,6 +838,8 @@ export default function Dashboard() {
                                             description="Lakukan asesmen kesehatan mental Anda"
                                             iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                                             color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
+                                            disabled={!!activeBooking}
+                                            disabledText="Selesaikan/batalkan sesi aktif untuk skrining ulang"
                                         />
                                         <QuickCard
                                             href={route('agreement.show')}

@@ -29,6 +29,9 @@ class Booking extends Model
         'original_schedule_id',
         'package_type',
         'ended_at',
+        'last_reminder_sent_at',
+        'last_reminder_label',
+        'last_payment_reminder_sent_at',
     ];
 
     protected $casts = [
@@ -37,6 +40,8 @@ class Booking extends Model
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'rescheduled_at' => 'datetime',
+        'last_reminder_sent_at' => 'datetime',
+        'last_payment_reminder_sent_at' => 'datetime',
     ];
 
     public function patient()

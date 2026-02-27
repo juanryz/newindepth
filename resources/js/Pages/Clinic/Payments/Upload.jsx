@@ -102,8 +102,27 @@ export default function PaymentUpload({ booking, transaction }) {
                         <div className="mb-10 p-6 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/20 dark:to-transparent rounded-3xl border border-indigo-100 dark:border-indigo-900/30 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-indigo-500/20 transition-all duration-700" />
                             <h3 className="text-xs font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-[0.2em] mb-4">Instruksi Pembayaran</h3>
+
+                            {/* Schedule Details Snippet */}
+                            <div className="mb-6 p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-indigo-100 dark:border-white/5 flex items-center gap-4">
+                                <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex flex-col items-center justify-center font-black shadow-lg shadow-indigo-600/20">
+                                    <span className="text-[8px] uppercase">{new Date(booking.schedule?.date).toLocaleDateString('id-ID', { month: 'short' })}</span>
+                                    <span className="text-lg leading-none">{new Date(booking.schedule?.date).getDate()}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detail Jadwal</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white truncate">
+                                        {new Date(booking.schedule?.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                                        🕐 {booking.schedule?.start_time?.substring(0, 5)} WIB • Terapis: {booking.schedule?.therapist?.name || 'Akan diinfokan'}
+                                    </p>
+                                </div>
+                            </div>
+
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-                                Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat:
+                                Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat.
+                                <span className="block mt-2 font-bold text-rose-500 italic">⚠️ Harap selesaikan pembayaran dan upload bukti transfer dalam waktu 2 jam SEBELUM jadwal dimulai, agar tidak dibatalkan otomatis.</span>
                             </p>
                             <div className="flex flex-col sm:flex-row gap-6 mb-6">
                                 <div className="flex-1">
@@ -276,7 +295,7 @@ export default function PaymentUpload({ booking, transaction }) {
 
                 {/* Policy Modal */}
                 {showPolicyModal && (
-                    <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 pb-8 overflow-y-auto bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="fixed inset-0 z-[99999] flex items-start justify-center p-4 pt-8 pb-8 overflow-y-auto bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
                         <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden flex flex-col max-h-none md:max-h-[90vh] animate-in zoom-in duration-300 my-auto">
                             <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white relative flex-shrink-0">
                                 <h2 className="text-2xl font-black uppercase tracking-tighter">KEBIJAKAN NON-REFUND</h2>

@@ -179,6 +179,12 @@ class ScheduleController extends Controller
             'started_at' => now(),
         ]);
 
+        try {
+            \Illuminate\Support\Facades\Mail::to($booking->patient->email)->send(new \App\Mail\SessionStarted($booking));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send session started email: ' . $e->getMessage());
+        }
+
         return redirect()->route('schedules.active-session', $booking->id)->with('success', 'Sesi terapi dimulai.');
     }
 
@@ -216,13 +222,15 @@ class ScheduleController extends Controller
 
         $isAuto = $request->boolean('is_auto');
 
-        $request->validate([
-            'recording_link' => $isAuto ? 'nullable|url' : 'required|url',
-            'therapist_notes' => 'nullable|string',
-            'patient_visible_notes' => 'nullable|string',
-            'completion_outcome' => $isAuto ? 'nullable|string' : 'required|string|in:Normal,Abnormal/Emergency',
-            'session_checklist' => 'nullable|array',
-        ]);
+        if (!$isAuto) {
+            $request->validate([
+                'recording_link' => 'required|url',
+                'therapist_notes' => 'nullable|string',
+                'patient_visible_notes' => 'nullable|string',
+                'completion_outcome' => 'required|string|in:Normal,Abnormal/Emergency',
+                'session_checklist' => 'nullable|array',
+            ]);
+        }
 
         $therapistNotes = $request->therapist_notes;
         $patientNotes = $request->patient_visible_notes;
@@ -241,6 +249,12 @@ class ScheduleController extends Controller
             'completion_outcome' => $request->completion_outcome ?? 'Normal',
             'session_checklist' => $request->session_checklist,
         ]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($booking->patient->email)->send(new \App\Mail\SessionCompleted($booking));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send session completed email: ' . $e->getMessage());
+        }
 
         return redirect()->route('schedules.patient-detail', $booking->patient_id)->with('success', $isAuto ? 'Sesi ditutup otomatis oleh sistem.' : 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');
     }
@@ -363,40 +377,34 @@ class ScheduleController extends Controller
         ]);
 
         $therapistId = $request->user()->id;
-        $start = \Carbon\Carbon::parse($validated['date_from']);
-        $end = \Carbon\Carbon::parse($validated['date_to']);
-        $days = array_map('intval', $validated['days_of_week']); // e.g. [1,2] = Mon,Tue
+        $start = \Carbon\Carbon::parse($validated['date_from'], 'Asia/Jakarta');
+        $end = \Carbon\Carbon::parse($validated['date_to'], 'Asia/Jakarta');
+        $days = array_map('intval', $validated['days_of_week']);
 
         $created = 0;
         $current = $start->copy();
 
         while ($current->lte($end)) {
-            // dayOfWeek: 0=Sun,1=Mon,2=Tue,...,6=Sat (Carbon)
-            if (in_array($current->dayOfWeek, $days)) {
-                // Avoid duplicate slots for same therapist/date/time
-                $exists = Schedule::where('therapist_id', $therapistId)
-                    ->where('date', $current->toDateString())
-                    ->where('start_time', $validated['start_time'])
-                    ->exists();
+            // Force block weekend even if user somehow selected it
+            if ($current->isWeekend()) {
+                $current->addDay();
+                continue;
+            }
 
-                if (!$exists) {
-                    Schedule::create([
-                        'therapist_id' => $therapistId,
-                        'date' => $current->toDateString(),
-                        'start_time' => $validated['start_time'],
-                        'end_time' => $validated['end_time'],
-                        'quota' => $validated['quota'],
-                        'booked_count' => 0,
-                        'status' => 'available',
-                        'schedule_type' => $validated['schedule_type'] ?? 'consultation',
-                    ]);
-                    $created++;
-                }
+            if (in_array($current->dayOfWeek, $days)) {
+                $created += $this->generateSegments(
+                    $current->toDateString(),
+                    $validated['start_time'],
+                    $validated['end_time'],
+                    $therapistId,
+                    $validated['quota'],
+                    $validated['schedule_type'] ?? 'consultation'
+                );
             }
             $current->addDay();
         }
 
-        return redirect()->back()->with('success', "Berhasil menambahkan {$created} slot jadwal.");
+        return redirect()->back()->with('success', "$created slot jadwal berhasil dibuat (Sesuai siklus 2 jam).");
     }
 
     public function store(Request $request)
@@ -409,11 +417,70 @@ class ScheduleController extends Controller
             'schedule_type' => 'nullable|string|max:255',
         ]);
 
-        $validated['therapist_id'] = $request->user()->id;
+        $therapistId = $request->user()->id;
 
-        Schedule::create($validated);
+        $created = $this->generateSegments(
+            $validated['date'],
+            $validated['start_time'],
+            $validated['end_time'],
+            $therapistId,
+            $validated['quota'],
+            $validated['schedule_type'] ?? 'consultation'
+        );
 
-        return redirect()->back()->with('success', 'Jadwal berhasil ditambahkan.');
+        if ($created === 0) {
+            return redirect()->back()->withErrors(['error' => 'Tidak ada slot 2 jam yang valid ditemukan dalam rentang waktu tersebut sesuai jam operasional klinik.']);
+        }
+
+        return redirect()->back()->with('success', "Berhasil menambahkan {$created} slot jadwal.");
+    }
+
+    private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
+    {
+        $dt = \Carbon\Carbon::parse($date);
+        // Weekend Off: Skip Saturday (6) and Sunday (0)
+        if ($dt->isWeekend()) {
+            return 0;
+        }
+
+        $standardSlots = [
+            ['start' => '08:00:00', 'end' => '10:00:00'],
+            ['start' => '10:00:00', 'end' => '12:00:00'],
+            ['start' => '13:00:00', 'end' => '15:00:00'],
+            ['start' => '15:00:00', 'end' => '17:00:00'],
+            ['start' => '18:00:00', 'end' => '20:00:00'],
+        ];
+
+        // Format user times to HH:mm:ss for comparison
+        $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
+        $userEnd = \Carbon\Carbon::parse($endTime)->format('H:i:s');
+        $count = 0;
+
+        foreach ($standardSlots as $slot) {
+            // Check if user's availability range encloses this standard slot
+            if ($userStart <= $slot['start'] && $userEnd >= $slot['end']) {
+                $exists = Schedule::where('therapist_id', $therapistId)
+                    ->where('date', $date)
+                    ->where('start_time', $slot['start'])
+                    ->exists();
+
+                if (!$exists) {
+                    Schedule::create([
+                        'therapist_id' => $therapistId,
+                        'date' => $date,
+                        'start_time' => $slot['start'],
+                        'end_time' => $slot['end'],
+                        'quota' => $quota,
+                        'booked_count' => 0,
+                        'status' => 'available',
+                        'schedule_type' => $type,
+                    ]);
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
     }
 
     public function destroy(Schedule $schedule)

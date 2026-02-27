@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onSelect }) {
+export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onSelect, activeBooking }) {
     if (schedules.length === 0) {
         return (
             <div className="p-4 bg-gray-50/50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700/50 rounded-xl text-gray-500 dark:text-gray-400 text-sm italic text-center">
@@ -10,35 +10,29 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
     }
 
     const [filter, setFilter] = useState('week');
+    const hasActiveBooking = !!activeBooking;
 
     // Filter schedules
     const filteredSchedules = schedules.filter(curr => {
+        // ... previous filter logic remains ...
         const safeDateStr = (curr.date || '').substring(0, 10);
-
-        // Use timezone-neutral epoch math at UTC to guarantee stability across environments
         const dbDate = new Date(`${safeDateStr}T00:00:00Z`);
-
-        // Grab Jakarta time equivalent of "now" by formatting it out and passing back to Date
         const idnFormat = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
         const todayDate = new Date(`${idnFormat}T00:00:00Z`);
 
         switch (filter) {
-            case 'day':
-                return dbDate.getTime() === todayDate.getTime();
+            case 'day': return dbDate.getTime() === todayDate.getTime();
             case 'week':
                 const endOfWeek = new Date(todayDate);
                 endOfWeek.setDate(todayDate.getDate() + 7);
                 return dbDate.getTime() >= todayDate.getTime() && dbDate.getTime() <= endOfWeek.getTime();
-            case 'month':
-                return dbDate.getUTCMonth() === todayDate.getUTCMonth() && dbDate.getUTCFullYear() === todayDate.getUTCFullYear();
-            case 'year':
-                return dbDate.getUTCFullYear() === todayDate.getUTCFullYear();
-            default:
-                return true;
+            case 'month': return dbDate.getUTCMonth() === todayDate.getUTCMonth() && dbDate.getUTCFullYear() === todayDate.getUTCFullYear();
+            case 'year': return dbDate.getUTCFullYear() === todayDate.getUTCFullYear();
+            default: return true;
         }
     });
 
-    // Group filtered schedules by true local date (YYYY-MM-DD)
+    // Group filtered schedules ...
     const grouped = filteredSchedules.reduce((acc, curr) => {
         const safeDateStr = (curr.date || '').substring(0, 10);
         if (!acc[safeDateStr]) acc[safeDateStr] = [];
@@ -48,6 +42,13 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
 
     return (
         <div className="space-y-6">
+            {hasActiveBooking && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-3 mb-6">
+                    <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p className="text-xs font-bold text-amber-800 dark:text-amber-300">Anda memiliki sesi aktif. Selesaikan sesi tersebut untuk dapat memilih jadwal baru.</p>
+                </div>
+            )}
+
             <div className="flex flex-wrap gap-2 mb-4">
                 {[
                     { id: 'day', label: 'Hari Ini' },
@@ -86,7 +87,6 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                 const count = slot.bookings_count ?? 0;
 
                                 // Buffer: 1 hour prevention (Jakarta Time)
-                                // We use a more robust way to compare Jakarta time without browser local offset interference
                                 const now = new Date();
                                 const formatter = new Intl.DateTimeFormat('en-US', {
                                     timeZone: 'Asia/Jakarta',
@@ -100,18 +100,16 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                     return acc;
                                 }, {});
 
-                                // Current Jakarta time as a comparable UTC object
                                 const idnNow = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second));
                                 const bufferTime = new Date(idnNow.getTime() + 60 * 60 * 1000);
 
-                                // Slot start time construction (UTC-normalized for comparison)
                                 const [sh, sm, ss] = slot.start_time.split(':');
                                 const sd = new Date(slot.date);
                                 const slotStart = new Date(Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate(), sh, sm, ss));
 
                                 const isFull = slot.status === 'full' || count >= slot.quota;
                                 const isPast = slotStart < bufferTime;
-                                const isDisabled = isFull || isPast;
+                                const isDisabled = isFull || isPast || hasActiveBooking;
 
                                 return (
                                     <button
@@ -130,7 +128,7 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                             {slot.start_time?.substring(0, 5) || '--:--'} - {slot.end_time?.substring(0, 5) || '--:--'}
                                         </span>
                                         <span className="text-xs mt-1">
-                                            {isFull ? 'Penuh' : isPast ? 'Lewat' : `${slot.quota - count} slot sisa`}
+                                            {isFull ? 'Penuh' : isPast ? 'Lewat' : hasActiveBooking ? 'Blokade' : `${slot.quota - count} slot sisa`}
                                         </span>
                                     </button>
                                 );

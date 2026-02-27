@@ -74,38 +74,63 @@ class AdminScheduleController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        // Normalize new times to HH:mm:ss for consistent comparison
-        $newStart = \Carbon\Carbon::createFromFormat('H:i', $request->start_time)->format('H:i:s');
-        $newEnd = \Carbon\Carbon::createFromFormat('H:i', $request->end_time)->format('H:i:s');
-
-        // Normalize the date too (strip the time portion SQLite may have stored)
         $date = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+        $quota = $request->schedule_type === 'class' ? 10 : 1;
 
-        // Check if exact same schedule slot exists to avoid duplicates
-        $overlap = Schedule::where('therapist_id', $request->therapist_id)
-            ->whereRaw("SUBSTR(date, 1, 10) = ?", [$date])
-            ->whereRaw("SUBSTR(start_time, 1, 8) = ?", [$newStart])
-            ->whereRaw("SUBSTR(end_time,   1, 8) = ?", [$newEnd])
-            ->exists();
+        $created = $this->generateSegments(
+            $date,
+            $request->start_time,
+            $request->end_time,
+            $request->therapist_id,
+            $quota,
+            $request->schedule_type
+        );
 
-        if ($overlap) {
-            return back()->withErrors([
-                'start_time' => 'Slot jadwal ini sudah tersedia di tanggal tersebut untuk terapis yang dipilih.',
-            ]);
+        if ($created === 0) {
+            return back()->withErrors(['error' => 'Tidak ada slot 2 jam yang valid ditemukan dalam rentang waktu tersebut sesuai jam operasional klinik.']);
         }
 
-        Schedule::create([
-            'therapist_id' => $request->therapist_id,
-            'schedule_type' => $request->schedule_type,
-            'date' => $date,
-            'start_time' => $newStart,
-            'end_time' => $newEnd,
-            'status' => 'available',
-            'quota' => $request->schedule_type === 'class' ? 10 : 1,
-            'booked_count' => 0,
-        ]);
+        return back()->with('success', "Berhasil menambahkan {$created} slot jadwal.");
+    }
 
-        return back()->with('success', 'Jadwal berhasil ditambahkan.');
+    private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
+    {
+        $standardSlots = [
+            ['start' => '08:00:00', 'end' => '10:00:00'],
+            ['start' => '10:00:00', 'end' => '12:00:00'],
+            ['start' => '13:00:00', 'end' => '15:00:00'],
+            ['start' => '15:00:00', 'end' => '17:00:00'],
+            ['start' => '18:00:00', 'end' => '20:00:00'],
+        ];
+
+        $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
+        $userEnd = \Carbon\Carbon::parse($endTime)->format('H:i:s');
+        $count = 0;
+
+        foreach ($standardSlots as $slot) {
+            if ($userStart <= $slot['start'] && $userEnd >= $slot['end']) {
+                $exists = Schedule::where('therapist_id', $therapistId)
+                    ->where('date', $date)
+                    ->where('start_time', $slot['start'])
+                    ->exists();
+
+                if (!$exists) {
+                    Schedule::create([
+                        'therapist_id' => $therapistId,
+                        'date' => $date,
+                        'start_time' => $slot['start'],
+                        'end_time' => $slot['end'],
+                        'quota' => $quota,
+                        'booked_count' => 0,
+                        'status' => 'available',
+                        'schedule_type' => $type,
+                    ]);
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
     }
 
     public function show(Schedule $schedule)
@@ -119,9 +144,13 @@ class AdminScheduleController extends Controller
             'bookings.patient.transactions.validatedBy',
         ]);
 
+        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
+
         $availableSchedules = Schedule::with('therapist')
             ->where('date', '>=', now()->toDateString())
             ->where('status', 'available')
+            ->whereRaw("NOT ({$weekendSql})")
             ->whereColumn('booked_count', '<', 'quota')
             ->orderBy('date')
             ->orderBy('start_time')
@@ -151,5 +180,55 @@ class AdminScheduleController extends Controller
         $schedule->delete();
 
         return back()->with('success', 'Jadwal berhasil dihapus.');
+    }
+
+    public function bulkDisable(Request $request)
+    {
+        if (!auth()->user()->hasRole('super_admin')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'date' => 'nullable|date',
+            'day_of_week' => 'nullable|integer|min:0|max:6', // 0=Sun, 6=Sat
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i',
+            'all_day' => 'boolean',
+            'action' => 'required|in:disable,enable'
+        ]);
+
+        $status = $request->action === 'disable' ? 'inactive' : 'available';
+        $query = Schedule::query();
+
+        if ($request->date) {
+            $query->where('date', $request->date);
+        }
+
+        if ($request->day_of_week !== null) {
+            $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
+            if ($isSqlite) {
+                // SQLite strftime('%w', date) returns 0=Sun, 6=Sat
+                $query->whereRaw("strftime('%w', date) = ?", [(string) $request->day_of_week]);
+            } else {
+                // MySQL DAYOFWEEK is 1=Sun, 7=Sat. PHP input 0=Sun, 6=Sat
+                $query->whereRaw('DAYOFWEEK(date) = ?', [$request->day_of_week + 1]);
+            }
+        }
+
+        if (!$request->all_day) {
+            if ($request->start_time) {
+                $query->where('start_time', '>=', $request->start_time);
+            }
+            if ($request->end_time) {
+                $query->where('end_time', '<=', $request->end_time);
+            }
+        }
+
+        // Only affect schedules with NO bookings
+        $query->where('booked_count', 0);
+
+        $affected = $query->update(['status' => $status]);
+
+        return back()->with('success', "Berhasil mengubah status {$affected} slot menjadi {$status}.");
     }
 }

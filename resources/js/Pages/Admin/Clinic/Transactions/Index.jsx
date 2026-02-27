@@ -6,17 +6,29 @@ import PrimaryButton from '@/Components/PrimaryButton';
 export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { flash, errors: pageErrors } = usePage().props;
     const [selectedReject, setSelectedReject] = useState(null);
+    const [selectedValidate, setSelectedValidate] = useState(null);
 
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({
         rejection_reason: '',
     });
 
-    const { post: validatePost, processing: validating } = useForm({});
+    const { data: validateData, setData: setValidateData, post: validatePost, reset: resetValidate, processing: validating } = useForm({
+        new_schedule_id: '',
+    });
 
     const handleValidate = (tx) => {
-        if (confirm('Validasi transaksi ini?\n\nTerapis akan otomatis ditugaskan secara acak dari daftar terapis yang tersedia.')) {
-            validatePost(route('admin.transactions.validate', tx.id));
-        }
+        setSelectedValidate(tx);
+        setValidateData('new_schedule_id', tx.transactionable?.schedule_id || '');
+    };
+
+    const submitValidate = (e) => {
+        e.preventDefault();
+        validatePost(route('admin.transactions.validate', selectedValidate.id), {
+            onSuccess: () => {
+                setSelectedValidate(null);
+                resetValidate();
+            }
+        });
     };
 
     const submitReject = (e) => {
@@ -75,7 +87,16 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                                 Validasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600">Transaksi</span>
                             </h1>
-                            <p className="mt-2 text-slate-500 dark:text-slate-400 font-bold italic tracking-wide">Kelola dan validasi pembayaran dari pasien dan siswa di InDepth.</p>
+                            <div className="flex justify-between items-center flex-wrap gap-4 mt-2">
+                                <p className="text-slate-500 dark:text-slate-400 font-bold italic tracking-wide">Kelola dan validasi pembayaran dari pasien dan siswa di InDepth.</p>
+                                <Link
+                                    href={route('admin.transactions.expired')}
+                                    className="px-6 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest border border-rose-500/20 transition-all flex items-center gap-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Cek Riwayat Kadaluarsa
+                                </Link>
+                            </div>
                         </div>
                     </div>
 
@@ -183,27 +204,33 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                         ${tx.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
                                                             tx.status === 'rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
                                                                 tx.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' :
-                                                                    'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
+                                                                    tx.status === 'expired' ? 'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20 italic' :
+                                                                        'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
                                                         }`}>
                                                         {tx.status === 'paid' ? 'Valid' :
                                                             tx.status === 'rejected' ? 'Ditolak' :
                                                                 tx.status === 'pending' ? 'Menunggu' :
-                                                                    tx.status}
+                                                                    tx.status === 'expired' ? 'Kadaluarsa' :
+                                                                        tx.status}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
                                                     {tx.status === 'pending' && (
                                                         <div className="flex justify-center gap-2">
-                                                            <button
-                                                                disabled={validating}
-                                                                onClick={() => handleValidate(tx)}
-                                                                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 disabled:opacity-50"
-                                                            >
-                                                                {validating ? '...' : 'Validasi'}
-                                                            </button>
+                                                            {tx.payment_proof ? (
+                                                                     <button
+                                                                         disabled={validating}
+                                                                         onClick={() => handleValidate(tx)}
+                                                                         className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
+                                                                     >
+                                                                         {validating ? '...' : 'Validasi'}
+                                                                     </button>
+                                                            ) : (
+                                                                <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase rounded-xl border border-slate-200 dark:border-slate-700 cursor-not-allowed">Bukti Belum Ada</span>
+                                                            )}
                                                             <button
                                                                 onClick={() => setSelectedReject(tx)}
-                                                                className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all hover:scale-105 active:scale-95"
+                                                                className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all"
                                                             >
                                                                 Tolak
                                                             </button>
@@ -270,6 +297,80 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                     </div>
                 </div>
             </div>
+
+            {/* Modal Validate + Reschedule */}
+            {selectedValidate && (
+                <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] w-full max-w-lg border border-slate-100 dark:border-slate-800 shadow-2xl">
+                        <div className="mb-6">
+                            <h3 className="text-2xl font-bold dark:text-white mb-2">Validasi Pembayaran</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Invoice: <span className="font-black text-slate-900 dark:text-white">#{selectedValidate.invoice_number}</span></p>
+                        </div>
+
+                        <form onSubmit={submitValidate} className="space-y-6">
+                            {selectedValidate.transactionable_type?.includes('Booking') && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Jadwal Terpilih Pasien</label>
+                                        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                                📅 {formatSchedule(selectedValidate)?.dateStr}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                🕐 {formatSchedule(selectedValidate)?.startTime} – {formatSchedule(selectedValidate)?.endTime} WIB
+                                            </p>
+                                            {selectedValidate.transactionable?.schedule?.booked_count >= selectedValidate.transactionable?.schedule?.quota && (
+                                                <p className="mt-2 text-[10px] font-black text-rose-500 uppercase flex items-center gap-1">
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    Jadwal ini sudah PENUH! Wajib Reschedule.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Pindah ke Jadwal Lain (Opsional)</label>
+                                        <select
+                                            className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                            value={validateData.new_schedule_id}
+                                            onChange={e => setValidateData('new_schedule_id', e.target.value)}
+                                        >
+                                            <option value={selectedValidate.transactionable?.schedule_id}>Tetap di Jadwal Pilihan Pasien</option>
+                                            {usePage().props.availableSchedules?.map(sched => (
+                                                <option key={sched.id} value={sched.id}>
+                                                    {new Date(sched.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} | {sched.start_time.substring(0, 5)} - {sched.end_time.substring(0, 5)} WIB ({sched.booked_count}/{sched.quota})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="mt-2 text-[10px] text-slate-400 font-bold italic">*Jika dipindahkan, pasien akan menerima notifikasi reschedule otomatis.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!selectedValidate.transactionable_type?.includes('Booking') && (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 italic">Validasi akses konten digital untuk user ini.</p>
+                            )}
+
+                            <div className="flex flex-col gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <button
+                                    type="submit"
+                                    disabled={validating}
+                                    className="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all disabled:opacity-50"
+                                >
+                                    {validating ? 'Memproses...' : 'Konfirmasi & Berikan Akses'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedValidate(null)}
+                                    className="text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors py-2"
+                                >
+                                    Batal
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Modal Reject */}
             {selectedReject && (

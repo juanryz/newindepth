@@ -68,9 +68,10 @@ export default function TransactionHistory({ transactions, profileProgress }) {
 
                                                 const status = tx.status || '';
                                                 const isPending = status === 'pending';
-                                                const isCompleted = status === 'completed';
-                                                const isDeclined = status === 'declined';
+                                                const isCompleted = status === 'completed' || status === 'paid';
+                                                const isDeclined = status === 'declined' || status === 'rejected';
                                                 const isCancelled = status === 'cancelled';
+                                                const isExpired = status === 'expired';
 
                                                 return (
                                                     <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -119,6 +120,7 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                             {isPending && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Menunggu Pembayaran</span>}
                                                             {isDeclined && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Ditolak</span>}
                                                             {isCancelled && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Dibatalkan</span>}
+                                                            {isExpired && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400">Kadaluarsa</span>}
                                                         </td>
                                                         <td className="py-4 px-4 align-top text-right whitespace-nowrap">
                                                             {isBooking ? (

@@ -168,7 +168,7 @@ export default function AgreementDetail({ userModel }) {
                                 <p className="text-xs text-gray-500">Nomor: ID/{userModel.id}/{userModel.agreement_signed_at ? new Date(userModel.agreement_signed_at).getTime() : 'N/A'}</p>
                             </div>
 
-                            <p className="font-bold">PASAL 1 - IDENTITAS KLIEN</p>
+                            <p className="font-bold text-gray-900 dark:text-white">PASAL 1 - IDENTITAS KLIEN</p>
                             <table className="w-full max-w-md ml-4 text-xs">
                                 <tbody>
                                     <tr><td className="py-1 w-32 font-bold uppercase">Nama Lengkap</td><td className="py-1">: {userModel.name}</td></tr>
@@ -222,7 +222,7 @@ export default function AgreementDetail({ userModel }) {
                             </p>
                             <div className="grid grid-cols-2 gap-8 pt-12 not-serif">
                                 <div className="text-center">
-                                    <p className="text-[10px] text-gray-500 mb-2">Semarang, {signDateOnly}</p>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">Semarang, {signDateOnly}</p>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tanda Tangan Klien (2)</p>
                                     <div className="h-32 w-full bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 mb-2 flex items-center justify-center">
                                         {userModel.digital_signature ? (
@@ -235,7 +235,7 @@ export default function AgreementDetail({ userModel }) {
                                 </div>
 
                                 <div className="text-center">
-                                    <p className="text-[10px] text-gray-500 mb-2">InDepth Mental Wellness</p>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">InDepth Mental Wellness</p>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Perwakilan Resmi</p>
                                     <div className="h-32 w-full flex items-center justify-center p-2 mb-2">
                                         <img src="/images/saiful-anam-signature.jpeg" alt="Signature Saiful Anam" className="h-full object-contain dark:invert opacity-80" />
@@ -246,7 +246,7 @@ export default function AgreementDetail({ userModel }) {
                             </div>
                         </div>
 
-                        <div className="pt-8 text-center opacity-30 text-[9px] uppercase font-black tracking-[0.3em]">
+                        <div className="pt-8 text-center opacity-30 text-[9px] uppercase font-black tracking-[0.3em] text-gray-900 dark:text-white">
                             Validated via InDepth Mental Wellness Digital Authentication System
                         </div>
                     </div>

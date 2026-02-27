@@ -108,6 +108,14 @@ class AdminBookingController extends Controller
 
         $booking->update(['status' => 'cancelled']);
 
+        if ($booking->patient) {
+            try {
+                $booking->patient->notify(new \App\Notifications\BookingCancelled($booking));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to notify patient of cancellation: ' . $e->getMessage());
+            }
+        }
+
         if ($booking->transaction && $booking->transaction->status === 'pending') {
             $booking->transaction->update(['status' => 'cancelled']);
         }

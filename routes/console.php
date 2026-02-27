@@ -10,3 +10,5 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('sessions:auto-close')->everyMinute();
+Schedule::command('bookings:cleanup-pending')->hourly();
+Schedule::command('bookings:send-reminders')->everyTenMinutes();

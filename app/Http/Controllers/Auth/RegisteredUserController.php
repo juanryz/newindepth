@@ -53,13 +53,7 @@ class RegisteredUserController extends Controller
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'patient', 'guard_name' => 'web']);
         $user->assignRole('patient');
 
-        try {
-            $user->sendEmailVerificationNotification();
-            event(new Registered($user));
-        } catch (\Throwable $e) {
-            // Silently fail if email cannot be sent — don't block registration
-            \Illuminate\Support\Facades\Log::warning('Failed to send registration email: ' . $e->getMessage());
-        }
+        event(new Registered($user));
 
         Auth::login($user);
 

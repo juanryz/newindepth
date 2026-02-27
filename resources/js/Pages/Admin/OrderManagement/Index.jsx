@@ -108,6 +108,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [selectedReject, setSelectedReject] = useState(null);
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({ rejection_reason: '' });
     const [validatingTx, setValidatingTx] = useState(null);
+    const [validationChoiceTx, setValidationChoiceTx] = useState(null);
 
     // ─── Admin Voucher state ───
     const [voucherTxId, setVoucherTxId] = useState(null);
@@ -381,14 +382,12 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const handleReschedule = (e) => { e.preventDefault(); postReschedule(route('admin.bookings.reschedule', reschedulingBooking.id), { onSuccess: () => { setReschedulingBooking(null); resetReschedule(); } }); };
     const handleNoShow = (e) => { e.preventDefault(); postNoShow(route('admin.bookings.no-show', noShowBooking.id), { onSuccess: () => { setNoShowBooking(null); resetNoShow(); } }); };
     const handleValidate = (tx) => {
-        if (confirm('Validasi transaksi ini?')) {
-            setValidatingTx(tx.id);
-            router.post(route('admin.transactions.validate', tx.id), {}, {
-                preserveScroll: true,
-                preserveState: true,
-                onFinish: () => setValidatingTx(null)
-            });
-        }
+        setValidatingTx(tx.id);
+        router.post(route('admin.transactions.validate', tx.id), {}, {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => setValidatingTx(null)
+        });
     };
     const submitReject = (e) => { e.preventDefault(); rejectPost(route('admin.transactions.reject', selectedReject.id), { onSuccess: () => { setSelectedReject(null); resetReject(); } }); };
 
@@ -598,6 +597,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                     slotMaxTime="22:00:00"
                                                     slotDuration="01:00:00"
                                                     allDaySlot={false}
+                                                    weekends={false}
                                                     events={schedules}
                                                     eventClick={handleEventClick}
                                                     editable={false}
@@ -979,11 +979,21 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
 
                                                             return (
                                                                 <tr key={tx.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                                                                    <td className="px-6 py-5 text-center">
-                                                                        <div className="flex flex-col items-center">
+                                                                    <td className="px-6 py-5">
+                                                                        <div className="flex flex-col gap-1 items-start">
                                                                             <span className="text-sm font-black text-gray-900 dark:text-white mb-1">{tx.invoice_number}</span>
-                                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
-                                                                            <span className="text-[9px] text-gray-400 mt-0.5">{tx.created_at ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
+                                                                            <span className="text-[9px] text-gray-400">{tx.created_at ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
+                                                                            {tx.payment_proof && (
+                                                                                <div className="mt-2 text-left bg-gray-50 dark:bg-gray-800/50 p-2 border border-gray-100 dark:border-gray-700/50 rounded-lg">
+                                                                                    <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{tx.payment_bank}</div>
+                                                                                    {tx.payment_agreement_data?.payment_account_number && (
+                                                                                        <div className="text-[10px] text-gray-800 dark:text-gray-300 font-bold">{tx.payment_agreement_data.payment_account_number}</div>
+                                                                                    )}
+                                                                                    {tx.payment_agreement_data?.payment_account_name && (
+                                                                                        <div className="text-[9px] text-gray-400 capitalize">{tx.payment_agreement_data.payment_account_name}</div>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-6 py-5">
@@ -1057,7 +1067,11 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div className="flex flex-col items-center gap-2">
                                                                             {tx.status === 'pending' && (
                                                                                 <div className="flex justify-center gap-2">
-                                                                                    <button disabled={validatingTx === tx.id} onClick={() => handleValidate(tx)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">{validatingTx === tx.id ? '...' : 'Validasi'}</button>
+                                                                                    {tx.payment_proof ? (
+                                                                                        <button disabled={validatingTx === tx.id} onClick={() => setValidationChoiceTx(tx)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">{validatingTx === tx.id ? '...' : 'Validasi'}</button>
+                                                                                    ) : (
+                                                                                        <span className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-400 text-[9px] font-black uppercase rounded-xl border border-gray-200 dark:border-gray-700 cursor-not-allowed">Bukti Belum Ada</span>
+                                                                                    )}
                                                                                     <button onClick={() => setSelectedReject(tx)} className="px-4 py-2 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all">Tolak</button>
                                                                                 </div>
                                                                             )}
@@ -1504,6 +1518,47 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                     </div>
                 </div>
             )}
+            {/* Modal Choice Validation */}
+            <Modal show={!!validationChoiceTx} onClose={() => setValidationChoiceTx(null)} maxWidth="md">
+                <div className="p-8">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Pilih Opsi Validasi</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-medium">Anda akan memvalidasi pembayaran untuk <span className="font-bold text-gray-900 dark:text-white">#{validationChoiceTx?.invoice_number}</span>.</p>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        <button
+                            onClick={() => {
+                                handleValidate(validationChoiceTx);
+                                setValidationChoiceTx(null);
+                            }}
+                            className="group flex items-center justify-between p-6 bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-100 dark:border-emerald-800 rounded-2xl hover:border-emerald-500 transition-all text-left"
+                        >
+                            <div>
+                                <h4 className="font-black text-emerald-800 dark:text-emerald-400 uppercase text-xs mb-1">Validasi Langsung</h4>
+                                <p className="text-[10px] text-emerald-600/70 font-bold uppercase tracking-widest">Sesuai jadwal pilihan pasien</p>
+                            </div>
+                            <CheckCircle2 className="w-6 h-6 text-emerald-500 group-hover:scale-110 transition-transform" />
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setValidateReschedTx(validationChoiceTx);
+                                setValidationChoiceTx(null);
+                            }}
+                            className="group flex items-center justify-between p-6 bg-indigo-50 dark:bg-indigo-950/20 border-2 border-indigo-100 dark:border-indigo-800 rounded-2xl hover:border-indigo-500 transition-all text-left"
+                        >
+                            <div>
+                                <h4 className="font-black text-indigo-800 dark:text-indigo-400 uppercase text-xs mb-1">Validasi & Reschedule</h4>
+                                <p className="text-[10px] text-indigo-600/70 font-bold uppercase tracking-widest">Pindahkan ke slot lain</p>
+                            </div>
+                            <Calendar className="w-6 h-6 text-indigo-500 group-hover:scale-110 transition-transform" />
+                        </button>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+                        <SecondaryButton className="w-full justify-center py-4 rounded-xl font-black uppercase text-[10px] tracking-widest" onClick={() => setValidationChoiceTx(null)}>Batal</SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
