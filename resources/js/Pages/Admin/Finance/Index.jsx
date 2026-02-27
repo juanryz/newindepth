@@ -44,10 +44,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
     const tabs = [
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
         { id: 'expenses', label: 'Biaya Operasional', icon: ArrowDownCircle },
-        { id: 'petty_cash', label: 'Kas Kecil (Petty Cash)', icon: Wallet },
+        { id: 'petty_cash', label: 'Kas Kecil Internal', icon: Wallet },
     ];
 
-    const isSantaMaria = userRole.includes('santa_maria') || userRole.includes('super_admin');
+    const isSantaMaria = userRole.includes('santa_maria');
 
     const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
         description: '',
@@ -253,7 +253,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
 
                                 {/* FINANCE SUMMARY CARD */}
                                 <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-800">
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Kas Kecil Tersedia</h4>
+                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Kas Kecil Internal</h4>
                                     <p className="text-2xl font-black text-gray-900 dark:text-white">
                                         Rp {pettyCash.currentBalance.toLocaleString('id-ID')}
                                     </p>
@@ -281,7 +281,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                             {[
                                                 { label: 'Total Pemasukan', val: reports.stats.revenue, color: 'indigo' },
                                                 { label: 'Biaya Operasional', val: reports.stats.operational_expenses, color: 'rose' },
-                                                { label: 'Belanja Kas Kecil', val: reports.stats.petty_cash_expenses, color: 'orange' },
+                                                { label: 'Kas Kecil Internal', val: reports.stats.petty_cash_expenses, color: 'orange' },
                                                 { label: 'Komisi Afiliasi', val: reports.stats.commissions, color: 'amber' },
                                                 { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
@@ -318,7 +318,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                             </div>
 
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Kategori Pengeluaran</h3>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Kategori Pengeluaran (Inc. Kas Internal)</h3>
                                                 <div className="h-[350px]">
                                                     <ResponsiveContainer width="100%" height="100%">
                                                         <PieChart>
@@ -433,7 +433,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         className="space-y-6"
                                     >
                                         <div className="flex justify-between items-center mb-6">
-                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil (Petty Cash)</h3>
+                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil Internal</h3>
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={() => setIsProposalModalOpen(true)}
@@ -477,7 +477,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                     </td>
                                                                     <td className="px-8 py-6">
                                                                         <span className={`text-[10px] font-black uppercase tracking-widest ${p.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                                            {p.type === 'funding' ? 'Isi Saldo' : 'Belanja'}
+                                                                            {p.type === 'funding' ? 'Isi Saldo (In)' : 'Belanja (Out)'}
                                                                         </span>
                                                                     </td>
                                                                     <td className="px-8 py-6 text-right font-black text-sm text-gray-900 dark:text-white">
@@ -489,7 +489,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                                 p.status === 'approved' ? 'bg-indigo-100 text-indigo-700' :
                                                                                     p.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                                                                                 }`}>
-                                                                                {p.status === 'pending' ? 'Menunggu' : p.status}
+                                                                                {p.status === 'pending' ? 'Menunggu' :
+                                                                                    p.status === 'approved' ? 'Disetujui' :
+                                                                                        p.status === 'completed' ? 'Selesai' :
+                                                                                            p.status === 'rejected' ? 'Ditolak' : p.status}
                                                                             </span>
                                                                             {isSantaMaria && p.status === 'pending' && (
                                                                                 <div className="flex gap-1 mt-1">
@@ -551,7 +554,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                                                         : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                                                                         }`}>
-                                                                        {tx.type === 'in' ? 'Isi Saldo (In)' : 'Keluar (Out)'}
+                                                                        {tx.type === 'in' ? 'Isi Saldo (In)' : 'Belanja (Out)'}
                                                                     </span>
                                                                 </td>
                                                                 <td className={`px-8 py-6 text-right font-black text-sm ${tx.type === 'in' ? 'text-emerald-600' : 'text-rose-600'

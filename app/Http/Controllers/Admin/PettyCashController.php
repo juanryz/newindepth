@@ -79,6 +79,7 @@ class PettyCashController extends Controller
                 'recorded_by' => auth()->id(),
                 'payment_method' => $request->payment_method,
                 'receipt' => $path,
+                'balance_after' => $this->calculateNewBalance('in', $proposal->amount),
             ]);
 
             return back()->with('success', 'Permohonan dana berhasil disetujui and saldo telah bertambah.');

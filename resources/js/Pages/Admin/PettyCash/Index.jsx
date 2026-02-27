@@ -33,7 +33,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
     const [selectedProof, setSelectedProof] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-    const isSantaMaria = userRole.includes('santa_maria') || userRole.includes('super_admin');
+    const isSantaMaria = userRole.includes('santa_maria');
 
     const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
         type: 'spending',
@@ -148,7 +148,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
             header={
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">Workflow Kas Kecil</h2>
+                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">Workflow Kas Kecil Internal</h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Approval & Monitoring System</p>
                     </div>
                 </div>
@@ -164,7 +164,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                         <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 flex items-center justify-between overflow-hidden relative group">
                             <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo Kas Kecil Saat Ini</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo Kas Kecil Internal</p>
                                 <h3 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">Rp {currentBalance.toLocaleString('id-ID')}</h3>
                             </div>
                             <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl">
@@ -240,10 +240,14 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                 </div>
                                                 <div>
                                                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${proposal.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                        {proposal.type === 'funding' ? 'Replenishment / Isi Saldo' : 'Spending / Belanja Operasional'}
+                                                        {proposal.type === 'funding' ? 'Isi Saldo (In)' : 'Belanja Operasional (Out)'}
                                                     </span>
                                                     <h4 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{proposal.title}</h4>
-                                                    <p className="text-xs text-gray-500 mt-1 font-bold">Oleh: {proposal.user?.name} • {new Date(proposal.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+                                                    <p className="text-xs text-gray-500 mt-1 font-bold">
+                                                        Oleh: {proposal.user?.name}
+                                                        {proposal.approver && <span className="text-emerald-500 ml-2">• Disetujui: {proposal.approver.name}</span>}
+                                                        <span className="ml-2">• {new Date(proposal.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</span>
+                                                    </p>
                                                 </div>
                                             </div>
 
@@ -273,7 +277,10 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                 </h3>
                                                 <div className="mt-4 flex justify-center xl:justify-end">
                                                     <span className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(proposal.status)}`}>
-                                                        {proposal.status}
+                                                        {proposal.status === 'pending' ? 'Menunggu' :
+                                                            proposal.status === 'approved' ? 'Disetujui' :
+                                                                proposal.status === 'completed' ? 'Selesai' :
+                                                                    proposal.status === 'rejected' ? 'Ditolak' : proposal.status}
                                                     </span>
                                                 </div>
                                             </div>
@@ -338,7 +345,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                                                 <h6 className="text-xl font-black text-gray-900 dark:text-white">Rp {parseFloat(proof.amount_spent).toLocaleString('id-ID')}</h6>
                                                             </div>
                                                             <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(proof.status)}`}>
-                                                                {proof.status}
+                                                                {proof.status === 'pending' ? 'Menunggu' :
+                                                                    proof.status === 'approved' ? 'Disetujui' :
+                                                                        proof.status === 'rejected' ? 'Ditolak' : proof.status}
                                                             </div>
                                                         </div>
                                                         <p className="text-xs font-bold text-gray-500 mb-4 line-clamp-2">{proof.description}</p>
@@ -544,7 +553,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                             disabled={processingReject}
                             className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
                         >
-                            Tolak Selamanya
+                            Konfirmasi Penolakan
                         </button>
                     </div>
                 </form>
