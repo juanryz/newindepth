@@ -181,7 +181,7 @@ class FinanceController extends Controller
             ->get();
 
         $expenses = Expense::whereMonth('expense_date', $month)
-            ->whereYear('year', $year)
+            ->whereYear('expense_date', $year)
             ->orderBy('expense_date', 'asc')
             ->get();
 
