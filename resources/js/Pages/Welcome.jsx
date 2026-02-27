@@ -436,7 +436,7 @@ export default function Welcome({ auth, articles, courses }) {
                                         <img
                                             src="/images/julius-bambang.png"
                                             alt="Julius Bambang"
-                                            className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                                            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                                         />
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-center">
