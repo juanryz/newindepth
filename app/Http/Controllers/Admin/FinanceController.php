@@ -103,7 +103,9 @@ class FinanceController extends Controller
                 'stats' => [
                     'revenue' => (float) $revenue,
                     'commissions' => (float) $commissions,
-                    'expenses' => (float) $expensesSum,
+                    'operational_expenses' => (float) $expensesSum,
+                    'petty_cash_expenses' => (float) $pettyCashExpenses,
+                    'expenses' => (float) $totalExpensesSum,
                     'netIncome' => (float) $netIncome,
                 ],
                 'charts' => [

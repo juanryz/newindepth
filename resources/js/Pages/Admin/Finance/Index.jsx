@@ -277,10 +277,11 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         className="space-y-8"
                                     >
                                         {/* Status Stats Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6">
                                             {[
                                                 { label: 'Total Pemasukan', val: reports.stats.revenue, color: 'indigo' },
-                                                { label: 'Biaya Operasional', val: reports.stats.expenses, color: 'rose' },
+                                                { label: 'Biaya Operasional', val: reports.stats.operational_expenses, color: 'rose' },
+                                                { label: 'Belanja Kas Kecil', val: reports.stats.petty_cash_expenses, color: 'orange' },
                                                 { label: 'Komisi Afiliasi', val: reports.stats.commissions, color: 'amber' },
                                                 { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
