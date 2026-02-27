@@ -15,7 +15,12 @@ import {
     Search,
     Download,
     Eye,
-    Receipt
+    Receipt,
+    History,
+    CheckCircle2,
+    XCircle,
+    AlertCircle,
+    Image as ImageIcon
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -29,17 +34,20 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
 
-export default function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
+export default function FinanceIndex({ reports, expenses, pettyCash, filters, auth, userRole }) {
     const [activeTab, setActiveTab] = useState('reports');
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
+    const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
 
     const tabs = [
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
         { id: 'expenses', label: 'Biaya Operasional', icon: ArrowDownCircle },
         { id: 'petty_cash', label: 'Kas Kecil (Petty Cash)', icon: Wallet },
     ];
+
+    const isSantaMaria = userRole.includes('santa_maria') || userRole.includes('super_admin');
 
     const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
         description: '',
@@ -56,6 +64,26 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
         description: '',
         category: '',
         receipt: null,
+    });
+
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [selectedProposal, setSelectedProposal] = useState(null);
+
+    const { data: approveData, setData: setApproveData, post: postApprove, processing: processingApprove, reset: resetApprove } = useForm({
+        payment_method: 'transfer',
+        transfer_proof: null,
+    });
+
+    const { data: rejectData, setData: setRejectData, post: postReject, processing: processingReject, reset: resetReject, errors: rejectErrors } = useForm({
+        rejection_reason: '',
+    });
+
+    const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
+        type: 'spending',
+        title: '',
+        description: '',
+        amount: '',
     });
 
     const handleFilterChange = (e) => {
@@ -100,6 +128,53 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                 preserveScroll: true
             });
         }
+    };
+
+    const handleApprove = (proposal) => {
+        setSelectedProposal(proposal);
+        if (proposal.type === 'funding') {
+            setIsApproveModalOpen(true);
+        } else {
+            router.post(route('admin.petty-cash.proposals.approve', proposal.id), {}, { preserveScroll: true });
+        }
+    };
+
+    const submitApproveFunding = (e) => {
+        e.preventDefault();
+        postApprove(route('admin.petty-cash.proposals.approve', selectedProposal.id), {
+            onSuccess: () => {
+                setIsApproveModalOpen(false);
+                resetApprove();
+            },
+            preserveScroll: true
+        });
+    };
+
+    const handleReject = (proposal) => {
+        setSelectedProposal(proposal);
+        setIsRejectModalOpen(true);
+    };
+
+    const submitReject = (e) => {
+        e.preventDefault();
+        postReject(route('admin.petty-cash.proposals.reject', selectedProposal.id), {
+            onSuccess: () => {
+                setIsRejectModalOpen(false);
+                resetReject();
+            },
+            preserveScroll: true
+        });
+    };
+
+    const submitProposal = (e) => {
+        e.preventDefault();
+        postProposal(route('admin.petty-cash.proposals.store'), {
+            onSuccess: () => {
+                resetProposal();
+                setIsProposalModalOpen(false);
+            },
+            preserveScroll: true
+        });
     };
 
     return (
@@ -358,15 +433,97 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                     >
                                         <div className="flex justify-between items-center mb-6">
                                             <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Buku Kas Kecil (Petty Cash)</h3>
-                                            <button
-                                                onClick={() => setIsPettyCashModalOpen(true)}
-                                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
-                                            >
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Input Transaksi Kas
-                                            </button>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => setIsProposalModalOpen(true)}
+                                                    className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
+                                                >
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Buat Pengajuan Baru
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsPettyCashModalOpen(true)}
+                                                    className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                                                >
+                                                    <Receipt className="w-4 h-4 mr-2" />
+                                                    Catat Transaksi (Realisasi)
+                                                </button>
+                                            </div>
                                         </div>
 
+                                        {/* PROPOSALS SECTION */}
+                                        <div className="mb-10">
+                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Daftar Pengajuan & Status Approval</h4>
+                                            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                        <thead>
+                                                            <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Pengajuan</th>
+                                                                <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Jenis</th>
+                                                                <th className="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Nominal</th>
+                                                                <th className="px-8 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                            {pettyCash.proposals.map((p) => (
+                                                                <tr key={p.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
+                                                                    <td className="px-8 py-6">
+                                                                        <div className="font-bold text-gray-900 dark:text-white">{p.title}</div>
+                                                                        <div className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">
+                                                                            Oleh: {p.user?.name}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-8 py-6">
+                                                                        <span className={`text-[10px] font-black uppercase tracking-widest ${p.type === 'funding' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                                            {p.type === 'funding' ? 'Isi Saldo' : 'Belanja'}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-8 py-6 text-right font-black text-sm text-gray-900 dark:text-white">
+                                                                        Rp {parseFloat(p.amount).toLocaleString('id-ID')}
+                                                                    </td>
+                                                                    <td className="px-8 py-6 text-center">
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                                                                p.status === 'approved' ? 'bg-indigo-100 text-indigo-700' :
+                                                                                    p.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                                                                }`}>
+                                                                                {p.status === 'pending' ? 'Menunggu' : p.status}
+                                                                            </span>
+                                                                            {isSantaMaria && p.status === 'pending' && (
+                                                                                <div className="flex gap-1 mt-1">
+                                                                                    <button
+                                                                                        onClick={() => handleApprove(p)}
+                                                                                        className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all"
+                                                                                        title="Setujui"
+                                                                                    >
+                                                                                        <CheckCircle2 className="w-3 h-3" />
+                                                                                    </button>
+                                                                                    <button
+                                                                                        onClick={() => handleReject(p)}
+                                                                                        className="p-1.5 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-all"
+                                                                                        title="Tolak"
+                                                                                    >
+                                                                                        <XCircle className="w-3 h-3" />
+                                                                                    </button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                            {pettyCash.proposals.length === 0 && (
+                                                                <tr>
+                                                                    <td colSpan="4" className="px-8 py-10 text-center text-gray-400 italic text-xs">Belum ada pengajuan.</td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Riwayat Transaksi Realisasi</h4>
                                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
                                             <div className="overflow-x-auto">
                                                 <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
@@ -606,6 +763,174 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                     </div>
                 </div>
             )}
+
+            {/* Approve Funding Modal */}
+            <Modal show={isApproveModalOpen} onClose={() => setIsApproveModalOpen(false)}>
+                <form onSubmit={submitApproveFunding} className="p-10 dark:bg-gray-900 rounded-[3rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight">Konfirmasi Pengiriman Dana</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-serif leading-relaxed">
+                        Silakan unggah bukti transfer dana sebesar <span className="text-emerald-600 font-bold">Rp {parseFloat(selectedProposal?.amount || 0).toLocaleString('id-ID')}</span> untuk menyelesaikan pengisian Kas Kecil.
+                    </p>
+
+                    <div className="space-y-6">
+                        <div>
+                            <InputLabel value="Metode Pengiriman Dana" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                            <div className="flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setApproveData('payment_method', 'transfer')}
+                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'transfer' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}
+                                >
+                                    Transfer Bank
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setApproveData('payment_method', 'cash')}
+                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${approveData.payment_method === 'cash' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400'}`}
+                                >
+                                    Tunai / Cash
+                                </button>
+                            </div>
+                        </div>
+
+                        {approveData.payment_method === 'transfer' && (
+                            <div className="relative group">
+                                <InputLabel value="Upload Bukti Transfer (JPG/PNG)" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="w-full p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-500 cursor-pointer hover:border-emerald-500 transition-all"
+                                    onChange={e => setApproveData('transfer_proof', e.target.files[0])}
+                                    required={approveData.payment_method === 'transfer'}
+                                />
+                            </div>
+                        )}
+
+                        {approveData.payment_method === 'cash' && (
+                            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl">
+                                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed">
+                                    Konfirmasi penyerahan dana secara tunai. Saldo kas kecil akan langsung bertambah setelah Bapak menekan tombol "Konfirmasi" di bawah.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mt-10 flex gap-4">
+                        <SecondaryButton onClick={() => setIsApproveModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={processingApprove}
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
+                        >
+                            Konfirmasi & Kirim
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Reject Modal */}
+            <Modal show={isRejectModalOpen} onClose={() => setIsRejectModalOpen(false)}>
+                <form onSubmit={submitReject} className="p-10 dark:bg-gray-900 rounded-[3rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight">Tolak Pengajuan</h2>
+                    <p className="text-sm text-gray-500 mb-8 font-serif">Berikan alasan mengapa pengajuan ini ditolak guna transparansi pelaporan.</p>
+
+                    <div>
+                        <InputLabel value="Alasan Penolakan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                        <textarea
+                            className="w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-rose-500 focus:border-rose-500 h-32"
+                            value={rejectData.rejection_reason}
+                            onChange={e => setRejectData('rejection_reason', e.target.value)}
+                            required
+                        />
+                        <InputError message={rejectErrors.rejection_reason} />
+                    </div>
+
+                    <div className="mt-10 flex gap-4">
+                        <SecondaryButton onClick={() => setIsRejectModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={processingReject}
+                            className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
+                        >
+                            Tolak Selamanya
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Create Proposal Modal */}
+            <Modal show={isProposalModalOpen} onClose={() => setIsProposalModalOpen(false)}>
+                <form onSubmit={submitProposal} className="p-10 dark:bg-gray-900 rounded-[3rem]">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tight">Buat Pengajuan Kas Kecil</h2>
+
+                    <div className="space-y-6">
+                        <div className="flex bg-gray-50 dark:bg-black/20 p-2 rounded-2xl">
+                            <button
+                                type="button"
+                                onClick={() => setProposalData('type', 'spending')}
+                                className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === 'spending' ? 'bg-indigo-600 text-white shadow-xl' : 'text-gray-400'}`}
+                            >
+                                Pengajuan Belanja
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setProposalData('type', 'funding')}
+                                className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${proposalData.type === 'funding' ? 'bg-emerald-600 text-white shadow-xl' : 'text-gray-400'}`}
+                            >
+                                Permohonan Dana
+                            </button>
+                        </div>
+
+                        <div>
+                            <InputLabel value="Judul Pengajuan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                            <TextInput
+                                className="w-full !rounded-2xl"
+                                value={proposalData.title}
+                                onChange={e => setProposalData('title', e.target.value)}
+                                placeholder="Misal: Belanja ATK Kantor"
+                            />
+                            <InputError message={proposalErrors.title} />
+                        </div>
+
+                        <div>
+                            <InputLabel value="Nominal Budget Dimohon" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                            <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">Rp</span>
+                                <TextInput
+                                    type="number"
+                                    className="w-full !rounded-2xl !pl-12"
+                                    value={proposalData.amount}
+                                    onChange={e => setProposalData('amount', e.target.value)}
+                                    placeholder="0"
+                                />
+                            </div>
+                            <InputError message={proposalErrors.amount} />
+                        </div>
+
+                        <div>
+                            <InputLabel value="Detail Keperluan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                            <textarea
+                                className="w-full !rounded-2xl border-gray-100 dark:border-gray-800 dark:bg-white/[0.02] dark:text-white focus:ring-indigo-500 focus:border-indigo-500 h-32 p-4"
+                                value={proposalData.description}
+                                onChange={e => setProposalData('description', e.target.value)}
+                                placeholder="Jelaskan secara detail barang apa saja yang akan dibeli..."
+                            />
+                            <InputError message={proposalErrors.description} />
+                        </div>
+                    </div>
+
+                    <div className="mt-10 flex gap-4">
+                        <SecondaryButton onClick={() => setIsProposalModalOpen(false)} className="flex-1 justify-center !rounded-2xl">Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={processingProposal}
+                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20"
+                        >
+                            Kirim Pengajuan
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

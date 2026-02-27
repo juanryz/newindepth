@@ -34,7 +34,14 @@ class FinanceController extends Controller
             ->whereYear('expense_date', $year)
             ->sum('amount');
 
-        $netIncome = $revenue - $commissions - $expensesSum;
+        $pettyCashExpenses = PettyCashTransaction::where('type', 'out')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->sum('amount');
+
+        $totalExpensesSum = $expensesSum + $pettyCashExpenses;
+
+        $netIncome = $revenue - $commissions - $totalExpensesSum;
 
         $revenueByMonth = Transaction::select(
             DB::raw('SUM(amount) as total'),
@@ -47,7 +54,7 @@ class FinanceController extends Controller
             ->orderBy('sort_key')
             ->get();
 
-        $expensesByCategory = Expense::select(
+        $expensesByCategoryRaw = Expense::select(
             'category',
             DB::raw('SUM(amount) as total')
         )
@@ -55,6 +62,21 @@ class FinanceController extends Controller
             ->whereYear('expense_date', $year)
             ->groupBy('category')
             ->get();
+
+        $pettyCashByCategory = PettyCashTransaction::select(
+            DB::raw('"Kas Kecil" as category'),
+            DB::raw('SUM(amount) as total')
+        )
+            ->where('type', 'out')
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->groupBy('category')
+            ->get();
+
+        // Combine categories
+        $expensesByCategory = $expensesByCategoryRaw->concat($pettyCashByCategory);
+
+        $expensesSum = $totalExpensesSum; // For the rest of the logic to use combined total
 
         // --- EXPENSES TAB DATA ---
         $expenses = Expense::with('recorder')
@@ -67,6 +89,10 @@ class FinanceController extends Controller
         $pettyCashTransactions = PettyCashTransaction::with('recorder')
             ->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc')
+            ->get();
+
+        $pettyCashProposals = \App\Models\PettyCashProposal::with(['user', 'approver'])
+            ->latest()
             ->get();
 
         $pettyCashBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
@@ -88,8 +114,10 @@ class FinanceController extends Controller
             'expenses' => $expenses,
             'pettyCash' => [
                 'transactions' => $pettyCashTransactions,
+                'proposals' => $pettyCashProposals,
                 'currentBalance' => (float) $pettyCashBalance,
             ],
+            'userRole' => auth()->user()->roles->pluck('name')->toArray(),
             'filters' => [
                 'month' => $month,
                 'year' => $year,

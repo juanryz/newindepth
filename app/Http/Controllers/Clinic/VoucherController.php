@@ -24,18 +24,18 @@ class VoucherController extends Controller
             ->orderByDesc('claimed_at')
             ->get()
             ->map(fn($uv) => [
-        'id' => $uv->id,
-        'code' => $uv->voucher->code,
-        'description' => $uv->voucher->description,
-        'discount_amount' => $uv->voucher->discount_amount,
-        'type' => $uv->voucher->type,
-        'claimed_at' => $uv->claimed_at,
-        'expired_at' => $uv->expired_at,
-        'used_at' => $uv->used_at,
-        'is_active' => $uv->isActive(),
-        'is_expired' => $uv->isExpired(),
-        'is_used' => $uv->isUsed(),
-        ]);
+                'id' => $uv->id,
+                'code' => $uv->voucher->code,
+                'description' => $uv->voucher->description,
+                'discount_amount' => $uv->voucher->discount_amount,
+                'type' => $uv->voucher->type,
+                'claimed_at' => $uv->claimed_at,
+                'expired_at' => $uv->expired_at,
+                'used_at' => $uv->used_at,
+                'is_active' => $uv->isActive(),
+                'is_expired' => $uv->isExpired(),
+                'is_used' => $uv->isUsed(),
+            ]);
 
         return Inertia::render('Clinic/Vouchers/Index', [
             'userVouchers' => $userVouchers,
@@ -150,11 +150,18 @@ class VoucherController extends Controller
             $booking->update(['user_voucher_id' => $userVoucher->id]);
             $transaction = $booking->transaction;
             if ($transaction) {
-                $transaction->update(['amount' => max(1, $transaction->amount - $discount)]);
+                $metadata = $transaction->payment_agreement_data ?? [];
+                $transaction->update([
+                    'amount' => max(1, $transaction->amount - $discount),
+                    'payment_agreement_data' => array_merge($metadata, [
+                        'applied_voucher_id' => $userVoucher->id,
+                        'applied_voucher_code' => $voucher->code,
+                        'discount_amount' => $discount,
+                    ])
+                ]);
                 $applied = true;
             }
-        }
-        elseif ($request->transaction_id) {
+        } elseif ($request->transaction_id) {
             $transaction = Transaction::where('id', $request->transaction_id)
                 ->where('user_id', $user->id)
                 ->firstOrFail();

@@ -111,12 +111,15 @@ export default function PaymentUpload({ booking, transaction }) {
                                     <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
                                         Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}
                                     </p>
-                                    {transaction.payment_agreement_data?.discount_amount > 0 && (
-                                        <p className="text-[10px] text-emerald-600 font-bold mt-1">
-                                            (Sudah termasuk diskon Rp {new Intl.NumberFormat('id-ID').format(transaction.payment_agreement_data.discount_amount)})
-                                        </p>
+                                    {((transaction.payment_agreement_data?.discount_amount > 0) || (booking.user_voucher?.voucher?.discount_amount > 0)) && (
+                                        <div className="mt-2 space-y-1">
+                                            <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
+                                                Terpotong Voucher: Rp {new Intl.NumberFormat('id-ID').format(transaction.payment_agreement_data?.discount_amount || booking.user_voucher?.voucher?.discount_amount || 0)}
+                                            </p>
+                                        </div>
                                     )}
-                                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">*Sudah termasuk PPN 11%</p>
+                                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">*Sudah termasuk PPN 11% dan kode unik</p>
                                 </div>
                                 <div className="flex-1 space-y-3">
                                     <div className="flex items-center gap-3">
