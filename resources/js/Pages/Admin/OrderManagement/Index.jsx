@@ -19,6 +19,21 @@ function renderEventContent(eventInfo) {
     const isBooked = eventInfo.event.extendedProps.bookings?.length > 0;
     const therapistName = eventInfo.event.extendedProps.therapist?.name || 'Terapis';
     const isPast = eventInfo.event.start < new Date();
+    const isOff = eventInfo.event.extendedProps.status === 'off';
+
+    if (isOff) {
+        return (
+            <div className="h-full w-full p-1 sm:p-2 rounded-xl transition-all flex flex-col justify-center gap-0 sm:gap-1 overflow-hidden bg-slate-100 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 shadow-sm opacity-80 cursor-not-allowed">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest opacity-60 leading-tight truncate">{eventInfo.timeText}</span>
+                <div className="text-[10px] sm:text-xs font-black truncate leading-tight uppercase tracking-tight text-slate-500 dark:text-slate-400">
+                    🏖️ LIBUR
+                </div>
+                <div className="text-[8px] font-bold uppercase tracking-widest truncate">
+                    Off-Duty • {therapistName}
+                </div>
+            </div>
+        );
+    }
 
     if (isPast && !isBooked) {
         return (

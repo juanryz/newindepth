@@ -195,12 +195,26 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         const { event } = eventInfo;
         const isMine = event.extendedProps.is_mine;
         const isBooked = event.extendedProps.bookings && event.extendedProps.bookings.length > 0;
-        const status = isBooked ? event.extendedProps.bookings[0].status : 'available';
+        const status = isBooked ? event.extendedProps.bookings[0].status : (event.extendedProps.status || 'available');
         const patientName = isBooked ? event.extendedProps.bookings[0].patient?.name : null;
 
         // Base styling for glass effect
         let contentClass = "h-full w-full p-1 sm:p-2 rounded-xl flex flex-col justify-center gap-0 sm:gap-1 overflow-hidden transition-all duration-300 ";
         let textClass = "font-black truncate leading-none uppercase tracking-tight pointer-events-none ";
+
+        if (status === 'off') {
+            contentClass += "bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 opacity-60";
+            textClass += "text-[9px] text-slate-500 italic";
+            return (
+                <div className={contentClass}>
+                    <div className="flex items-center justify-between pointer-events-none mb-0.5">
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-60 leading-tight truncate">{eventInfo.timeText}</span>
+                    </div>
+                    <div className={textClass}>🏝️ LIBUR</div>
+                    <div className="text-[7.5px] font-bold opacity-60 uppercase tracking-widest truncate">DILIBURKAN ADMIN</div>
+                </div>
+            );
+        }
 
         if (isMine) {
             if (status === 'in_progress') {

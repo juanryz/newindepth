@@ -196,6 +196,14 @@ class AdminScheduleController extends Controller
             'therapist_id' => 'nullable|exists:users,id',
         ]);
 
+        $startTime = $request->start_time;
+        if (strlen($startTime) === 5)
+            $startTime .= ':00';
+
+        $endTime = $request->end_time;
+        if (strlen($endTime) === 5)
+            $endTime .= ':59'; // Include the full last minute
+
         $query = Schedule::query()
             ->where('date', '>=', $request->date_from)
             ->where('date', '<=', $request->date_to)
@@ -205,16 +213,15 @@ class AdminScheduleController extends Controller
             $query->where('therapist_id', $request->therapist_id);
         }
 
-        if ($request->start_time && $request->end_time) {
-            $query->where(function ($q) use ($request) {
-                // If the slot is completely within the disabled time OR overlaps it
-                $q->where('start_time', '>=', $request->start_time)
-                    ->where('end_time', '<=', $request->end_time);
-            });
-        }
+        $query->where(function ($q) use ($startTime, $endTime) {
+            // Proper Overlap Detection:
+            // (slot_start < range_end) AND (slot_end > range_start)
+            $q->where('start_time', '<', $endTime)
+                ->where('end_time', '>', $startTime);
+        });
 
-        $deleted = $query->delete();
+        $updated = $query->update(['status' => 'off']);
 
-        return back()->with('success', "Berhasil meliburkan/menghapus {$deleted} slot jadwal yang belum terpesan.");
+        return back()->with('success', "Berhasil meliburkan {$updated} slot jadwal (status diubah menjadi LIBUR).");
     }
 }
