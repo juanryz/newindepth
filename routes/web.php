@@ -237,6 +237,10 @@ Route::get('/metode', function () {
     return Inertia::render('Methods/Index');
 })->name('methods.index');
 
+Route::get('/metode/indepth-trance', [App\Http\Controllers\MethodsDetailController::class, 'indepthTrance'])->name('methods.indepth-trance');
+Route::get('/metode/supreme-trance', [App\Http\Controllers\MethodsDetailController::class, 'supremeTrance'])->name('methods.supreme-trance');
+Route::get('/metode/indepth-solution', [App\Http\Controllers\MethodsDetailController::class, 'indepthSolution'])->name('methods.indepth-solution');
+
 // Public Therapist Routes
 Route::get('/therapists', [\App\Http\Controllers\TherapistController::class, 'index'])->name('therapists.index');
 Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class, 'show'])->name('therapists.show');

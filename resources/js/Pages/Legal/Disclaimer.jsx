@@ -11,209 +11,137 @@ export default function Disclaimer({ auth }) {
             <Head title="Disclaimer Resmi | InDepth Mental Wellness" />
 
             <LiquidBackground />
+
+            {/* Depth Blobs */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                <div className="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-gold-500/5 rounded-full blur-[160px] animate-pulse"></div>
+                <div className="absolute top-1/2 -right-40 w-[30rem] h-[30rem] bg-blue-500/5 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+            </div>
+
             <Navbar auth={auth} />
 
-            <main className="relative z-10 pt-32 pb-20">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <main className="relative z-10 pt-40 pb-20">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-2xl border border-white/60 dark:border-gray-700/50 rounded-[3rem] p-8 md:p-16 shadow-2xl relative"
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="bg-white/40 dark:bg-gray-900/70 backdrop-blur-[50px] backdrop-saturate-[200%] border border-white/50 dark:border-white/10 rounded-[4rem] p-8 md:p-24 shadow-2xl relative overflow-hidden"
                     >
-                        <div className="absolute top-8 left-8 md:top-12 md:left-12">
-                            <Link
-                                href="/"
-                                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gold-500 transition-colors group"
-                            >
-                                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                </svg>
-                                Kembali
-                            </Link>
-                        </div>
+                        {/* Reflective Top Edge */}
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
 
-                        <header className="mb-12 text-center">
-                            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter uppercase">
-                                Disclaimer Resmi
+                        <header className="mb-24 text-center">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="inline-flex items-center gap-3 mb-8 px-6 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] font-black tracking-[0.4em] uppercase shadow-xl"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
+                                Legal Framework 1.0
+                            </motion.div>
+                            <h1 className="text-5xl md:text-8xl font-black text-gray-900 dark:text-white mb-10 tracking-[ -0.05em] uppercase leading-none">
+                                Disclaimer <span className="text-transparent bg-clip-text bg-gradient-to-br from-gold-400 via-gold-600 to-yellow-700">Resmi</span>
                             </h1>
-                            <div className="h-1.5 w-24 bg-gradient-to-r from-gold-400 to-gold-600 mx-auto rounded-full mb-6"></div>
-                            <p className="text-gold-600 dark:text-gold-400 font-bold tracking-widest uppercase text-sm">InDepth Mental Wellness</p>
+                            <p className="text-gray-500 dark:text-gray-400 font-bold tracking-[0.2em] uppercase text-xs md:text-sm max-w-3xl mx-auto leading-loose opacity-70">
+                                Batasan tanggung jawab hukum, klasifikasi layanan profesional, dan persetujuan sistemik dalam ekosistem InDepth Mental Wellness.
+                            </p>
                         </header>
 
-                        <div className="space-y-12 text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative text-gray-700 dark:text-gray-300">
+                            {[
+                                {
+                                    title: "Status Layanan",
+                                    icon: "⚖️",
+                                    content: "InDepth Mental Wellness adalah penyedia layanan hipnoterapi profesional berbasis pendekatan psikologis. Layanan kami bukan pengganti diagnosis medis, psikiatri, atau intervensi gawat darurat klinis."
+                                },
+                                {
+                                    title: "Batas Tanggung Jawab",
+                                    icon: "🛡️",
+                                    content: "Kami tidak bertanggung jawab atas kondisi medis murni yang tidak diungkapkan sebelumnya. Tanggung jawab maksimal kami terbatas pada nilai biaya layanan sesi yang telah dilakukan sesuai kesepakatan."
+                                },
+                                {
+                                    title: "Integritas Hasil",
+                                    icon: "✨",
+                                    content: "Setiap individu memiliki respons biologis dan psikologis yang unik. Hasil terapi bersifat subjektif dan dipengaruhi oleh tingkat partisipasi serta kapasitas adaptif sistem tubuh Anda sendiri."
+                                },
+                                {
+                                    title: "Protokol Dokumentasi",
+                                    icon: "📽️",
+                                    content: "Seluruh sesi didokumentasikan melalui audio dan video untuk perlindungan hukum dan transparansi. Rekaman dijaga kerahasiaannya dan hanya dapat diakses melalui otoritas resmi."
+                                }
+                            ].map((card, i) => (
+                                <motion.div
+                                    key={i}
+                                    whileHover={{ y: -5 }}
+                                    className="p-10 rounded-[3rem] bg-white/30 dark:bg-black/20 border border-white/40 dark:border-white/5 backdrop-blur-md shadow-lg"
+                                >
+                                    <div className="text-4xl mb-6">{card.icon}</div>
+                                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tight italic">{card.title}</h3>
+                                    <p className="text-lg font-medium leading-relaxed opacity-80">{card.content}</p>
+                                </motion.div>
+                            ))}
+                        </div>
 
-                            {/* Section 1 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">1</span>
-                                    STATUS LAYANAN
-                                </h2>
-                                <p className="mb-4">InDepth Mental Wellness adalah penyedia layanan hipnoterapi profesional berbasis pendekatan psikologis dan pengembangan diri.</p>
-                                <div className="p-5 bg-gold-500/5 rounded-2xl border border-gold-500/10">
-                                    <p className="font-bold text-gray-900 dark:text-white mb-3">Layanan yang diberikan:</p>
-                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                                        {['Bukan layanan medis', 'Bukan pengganti diagnosis dokter', 'Bukan pengganti pengobatan medis', 'Bukan layanan psikiatri'].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-2">
-                                                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
+                        {/* Force Majeure & Age grid */}
+                        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                            <div className="p-8 border border-gray-100 dark:border-gray-800 rounded-3xl">
+                                <span className="text-gold-500 block mb-2">01. Batasan Usia</span>
+                                Minimal 21 tahun untuk akses mandiri. Di bawah 21 wajib pendampingan wali sah.
+                            </div>
+                            <div className="p-8 border border-gray-100 dark:border-gray-800 rounded-3xl">
+                                <span className="text-gold-500 block mb-2">02. Force Majeure</span>
+                                Sesi dapat dijadwalkan ulang akibat bencana, gangguan infrastruktur, atau kondisi darurat makro.
+                            </div>
+                            <div className="p-8 border border-gray-100 dark:border-gray-800 rounded-3xl">
+                                <span className="text-gold-500 block mb-2">03. Domisili Hukum</span>
+                                Segala penyelesaian sengketa dilakukan melalui musyawarah di wilayah hukum Kota Semarang.
+                            </div>
+                        </div>
+
+                        {/* Specialized Final Branding Section */}
+                        <div className="pt-40 mt-32 border-t border-gray-100 dark:border-gray-800">
+                            <div className="text-center space-y-16">
+                                <div className="space-y-6">
+                                    <div className="inline-flex items-center gap-8">
+                                        <div className="h-px w-12 bg-gold-500/30"></div>
+                                        <p className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 font-bold italic tracking-wide">
+                                            "Tubuh memiliki memori. Kesadaran memiliki arah."
+                                        </p>
+                                        <div className="h-px w-12 bg-gold-500/30"></div>
+                                    </div>
                                 </div>
-                                <p className="mt-4 text-sm italic font-medium">Segala tindakan medis darurat harus dilakukan oleh fasilitas kesehatan resmi.</p>
-                            </section>
 
-                            {/* Section 2 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">2</span>
-                                    BATASAN TANGGUNG JAWAB
-                                </h2>
-                                <p className="mb-4">InDepth Mental Wellness tidak bertanggung jawab atas:</p>
-                                <ul className="space-y-2 mb-6 ml-4">
-                                    {['Kondisi medis murni yang terjadi tanpa unsur kelalaian', 'Serangan jantung mendadak', 'Gangguan saraf spontan', 'Reaksi tubuh yang tidak diungkapkan sebelumnya oleh klien', 'Risiko akibat penyembunyian informasi kesehatan'].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-2 text-sm">
-                                            <span className="text-gold-500">•</span>
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <p className="text-sm border-l-4 border-gold-500 pl-4 py-2 bg-gray-50 dark:bg-gray-800/50 rounded-r-xl">
-                                    Jika terdapat kelalaian yang terbukti secara hukum dari pihak InDepth, maka tanggung jawab maksimal terbatas pada nilai biaya layanan sesi tersebut.
-                                </p>
-                            </section>
-
-                            {/* Section 3 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">3</span>
-                                    HASIL TERAPI
-                                </h2>
-                                <p className="mb-4">Setiap individu memiliki kondisi psikologis, biologis, dan keyakinan yang berbeda. Oleh karena itu:</p>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {['Tidak ada jaminan hasil instan', 'Tidak ada jaminan kesembuhan absolut', 'Hasil terapi bersifat individual'].map((item, i) => (
-                                        <div key={i} className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl text-center text-sm font-bold border border-white/20">
-                                            {item}
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-20">
+                                    {['Regulasi', 'Integrasi', 'Transformasi'].map((word, i) => (
+                                        <div key={i} className="flex items-center gap-8">
+                                            <span className="text-5xl md:text-8xl font-black tracking-[-0.08em] text-gray-900 dark:text-white uppercase leading-none">
+                                                {word}
+                                            </span>
+                                            {i < 2 && <span className="hidden md:block text-gold-500 text-6xl font-thin opacity-30">/</span>}
                                         </div>
                                     ))}
                                 </div>
-                                <p className="mt-4 text-sm font-bold text-red-600 dark:text-red-400 underline decoration-2 underline-offset-4 uppercase tracking-wider">Ketidakpuasan subjektif tidak menjadi dasar pengembalian dana.</p>
-                            </section>
 
-                            {/* Section 4 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">4</span>
-                                    SISTEM DOKUMENTASI DAN TRANSPARANSI
-                                </h2>
-                                <div className="space-y-3 mb-4">
-                                    <p>Seluruh sesi hipnoterapi:</p>
-                                    <ul className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                        {['Direkam audio dan video', 'Disimpan untuk perlindungan hukum', 'Visual dapat ditampilkan di ruang tunggu tanpa audio'].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg">
-                                                <svg className="w-4 h-4 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" /></svg>
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <p className="text-sm">Rekaman hanya dibuka atas permintaan resmi pihak berwenang. Setelah masa simpan tertentu, rekaman dapat dianonimkan untuk kepentingan akademik. <strong>Dengan mengikuti layanan, klien dianggap telah memahami dan menyetujui sistem dokumentasi ini.</strong></p>
-                            </section>
-
-                            {/* Section 5 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">5</span>
-                                    KEADAAN DARURAT MEDIS
-                                </h2>
-                                <p>Apabila terjadi kondisi darurat medis: Sesi dihentikan, bantuan medis segera dipanggil, dan rekaman tidak dihentikan sampai klien meninggalkan ruangan.</p>
-                                <p className="mt-3 text-sm font-bold bg-amber-50 dark:bg-amber-900/20 p-4 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300">
-                                    Jika terjadi kematian akibat kondisi medis murni tanpa unsur kelalaian atau kekerasan, maka kedua pihak sepakat untuk tidak saling menuntut.
-                                </p>
-                            </section>
-
-                            {/* Section 6 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">6</span>
-                                    NO-SHOW DAN PEMBATALAN
-                                </h2>
-                                <div className="space-y-2 text-sm">
-                                    <p>• Sesi berdurasi 2 jam (termasuk buffer 30 menit).</p>
-                                    <p>• Jika klien tidak hadir dalam 1 jam sejak jadwal dimulai, sesi dianggap berjalan.</p>
-                                    <p className="font-bold text-red-600">• Tidak ada refund untuk No-Show.</p>
-                                    <p>• Pembatalan maksimal 24 jam sebelum jadwal.</p>
-                                    <p>• Pembatalan di luar ketentuan tidak dapat direfund.</p>
-                                </div>
-                            </section>
-
-                            {/* Section 7 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">7</span>
-                                    KEWAJIBAN KLIEN
-                                </h2>
-                                <p className="mb-2">Klien wajib:</p>
-                                <ul className="list-disc ml-6 space-y-1 text-sm">
-                                    <li>Memberikan data yang benar</li>
-                                    <li>Mengungkap kondisi kesehatan yang relevan</li>
-                                    <li>Tidak berada di bawah pengaruh alkohol atau narkotika</li>
-                                    <li>Mengikuti instruksi profesional hipnoterapis</li>
-                                </ul>
-                                <p className="mt-3 text-sm italic font-bold">Pelanggaran dapat menyebabkan sesi dihentikan tanpa pengembalian dana.</p>
-                            </section>
-
-                            {/* Section 8 */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-gold-500/10 text-gold-600 flex items-center justify-center font-black">8</span>
-                                    BATAS USIA
-                                </h2>
-                                <p>Usia dewasa hukum untuk mengikuti layanan secara mandiri adalah 21 tahun. Klien di bawah usia tersebut wajib didampingi dan mendapat persetujuan orang tua atau wali sah.</p>
-                            </section>
-
-                            {/* Section 9-10 (Combined for brevity in visual) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <section>
-                                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">9. FORCE MAJEURE</h2>
-                                    <p className="text-sm">InDepth tidak bertanggung jawab atas gangguan akibat bencana alam, gangguan listrik/jaringan, kebijakan pemerintah, kerusuhan, atau kondisi darurat di luar kendali manusia. Sesi dapat dijadwalkan ulang tanpa penalti.</p>
-                                </section>
-                                <section>
-                                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">10. KERAHASIAAN</h2>
-                                    <p className="text-sm">Seluruh informasi klien dijaga kerahasiaannya. Klien dilarang menyebarkan tuduhan tanpa dasar hukum tetap atau menyebarkan potongan rekaman tanpa izin tertulis.</p>
-                                </section>
-                            </div>
-
-                            {/* Section 11-12 */}
-                            <section className="bg-gray-900 dark:bg-black text-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/20 rounded-bl-full pointer-events-none"></div>
-                                <h2 className="text-2xl font-black mb-6 uppercase tracking-tighter">Persetujuan Akhir</h2>
-                                <div className="space-y-6 text-sm md:text-base opacity-90">
-                                    <div>
-                                        <h3 className="font-bold text-gold-400 mb-2">11. PERSETUJUAN ELEKTRONIK</h3>
-                                        <p>Dengan menggunakan website, melakukan booking, atau mengikuti sesi, pengguna dianggap telah membaca, memahami, dan menyetujui seluruh isi disclaimer ini tanpa keberatan. Persetujuan elektronik tunduk pada UU ITE dan memiliki kekuatan hukum yang sah.</p>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-gold-400 mb-2">12. DOMISILI HUKUM</h3>
-                                        <p>Segala sengketa diselesaikan melalui musyawarah. Apabila tidak tercapai kesepakatan, para pihak sepakat memilih domisili hukum di Pengadilan Negeri Semarang.</p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            {/* Professional Statement */}
-                            <div className="text-center pt-8 border-t border-gray-100 dark:border-gray-800">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 italic">Pernyataan Profesional</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Kami berkomitmen memberikan layanan terbaik dalam batas kewenangan profesional hipnoterapi dengan standar dokumentasi transparan dan prosedur keselamatan yang ketat.</p>
-                                <div className="mt-8">
-                                    <Link
-                                        href={auth.user ? route('dashboard') : route('register')}
-                                        className="inline-flex items-center gap-2 px-8 py-3 bg-gold-500 hover:bg-gold-600 text-white font-black rounded-full transition-all shadow-lg shadow-gold-600/20 active:scale-95 uppercase tracking-widest text-xs"
-                                    >
-                                        Mulai Perjalanan Anda
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                    </Link>
+                                <div className="max-w-3xl mx-auto p-12 rounded-[4rem] bg-gold-500/10 border border-gold-500/20 backdrop-blur-xl">
+                                    <p className="text-sm md:text-xl font-black text-gray-900 dark:text-white uppercase tracking-[0.3em] leading-relaxed">
+                                        Sistem memiliki kapasitas adaptif.<br />
+                                        <span className="text-gold-600 dark:text-gold-400 mt-2 block">InDepth Solution menyatukan ketiganya dalam satu protokol terstruktur.</span>
+                                    </p>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="flex justify-center pt-24">
+                            <Link
+                                href="/"
+                                className="group relative inline-flex items-center gap-5 px-20 py-7 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white font-black rounded-full transition-all active:scale-95 shadow-3xl hover:border-gold-500"
+                            >
+                                <span className="relative z-10 uppercase tracking-[0.4em] text-xs">Persetujuan Sistemik</span>
+                                <svg className="w-5 h-5 relative z-10 group-hover:translate-x-2 transition-transform text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
@@ -223,3 +151,5 @@ export default function Disclaimer({ auth }) {
         </div>
     );
 }
+
+

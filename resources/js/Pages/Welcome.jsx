@@ -187,48 +187,48 @@ export default function Welcome({ auth, articles, courses }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10 w-full mb-16 items-stretch">
                         {/* Card 1 */}
-                        <Link href="/metode#indepth-trance" className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/60 dark:border-gray-700/50 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] text-left relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col">
+                        <Link href="/metode#indepth-trance" className="bg-white/40 dark:bg-gray-800/20 backdrop-blur-[32px] backdrop-saturate-[180%] p-8 rounded-[3rem] border border-white/40 dark:border-white/10 shadow-2xl text-left relative overflow-hidden group hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
                             <div className="relative z-10 h-full flex flex-col">
-                                <div className="w-14 h-14 bg-gradient-to-br from-gold-500/10 to-gold-500/5 dark:from-gold-500/20 dark:to-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Trance State</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm">Akses penuh tubuh hingga level sel</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Memfasilitasi komunikasi langsung dengan kecerdasan tubuh untuk perubahan cepat.</p>
-                                <div className="mt-4 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Trance State</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Regulasi Neuro-Somatik</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Protokol terstruktur untuk stabilisasi biologis dan komunikasi langsung dengan kecerdasan tubuh.</p>
+                                <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
                             </div>
                         </Link>
 
                         {/* Card 2 */}
-                        <Link href="/metode#supreme-trance" className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/60 dark:border-gray-700/50 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] text-left relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col">
+                        <Link href="/metode#supreme-trance" className="bg-white/40 dark:bg-gray-800/20 backdrop-blur-[32px] backdrop-saturate-[180%] p-8 rounded-[3rem] border border-white/40 dark:border-white/10 shadow-2xl text-left relative overflow-hidden group hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
                             <div className="relative z-10 h-full flex flex-col">
-                                <div className="w-14 h-14 bg-gradient-to-br from-gold-500/10 to-gold-500/5 dark:from-gold-500/20 dark:to-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">Supreme Trance State</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm">Aktivasi kesadaran tertinggi dan jiwa</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Digunakan pada kondisi yang membutuhkan integrasi kesadaran tingkat lanjut.</p>
-                                <div className="mt-4 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">Supreme Trance State</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Integrasi Kesadaran</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Metode untuk integrasi kesadaran tingkat lanjut dan penguatan struktur keyakinan.</p>
+                                <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
                             </div>
                         </Link>
 
                         {/* Card 3 */}
-                        <Link href="/metode#indepth-solution" className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/60 dark:border-gray-700/50 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] text-left relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col">
+                        <Link href="/metode#indepth-solution" className="bg-white/40 dark:bg-gray-800/20 backdrop-blur-[32px] backdrop-saturate-[180%] p-8 rounded-[3rem] border border-white/40 dark:border-white/10 shadow-2xl text-left relative overflow-hidden group hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/10 rounded-bl-full -mr-16 -mt-16 pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
                             <div className="relative z-10 h-full flex flex-col">
-                                <div className="w-14 h-14 bg-gradient-to-br from-gold-500/10 to-gold-500/5 dark:from-gold-500/20 dark:to-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Solution</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm">Solusi tercepat versi tubuh Anda</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Pendekatan yang membantu tubuh menemukan jalur penyelesaian internalnya secara alami.</p>
-                                <div className="mt-4 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Solution</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Eksplorasi Internal</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Memfasilitasi sistem tubuh Anda menemukan arah penyelesaian terbaiknya sendiri.</p>
+                                <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
                             </div>
@@ -245,10 +245,10 @@ export default function Welcome({ auth, articles, courses }) {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                             {[
-                                { title: 'Metodologi', desc: 'Terstruktur' },
-                                { title: 'Dokumentasi', desc: 'Transparan' },
-                                { title: 'Standar Legal', desc: 'Sangat Jelas' },
-                                { title: 'Pendekatan', desc: 'Komunikasi Bawah Sadar' }
+                                { title: 'Diferensiasi', desc: 'Aktivasi Internal' },
+                                { title: 'Metodologi', desc: 'Terstruktur & Dapat Diuji' },
+                                { title: 'Penerapan', desc: 'Sesuai Kategori Layanan' },
+                                { title: 'Pengembangan', desc: 'Sistem Klinik Terpadu' }
                             ].map((item, i) => (
                                 <div key={i} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 hover:-translate-y-1 transition-transform shadow-lg text-center md:text-left">
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-medium">{item.title}</p>
