@@ -1700,9 +1700,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
 
             {/* Modal Liburkan Jadwal */}
             <Modal show={isDisabling} onClose={() => { setIsDisabling(false); resetDisable(); }}>
-                <div className="p-8">
+                <div className="p-8 dark:bg-gray-900">
                     <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Liburkan Jadwal</h2>
-                    <p className="text-sm text-gray-500 mb-6 font-medium">Ini akan menghapus semua slot jadwal yang <span className="text-rose-500 font-bold">belum dipesan</span> pada rentang waktu yang dipilih.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Ini akan menghapus semua slot jadwal yang <span className="text-rose-500 font-bold">belum dipesan</span> pada rentang waktu yang dipilih.</p>
 
                     <form onSubmit={(e) => {
                         e.preventDefault();
@@ -1712,35 +1712,35 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                     }}>
                         <div className="grid gap-4 mb-6">
                             <div>
-                                <InputLabel value="Terapis (Kosongkan jika semua)" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
-                                <select value={disableData.therapist_id} onChange={e => setDisableData('therapist_id', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-300 mb-1 block">Terapis (Kosongkan jika semua)</label>
+                                <select value={disableData.therapist_id} onChange={e => setDisableData('therapist_id', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
                                     <option value="">Semua Terapis</option>
                                     {therapists.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                 </select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <InputLabel value="Dari Tanggal *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
-                                    <input type="date" required value={disableData.date_from} onChange={e => setDisableData('date_from', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                    <label className="text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-300 mb-1 block">Dari Tanggal *</label>
+                                    <input type="date" required value={disableData.date_from} onChange={e => setDisableData('date_from', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all [color-scheme:dark]" />
                                 </div>
                                 <div>
-                                    <InputLabel value="Sampai Tanggal *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
-                                    <input type="date" required value={disableData.date_to} onChange={e => setDisableData('date_to', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                    <label className="text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-300 mb-1 block">Sampai Tanggal *</label>
+                                    <input type="date" required value={disableData.date_to} onChange={e => setDisableData('date_to', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all [color-scheme:dark]" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <InputLabel value="Dari Jam *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
-                                    <input type="time" required value={disableData.start_time} onChange={e => setDisableData('start_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                    <label className="text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-300 mb-1 block">Dari Jam *</label>
+                                    <input type="time" required value={disableData.start_time} onChange={e => setDisableData('start_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all [color-scheme:dark]" />
                                 </div>
                                 <div>
-                                    <InputLabel value="Sampai Jam *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
-                                    <input type="time" required value={disableData.end_time} onChange={e => setDisableData('end_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                    <label className="text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-300 mb-1 block">Sampai Jam *</label>
+                                    <input type="time" required value={disableData.end_time} onChange={e => setDisableData('end_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all [color-scheme:dark]" />
                                 </div>
                             </div>
                         </div>
                         <div className="flex justify-end gap-3 mt-8">
-                            <SecondaryButton onClick={() => setIsDisabling(false)} className="rounded-xl px-6 py-3 border-gray-200 dark:border-gray-700 font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <SecondaryButton onClick={() => setIsDisabling(false)} className="rounded-xl px-6 py-3 border-gray-200 dark:border-gray-700 dark:text-gray-200 font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 dark:hover:bg-gray-800">
                                 Batal
                             </SecondaryButton>
                             <PrimaryButton type="submit" disabled={disabling} className="!bg-rose-600 hover:!bg-rose-500 rounded-xl px-6 py-3 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-rose-500/20 transition-all">
