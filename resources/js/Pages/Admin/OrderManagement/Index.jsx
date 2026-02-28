@@ -8,7 +8,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { createPortal } from 'react-dom';
-import ScheduleForm from '../Schedules/Form';
+
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputLabel from '@/Components/InputLabel';
@@ -91,7 +91,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
 
 
     // ─── Schedule state ───
-    const [isAdding, setIsAdding] = useState(false);
+    const [isDisabling, setIsDisabling] = useState(false);
+    const { data: disableData, setData: setDisableData, post: postDisable, processing: disabling, reset: resetDisable } = useForm({
+        date_from: '',
+        date_to: '',
+        start_time: '08:00',
+        end_time: '20:00',
+        therapist_id: filters.therapist_id || ''
+    });
     const [therapistId, setTherapistId] = useState(filters.therapist_id || '');
     const [calendarView, setCalendarView] = useState('timeGridWeek');
     const calendarRef = useRef(null);
@@ -569,8 +576,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                                         Unduh CSV
                                                     </button>
-                                                    <button onClick={() => setIsAdding(true)} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-                                                        + Tambah Slot
+
+                                                    <button onClick={() => setIsDisabling(true)} className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20 whitespace-nowrap">
+                                                        Liburkan Jadwal
                                                     </button>
                                                 </div>
                                             </div>
@@ -668,14 +676,6 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                     expandRows={true}
                                                     stickyHeaderDates={true}
                                                     nowIndicator={true}
-                                                    dateClick={(info) => {
-                                                        // Prevent adding slots in the past
-                                                        const clicked = new Date(info.dateStr);
-                                                        const today = new Date();
-                                                        today.setHours(0, 0, 0, 0);
-                                                        if (clicked < today) return;
-                                                        setIsAdding(true);
-                                                    }}
                                                 />
                                             </div>
 
@@ -1459,22 +1459,6 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
 
             {/* ═══════════ MODALS ═══════════ */}
 
-            {/* Add Schedule Modal */}
-            {isAdding && typeof document !== 'undefined' && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-md" onClick={() => setIsAdding(false)}></div>
-                    <div className="bg-white dark:bg-gray-900 rounded-[3rem] p-10 w-full max-w-lg shadow-2xl relative border border-white dark:border-gray-800">
-                        <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Tambah Slot Jadwal</h1>
-                            <button onClick={() => setIsAdding(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                        </div>
-                        <ScheduleForm therapists={therapists} onSuccess={() => setIsAdding(false)} />
-                    </div>
-                </div>,
-                document.body
-            )}
 
             {/* ─── Reschedule Modal ─── */}
             {reschedulingBooking !== null && typeof document !== 'undefined' && createPortal(
@@ -1711,6 +1695,59 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                     <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                         <SecondaryButton className="w-full justify-center py-4 rounded-xl font-black uppercase text-[10px] tracking-widest" onClick={() => setValidationChoiceTx(null)}>Batal</SecondaryButton>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Modal Liburkan Jadwal */}
+            <Modal show={isDisabling} onClose={() => { setIsDisabling(false); resetDisable(); }}>
+                <div className="p-8">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Liburkan Jadwal</h2>
+                    <p className="text-sm text-gray-500 mb-6 font-medium">Ini akan menghapus semua slot jadwal yang <span className="text-rose-500 font-bold">belum dipesan</span> pada rentang waktu yang dipilih.</p>
+
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        postDisable(route('admin.schedules.bulk-delete'), {
+                            onSuccess: () => { setIsDisabling(false); resetDisable(); }
+                        });
+                    }}>
+                        <div className="grid gap-4 mb-6">
+                            <div>
+                                <InputLabel value="Terapis (Kosongkan jika semua)" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
+                                <select value={disableData.therapist_id} onChange={e => setDisableData('therapist_id', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all">
+                                    <option value="">Semua Terapis</option>
+                                    {therapists.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <InputLabel value="Dari Tanggal *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
+                                    <input type="date" required value={disableData.date_from} onChange={e => setDisableData('date_from', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                </div>
+                                <div>
+                                    <InputLabel value="Sampai Tanggal *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
+                                    <input type="date" required value={disableData.date_to} onChange={e => setDisableData('date_to', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <InputLabel value="Dari Jam *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
+                                    <input type="time" required value={disableData.start_time} onChange={e => setDisableData('start_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                </div>
+                                <div>
+                                    <InputLabel value="Sampai Jam *" className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1" />
+                                    <input type="time" required value={disableData.end_time} onChange={e => setDisableData('end_time', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 mt-8">
+                            <SecondaryButton onClick={() => setIsDisabling(false)} className="rounded-xl px-6 py-3 border-gray-200 dark:border-gray-700 font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 dark:hover:bg-gray-800">
+                                Batal
+                            </SecondaryButton>
+                            <PrimaryButton type="submit" disabled={disabling} className="!bg-rose-600 hover:!bg-rose-500 rounded-xl px-6 py-3 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-rose-500/20 transition-all">
+                                {disabling ? 'Memproses...' : 'Terapkan (Hapus)'}
+                            </PrimaryButton>
+                        </div>
+                    </form>
                 </div>
             </Modal>
         </AuthenticatedLayout>

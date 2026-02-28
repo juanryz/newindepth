@@ -52,7 +52,7 @@ function QuickCard({ href, title, description, iconPath, color, disabled = false
     );
 }
 
-const PaymentCountdown = ({ scheduleDate, startTime }) => {
+const PaymentCountdown = ({ scheduleDate, startTime, className = '' }) => {
     const [timeLeft, setTimeLeft] = React.useState('');
 
     React.useEffect(() => {
@@ -95,9 +95,9 @@ const PaymentCountdown = ({ scheduleDate, startTime }) => {
     }, [scheduleDate, startTime]);
 
     return (
-        <div className="mt-2 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-            <span className="text-sm font-black text-red-600 dark:text-red-400 tabular-nums">{timeLeft}</span>
+        <div className={`mt-2 flex items-center gap-2 ${className}`}>
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+            <span className="text-sm md:text-base font-black text-red-600 dark:text-red-400 tabular-nums tracking-widest uppercase">{timeLeft}</span>
         </div>
     );
 };
@@ -407,35 +407,68 @@ export default function Dashboard() {
                     {/* ============== PAYMENT REMINDER ALERT ============== */}
                     {isPatient && activeBooking?.status === 'pending_payment' && (
                         <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="relative overflow-hidden group"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative"
                         >
-                            <GlassPanel className="!border-red-500/40 dark:!border-red-500/20 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/10 p-6 flex flex-col md:flex-row items-center gap-6 shadow-2xl shadow-red-500/10">
-                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <svg className="w-24 h-24 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+                            <div className="bg-[#1a0f14] border border-red-500/20 rounded-[2.5rem] p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 shadow-2xl shadow-red-900/20 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+                                {/* Icon */}
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-500 to-red-700 text-white rounded-2xl sm:rounded-[2rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-600/30 relative z-10">
+                                    <svg className="w-8 h-8 sm:w-10 sm:h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 </div>
 
-                                <div className="w-14 h-14 bg-red-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 animate-bounce shadow-lg shadow-red-600/30">
-                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
+                                {/* Content */}
+                                <div className="flex-1 text-center md:text-left z-10 w-full space-y-5">
+                                    <div>
+                                        <h3 className="text-xl sm:text-2xl font-black text-white leading-tight sm:leading-none tracking-tight mb-2">Konfirmasi Pembayaran Diperlukan!</h3>
+                                        <p className="text-sm font-bold text-red-200/80 leading-relaxed">
+                                            Segera selesaikan pembayaran untuk mengamankan slot Anda.
+                                        </p>
+                                    </div>
 
-                                <div className="flex-1 text-center md:text-left z-10">
-                                    <h3 className="text-xl font-black text-red-900 dark:text-red-200 leading-tight">Konfirmasi Pembayaran Diperlukan!</h3>
-                                    <p className="text-sm text-red-700/80 dark:text-red-400 font-bold mt-1">
-                                        Segera selesaikan pembayaran untuk mengamankan slot Anda. <span className="text-red-600 dark:text-red-500 underline uppercase tracking-tighter">Batas waktu 2 jam sebelum jadwal dimulai.</span>
-                                    </p>
-                                    <PaymentCountdown scheduleDate={activeBooking.schedule?.date} startTime={activeBooking.schedule?.start_time} />
-                                </div>
+                                    {/* Schedule Details */}
+                                    <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-6 text-left w-full shadow-inner">
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300/60 mb-1">Jadwal Sesi</p>
+                                            <p className="text-sm font-bold text-white uppercase tracking-tight">
+                                                {activeBooking.schedule?.date ? new Date(activeBooking.schedule.date + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                                            </p>
+                                            <p className="text-xs font-bold text-red-300 mt-1 uppercase tracking-widest">
+                                                {activeBooking.schedule?.start_time?.substring(0, 5)} - {activeBooking.schedule?.end_time?.substring(0, 5)} WIB
+                                            </p>
+                                        </div>
+                                        {activeBooking.therapist && (
+                                            <div className="flex-1 border-t sm:border-t-0 sm:border-l border-red-500/20 pt-3 sm:pt-0 sm:pl-6">
+                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300/60 mb-1">Terapis Praktisi</p>
+                                                <p className="text-sm font-bold text-white uppercase tracking-tight truncate">{activeBooking.therapist.name}</p>
+                                                <p className="text-xs font-bold text-red-300 mt-1 uppercase tracking-widest">
+                                                    {activeBooking.package_type || 'REGULER'}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <Link
-                                    href={route('payments.create', activeBooking.id)}
-                                    className="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-red-600/20 flex items-center gap-2 group-hover:scale-105 active:scale-95 z-10"
-                                >
-                                    Bayar Sekarang
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                </Link>
-                            </GlassPanel>
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 pt-3">
+                                        <div className="text-center md:text-left">
+                                            <p className="text-[10px] font-black text-red-400 uppercase tracking-[0.2em] mb-1">
+                                                Batas Waktu Pembayaran
+                                            </p>
+                                            <PaymentCountdown className="justify-center md:justify-start mt-0" scheduleDate={activeBooking.schedule?.date} startTime={activeBooking.schedule?.start_time} />
+                                        </div>
+
+                                        {/* Action */}
+                                        <Link
+                                            href={route('payments.create', activeBooking.id)}
+                                            className="w-full md:w-auto px-8 py-4 sm:py-5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-3 active:scale-95 group-hover:scale-105"
+                                        >
+                                            Bayar Sekarang
+                                            <svg className="w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     )}
 

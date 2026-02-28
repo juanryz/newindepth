@@ -179,7 +179,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             }
             )->name('schedules.index');
             Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
-            Route::post('/schedules/bulk-disable', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'bulkDisable'])->name('schedules.bulk-disable');
+            Route::post('/schedules/bulk-delete', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'bulkDelete'])->name('schedules.bulk-delete');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
 
             // Admin Pricing — Vouchers & Packages

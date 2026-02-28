@@ -462,19 +462,27 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             key={isMobile ? 'mobile' : 'desktop'}
                                             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                             initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
+                                            initialDate={new Date().toLocaleDateString('en-CA')}
                                             headerToolbar={isMobile ? { left: 'prev,next', center: 'title', right: 'timeGridDay,dayGridMonth' } : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-                                            weekends={false}
+                                            views={{
+                                                timeGridWeek: {
+                                                    duration: { days: 7 },
+                                                    buttonText: '7 Hari Rolling'
+                                                }
+                                            }}
+                                            weekends={true}
                                             events={calendarSchedules}
                                             eventClick={handleEventClick}
                                             eventContent={renderEventContent}
                                             height="auto"
-                                            slotMinTime="07:00:00"
+                                            slotMinTime="08:00:00"
                                             slotMaxTime="22:00:00"
                                             slotDuration="01:00:00"
                                             allDaySlot={false}
                                             nowIndicator={true}
                                             locale="id"
                                             expandRows={true}
+                                            stickyHeaderDates={true}
                                         />
                                     </div>
                                 </div>

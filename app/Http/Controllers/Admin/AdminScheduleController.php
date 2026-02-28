@@ -182,53 +182,39 @@ class AdminScheduleController extends Controller
         return back()->with('success', 'Jadwal berhasil dihapus.');
     }
 
-    public function bulkDisable(Request $request)
+    public function bulkDelete(Request $request)
     {
-        if (!auth()->user()->hasRole('super_admin')) {
+        if (!auth()->user()->hasAnyRole(['admin', 'super_admin'])) {
             abort(403);
         }
 
         $request->validate([
-            'date' => 'nullable|date',
-            'day_of_week' => 'nullable|integer|min:0|max:6', // 0=Sun, 6=Sat
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i',
-            'all_day' => 'boolean',
-            'action' => 'required|in:disable,enable'
+            'date_from' => 'required|date',
+            'date_to' => 'required|date|after_or_equal:date_from',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'therapist_id' => 'nullable|exists:users,id',
         ]);
 
-        $status = $request->action === 'disable' ? 'inactive' : 'available';
-        $query = Schedule::query();
+        $query = Schedule::query()
+            ->where('date', '>=', $request->date_from)
+            ->where('date', '<=', $request->date_to)
+            ->where('booked_count', 0); // Only delete empty schedules
 
-        if ($request->date) {
-            $query->where('date', $request->date);
+        if ($request->therapist_id) {
+            $query->where('therapist_id', $request->therapist_id);
         }
 
-        if ($request->day_of_week !== null) {
-            $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
-            if ($isSqlite) {
-                // SQLite strftime('%w', date) returns 0=Sun, 6=Sat
-                $query->whereRaw("strftime('%w', date) = ?", [(string) $request->day_of_week]);
-            } else {
-                // MySQL DAYOFWEEK is 1=Sun, 7=Sat. PHP input 0=Sun, 6=Sat
-                $query->whereRaw('DAYOFWEEK(date) = ?', [$request->day_of_week + 1]);
-            }
+        if ($request->start_time && $request->end_time) {
+            $query->where(function ($q) use ($request) {
+                // If the slot is completely within the disabled time OR overlaps it
+                $q->where('start_time', '>=', $request->start_time)
+                    ->where('end_time', '<=', $request->end_time);
+            });
         }
 
-        if (!$request->all_day) {
-            if ($request->start_time) {
-                $query->where('start_time', '>=', $request->start_time);
-            }
-            if ($request->end_time) {
-                $query->where('end_time', '<=', $request->end_time);
-            }
-        }
+        $deleted = $query->delete();
 
-        // Only affect schedules with NO bookings
-        $query->where('booked_count', 0);
-
-        $affected = $query->update(['status' => $status]);
-
-        return back()->with('success', "Berhasil mengubah status {$affected} slot menjadi {$status}.");
+        return back()->with('success', "Berhasil meliburkan/menghapus {$deleted} slot jadwal yang belum terpesan.");
     }
 }
