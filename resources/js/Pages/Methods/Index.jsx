@@ -66,6 +66,7 @@ export default function MethodsIndex({ auth }) {
                     {/* All 3 methods are inside this div */}
                     {/* Method 1: InDepth Trance State */}
                     <motion.div
+                        id="indepth-trance"
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -125,6 +126,7 @@ export default function MethodsIndex({ auth }) {
                     </motion.div>
                     {/* Method 2: Supreme Trance State */}
                     <motion.div
+                        id="supreme-trance"
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -190,6 +192,7 @@ export default function MethodsIndex({ auth }) {
                     </motion.div>
                     {/* Method 3: InDepth Solution */}
                     <motion.div
+                        id="indepth-solution"
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -299,7 +302,7 @@ export default function MethodsIndex({ auth }) {
                             Konsultasikan kebutuhan Anda dengan tim profesional kami untuk menentukan pendekatan terapi yang paling efektif.
                         </p>
                         <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-8 py-4 rounded-full font-bold text-gray-900 bg-gradient-to-r from-gold-400 to-yellow-400 hover:from-gold-300 hover:to-yellow-300 shadow-[0_0_20px_rgba(208,170,33,0.3)] hover:shadow-[0_0_30px_rgba(208,170,33,0.5)] hover:-translate-y-1 transition-all duration-300 ring-2 ring-gold-500/50 ring-offset-2 ring-offset-black">
-                            Mulai Konsultasi Gratis
+                            Mulai Konsultasi
                             <svg className="ml-3 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>
                     </div>

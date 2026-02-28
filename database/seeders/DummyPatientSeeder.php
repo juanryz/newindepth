@@ -135,7 +135,7 @@ class DummyPatientSeeder extends Seeder
             'phone' => '081398765432',
             'age' => 31,
             'gender' => 'Perempuan',
-            'recommended_package' => 'upgrade',
+            'recommended_package' => 'premium',
             'emergency_contact_name' => 'Hendro Silitonga',
             'emergency_contact_phone' => '082109876543',
             'emergency_contact_relation' => 'Kakak',
@@ -143,10 +143,10 @@ class DummyPatientSeeder extends Seeder
         $this->command->info("  ✓ Pasien 3 dibuat: {$patient3->name}");
 
         $this->addScreeningResult($patient3, [
-            'recommended_package' => 'upgrade',
+            'recommended_package' => 'premium',
             'severity_label' => 'Ringan',
             'is_high_risk' => false,
-            'ai_summary' => "Saudari Mega menunjukkan tanda kecemasan sosial ringan yang dipicu oleh perubahan lingkungan pekerjaan (pindah kota, bekerja dari rumah). Tidak ada indikator risiko signifikan.\n\nRekomendasi: Paket upgrade dengan sesi rutin bulanan cukup untuk membantu transisi dan pengembangan strategi coping yang sehat. Eksplorasi teknik mindfulness dan manajemen stres direkomendasikan.",
+            'ai_summary' => "Saudari Mega menunjukkan tanda kecemasan sosial ringan yang dipicu oleh perubahan lingkungan pekerjaan (pindah kota, bekerja dari rumah). Tidak ada indikator risiko signifikan.\n\nRekomendasi: Paket premium dengan sesi rutin bulanan cukup untuk membantu transisi dan pengembangan strategi coping yang sehat. Eksplorasi teknik mindfulness dan manajemen stres direkomendasikan.",
             'admin_notes' => null,
         ]);
 
@@ -161,35 +161,35 @@ class DummyPatientSeeder extends Seeder
         $this->command->info('✅ Seeder selesai! 3 pasien dummy berhasil dibuat.');
         $this->command->newLine();
         $this->command->table(
-        ['Nama Pasien', 'Email', 'Password', 'Keterangan'],
-        [
-            [$patient1->name, $patient1->email, 'password', '2 sesi selesai (Normal) + 1 upcoming'],
-            [$patient2->name, $patient2->email, 'password', '1 sesi selesai (HIGH RISK/Emergency) + 1 upcoming'],
-            [$patient3->name, $patient3->email, 'password', 'Pasien baru — 1 sesi upcoming pertama'],
-        ]
+            ['Nama Pasien', 'Email', 'Password', 'Keterangan'],
+            [
+                [$patient1->name, $patient1->email, 'password', '2 sesi selesai (Normal) + 1 upcoming'],
+                [$patient2->name, $patient2->email, 'password', '1 sesi selesai (HIGH RISK/Emergency) + 1 upcoming'],
+                [$patient3->name, $patient3->email, 'password', 'Pasien baru — 1 sesi upcoming pertama'],
+            ]
         );
     }
 
     private function createPatient(array $data): User
     {
         $patient = User::firstOrCreate(
-        ['email' => $data['email']],
+            ['email' => $data['email']],
             array_merge($data, [
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'status' => 'active',
-            'referral_code' => Str::upper(Str::random(8)),
-            'agreement_signed' => true,
-            'agreement_signed_at' => now()->subDays(rand(60, 90)),
-            'agreement_data' => [
-                'understand_process' => true,
-                'honest_answers' => true,
-                'follow_protocol' => true,
-                'responsibility' => true,
-            ],
-            'screening_completed_at' => now()->subDays(rand(30, 60)),
-            'ktp_photo' => null,
-        ])
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'status' => 'active',
+                'referral_code' => Str::upper(Str::random(8)),
+                'agreement_signed' => true,
+                'agreement_signed_at' => now()->subDays(rand(60, 90)),
+                'agreement_data' => [
+                    'understand_process' => true,
+                    'honest_answers' => true,
+                    'follow_protocol' => true,
+                    'responsibility' => true,
+                ],
+                'screening_completed_at' => now()->subDays(rand(30, 60)),
+                'ktp_photo' => null,
+            ])
         );
         $patient->assignRole('patient');
         return $patient;
@@ -198,11 +198,11 @@ class DummyPatientSeeder extends Seeder
     private function addScreeningResult(User $patient, array $data): ScreeningResult
     {
         return ScreeningResult::firstOrCreate(
-        ['user_id' => $patient->id],
+            ['user_id' => $patient->id],
             array_merge($data, [
-            'user_id' => $patient->id,
-            'completed_at' => $patient->screening_completed_at,
-        ])
+                'user_id' => $patient->id,
+                'completed_at' => $patient->screening_completed_at,
+            ])
         );
     }
 

@@ -128,7 +128,7 @@ class AdminBookingController extends Controller
         $request->validate([
             'patient_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:schedules,id',
-            'package_type' => 'required|in:reguler,hipnoterapi,upgrade,vip',
+            'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
         ]);
 
         $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);

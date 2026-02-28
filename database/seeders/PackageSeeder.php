@@ -23,8 +23,8 @@ class PackageSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'name' => 'Paket Upgrade (Pengembangan Diri)',
-                'slug' => 'upgrade',
+                'name' => 'Paket Premium',
+                'slug' => 'premium',
                 'description' => 'Pemrograman Ulang Mindset, Peningkatan Percaya Diri & Teknik NLP Praktis.',
                 'base_price' => 3000000,
                 'discount_percentage' => 50,

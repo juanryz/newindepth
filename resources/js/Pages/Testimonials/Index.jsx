@@ -143,7 +143,7 @@ export default function Index({ auth }) {
                             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 relative z-10">Siap Untuk Perubahan Anda Sendiri?</h2>
                             <p className="text-gray-400 mb-10 text-lg font-light relative z-10">Jadwalkan sesi konsultasi pertama Anda dan temukan jalan menuju ketenangan batin.</p>
                             <Link href="/login" className="inline-flex items-center gap-2 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-xl transition-all hover:-translate-y-1 relative z-10">
-                                Mulai Konsultasi Gratis
+                                Mulai Konsultasi
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </Link>
                         </div>

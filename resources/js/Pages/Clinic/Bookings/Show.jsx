@@ -153,7 +153,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-gray-600 dark:text-gray-400">Layanan InDepth Mental Wellness</span>
                                     <span className="font-medium truncate dark:text-white">
-                                        {booking.package_type === 'vip' ? 'Paket VIP (Intensive Care)' : booking.package_type === 'upgrade' ? 'Paket Upgrade (Pengembangan Diri)' : 'Paket Hipnoterapi'}
+                                        {booking.package_type === 'vip' ? 'Paket VIP (Intensive Care)' : booking.package_type === 'premium' ? 'Paket Premium' : 'Paket Hipnoterapi'}
                                     </span>
                                 </div>
                                 {hasAppliedVoucher && (
@@ -173,8 +173,8 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-gray-600 dark:text-gray-400">Status</span>
                                     <span className={`font-bold px-3 py-1 text-xs rounded-full ${isConfirmed || isCompleted ? 'bg-green-100 text-green-700' :
-                                            booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                                'bg-yellow-100 text-yellow-700'
+                                        booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                            'bg-yellow-100 text-yellow-700'
                                         }`}>
                                         {booking.status === 'cancelled' ? 'DIBATALKAN' :
                                             isConfirmed || isCompleted ? 'LUNAS / SELESAI' : 'MENUNGGU'}

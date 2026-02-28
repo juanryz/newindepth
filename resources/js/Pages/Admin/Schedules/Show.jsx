@@ -947,7 +947,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                         >
                             <option value="reguler">Reguler / Umum</option>
                             <option value="hipnoterapi">Paket Hipnoterapi</option>
-                            <option value="upgrade">Paket Upgrade</option>
+                            <option value="premium">Paket Premium</option>
                             <option value="vip">Paket VIP</option>
                         </select>
                     </div>

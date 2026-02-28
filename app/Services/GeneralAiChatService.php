@@ -57,7 +57,7 @@ PROMPT;
                 } elseif (str_contains($userMsg, 'lokasi') || str_contains($userMsg, 'alamat')) {
                     $mockReply = 'InDepth Mental Wellness Center berlokasi di Semarang. Kami fokus pada layanan hipnoterapi premium dengan sistem terstruktur.';
                 } elseif (str_contains($userMsg, 'biaya') || str_contains($userMsg, 'harga')) {
-                    $mockReply = 'Biaya layanan bervariasi tergantung paket yang Anda pilih (Reguler, Upgrade, atau VIP). Anda bisa memeriksanya di halaman Booking setelah menyelesaikan skrining.';
+                    $mockReply = 'Biaya layanan bervariasi tergantung paket yang Anda pilih (Reguler, Premium, atau VIP). Anda bisa memeriksanya di halaman Booking setelah menyelesaikan skrining.';
                 } elseif (str_contains($userMsg, 'trance') || str_contains($userMsg, 'metode')) {
                     $mockReply = 'Kami menggunakan metode InDepth Trance State dan Supreme Trance State untuk mengakses akar masalah di pikiran bawah sadar Anda secara aman dan terkendali.';
                 }

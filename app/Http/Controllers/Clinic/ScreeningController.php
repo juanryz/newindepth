@@ -120,7 +120,7 @@ class ScreeningController extends Controller
             'gender' => $stepData['gender'] ?? $user->gender,
             'screening_answers' => $stepData,
             'screening_completed_at' => now(),
-            'recommended_package' => in_array($recommendedPackage, ['hipnoterapi', 'upgrade', 'vip']) ? $recommendedPackage : 'hipnoterapi',
+            'recommended_package' => in_array($recommendedPackage, ['hipnoterapi', 'premium', 'vip']) ? $recommendedPackage : 'hipnoterapi',
         ]);
 
         return redirect()->route('dashboard')
@@ -178,7 +178,7 @@ class ScreeningController extends Controller
             $masalahUtama === 'Pengembangan diri'
             && $skala <= 6
         ) {
-            $package = 'upgrade';
+            $package = 'premium';
         } else {
             $package = 'hipnoterapi';
         }
