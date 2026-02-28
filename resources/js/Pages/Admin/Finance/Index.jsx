@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link, useForm } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,7 +15,9 @@ import {
     Search,
     Download,
     Eye,
-    Receipt
+    Receipt,
+    History,
+    Activity
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -35,10 +37,17 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
 
+    // Activity Log Filters
+    const [logFilterType, setLogFilterType] = useState('');
+    const [logFilterSearch, setLogFilterSearch] = useState('');
+    const [logFilterDateFrom, setLogFilterDateFrom] = useState('');
+    const [logFilterDateTo, setLogFilterDateTo] = useState('');
+
     const tabs = [
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
         { id: 'expenses', label: 'Biaya Operasional', icon: ArrowDownCircle },
         { id: 'petty_cash', label: 'Kas Kecil (Petty Cash)', icon: Wallet },
+        { id: 'activity', label: 'Log Kegiatan', icon: History },
     ];
 
     const { data: expenseData, setData: setExpenseData, post: postExpense, processing: processingExpense, reset: resetExpense, errors: expenseErrors } = useForm({
@@ -50,12 +59,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
     });
 
     const { data: pettyData, setData: setPettyData, post: postPetty, processing: processingPetty, reset: resetPetty, errors: pettyErrors } = useForm({
-        transaction_date: new Date().toISOString().split('T')[0],
+        type: 'spending',
+        title: '',
         amount: '',
-        type: 'out',
         description: '',
-        category: '',
-        receipt: null,
     });
 
     const handleFilterChange = (e) => {
@@ -65,6 +72,108 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
             [name]: value
         }, { preserveState: true });
     };
+
+    const activityLog = useMemo(() => {
+        const logs = [];
+
+        // Expenses
+        (expenses || []).forEach(ex => {
+            logs.push({
+                id: `exp-${ex.id}`,
+                type: 'expense',
+                icon: '💸',
+                color: 'rose',
+                actor: ex.recorder?.name || 'Staff',
+                actorRole: 'Operator',
+                action: 'mencatat pengeluaran',
+                subject: ex.description,
+                detail: `Kategori: ${ex.category || '-'} · Rp ${new Intl.NumberFormat('id-ID').format(ex.amount || 0)}`,
+                date: ex.created_at || ex.expense_date,
+            });
+        });
+
+        // Petty Cash Proposals
+        (pettyCash?.proposals || []).forEach(prop => {
+            logs.push({
+                id: `prop-create-${prop.id}`,
+                type: 'proposal_created',
+                icon: '📝',
+                color: 'indigo',
+                actor: prop.user?.name || 'Staff',
+                actorRole: 'Staff',
+                action: 'mengajukan kas kecil',
+                subject: prop.title,
+                detail: `${prop.type === 'funding' ? 'Permohonan Dana' : 'Belanja'} · Rp ${new Intl.NumberFormat('id-ID').format(prop.amount || 0)}`,
+                date: prop.created_at,
+            });
+
+            if (prop.status === 'approved' || prop.status === 'completed') {
+                logs.push({
+                    id: `prop-approve-${prop.id}`,
+                    type: 'proposal_approved',
+                    icon: '✅',
+                    color: 'emerald',
+                    actor: prop.approver?.name || 'Admin',
+                    actorRole: 'Admin',
+                    action: 'menyetujui pengajuan kas',
+                    subject: prop.title,
+                    detail: `Rp ${new Intl.NumberFormat('id-ID').format(prop.amount || 0)}`,
+                    date: prop.approved_at || prop.updated_at,
+                });
+            }
+
+            if (prop.status === 'rejected') {
+                logs.push({
+                    id: `prop-reject-${prop.id}`,
+                    type: 'proposal_rejected',
+                    icon: '❌',
+                    color: 'rose',
+                    actor: prop.approver?.name || 'Admin',
+                    actorRole: 'Admin',
+                    action: 'menolak pengajuan kas',
+                    subject: prop.title,
+                    detail: `Alasan: ${prop.rejection_reason || '-'}`,
+                    date: prop.approved_at || prop.updated_at,
+                });
+            }
+        });
+
+        // Petty Cash Transactions
+        (pettyCash?.transactions || []).forEach(tx => {
+            if (!tx.description?.includes('Replenishment') && !tx.description?.includes('Belanja:')) {
+                logs.push({
+                    id: `pct-${tx.id}`,
+                    type: 'petty_cash_tx',
+                    icon: tx.type === 'in' ? '📈' : '📉',
+                    color: tx.type === 'in' ? 'emerald' : 'amber',
+                    actor: tx.recorder?.name || 'Staff',
+                    actorRole: 'Operator',
+                    action: tx.type === 'in' ? 'mengisi kas kecil' : 'mencatat pemakaian kas',
+                    subject: tx.description,
+                    detail: `Rp ${new Intl.NumberFormat('id-ID').format(tx.amount || 0)} · Saldo: Rp ${new Intl.NumberFormat('id-ID').format(tx.balance_after || 0)}`,
+                    date: tx.created_at || tx.transaction_date,
+                });
+            }
+        });
+
+        return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }, [expenses, pettyCash]);
+
+    const filteredLog = useMemo(() => {
+        return activityLog.filter(log => {
+            if (logFilterType && log.type !== logFilterType) return false;
+            if (logFilterSearch) {
+                const q = logFilterSearch.toLowerCase();
+                if (!log.actor?.toLowerCase().includes(q) &&
+                    !log.subject?.toLowerCase().includes(q) &&
+                    !log.detail?.toLowerCase().includes(q) &&
+                    !log.action?.toLowerCase().includes(q)) return false;
+            }
+            if (logFilterDateFrom && new Date(log.date) < new Date(logFilterDateFrom)) return false;
+            if (logFilterDateTo && new Date(log.date) > new Date(logFilterDateTo + 'T23:59:59')) return false;
+            return true;
+        });
+    }, [activityLog, logFilterType, logFilterSearch, logFilterDateFrom, logFilterDateTo]);
 
     const submitExpense = (e) => {
         e.preventDefault();
@@ -78,7 +187,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
 
     const submitPettyCash = (e) => {
         e.preventDefault();
-        postPetty(route('admin.finance.petty-cash.store'), {
+        postPetty(route('admin.petty-cash.proposals.store'), {
             onSuccess: () => {
                 resetPetty();
                 setIsPettyCashModalOpen(false);
@@ -371,7 +480,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                     className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
                                                 >
                                                     <Plus className="w-4 h-4 mr-2" />
-                                                    Input Transaksi Kas
+                                                    Buat Pengajuan Kas
                                                 </button>
                                             </div>
                                         </div>
@@ -425,6 +534,125 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                                         {pettyCash.transactions.length === 0 && (
                                                             <tr>
                                                                 <td colSpan="5" className="px-8 py-16 text-center text-gray-400 italic">Belum ada riwayat transaksi kas kecil.</td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'activity' && (
+                                    <motion.div
+                                        key="activity"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                                            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Log Kegiatan Keuangan</h3>
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <div className="relative">
+                                                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Cari aktivitas..."
+                                                        value={logFilterSearch}
+                                                        onChange={e => setLogFilterSearch(e.target.value)}
+                                                        className="pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-xs font-bold w-48 focus:ring-2 focus:ring-indigo-500 transition-all text-gray-700 dark:text-gray-300 shadow-sm"
+                                                    />
+                                                </div>
+                                                <select
+                                                    value={logFilterType}
+                                                    onChange={e => setLogFilterType(e.target.value)}
+                                                    className="px-4 py-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 cursor-pointer text-gray-700 dark:text-gray-300 shadow-sm"
+                                                >
+                                                    <option value="">Semua Tipe</option>
+                                                    <option value="expense">Pengeluaran</option>
+                                                    <option value="proposal_created">Pengajuan (Buat)</option>
+                                                    <option value="proposal_approved">Pengajuan (Setuju)</option>
+                                                    <option value="proposal_rejected">Pengajuan (Tolak)</option>
+                                                    <option value="petty_cash_tx">Transaksi Kas</option>
+                                                </select>
+                                                <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl px-2 py-1 shadow-sm">
+                                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                                    <input
+                                                        type="date"
+                                                        value={logFilterDateFrom}
+                                                        onChange={e => setLogFilterDateFrom(e.target.value)}
+                                                        className="px-2 py-1 bg-transparent border-none text-xs font-bold focus:ring-0 cursor-pointer text-gray-700 dark:text-gray-300"
+                                                    />
+                                                    <span className="text-gray-400 text-xs">-</span>
+                                                    <input
+                                                        type="date"
+                                                        value={logFilterDateTo}
+                                                        onChange={e => setLogFilterDateTo(e.target.value)}
+                                                        className="px-2 py-1 bg-transparent border-none text-xs font-bold focus:ring-0 cursor-pointer text-gray-700 dark:text-gray-300"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                    <thead>
+                                                        <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest w-32">Waktu</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Aktivitas</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:table-cell">Pelaku</th>
+                                                            <th className="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Detail Informasi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                        {filteredLog.slice(0, 50).map((log) => (
+                                                            <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all group">
+                                                                <td className="px-8 py-6">
+                                                                    <div className="text-xs font-bold text-gray-900 dark:text-white">
+                                                                        {new Date(log.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                                    </div>
+                                                                    <div className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">
+                                                                        {new Date(log.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-8 py-6">
+                                                                    <div className="flex items-start gap-3">
+                                                                        <span className="text-lg">{log.icon}</span>
+                                                                        <div>
+                                                                            <span className="text-sm font-bold text-gray-900 dark:text-white block mb-0.5">
+                                                                                {log.action}
+                                                                            </span>
+                                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest bg-${log.color}-50 text-${log.color}-600 dark:bg-${log.color}-900/20 dark:text-${log.color}-400 inline-block`}>
+                                                                                {log.subject.length > 30 ? log.subject.substring(0, 30) + '...' : log.subject}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-8 py-6 hidden sm:table-cell">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs">
+                                                                            {log.actor.charAt(0)}
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{log.actor}</div>
+                                                                            <div className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-0.5">{log.actorRole}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-8 py-6">
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-400 font-bold leading-relaxed max-w-sm">
+                                                                        {log.detail}
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        {filteredLog.length === 0 && (
+                                                            <tr>
+                                                                <td colSpan="4" className="px-8 py-16 text-center text-gray-400 italic">
+                                                                    Belum ada aktivitas terekam.
+                                                                </td>
                                                             </tr>
                                                         )}
                                                     </tbody>
@@ -511,72 +739,62 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                 </form>
             </Modal>
 
-            {/* Petty Cash Modal */}
+            {/* Petty Cash Modal (Redirected to Workflow Proposal) */}
             <Modal show={isPettyCashModalOpen} onClose={() => setIsPettyCashModalOpen(false)}>
                 <form onSubmit={submitPettyCash} className="p-8 dark:bg-gray-900 rounded-[2.5rem]">
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Input Transaksi Kas Kecil</h2>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Buat Pengajuan Kas Kecil</h2>
                     <div className="space-y-4">
                         <div className="flex gap-4 p-2 bg-gray-50 dark:bg-gray-800 rounded-2xl mb-6">
                             <button
                                 type="button"
-                                onClick={() => setPettyData('type', 'out')}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${pettyData.type === 'out' ? 'bg-rose-600 text-white shadow-lg' : 'text-gray-400'
+                                onClick={() => setPettyData('type', 'spending')}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${pettyData.type === 'spending' ? 'bg-rose-600 text-white shadow-lg' : 'text-gray-400'
                                     }`}
                             >
-                                Pengeluaran (Out)
+                                Pengajuan Belanja (Out)
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setPettyData('type', 'in')}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${pettyData.type === 'in' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400'
+                                onClick={() => setPettyData('type', 'funding')}
+                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${pettyData.type === 'funding' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-400'
                                     }`}
                             >
-                                Isi Saldo (In)
+                                Permohonan Dana (In)
                             </button>
                         </div>
 
                         <div>
-                            <InputLabel value="Keterangan Transaksi" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
+                            <InputLabel value="Judul Pengajuan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
+                            <TextInput
+                                className="w-full"
+                                value={pettyData.title}
+                                onChange={e => setPettyData('title', e.target.value)}
+                                placeholder="Misal: Beli Kertas, Bayar Listrik, dll"
+                            />
+                            <InputError message={pettyErrors.title} />
+                        </div>
+
+                        <div>
+                            <InputLabel value="Detail Keperluan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
                             <TextInput
                                 className="w-full"
                                 value={pettyData.description}
                                 onChange={e => setPettyData('description', e.target.value)}
-                                placeholder="Sebutkan keperluan..."
+                                placeholder="Sebutkan keperluan secara detail..."
                             />
                             <InputError message={pettyErrors.description} />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel value="Tanggal" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
-                                <TextInput
-                                    type="date"
-                                    className="w-full"
-                                    value={pettyData.transaction_date}
-                                    onChange={e => setPettyData('transaction_date', e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <InputLabel value="Nominal" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
-                                <TextInput
-                                    type="number"
-                                    className="w-full"
-                                    value={pettyData.amount}
-                                    onChange={e => setPettyData('amount', e.target.value)}
-                                    placeholder="0"
-                                />
-                                <InputError message={pettyErrors.amount} />
-                            </div>
-                        </div>
-
                         <div>
-                            <InputLabel value="Kategori (Opsional)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
+                            <InputLabel value="Nominal Budget Dimohon" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
                             <TextInput
+                                type="number"
                                 className="w-full"
-                                value={pettyData.category}
-                                onChange={e => setPettyData('category', e.target.value)}
-                                placeholder="Parkir, Bensin, Snack..."
+                                value={pettyData.amount}
+                                onChange={e => setPettyData('amount', e.target.value)}
+                                placeholder="0"
                             />
+                            <InputError message={pettyErrors.amount} />
                         </div>
                     </div>
                     <div className="mt-8 flex justify-end gap-3">
@@ -586,7 +804,7 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                             disabled={processingPetty}
                             className="inline-flex items-center px-8 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20"
                         >
-                            Konfirmasi Transaksi
+                            Konfirmasi & Kirim ke Workflow
                         </button>
                     </div>
                 </form>
