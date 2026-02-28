@@ -111,7 +111,6 @@ class BookingController extends Controller
             return redirect()->route('agreement.show')->with('error', 'Silakan setujui persyaratan awal sebelum memilih jadwal. (Berlaku 1 tahun sejak penandatanganan)');
         }
 
-        $this->ensureGenericSchedulesExist();
 
         // Buffer: 1 hour (Wait, we move this logic to the frontend to allow 'disabled' state)
         // Ensure we fetch from today (Asia/Jakarta)
@@ -124,6 +123,7 @@ class BookingController extends Controller
         $rawSchedules = Schedule::where('schedule_type', 'consultation')
             ->where('date', '>=', $now->toDateString())
             ->where('date', '<=', $toDate->toDateString())
+            ->whereNotNull('therapist_id') // Slot MUST have a therapist to be valid/available
             ->where('status', 'available')
             ->whereRaw("NOT ({$weekendSql})") // Sab/Min Libur
             ->withCount([
@@ -148,7 +148,7 @@ class BookingController extends Controller
         })->values();
 
         // Tentukan aturan pilihan paket
-        $recommended = $user->recommended_package ?? 'hipnoterapi';
+        $recommended = $user->recommended_package ?? 'reguler';
         $isVipOnly = in_array($recommended, ['vip']);
 
         $screeningResult = \App\Models\ScreeningResult::where('user_id', $user->id)
@@ -299,52 +299,4 @@ class BookingController extends Controller
             ->with('success', 'Pesanan lama dibatalkan. Silakan pilih jadwal baru Anda.');
     }
 
-    private function ensureGenericSchedulesExist()
-    {
-        $therapistCount = \App\Models\User::role('therapist')->count();
-        $quota = $therapistCount > 0 ? $therapistCount : 1;
-
-        $slotsArray = [
-            ['start' => '08:00:00', 'end' => '10:00:00'],
-            ['start' => '10:00:00', 'end' => '12:00:00'],
-            ['start' => '13:00:00', 'end' => '15:00:00'],
-            ['start' => '15:00:00', 'end' => '17:00:00'],
-            ['start' => '18:00:00', 'end' => '20:00:00'],
-        ];
-
-        // Always work with Jakarta time
-        $startDate = \Illuminate\Support\Carbon::now('Asia/Jakarta')->startOfDay();
-        $endDate = $startDate->copy()->addDays(14);
-
-        // Hapus paksa jika ada jadwal sabtu/minggu yang terselip
-        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
-        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
-
-        \App\Models\Schedule::where('date', '>=', $startDate->toDateString())
-            ->whereRaw($weekendSql)
-            ->whereDoesntHave('bookings')
-            ->delete();
-
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            if ($date->isWeekend())
-                continue;
-
-            foreach ($slotsArray as $slot) {
-                \Illuminate\Support\Facades\DB::table('schedules')->updateOrInsert(
-                    [
-                        'date' => $date->toDateString(),
-                        'start_time' => $slot['start'],
-                        'schedule_type' => 'consultation',
-                    ],
-                    [
-                        'end_time' => $slot['end'],
-                        'quota' => $quota,
-                        'status' => 'available',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]
-                );
-            }
-        }
-    }
 }

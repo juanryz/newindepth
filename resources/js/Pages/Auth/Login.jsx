@@ -7,12 +7,35 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, packages = [] }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
     });
+
+    // Helper to find package by slug
+    const getPackage = (slug) => {
+        return packages.find(p => p.slug === slug) || {
+            name: slug.toUpperCase(),
+            base_price: 0,
+            current_price: 0,
+            discount_percentage: 0
+        };
+    };
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price).replace('IDR', 'Rp');
+    };
+
+    const regulerPkg = getPackage('hipnoterapi');
+    const premiumPkg = getPackage('premium');
+    const vipPkg = getPackage('vip');
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -152,6 +175,33 @@ export default function Login({ status, canResetPassword }) {
                             Buat Akun Baru
                         </Link>
                     </p>
+                </div>
+                <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+                    <h3 className="text-center text-[10px] font-black tracking-[0.2em] uppercase text-gray-400 mb-6">Pilihan Layanan</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                        {[
+                            { name: 'REGULER', pkg: regulerPkg, color: 'text-gray-950 dark:text-white' },
+                            { name: 'PREMIUM', pkg: premiumPkg, color: 'text-gold-600 dark:text-gold-400' },
+                            { name: 'VIP', pkg: vipPkg, color: 'text-rose-600 dark:text-rose-400' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100 dark:border-gray-700/50 group hover:border-gold-500/30 transition-all">
+                                <div>
+                                    <span className={`text-[10px] font-black tracking-widest ${item.color}`}>{item.name}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-bold dark:text-gray-200">{formatPrice(item.pkg.current_price)}</span>
+                                        {item.pkg.discount_percentage > 0 && (
+                                            <span className="text-[10px] font-bold text-gray-400 line-through opacity-60">
+                                                {formatPrice(item.pkg.base_price)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Per Sesi</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </form>
         </GuestLayout>

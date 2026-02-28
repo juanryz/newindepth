@@ -618,7 +618,16 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         </div>
 
                                                         {(therapistId || scFilterSearch || scFilterDateFrom || scFilterDateTo) && (
-                                                            <button onClick={() => { setTherapistId(''); setScFilterSearch(''); setScFilterDateFrom(''); setScFilterDateTo(''); }} className="shrink-0 px-3 h-[42px] bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-xl text-xs font-black hover:bg-rose-100 hover:text-rose-500 transition-all flex items-center justify-center" title="Reset filter">
+                                                            <button onClick={() => {
+                                                                setTherapistId('');
+                                                                setScFilterSearch('');
+                                                                setScFilterDateFrom('');
+                                                                setScFilterDateTo('');
+                                                                if (calendarRef.current) {
+                                                                    const api = calendarRef.current.getApi();
+                                                                    api.today();
+                                                                }
+                                                            }} className="shrink-0 px-3 h-[42px] bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-xl text-xs font-black hover:bg-rose-100 hover:text-rose-500 transition-all flex items-center justify-center" title="Reset filter">
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                                                             </button>
                                                         )}
@@ -632,14 +641,24 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                     ref={calendarRef}
                                                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                                                     initialView={calendarView}
-                                                    initialDate={new Date().toISOString().split('T')[0]}
-                                                    headerToolbar={{ left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+                                                    initialDate={new Date().toLocaleDateString('en-CA')}
+                                                    headerToolbar={{
+                                                        left: 'prev,next today',
+                                                        center: 'title',
+                                                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                                    }}
+                                                    views={{
+                                                        timeGridWeek: {
+                                                            duration: { days: 7 },
+                                                            buttonText: '7 Hari Rolling'
+                                                        }
+                                                    }}
                                                     locale="id"
                                                     slotMinTime="08:00:00"
                                                     slotMaxTime="22:00:00"
                                                     slotDuration="01:00:00"
                                                     allDaySlot={false}
-                                                    weekends={false}
+                                                    weekends={true}
                                                     events={schedules}
                                                     eventClick={handleEventClick}
                                                     editable={false}

@@ -2,14 +2,14 @@ import { Link } from '@inertiajs/react';
 
 export default function Footer() {
     return (
-        <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl pt-20 pb-10 mt-20">
+        <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-md md:backdrop-blur-lg pt-20 pb-10 mt-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-2">
                         <Link href="/">
-                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-[120px] md:h-[160px] w-auto object-contain block dark:hidden mb-6" />
-                            <img src="/images/logo-white.png" alt="InDepth Logo" className="h-[120px] md:h-[160px] w-auto object-contain hidden dark:block mb-6" />
+                            <img src="/images/logo-color.png" alt="InDepth Logo" width="240" height="120" className="h-[120px] md:h-[160px] w-auto object-contain block dark:hidden mb-6" />
+                            <img src="/images/logo-white.png" alt="InDepth Logo" width="240" height="120" className="h-[120px] md:h-[160px] w-auto object-contain hidden dark:block mb-6" />
                         </Link>
                         <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light max-w-md">
                             Klinik Hipnoterapi & Psikoterapi Premium di Semarang. Menyediakan layanan kesehatan mental terpadu dengan pendekatan personal dan profesional. Membantu Anda menemukan kembali ketenangan batin.

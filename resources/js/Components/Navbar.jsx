@@ -42,15 +42,15 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
 
     return (
         <>
-            <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 dark:bg-black/20 backdrop-blur-2xl border-b border-white/20 dark:border-gray-800/20 shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-500">
+            <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 dark:bg-black/20 backdrop-blur-md md:backdrop-blur-xl border-b border-white/20 dark:border-gray-800/20 shadow-[0_8px_32px_rgba(0,0,0,0.05)] transition-all duration-500">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-24 relative">
 
                         {/* Logo */}
                         <div className="flex-shrink-0 flex items-center cursor-pointer group relative z-50" onClick={() => window.scrollTo(0, 0)}>
                             <Link href="/">
-                                <img src="/images/logo-color.png" alt="InDepth" className="h-20 w-auto object-contain block dark:hidden relative z-10" />
-                                <img src="/images/logo-white.png" alt="InDepth" className="h-20 w-auto object-contain hidden dark:block relative z-10" />
+                                <img src="/images/logo-color.png" alt="InDepth" width="160" height="80" className="h-20 w-auto object-contain block dark:hidden relative z-10" />
+                                <img src="/images/logo-white.png" alt="InDepth" width="160" height="80" className="h-20 w-auto object-contain hidden dark:block relative z-10" />
                             </Link>
                         </div>
 

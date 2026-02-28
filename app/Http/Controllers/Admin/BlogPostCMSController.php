@@ -10,6 +10,10 @@ use Illuminate\Support\Str;
 
 class BlogPostCMSController extends Controller
 {
+    public function __construct(protected \App\Services\SeoContentService $seoService)
+    {
+    }
+
     public function index()
     {
         $posts = BlogPost::orderBy('created_at', 'desc')->paginate(15);
@@ -31,6 +35,7 @@ class BlogPostCMSController extends Controller
             'excerpt' => 'nullable|string',
             'body' => 'required|string',
             'featured_image' => 'nullable|image|max:2048',
+            'primary_keyword' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
@@ -44,6 +49,12 @@ class BlogPostCMSController extends Controller
         if ($request->hasFile('featured_image')) {
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
         }
+
+        // Run SEO Analysis
+        $analysis = $this->seoService->analyze($validated);
+        $validated['seo_score'] = $analysis['score'];
+        $validated['seo_analysis'] = $analysis['checks'];
+        $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
         // Properly set published_at if it's published for the first time
         if ($validated['is_published']) {
@@ -69,6 +80,8 @@ class BlogPostCMSController extends Controller
             'excerpt' => 'nullable|string',
             'body' => 'required|string',
             'featured_image' => 'nullable|image|max:2048',
+            'primary_keyword' => 'nullable|string|max:255',
+            'secondary_keywords' => 'nullable|array',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
@@ -82,6 +95,12 @@ class BlogPostCMSController extends Controller
         } else {
             unset($validated['featured_image']);
         }
+
+        // Run SEO Analysis
+        $analysis = $this->seoService->analyze($validated);
+        $validated['seo_score'] = $analysis['score'];
+        $validated['seo_analysis'] = $analysis['checks'];
+        $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
         if ($validated['is_published'] && !$post->is_published) {
             $validated['published_at'] = now();
@@ -98,5 +117,20 @@ class BlogPostCMSController extends Controller
     {
         $post->delete();
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dihapus.');
+    }
+
+    /**
+     * Real-time SEO analysis endpoint for the editor.
+     */
+    public function analyze(Request $request)
+    {
+        $analysis = $this->seoService->analyze($request->all());
+        $intent = $this->seoService->predictIntent($request->primary_keyword ?? '');
+
+        return response()->json([
+            'score' => $analysis['score'],
+            'checks' => $analysis['checks'],
+            'intent' => $intent
+        ]);
     }
 }

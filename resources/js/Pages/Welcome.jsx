@@ -8,7 +8,29 @@ import VisionMissionSection from '@/Components/VisionMissionSection';
 import LiquidBackground from '@/Components/LiquidBackground';
 import DisclaimerSection from '@/Components/DisclaimerSection';
 
-export default function Welcome({ auth, articles, courses }) {
+export default function Welcome({ auth, articles = [], courses = [], packages = [] }) {
+    // Helper to find package by slug
+    const getPackage = (slug) => {
+        return packages.find(p => p.slug === slug) || {
+            name: slug.toUpperCase(),
+            base_price: 0,
+            current_price: 0,
+            discount_percentage: 0
+        };
+    };
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price).replace('IDR', 'Rp');
+    };
+
+    const regulerPkg = getPackage('reguler');
+    const premiumPkg = getPackage('premium');
+    const vipPkg = getPackage('vip');
 
     // Smooth scroll for anchor links
     useEffect(() => {
@@ -53,10 +75,10 @@ export default function Welcome({ auth, articles, courses }) {
             <main className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400"
+                        transition={{ duration: 0.5 }}
+                        className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm md:backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400"
                     >
                         <span className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
@@ -65,30 +87,41 @@ export default function Welcome({ auth, articles, courses }) {
                     </motion.div>
 
                     <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-8 leading-tight"
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="text-5xl md:text-8xl font-black tracking-tight text-gray-900 dark:text-white mb-6 leading-[0.9]"
                     >
-                        Temukan Kembali <br />
+                        Klinik Hipnoterapi <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600 filter drop-shadow-sm">
-                            Ketenangan Batin Anda
+                            Premium Semarang
                         </span>
                     </motion.h1>
 
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-300 mx-auto mb-10 leading-relaxed font-light"
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="mb-8"
                     >
-                        Bebaskan diri dari stres, kecemasan, dan trauma masa lalu bersama tim profesional kesehatan mental kami yang berpengalaman dan terpercaya.
+                        <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">
+                            Sesi Privat. Pendek. Berdampak Nyata.
+                        </p>
+                    </motion.div>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="max-w-3xl text-lg md:text-xl text-gray-600 dark:text-gray-300 mx-auto mb-10 leading-relaxed font-medium"
+                    >
+                        Sebagian orang mencari terapi. Sebagian lainnya memilih <span className="text-gold-600 dark:text-gold-400 font-bold">perubahan yang terarah.</span> InDepth Mental Wellness menghadirkan pengalaman hipnoterapi privat dengan pendekatan eksklusif, sistem profesional, dan evaluasi hasil yang jelas dalam satu sesi terstruktur.
                     </motion.p>
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: 0.6 }}
+                        transition={{ duration: 0.4, delay: 0.3 }}
                         className="flex flex-col sm:flex-row justify-center gap-4"
                     >
                         <a href="#layanan" className="group inline-flex items-center justify-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 text-white font-bold text-sm shadow-[0_4px_15px_rgba(208,170,33,0.3)] hover:shadow-[0_8px_25px_rgba(208,170,33,0.4)] hover:-translate-y-1 hover:from-gold-300 hover:to-gold-500 transition-all duration-300 border border-gold-300/40">
@@ -103,12 +136,12 @@ export default function Welcome({ auth, articles, courses }) {
             <div id="layanan" className="py-24 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Layanan Kami</h2>
-                        <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                            Solusi Khusus untuk Setiap Individu
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">InDepth Mental Wellness</h2>
+                        <p className="mt-2 text-3xl leading-8 font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl uppercase italic">
+                            Anda Datang Dengan Tujuan yang Jelas
                         </p>
-                        <p className="mt-4 max-w-2xl text-xl text-gray-600 dark:text-gray-400 mx-auto font-light">
-                            Pendekatan terapeutik yang disesuaikan secara personal untuk mencapai hasil yang maksimal dan permanen.
+                        <p className="mt-6 max-w-3xl text-xl text-gray-600 dark:text-gray-400 mx-auto font-medium leading-relaxed">
+                            Setiap sesi dirancang untuk menghasilkan perubahan yang dapat diuji — bukan sekadar pengalaman. Kami menangani kondisi yang menghambat fungsi hidup optimal Anda.
                         </p>
                     </div>
 
@@ -126,10 +159,12 @@ export default function Welcome({ auth, articles, courses }) {
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">Penyembuhan Trauma & Phobia</h3>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Atasi akar masalah emosional dan ketakutan tidak beralasan dengan pendekatan terapeutik yang aman dan terkendali.
-                            </p>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Gangguan Pikiran & Emosi</h3>
+                            <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Pikiran sangat terganggu</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Emosi berulang yang melelahkan</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Hidup terasa hampa</li>
+                            </ul>
                         </motion.div>
 
                         {/* Feature 2 */}
@@ -145,10 +180,12 @@ export default function Welcome({ auth, articles, courses }) {
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">Manajemen Stres & Kecemasan</h3>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Program terstruktur untuk melatih pikiran Anda mengelola stres dan mendapatkan ketenangan jiwa yang berkelanjutan.
-                            </p>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Trauma & Kebiasaan</h3>
+                            <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Trauma yang terus aktif</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Kebiasaan buruk menahun</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Limiting Beliefs</li>
+                            </ul>
                         </motion.div>
 
                         {/* Feature 3 */}
@@ -164,10 +201,13 @@ export default function Welcome({ auth, articles, courses }) {
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">Pengembangan Diri & Potensi</h3>
-                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Hancurkan mental block dan limiting belief yang menahan laju kesuksesan karir dan hubungan Anda.
-                            </p>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Respons Somatik (Tubuh)</h3>
+                            <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Fungsi organ terganggu (Psikosomatis)</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Ketegangan fisik kronis</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Regulasi Neuro-Somatik</li>
+                            </ul>
+                            <p className="mt-4 text-xs font-black text-gold-600 uppercase tracking-widest italic">Langsung bekerja pada sumbernya.</p>
                         </motion.div>
                     </div>
                 </div>
@@ -280,8 +320,8 @@ export default function Welcome({ auth, articles, courses }) {
                             Pilih Program Transformasi Anda
                         </p>
 
-                        <div className="mt-8 flex flex-col items-center gap-3 animate-pulse">
-                            <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/20 to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.15)]">
+                        <div className="mt-8 flex flex-col items-center gap-3">
+                            <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
                                 <span className="text-xl">🎉</span>
                                 <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
                             </div>
@@ -302,8 +342,14 @@ export default function Welcome({ auth, articles, courses }) {
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">REGULER</h3>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Stabilisasi Mental & Emosi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">Rp 4.000.000</span>
-                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">Rp 2.000.000</span>
+                                    {regulerPkg.discount_percentage > 0 && (
+                                        <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
+                                            {formatPrice(regulerPkg.base_price)}
+                                        </span>
+                                    )}
+                                    <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
+                                        {formatPrice(regulerPkg.current_price)}
+                                    </span>
                                 </div>
                                 <p className="text-gray-500 text-sm">/ sesi</p>
 
@@ -340,7 +386,7 @@ export default function Welcome({ auth, articles, courses }) {
                                 </ul>
                             </div>
 
-                            <Link href="/register?package=hipnoterapi" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
+                            <Link href="/register?package=reguler" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
                                 Pilih Reguler
                             </Link>
                         </div>
@@ -362,8 +408,14 @@ export default function Welcome({ auth, articles, courses }) {
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">PREMIUM</h3>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Optimalisasi Diri</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">Rp 8.000.000</span>
-                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">Rp 4.000.000</span>
+                                    {premiumPkg.discount_percentage > 0 && (
+                                        <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
+                                            {formatPrice(premiumPkg.base_price)}
+                                        </span>
+                                    )}
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">
+                                        {formatPrice(premiumPkg.current_price)}
+                                    </span>
                                 </div>
                                 <p className="text-gray-500 text-sm">/ sesi</p>
 
@@ -418,8 +470,14 @@ export default function Welcome({ auth, articles, courses }) {
                                 <h3 className="text-2xl font-bold text-white mb-2">VIP</h3>
                                 <p className="text-gold-400 font-semibold mb-4 text-sm">Penanganan Kompleks & Berat</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">Rp 16.000.000</span>
-                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Rp 8.000.000</span>
+                                    {vipPkg.discount_percentage > 0 && (
+                                        <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">
+                                            {formatPrice(vipPkg.base_price)}
+                                        </span>
+                                    )}
+                                    <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
+                                        {formatPrice(vipPkg.current_price)}
+                                    </span>
                                 </div>
                                 <p className="text-gray-400 text-sm">/ sesi</p>
 

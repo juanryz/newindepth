@@ -14,6 +14,7 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'articles' => \App\Models\BlogPost::with('author')->where('is_published', true)->latest('published_at')->take(3)->get(),
         'courses' => \App\Models\Course::where('is_published', true)->latest()->take(3)->get(),
+        'packages' => \App\Models\Package::where('is_active', true)->get(),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
@@ -123,6 +124,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/petty-cash/proofs/{proof}/reject', [\App\Http\Controllers\Admin\PettyCashController::class, 'rejectProof'])->name('petty-cash.proofs.reject');
 
             // Blog CMS
+            Route::post('blog/analyze', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'analyze'])->name('blog.analyze');
             Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
 
             // Unified Finance Management
@@ -187,7 +189,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'updateVoucher'])->name('pricing.vouchers.update');
             Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyVoucher'])->name('pricing.vouchers.destroy');
 
+            Route::post('/pricing/packages', [\App\Http\Controllers\Admin\PricingController::class, 'storePackage'])->name('pricing.packages.store');
             Route::patch('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'updatePackage'])->name('pricing.packages.update');
+            Route::delete('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyPackage'])->name('pricing.packages.destroy');
         }
     );
 

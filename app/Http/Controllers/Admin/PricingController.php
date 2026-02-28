@@ -37,7 +37,7 @@ class PricingController extends Controller
         ]);
 
         $validated['type'] = 'promo_code';
-        $validated['is_active'] = true;
+        $validated['is_active'] = $request->boolean('is_active', true);
         Voucher::create($validated);
 
         return redirect()->back()->with('success', 'Voucher berhasil dibuat.');
@@ -65,6 +65,26 @@ class PricingController extends Controller
     }
 
     // Package Methods
+    public function storePackage(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'base_price' => 'required|integer|min:0',
+            'discount_percentage' => 'required|integer|min:0|max:100',
+            'discount_ends_at' => 'nullable|date',
+            'is_active' => 'required|boolean',
+            'features' => 'nullable|array',
+        ]);
+
+        // Generate slug from name
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+
+        Package::create($validated);
+
+        return redirect()->back()->with('success', 'Paket layanan berhasil dibuat.');
+    }
+
     public function updatePackage(Request $request, Package $package)
     {
         $validated = $request->validate([
@@ -77,8 +97,15 @@ class PricingController extends Controller
             'features' => 'nullable|array',
         ]);
 
+        $package->slug = \Illuminate\Support\Str::slug($validated['name']);
         $package->update($validated);
 
         return redirect()->back()->with('success', 'Paket berhasil diperbarui.');
+    }
+
+    public function destroyPackage(Package $package)
+    {
+        $package->delete();
+        return redirect()->back()->with('success', 'Paket layanan berhasil dihapus.');
     }
 }

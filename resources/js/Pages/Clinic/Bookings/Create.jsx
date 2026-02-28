@@ -147,7 +147,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                         </p>
                                     ) : (
                                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                                            Kami merekomendasikan {packageOptions.recommended === 'hipnoterapi' ? 'Paket Hipnoterapi' : 'Paket Premium'} berdasarkan hasil skrining Anda.
+                                            Kami merekomendasikan {packageOptions.recommended === 'reguler' ? 'Paket Reguler' : 'Paket Premium'} berdasarkan hasil skrining Anda.
                                         </p>
                                     )}
                                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

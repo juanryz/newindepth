@@ -51,6 +51,7 @@ export default function BlogIndex({ posts }) {
                                             <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Judul</th>
                                             <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Slug</th>
                                             <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
+                                            <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">SEO</th>
                                             <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Aksi</th>
                                         </tr>
                                     </thead>
@@ -70,6 +71,19 @@ export default function BlogIndex({ posts }) {
                                                         }`}>
                                                         {post.is_published ? 'Published' : 'Draft'}
                                                     </span>
+                                                </td>
+                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-12 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                                            <div
+                                                                className={`h-full ${post.seo_score >= 80 ? 'bg-emerald-500' : (post.seo_score >= 50 ? 'bg-amber-500' : 'bg-rose-500')}`}
+                                                                style={{ width: `${post.seo_score}%` }}
+                                                            ></div>
+                                                        </div>
+                                                        <span className={`text-[10px] font-black ${post.seo_score >= 80 ? 'text-emerald-500' : (post.seo_score >= 50 ? 'text-amber-500' : 'text-rose-500')}`}>
+                                                            {post.seo_score || 0}%
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-black space-x-4">
                                                     <a href={`/blog/${post.slug || ''}`} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
