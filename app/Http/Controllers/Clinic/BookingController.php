@@ -264,20 +264,47 @@ class BookingController extends Controller
 
     public function cancel(Booking $booking, Request $request)
     {
+        \Log::info("BookingController::cancel reached for booking {$booking->id} by user {$request->user()->id}");
         if ((int) $booking->patient_id !== (int) $request->user()->id && !$request->user()->isStaff()) {
+            \Log::info("Abort 403: patient_id is {$booking->patient_id}, user is {$request->user()->id}");
             abort(403);
         }
 
-        // Only allow cancel before booking is confirmed
-        if ($booking->status === 'confirmed') {
+        // Prevention logic: block if already completed or already cancelled
+        if (in_array($booking->status, ['completed', 'cancelled'])) {
+            \Log::info("Redirect back: status is {$booking->status}");
             return redirect()->route('bookings.show', $booking->id)
-                ->withErrors(['error' => 'Pesanan yang sudah dikonfirmasi tidak dapat dibatalkan.']);
+                ->withErrors(['error' => 'Pesanan ini tidak dapat dibatalkan.']);
         }
 
-        // Free the schedule slot back up if it was previously confirmed
-        if ($booking->status === 'confirmed') {
+        // Handle unpaid or unvalidated bookings (Draft/Pending stages)
+        // For unpaid bookings, we "Delete" them to satisfy the "Hapus" request
+        if (in_array($booking->status, ['pending_payment', 'pending_validation', 'pending_screening', 'draft'])) {
+            \Log::info("Attempting to delete unpaid booking. Status: {$booking->status}");
+            try {
+                if ($booking->userVoucher) {
+                    $booking->userVoucher->update([
+                        'is_active' => true,
+                        'booking_id' => null
+                    ]);
+                }
+                if ($booking->transaction) {
+                    $booking->transaction->delete();
+                }
+                $booking->delete();
+                \Log::info("Booking deleted successfully.");
+            } catch (\Exception $e) {
+                \Log::error("Failed to delete booking: " . $e->getMessage());
+                return redirect()->route('bookings.show', $booking->id)->withErrors(['error' => 'Gagal menghapus pesanan: ' . $e->getMessage()]);
+            }
+            return redirect()->route('dashboard')
+                ->with('success', 'Jadwal Anda berhasil dihapus. Silakan pilih jadwal baru jika diinginkan.');
+        }
+
+        // Handle confirmed bookings (already paid)
+        if (in_array($booking->status, ['confirmed', 'in_progress'])) {
             $schedule = $booking->schedule;
-            if ($schedule) {
+            if ($schedule && $schedule->booked_count > 0) {
                 $schedule->decrement('booked_count');
                 if ($schedule->status === 'full') {
                     $schedule->update(['status' => 'available']);

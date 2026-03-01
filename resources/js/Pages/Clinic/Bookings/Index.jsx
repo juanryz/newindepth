@@ -67,6 +67,7 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                 const isPendingScreening = booking.status === 'pending_screening';
                                                 const isConfirmed = booking.status === 'confirmed';
                                                 const isCancelled = booking.status === 'cancelled';
+                                                const canCancel = ['pending_payment', 'pending_validation', 'pending_screening', 'pending', 'draft'].includes(booking.status);
                                                 const amount = booking.transaction?.amount ? new Intl.NumberFormat('id-ID').format(booking.transaction.amount) : '-';
 
                                                 return (
@@ -84,7 +85,11 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                         <td className="py-4 px-4 align-top min-w-[200px]">
                                                             <div className="font-medium">{booking.therapist?.name || booking.schedule?.therapist?.name || '-'}</div>
                                                             <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                                {booking.schedule ? new Date(booking.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                                                                {(() => {
+                                                                    if (!booking.schedule?.date) return '-';
+                                                                    const d = booking.schedule.date.includes(' ') ? booking.schedule.date.split(' ')[0] : (booking.schedule.date.includes('T') ? booking.schedule.date.split('T')[0] : booking.schedule.date);
+                                                                    return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                                                                })()}
                                                             </div>
                                                             <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                                                                 {booking.schedule ? `${booking.schedule.start_time?.substring(0, 5) || '--:--'} - ${booking.schedule.end_time?.substring(0, 5) || '--:--'} WIB` : '-'}
@@ -107,13 +112,13 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                             >
                                                                 Lihat Detail →
                                                             </Link>
-                                                            {isPendingPayment && (
+                                                            {['pending_payment', 'pending_validation', 'pending_screening', 'pending', 'draft'].includes(booking.status) && (
                                                                 <Link
                                                                     href={route('bookings.cancel', booking.id)}
                                                                     method="post"
                                                                     as="button"
                                                                     onClick={(e) => {
-                                                                        if (!confirm('Batalkan booking ini untuk memilih jadwal baru?')) e.preventDefault();
+                                                                        if (!confirm('Batalkan booking ini untuk memilih jadwal baru? (Pilihan ini akan membatalkan reservasi ini sehingga Anda bisa memilih jadwal baru)')) e.preventDefault();
                                                                     }}
                                                                     className="block text-[10px] font-black uppercase text-red-500 hover:text-red-700 transition-colors text-right w-full"
                                                                 >

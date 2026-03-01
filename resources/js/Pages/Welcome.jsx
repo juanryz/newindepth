@@ -1,12 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
-import Footer from '@/Components/Footer';
-import VisionMissionSection from '@/Components/VisionMissionSection';
 import LiquidBackground from '@/Components/LiquidBackground';
-import DisclaimerSection from '@/Components/DisclaimerSection';
+
+// Lazy loading below-the-fold components
+const VisionMissionSection = lazy(() => import('@/Components/VisionMissionSection'));
+const Footer = lazy(() => import('@/Components/Footer'));
+const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
+
 
 export default function Welcome({ auth, articles = [], courses = [], packages = [] }) {
     // Helper to find package by slug
@@ -15,8 +18,18 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
             name: slug.toUpperCase(),
             base_price: 0,
             current_price: 0,
-            discount_percentage: 0
+            discount_percentage: 0,
+            discount_ends_at: null
         };
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return null;
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
     };
 
     const formatPrice = (price) => {
@@ -323,7 +336,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         <div className="mt-8 flex flex-col items-center gap-3">
                             <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
                                 <span className="text-xl">🎉</span>
-                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon 50%</span></span>
+                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%</span></span>
                             </div>
                         </div>
                     </div>
@@ -334,7 +347,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             {/* Promo ribbon top-right */}
                             <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
                                 <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">50%<br />OFF</span>
+                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{regulerPkg.discount_percentage}%<br />OFF</span>
                                 </div>
                             </div>
 
@@ -355,9 +368,11 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 {/* Promo labels */}
                                 <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d 21 Mei 2026
-                                    </span>
+                                    {regulerPkg.discount_ends_at && (
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                            ⏳ s/d {formatDate(regulerPkg.discount_ends_at)}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
@@ -400,7 +415,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             {/* Promo ribbon top-right */}
                             <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
                                 <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">50%<br />OFF</span>
+                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{premiumPkg.discount_percentage}%<br />OFF</span>
                                 </div>
                             </div>
 
@@ -421,9 +436,11 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 {/* Promo labels */}
                                 <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d 21 Mei 2026
-                                    </span>
+                                    {premiumPkg.discount_ends_at && (
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                            ⏳ s/d {formatDate(premiumPkg.discount_ends_at)}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
@@ -462,7 +479,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             {/* Promo ribbon top-right */}
                             <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
                                 <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">50%<br />OFF</span>
+                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{vipPkg.discount_percentage}%<br />OFF</span>
                                 </div>
                             </div>
 
@@ -483,9 +500,11 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 {/* Promo labels */}
                                 <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d 31 Januari
-                                    </span>
+                                    {vipPkg.discount_ends_at && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                            ⏳ s/d {formatDate(vipPkg.discount_ends_at)}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
@@ -704,6 +723,8 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                         <img
                                             src="/images/julius-bambang.png"
                                             alt="Julius Bambang"
+                                            loading="lazy"
+                                            decoding="async"
                                             className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                                         />
                                     </div>
@@ -743,7 +764,9 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     </div>
                 </div>
             </div>
-            <VisionMissionSection />
+            <Suspense fallback={<div className="h-32 flex items-center justify-center">Loading...</div>}>
+                <VisionMissionSection />
+            </Suspense>
 
             {/* CTA Section (Refined Glass Variant) */}
             <div className="relative mt-20 z-10">
@@ -763,7 +786,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </Link>
                 </div>
-            </div>
+            </div >
 
 
             {/* Articles Section */}
@@ -838,9 +861,10 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                 )
             }
 
-            <DisclaimerSection />
-
-            <Footer />
+            <Suspense fallback={<div className="h-32 flex items-center justify-center">Loading...</div>}>
+                <DisclaimerSection />
+                <Footer />
+            </Suspense>
         </div >
     );
 }

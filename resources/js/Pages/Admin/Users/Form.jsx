@@ -11,7 +11,9 @@ import {
     Shield,
     AlertCircle,
     UserPlus,
-    Contact
+    Contact,
+    Eye,
+    EyeOff
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -31,6 +33,9 @@ export default function UsersForm({ userModel, roles, userRoles }) {
         password_confirmation: '',
         roles: userRoles || [],
     });
+
+    const [showPassword, setShowPassword] = React.useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = React.useState(false);
 
     const handleRoleChange = (e) => {
         const { value, checked } = e.target;
@@ -202,13 +207,20 @@ export default function UsersForm({ userModel, roles, userRoles }) {
                                         <div className="relative">
                                             <TextInput
                                                 id="password"
-                                                type="password"
-                                                className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
+                                                type={showPassword ? 'text' : 'password'}
+                                                className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all transition-all"
                                                 value={data.password}
                                                 onChange={(e) => setData('password', e.target.value)}
                                                 autoComplete="new-password"
                                             />
                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none"
+                                            >
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
                                         </div>
                                         <InputError message={errors.password} className="mt-2" />
                                     </div>
@@ -218,13 +230,20 @@ export default function UsersForm({ userModel, roles, userRoles }) {
                                         <div className="relative">
                                             <TextInput
                                                 id="password_confirmation"
-                                                type="password"
-                                                className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
+                                                type={showPasswordConfirm ? 'text' : 'password'}
+                                                className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
                                                 value={data.password_confirmation}
                                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                                 autoComplete="new-password"
                                             />
                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none"
+                                            >
+                                                {showPasswordConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -236,8 +255,8 @@ export default function UsersForm({ userModel, roles, userRoles }) {
                                             <label
                                                 key={role.id}
                                                 className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.roles.includes(role.name)
-                                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                                        : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 text-gray-500 hover:border-indigo-200'
+                                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                    : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 text-gray-500 hover:border-indigo-200'
                                                     }`}
                                             >
                                                 <input

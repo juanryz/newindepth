@@ -106,6 +106,26 @@ class AdminBookingController extends Controller
             }
         }
 
+        // Completely delete unpaid bookings as requested by user ("hapus")
+        if (in_array($booking->status, ['draft', 'pending_payment', 'pending_validation', 'pending_screening', 'pending'])) {
+            try {
+                if ($booking->userVoucher) {
+                    $booking->userVoucher->update([
+                        'is_active' => true,
+                        'booking_id' => null
+                    ]);
+                }
+                if ($booking->transaction) {
+                    $booking->transaction->delete();
+                }
+                $booking->delete();
+                return back()->with('success', 'Booking berhasil dihapus sepenuhnya dari sistem dan slot kembali tersedia.');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to delete booking in admin: ' . $e->getMessage());
+                return back()->withErrors(['error' => 'Gagal menghapus booking: ' . $e->getMessage()]);
+            }
+        }
+
         $booking->update(['status' => 'cancelled']);
 
         if ($booking->patient) {

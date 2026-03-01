@@ -1,0 +1,261 @@
+import { jsxs, jsx } from "react/jsx-runtime";
+import "react";
+import { A as AuthenticatedLayout } from "./AuthenticatedLayout-D5ONeOE2.js";
+import { useForm, Head, Link } from "@inertiajs/react";
+import { P as PrimaryButton } from "./PrimaryButton-DsRkdqwY.js";
+import "@headlessui/react";
+import "./ThemeToggle-SHr-61ed.js";
+import "./LiquidBackground-DsMP_cZ6.js";
+function BookingShow({ booking, userVouchers = [] }) {
+  const isPendingPayment = booking.status === "pending_payment";
+  const isPendingScreening = booking.status === "pending_screening";
+  const isPendingValidation = booking.status === "pending_validation";
+  const isConfirmed = booking.status === "confirmed";
+  const isCompleted = booking.status === "completed";
+  booking.status === "cancelled";
+  const canCancel = ["pending_payment", "pending_validation", "pending_screening", "pending", "draft"].includes(booking.status);
+  const hasAppliedVoucher = !!booking.user_voucher_id;
+  const activeVouchers = userVouchers.filter((v) => v.is_active);
+  const formatDateRobust = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      const cleanDate = dateStr.includes(" ") ? dateStr.split(" ")[0] : dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
+      const date = /* @__PURE__ */ new Date(cleanDate + "T00:00:00");
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+  const { data, setData, post, processing } = useForm({
+    booking_id: booking.id,
+    user_voucher_id: ""
+  });
+  const handleApplyVoucher = (e) => {
+    e.preventDefault();
+    post(route("vouchers.apply"));
+  };
+  return /* @__PURE__ */ jsxs(
+    AuthenticatedLayout,
+    {
+      header: /* @__PURE__ */ jsx("div", { className: "flex items-center gap-4 text-slate-800 dark:text-white", children: /* @__PURE__ */ jsxs("h2", { className: "font-semibold text-xl leading-tight", children: [
+        "Detail Reservasi #",
+        booking.booking_code
+      ] }) }),
+      children: [
+        /* @__PURE__ */ jsx(Head, { title: `Booking ${booking.booking_code}` }),
+        /* @__PURE__ */ jsx("div", { className: "py-12", children: /* @__PURE__ */ jsxs("div", { className: "max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6", children: [
+          /* @__PURE__ */ jsx("div", { className: `p-4 rounded-lg shadow-sm border-l-4 
+                        ${isConfirmed ? "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-800 dark:text-green-300" : ""}
+                        ${isCompleted ? "bg-purple-50 dark:bg-purple-900/20 border-purple-500 text-purple-800 dark:text-purple-300 font-bold shadow-md" : ""}
+                        ${isPendingPayment ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500 text-yellow-800 dark:text-yellow-300" : ""}
+                        ${isPendingValidation ? "bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-800 dark:text-blue-300" : ""}
+                        ${isPendingScreening ? "bg-gray-50 dark:bg-gray-900/20 border-gray-500 text-gray-800 dark:text-gray-300" : ""}
+                        ${booking.status === "cancelled" ? "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-800 dark:text-red-300" : ""}
+                    `, children: /* @__PURE__ */ jsx("div", { className: "flex justify-between items-center", children: /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsxs("h3", { className: "font-bold text-lg", children: [
+              isConfirmed && "Pendaftaran Dikonfirmasi!",
+              isCompleted && "Sesi Telah Selesai",
+              isPendingPayment && "Menunggu Pembayaran",
+              isPendingValidation && "Menunggu Validasi Admin",
+              isPendingScreening && "Menunggu Evaluasi Skrining",
+              booking.status === "cancelled" && "Dibatalkan"
+            ] }),
+            /* @__PURE__ */ jsxs("p", { className: "text-sm mt-1 opacity-90", children: [
+              isConfirmed && "Sesi Anda dengan terapis sudah dijadwalkan. Silakan datang tepat waktu.",
+              isCompleted && "Rekaman dan catatan sesi Anda kini tersedia di bawah ini.",
+              isPendingPayment && "Terapis telah menyetujui skrining Anda. Silakan lanjutkan ke pembayaran.",
+              isPendingValidation && "Bukti pembayaran Anda sedang diverifikasi oleh tim kami.",
+              isPendingScreening && "Admin/Terapis sedang meninjau form skrining Anda.",
+              booking.status === "cancelled" && "Pesanan / Jadwal ini telah dibatalkan dan tidak lagi aktif."
+            ] })
+          ] }) }) }),
+          isCompleted && /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-2 border-purple-100 dark:border-purple-900/30", children: /* @__PURE__ */ jsxs("div", { className: "p-6 text-gray-900 dark:text-gray-100", children: [
+            /* @__PURE__ */ jsxs("h3", { className: "text-lg font-bold border-b dark:border-gray-700 pb-4 mb-4 flex items-center gap-2 text-purple-800 dark:text-purple-400", children: [
+              /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" }) }),
+              "Dokumentasi Sesi"
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("p", { className: "text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider", children: "Link Rekaman Sesi" }),
+                /* @__PURE__ */ jsxs(
+                  "a",
+                  {
+                    href: booking.recording_link,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-purple-200",
+                    children: [
+                      /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" }) }),
+                      "Tonton Rekaman Sesi"
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "bg-purple-50 dark:bg-purple-900/10 p-5 rounded-2xl border border-purple-100 dark:border-purple-800/30", children: [
+                /* @__PURE__ */ jsx("p", { className: "text-sm font-semibold text-purple-800 dark:text-purple-300 mb-2 uppercase tracking-wider", children: "Pesan / Summary dari Terapis" }),
+                /* @__PURE__ */ jsx("div", { className: "text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed font-medium", children: booking.patient_visible_notes || "Terapis tidak menyertakan catatan tambahan." })
+              ] })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "p-6 text-gray-900 dark:text-gray-100", children: [
+            /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium border-b dark:border-gray-700 pb-4 mb-4", children: "Informasi Jadwal" }),
+            /* @__PURE__ */ jsxs("dl", { className: "grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6", children: [
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("dt", { className: "text-sm font-medium text-gray-500 dark:text-gray-400", children: "Terapis" }),
+                /* @__PURE__ */ jsx("dd", { className: "mt-1 text-sm text-gray-900 dark:text-white font-semibold", children: booking.therapist?.name || booking.schedule.therapist?.name || "-" })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("dt", { className: "text-sm font-medium text-gray-500 dark:text-gray-400", children: "Tanggal" }),
+                /* @__PURE__ */ jsx("dd", { className: "mt-1 text-sm text-gray-900 dark:text-white", children: formatDateRobust(booking.schedule.date) })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("dt", { className: "text-sm font-medium text-gray-500 dark:text-gray-400", children: "Waktu" }),
+                /* @__PURE__ */ jsxs("dd", { className: "mt-1 text-sm text-gray-900 dark:text-white", children: [
+                  booking.schedule.start_time.substring(0, 5),
+                  " - ",
+                  booking.schedule.end_time.substring(0, 5),
+                  " WIB"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("dt", { className: "text-sm font-medium text-gray-500 dark:text-gray-400", children: "Lokasi" }),
+                /* @__PURE__ */ jsx("dd", { className: "mt-1 text-sm text-gray-900 dark:text-white", children: "Klinik Utama (Offline)" })
+              ] })
+            ] }),
+            booking.reschedule_reason && /* @__PURE__ */ jsxs("div", { className: "mt-8 p-6 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-2xl", children: [
+              /* @__PURE__ */ jsxs("h4", { className: "text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-3 flex items-center gap-2", children: [
+                /* @__PURE__ */ jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" }) }),
+                "Pemberitahuan Perubahan Jadwal"
+              ] }),
+              /* @__PURE__ */ jsxs("p", { className: "text-sm font-medium text-amber-800 dark:text-amber-200 leading-relaxed italic", children: [
+                '"',
+                booking.reschedule_reason,
+                '"'
+              ] }),
+              /* @__PURE__ */ jsxs("p", { className: "text-[10px] text-amber-600 dark:text-amber-500 font-bold mt-2 uppercase", children: [
+                "Diperbarui pada: ",
+                new Date(booking.rescheduled_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })
+              ] })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-6", children: /* @__PURE__ */ jsxs("div", { className: "p-6 text-gray-900 dark:text-gray-100", children: [
+            /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium border-b dark:border-gray-700 pb-4 mb-4", children: "Ringkasan Pemesanan (Order Summary)" }),
+            /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center py-2", children: [
+                /* @__PURE__ */ jsx("span", { className: "text-gray-600 dark:text-gray-400", children: "Layanan InDepth Mental Wellness" }),
+                /* @__PURE__ */ jsx("span", { className: "font-medium truncate dark:text-white", children: booking.package_type === "vip" ? "Paket VIP (Intensive Care)" : booking.package_type === "premium" ? "Paket Premium" : "Paket Hipnoterapi" })
+              ] }),
+              hasAppliedVoucher && /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center py-2 border-t border-green-100 dark:border-green-900/30", children: [
+                /* @__PURE__ */ jsx("span", { className: "text-sm text-green-700 dark:text-green-400", children: "✅ Voucher Diterapkan" }),
+                /* @__PURE__ */ jsxs("span", { className: "text-sm font-semibold text-green-700 dark:text-green-400", children: [
+                  "- ",
+                  booking.user_voucher ? `Rp ${new Intl.NumberFormat("id-ID").format(booking.user_voucher.voucher?.discount_amount || 0)}` : "Diskon aktif"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center py-2 border-t border-gray-100 dark:border-gray-700", children: [
+                /* @__PURE__ */ jsx("span", { className: "text-lg font-bold text-gray-900 dark:text-white", children: "Total Pembayaran" }),
+                /* @__PURE__ */ jsxs("span", { className: "text-xl font-bold text-indigo-700 dark:text-indigo-400", children: [
+                  "Rp ",
+                  new Intl.NumberFormat("id-ID").format(booking.transaction?.amount || 0)
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center py-2", children: [
+                /* @__PURE__ */ jsx("span", { className: "text-gray-600 dark:text-gray-400", children: "Status" }),
+                /* @__PURE__ */ jsx("span", { className: `font-bold px-3 py-1 text-xs rounded-full ${isConfirmed || isCompleted ? "bg-green-100 text-green-700" : booking.status === "cancelled" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`, children: booking.status === "cancelled" ? "DIBATALKAN" : isConfirmed || isCompleted ? "LUNAS / SELESAI" : "MENUNGGU" })
+              ] }),
+              isPendingPayment && /* @__PURE__ */ jsxs("div", { className: "mt-4 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-lg text-sm text-orange-800 dark:text-orange-300", children: [
+                /* @__PURE__ */ jsxs("span", { className: "font-bold flex items-center gap-2 mb-1", children: [
+                  /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 flex-shrink-0", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }),
+                  "Perhatian Kode Unik"
+                ] }),
+                "Pastikan Anda mentransfer ",
+                /* @__PURE__ */ jsx("strong", { children: "tepat sesuai nominal di atas hingga 3 digit terakhir" }),
+                " untuk memastikan kelancaran verifikasi sistem kami."
+              ] }),
+              (isConfirmed || isCompleted || isPendingValidation) && /* @__PURE__ */ jsxs("div", { className: "mt-6 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800", children: [
+                /* @__PURE__ */ jsxs("h4", { className: "text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" }) }),
+                  "Kebijakan & Ketentuan Final"
+                ] }),
+                /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600 dark:text-gray-400 leading-relaxed", children: [
+                    "Pembayaran Anda telah diterima dan bersifat ",
+                    /* @__PURE__ */ jsx("strong", { children: "FINAL" }),
+                    " sesuai kebijakan InDepth Mental Wellness. Transaksi ini tidak dapat dibatalkan dan tidak dapat direfund."
+                  ] }),
+                  /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 gap-2", children: [
+                    "Menyetujui Kebijakan Non-Refund",
+                    "Menyetujui Persetujuan Elektronik (UU ITE)",
+                    "Mengunci slot waktu / akses sistem"
+                  ].map((text, i) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium", children: [
+                    /* @__PURE__ */ jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M5 13l4 4L19 7" }) }),
+                    text
+                  ] }, i)) })
+                ] })
+              ] })
+            ] })
+          ] }) }),
+          isPendingPayment && !hasAppliedVoucher && /* @__PURE__ */ jsx("div", { className: "bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-6", children: /* @__PURE__ */ jsxs("div", { className: "p-6 text-gray-900 dark:text-gray-100", children: [
+            /* @__PURE__ */ jsxs("h3", { className: "text-lg font-medium border-b dark:border-gray-700 pb-4 mb-4 flex items-center gap-2", children: [
+              /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-amber-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" }) }),
+              "Gunakan Voucher"
+            ] }),
+            activeVouchers.length === 0 ? /* @__PURE__ */ jsxs("div", { className: "text-sm text-gray-500 dark:text-gray-400", children: [
+              "Anda tidak memiliki voucher aktif. ",
+              /* @__PURE__ */ jsx(Link, { href: route("vouchers.index"), className: "text-indigo-600 dark:text-indigo-400 hover:underline", children: "Klaim voucher sekarang →" })
+            ] }) : /* @__PURE__ */ jsxs("form", { onSubmit: handleApplyVoucher, className: "flex gap-3 items-end", children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1", children: "Pilih Voucher" }),
+                /* @__PURE__ */ jsxs(
+                  "select",
+                  {
+                    value: data.user_voucher_id,
+                    onChange: (e) => setData("user_voucher_id", e.target.value),
+                    className: "w-full border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-lg px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500",
+                    children: [
+                      /* @__PURE__ */ jsx("option", { value: "", children: "— Pilih voucher —" }),
+                      activeVouchers.map((v) => /* @__PURE__ */ jsxs("option", { value: v.id, children: [
+                        v.code,
+                        " — Diskon Rp ",
+                        new Intl.NumberFormat("id-ID").format(v.voucher?.discount_amount || 0)
+                      ] }, v.id))
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "submit",
+                  disabled: processing || !data.user_voucher_id,
+                  className: "px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-colors",
+                  children: "Terapkan"
+                }
+              )
+            ] })
+          ] }) }),
+          canCancel && /* @__PURE__ */ jsxs("div", { className: "mt-6 flex flex-col sm:flex-row justify-between items-center gap-4", children: [
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (confirm("Apakah Anda yakin ingin membatalkan/mengganti jadwal ini? (Pilihan ini akan membatalkan reservasi ini sehingga Anda bisa memilih jadwal baru)")) {
+                    post(route("bookings.cancel", booking.id));
+                  }
+                },
+                disabled: processing,
+                className: "text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50",
+                children: "Batalkan & Ganti Jadwal"
+              }
+            ),
+            isPendingPayment && /* @__PURE__ */ jsx(Link, { href: route("payments.create", booking.id), children: /* @__PURE__ */ jsx(PrimaryButton, { className: "!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold", children: "Lanjutkan ke Pembayaran" }) })
+          ] })
+        ] }) })
+      ]
+    }
+  );
+}
+export {
+  BookingShow as default
+};

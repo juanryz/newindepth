@@ -25,7 +25,7 @@ export default function PaymentUpload({ booking, transaction }) {
         agree_chargeback: true,
     });
 
-    const [showPolicyModal, setShowPolicyModal] = useState(true);
+    const [showPolicyModal, setShowPolicyModal] = useState(false);
     const [voucherCode, setVoucherCode] = useState('');
     const isVoucherApplied = !!booking.user_voucher_id || !!transaction.payment_agreement_data?.applied_voucher_id;
 
@@ -300,8 +300,8 @@ export default function PaymentUpload({ booking, transaction }) {
 
                 {/* Policy Modal */}
                 {showPolicyModal && (
-                    <div className="fixed inset-0 z-[999999] flex items-start justify-center p-4 pt-8 pb-8 overflow-y-auto bg-gray-950/80 backdrop-blur-md animate-in fade-in duration-300">
-                        <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden flex flex-col max-h-none md:max-h-[90vh] animate-in zoom-in duration-300 my-auto">
+                    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-gray-950/90 backdrop-blur-xl animate-in fade-in duration-300">
+                        <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[3rem] shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300">
                             <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white relative flex-shrink-0">
                                 <h2 className="text-2xl font-black uppercase tracking-tighter">KEBIJAKAN NON-REFUND</h2>
                                 <p className="text-indigo-100 text-sm font-bold opacity-80 uppercase tracking-widest mt-1">Arsip Persetujuan Transaksi</p>

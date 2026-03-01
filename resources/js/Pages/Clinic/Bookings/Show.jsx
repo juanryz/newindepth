@@ -11,8 +11,22 @@ export default function BookingShow({ booking, userVouchers = [] }) {
     const isConfirmed = booking.status === 'confirmed';
     const isCompleted = booking.status === 'completed';
     const isCancelled = booking.status === 'cancelled';
+    const canCancel = ['pending_payment', 'pending_validation', 'pending_screening', 'pending', 'draft'].includes(booking.status);
     const hasAppliedVoucher = !!booking.user_voucher_id;
     const activeVouchers = userVouchers.filter(v => v.is_active);
+
+    const formatDateRobust = (dateStr) => {
+        if (!dateStr) return '-';
+        try {
+            // Ensure YYYY-MM-DD format works across browsers by adding T00:00:00
+            const cleanDate = dateStr.includes(' ') ? dateStr.split(' ')[0] : (dateStr.includes('T') ? dateStr.split('T')[0] : dateStr);
+            const date = new Date(cleanDate + 'T00:00:00');
+            if (isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        } catch (e) {
+            return dateStr;
+        }
+    };
 
     const { data, setData, post, processing } = useForm({
         booking_id: booking.id,
@@ -111,7 +125,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 <div>
                                     <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</dt>
                                     <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                                        {new Date(booking.schedule.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        {formatDateRobust(booking.schedule.date)}
                                     </dd>
                                 </div>
                                 <div>
@@ -262,24 +276,25 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                         </div>
                     )}
 
-                    {isPendingPayment && (
-                        <div className="mt-6 flex justify-between items-center gap-4">
-                            <Link
-                                href={route('bookings.cancel', booking.id)}
-                                method="post"
-                                as="button"
-                                onClick={(e) => {
-                                    if (!confirm('Apakah Anda yakin ingin membatalkan/mengganti jadwal ini?')) {
-                                        e.preventDefault();
+                    {canCancel && (
+                        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <button
+                                onClick={() => {
+                                    if (confirm('Apakah Anda yakin ingin membatalkan/mengganti jadwal ini? (Pilihan ini akan membatalkan reservasi ini sehingga Anda bisa memilih jadwal baru)')) {
+                                        post(route('bookings.cancel', booking.id));
                                     }
                                 }}
-                                className="text-sm font-bold text-red-600 dark:text-red-400 hover:underline px-2"
+                                disabled={processing}
+                                className="text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors disabled:opacity-50"
                             >
                                 Batalkan & Ganti Jadwal
-                            </Link>
-                            <Link href={route('payments.create', booking.id)}>
-                                <PrimaryButton className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold">Lanjutkan ke Pembayaran</PrimaryButton>
-                            </Link>
+                            </button>
+
+                            {isPendingPayment && (
+                                <Link href={route('payments.create', booking.id)}>
+                                    <PrimaryButton className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold">Lanjutkan ke Pembayaran</PrimaryButton>
+                                </Link>
+                            )}
                         </div>
                     )}
 

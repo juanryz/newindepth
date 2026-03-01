@@ -8,7 +8,11 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function Terms({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="Syarat dan Ketentuan | InDepth Mental Wellness" />
+            <Head>
+                <title>Syarat dan Ketentuan | InDepth Mental Wellness</title>
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="twitter:image" content="/images/og-dark.jpg" />
+            </Head>
 
             <LiquidBackground />
 

@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/finance/petty-cash', [\App\Http\Controllers\Admin\FinanceController::class, 'storePettyCash'])->name('finance.petty-cash.store');
             Route::delete('/finance/petty-cash/{transaction}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyPettyCash'])->name('finance.petty-cash.destroy');
 
+            Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class);
 
             // Redirects for old routes
             Route::get(

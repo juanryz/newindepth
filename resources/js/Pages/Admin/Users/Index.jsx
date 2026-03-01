@@ -39,6 +39,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     const tabs = [
         { id: 'users', label: 'Daftar Pengguna', icon: Users, count: users.total },
         { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, count: roles.length },
+        { id: 'permissions', label: 'Izin Akses (Permissions)', icon: Key, count: permissions.length },
     ];
 
     const handleSearch = (e) => {
@@ -62,6 +63,24 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
         }
     };
 
+    const [newPermission, setNewPermission] = useState('');
+    const [editingPermission, setEditingPermission] = useState(null);
+
+    const handleCreatePermission = (e) => {
+        e.preventDefault();
+        router.post(route('admin.permissions.store'), { name: newPermission }, {
+            onSuccess: () => {
+                setNewPermission('');
+            }
+        });
+    };
+
+    const handleDeletePermission = (id) => {
+        if (confirm('Apakah Anda yakin ingin menghapus izin akses ini?')) {
+            router.delete(route('admin.permissions.destroy', id));
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -79,7 +98,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                 <UserPlus className="w-4 h-4 mr-2" />
                                 Tambah Pengguna
                             </Link>
-                        ) : (
+                        ) : activeTab === 'roles' ? (
                             <Link
                                 href={route('admin.roles.create')}
                                 className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
@@ -87,7 +106,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                 <ShieldCheck className="w-4 h-4 mr-2" />
                                 Tambah Role Baru
                             </Link>
-                        )}
+                        ) : null}
                     </div>
                 </div>
             }
@@ -383,6 +402,83 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                         ))}
                                                     </tbody>
                                                 </table>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'permissions' && (
+                                    <motion.div
+                                        key="permissions"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="space-y-6"
+                                    >
+                                        {/* Add Permission Form */}
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-6 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <form onSubmit={handleCreatePermission} className="flex flex-col sm:flex-row gap-4">
+                                                <div className="flex-1 relative">
+                                                    <Key className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Nama permission baru (contoh: manage_clinics)..."
+                                                        className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-[1.5rem] pl-14 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
+                                                        value={newPermission}
+                                                        onChange={(e) => setNewPermission(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <button type="submit" className="px-8 py-4 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                                                    Simpan Izin Baru
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        {/* Permissions Grid */}
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {permissions.map((perm) => (
+                                                    <div key={perm.id} className="group flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all">
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="w-8 h-8 rounded-xl bg-white dark:bg-gray-900 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors">
+                                                                <Key className="w-3.5 h-3.5" />
+                                                            </div>
+                                                            {editingPermission?.id === perm.id ? (
+                                                                <input
+                                                                    type="text"
+                                                                    className="flex-1 bg-white dark:bg-gray-800 border-indigo-500 rounded-lg text-[11px] font-black p-1"
+                                                                    value={editingPermission.name}
+                                                                    onChange={(e) => setEditingPermission({ ...editingPermission, name: e.target.value })}
+                                                                    onBlur={() => {
+                                                                        router.put(route('admin.permissions.update', perm.id), { name: editingPermission.name });
+                                                                        setEditingPermission(null);
+                                                                    }}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter') {
+                                                                            router.put(route('admin.permissions.update', perm.id), { name: editingPermission.name });
+                                                                            setEditingPermission(null);
+                                                                        }
+                                                                    }}
+                                                                    autoFocus
+                                                                />
+                                                            ) : (
+                                                                <span
+                                                                    className="text-[11px] font-black uppercase tracking-tight text-gray-700 dark:text-gray-300 truncate cursor-pointer hover:text-indigo-600"
+                                                                    onClick={() => setEditingPermission(perm)}
+                                                                >
+                                                                    {perm.name.replace(/_/g, ' ')}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleDeletePermission(perm.id)}
+                                                            className="p-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-rose-600 transition-all"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </motion.div>

@@ -174,14 +174,7 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                             Mulai Screening Ulang
                         </Link>
                     ) : (
-                        <div className="text-right">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Screening ulang dalam {daysUntilNextScreening} hari
-                            </span>
-                        </div>
+                        <div className="text-right" />
                     )}
                 </div>
             </div>
@@ -204,7 +197,10 @@ function LastSessionCard({ booking }) {
                     <h3 className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-[0.15em]">Sesi Terakhir Anda</h3>
                 </div>
                 <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 bg-emerald-100/60 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full backdrop-blur">
-                    {new Date(schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                    {(() => {
+                        const d = schedule.date.includes(' ') ? schedule.date.split(' ')[0] : (schedule.date.includes('T') ? schedule.date.split('T')[0] : schedule.date);
+                        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                    })()}
                 </span>
             </div>
             <div className="relative p-6">
@@ -271,6 +267,15 @@ function ActiveBookingCard({ booking }) {
 
     const isInProgress = status === 'in_progress';
 
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '-';
+        // Handle format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+        const cleanDate = dateStr.includes(' ') ? dateStr.split(' ')[0] : (dateStr.includes('T') ? dateStr.split('T')[0] : dateStr);
+        const d = new Date(cleanDate + 'T00:00:00');
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    };
+
     return (
         <GlassPanel className={`p-6 mb-8 relative overflow-hidden transition-all duration-500 ${isInProgress ? '!border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]' : '!border-indigo-200/50 dark:!border-indigo-800/20'}`}>
             <div className={`absolute inset-0 bg-gradient-to-br from-transparent pointer-events-none ${isInProgress ? 'from-red-500/10' : 'from-indigo-50/50 dark:from-indigo-900/10'}`} />
@@ -295,7 +300,7 @@ function ActiveBookingCard({ booking }) {
                     </div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Kode Booking:</strong> #{booking_code}</p>
-                        <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Jadwal:</strong> {new Date(schedule.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} ({schedule.start_time?.substring(0, 5) || '--:--'} WIB)</p>
+                        <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Jadwal:</strong> {formatDate(schedule.date)} ({schedule.start_time?.substring(0, 5) || '--:--'} WIB)</p>
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
                     </div>
                 </div>
@@ -433,7 +438,18 @@ export default function Dashboard() {
                                         <div className="flex-1">
                                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300/60 mb-1">Jadwal Sesi</p>
                                             <p className="text-sm font-bold text-white uppercase tracking-tight">
-                                                {activeBooking.schedule?.date ? new Date(activeBooking.schedule.date + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                                                {(() => {
+                                                    if (!activeBooking.schedule?.date) return '-';
+                                                    const rawDate = activeBooking.schedule.date;
+                                                    // Strictly extract YYYY-MM-DD
+                                                    const datePart = rawDate.match(/\d{4}-\d{2}-\d{2}/)?.[0];
+                                                    if (!datePart) return rawDate;
+
+                                                    const date = new Date(datePart + 'T00:00:00');
+                                                    if (isNaN(date.getTime())) return rawDate;
+
+                                                    return date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                                                })()}
                                             </p>
                                             <p className="text-xs font-bold text-red-300 mt-1 uppercase tracking-widest">
                                                 {activeBooking.schedule?.start_time?.substring(0, 5)} - {activeBooking.schedule?.end_time?.substring(0, 5)} WIB
@@ -817,13 +833,6 @@ export default function Dashboard() {
                                                 description="Atur slot waktu konsultasi"
                                                 iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                 color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
-                                            />
-                                            <QuickCard
-                                                href={route('therapist.courses.index')}
-                                                title="Buat Kelas Baru"
-                                                description="Buat dan kelola materi e-learning"
-                                                iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                                color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                             />
                                             <QuickCard
                                                 href={route('profile.edit')}
