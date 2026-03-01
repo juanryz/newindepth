@@ -17,6 +17,33 @@ class RoleController extends Controller
 
     public function create()
     {
+        // Auto-heal missing permissions in production database
+        $resources = [
+            'bookings' => ['view', 'create', 'edit', 'delete', 'cancel', 'assign'],
+            'transactions' => ['view', 'create', 'edit', 'delete', 'validate', 'reject'],
+            'schedules' => ['view', 'create', 'edit', 'delete', 'bulk_delete'],
+            'users' => ['view', 'create', 'edit', 'delete', 'view_agreement'],
+            'roles' => ['view', 'create', 'edit', 'delete'],
+            'permissions' => ['view', 'create', 'edit', 'delete'],
+            'blog_posts' => ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
+            'courses' => ['view', 'create', 'edit', 'delete'],
+            'lessons' => ['view', 'create', 'edit', 'delete'],
+            'reports' => ['view', 'export'],
+            'petty_cash' => ['view', 'create', 'edit', 'delete', 'approve', 'reject'],
+            'finance' => ['view'],
+            'expenses' => ['view', 'create', 'edit', 'delete'],
+            'packages' => ['view', 'create', 'edit', 'delete'],
+            'vouchers' => ['view', 'create', 'edit', 'delete'],
+            'own_schedule' => ['view'],
+            'all_transactions' => ['view']
+        ];
+
+        foreach ($resources as $resource => $actions) {
+            foreach ($actions as $action) {
+                Permission::firstOrCreate(['name' => "{$action} {$resource}", 'guard_name' => 'web']);
+            }
+        }
+
         $permissions = Permission::all();
 
         return Inertia::render('Admin/Roles/Form', [
@@ -44,6 +71,33 @@ class RoleController extends Controller
 
     public function edit(Role $role)
     {
+        // Auto-heal missing permissions in production database
+        $resources = [
+            'bookings' => ['view', 'create', 'edit', 'delete', 'cancel', 'assign'],
+            'transactions' => ['view', 'create', 'edit', 'delete', 'validate', 'reject'],
+            'schedules' => ['view', 'create', 'edit', 'delete', 'bulk_delete'],
+            'users' => ['view', 'create', 'edit', 'delete', 'view_agreement'],
+            'roles' => ['view', 'create', 'edit', 'delete'],
+            'permissions' => ['view', 'create', 'edit', 'delete'],
+            'blog_posts' => ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
+            'courses' => ['view', 'create', 'edit', 'delete'],
+            'lessons' => ['view', 'create', 'edit', 'delete'],
+            'reports' => ['view', 'export'],
+            'petty_cash' => ['view', 'create', 'edit', 'delete', 'approve', 'reject'],
+            'finance' => ['view'],
+            'expenses' => ['view', 'create', 'edit', 'delete'],
+            'packages' => ['view', 'create', 'edit', 'delete'],
+            'vouchers' => ['view', 'create', 'edit', 'delete'],
+            'own_schedule' => ['view'],
+            'all_transactions' => ['view']
+        ];
+
+        foreach ($resources as $resource => $actions) {
+            foreach ($actions as $action) {
+                Permission::firstOrCreate(['name' => "{$action} {$resource}", 'guard_name' => 'web']);
+            }
+        }
+
         $permissions = Permission::all();
         $rolePermissions = $role->name === 'super_admin'
             ? $permissions->pluck('name')

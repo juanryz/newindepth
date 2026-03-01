@@ -54,47 +54,52 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         'vouchers': 'Membuat dan mengelola kupon diskon atau promo.',
     };
 
-    // Parse permission name into { action, resource }
-    const parsePermission = (name) => {
-        const parts = name.split(' ');
-        if (parts.length >= 2) {
-            const action = parts[0];
-            const resource = parts.slice(1).join('_');
-            return { action, resource };
-        }
-        return { action: name, resource: 'general' };
-    };
-
-    // Group permissions by category and then by resource
+    // Static permission structure to always display all options even if DB is missing some
     const permissionStructure = useMemo(() => {
-        const structure = {};
-        Object.keys(categoryMapping).forEach(cat => structure[cat] = {});
-
-        permissions.forEach(perm => {
-            const { action, resource } = parsePermission(perm.name);
-            let category = 'Lainnya';
-
-            for (const [cat, resources] of Object.entries(categoryMapping)) {
-                if (resources.includes(resource)) {
-                    category = cat;
-                    break;
-                }
+        const schema = {
+            'Booking & Konsultasi': {
+                'bookings': ['view', 'create', 'edit', 'delete', 'cancel', 'assign'],
+                'schedules': ['view', 'create', 'edit', 'delete', 'bulk_delete'],
+                'own_schedule': ['view']
+            },
+            'Transaksi & Pembayaran': {
+                'transactions': ['view', 'create', 'edit', 'delete', 'validate', 'reject'],
+                'all_transactions': ['view'],
+                'packages': ['view', 'create', 'edit', 'delete'],
+                'vouchers': ['view', 'create', 'edit', 'delete']
+            },
+            'Manajemen Pengguna': {
+                'users': ['view', 'create', 'edit', 'delete', 'view_agreement'],
+                'roles': ['view', 'create', 'edit', 'delete'],
+                'permissions': ['view', 'create', 'edit', 'delete']
+            },
+            'Konten Akses Publik': {
+                'blog_posts': ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
+                'courses': ['view', 'create', 'edit', 'delete'],
+                'lessons': ['view', 'create', 'edit', 'delete']
+            },
+            'Laporan & Keuangan': {
+                'reports': ['view', 'export'],
+                'finance': ['view'],
+                'expenses': ['view', 'create', 'edit', 'delete'],
+                'petty_cash': ['view', 'create', 'edit', 'delete', 'approve', 'reject']
             }
+        };
 
-            if (!structure[category]) structure[category] = {};
-            if (!structure[category][resource]) structure[category][resource] = [];
-
-            structure[category][resource].push({
-                id: perm.id,
-                name: perm.name,
-                action: action,
-                resource: resource
-            });
-        });
-
-        // Filter out empty categories
-        return Object.fromEntries(Object.entries(structure).filter(([_, resources]) => Object.keys(resources).length > 0));
-    }, [permissions]);
+        const structure = {};
+        for (const [category, resources] of Object.entries(schema)) {
+            structure[category] = {};
+            for (const [resource, actions] of Object.entries(resources)) {
+                structure[category][resource] = actions.map(action => ({
+                    id: `${action}_${resource}`, // fallback id
+                    name: `${action} ${resource}`,
+                    action: action,
+                    resource: resource
+                }));
+            }
+        }
+        return structure;
+    }, []);
 
     const handlePermissionChange = (e) => {
         const { value, checked } = e.target;
