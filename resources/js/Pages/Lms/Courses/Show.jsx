@@ -135,7 +135,7 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Keanggotaan</p>
-                                            <p className="font-bold text-gray-900 dark:text-white uppercase text-xs">{auth.user?.roles?.[0]?.name || 'Pasien'}</p>
+                                            <p className="font-bold text-gray-900 dark:text-white uppercase text-xs">{auth.user?.roles?.[0] || 'Pasien'}</p>
                                         </div>
                                     </div>
                                 </div>

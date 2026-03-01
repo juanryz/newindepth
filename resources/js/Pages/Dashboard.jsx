@@ -330,13 +330,23 @@ function ActiveBookingCard({ booking }) {
 export default function Dashboard() {
     const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking, therapistUpcomingSessions, therapistActiveSessions, therapistPastSessions, therapistStats } = usePage().props;
     const user = auth.user;
-    const roles = user.roles?.map(r => r.name) ?? [];
+    // Hybrid approach: ensure arrays exist
+    const roles = user?.roles ?? [];
+    user.permissions = user?.permissions ?? [];
 
-    const isAdmin = roles.some(r => ['admin', 'super_admin', 'cs'].includes(r));
     const isSuperAdmin = roles.includes('super_admin');
+    const isActuallyAdmin = roles.includes('admin');
+    const isActuallyCS = roles.includes('cs');
+
+    const isAdmin = isSuperAdmin || isActuallyAdmin || isActuallyCS;
     const isTherapist = roles.includes('therapist');
-    const isPatient = roles.includes('patient');
     const isSantaMaria = roles.includes('santa_maria');
+    // A user is only "just a patient" if they don't have management roles, or we can check the role explicitly
+    const isPatient = roles.includes('patient');
+
+    // For UI display prioritization
+    const isStaff = isAdmin || isTherapist || isSantaMaria;
+
     const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
 
     const hasScreening = !!screeningResult;
@@ -488,8 +498,83 @@ export default function Dashboard() {
                         </motion.div>
                     )}
 
+                    {/* ============== ADMIN / CS / SPECIAL STAFF SECTION ============== */}
+                    {(isAdmin || isSantaMaria) && (
+                        <div className="space-y-10">
+                            {/* Main Management Menus */}
+                            <section>
+                                <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                    {user.permissions.includes('view bookings') && (
+                                        <QuickCard
+                                            href={route('admin.orders.index')}
+                                            title="Manajemen Order"
+                                            description="Mengelola Jadwal, Pasien dan Pembayaran"
+                                            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                            color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                        />
+                                    )}
+                                    {user.permissions.includes('view courses') && (
+                                        <QuickCard
+                                            href={route('admin.courses.index')}
+                                            title="Manajemen Kelas"
+                                            description="Kelola kelas online dan kurikulum"
+                                            iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                            color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                        />
+                                    )}
+                                    {user.permissions.includes('view finance') && (
+                                        <QuickCard
+                                            href={route('admin.finance.index')}
+                                            title="Keuangan"
+                                            description="Laporan, Pengeluaran & Kas Kecil"
+                                            iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.62 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.62-1M12 17v1m2-9.5V7a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2h2m4-3.5v3.5a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2h2"
+                                            color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                        />
+                                    )}
+                                    {user.permissions.includes('view blog_posts') && (
+                                        <QuickCard
+                                            href={route('admin.blog.index')}
+                                            title="Blog & Artikel"
+                                            description="Kelola publikasi konten edukasi"
+                                            iconPath="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            color="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
+                                        />
+                                    )}
+                                    {user.permissions.includes('view users') && (
+                                        <QuickCard
+                                            href={route('admin.users.index')}
+                                            title="Manajemen User"
+                                            description="Atur hak akses terapis & pasien"
+                                            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"
+                                            color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
+                                        />
+                                    )}
+                                    {(user.permissions.includes('view vouchers') || user.permissions.includes('view packages')) && (
+                                        <QuickCard
+                                            href={route('admin.pricing.index')}
+                                            title="Harga & Voucher"
+                                            description="Kelola tarif layanan dan kode promo"
+                                            iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                            color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
+                                        />
+                                    )}
+                                    {user.permissions.includes('view petty_cash') && (
+                                        <QuickCard
+                                            href={route('admin.petty-cash.index')}
+                                            title="Workflow Kas Kecil"
+                                            description="Sistem Approval Dana & Belanja"
+                                            iconPath="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                            color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                        />
+                                    )}
+                                </div>
+                            </section>
+                        </div>
+                    )}
+
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
-                    {isPatient && (
+                    {isPatient && !isAdmin && (
                         <div className="space-y-6">
                             <ScreeningBanner
                                 screeningResult={screeningResult}
@@ -503,86 +588,6 @@ export default function Dashboard() {
                                 profileProgress={profileProgress}
                                 activeBooking={activeBooking}
                             />
-
-                            {hasScreening && (
-                                <GlassPanel className="!border-blue-200/50 dark:!border-blue-800/30 p-5 mt-4 relative overflow-hidden flex items-start sm:items-center gap-4">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-50/40 to-indigo-50/10 dark:from-blue-900/10 dark:to-transparent pointer-events-none" />
-                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm relative z-10">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                                    </div>
-                                    <div className="relative z-10 flex-1 min-w-0">
-                                        <h4 className="text-sm font-black text-blue-900 dark:text-blue-200 uppercase tracking-wide">Proteksi Extra Pasien</h4>
-                                        <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mt-1 leading-relaxed">
-                                            Anda mendapatkan proteksi layanan kematian selama terapi berlangsung sebesar potongan harga <strong>Rp 5.000.000</strong>.
-                                        </p>
-                                    </div>
-                                </GlassPanel>
-                            )}
-                        </div>
-                    )}
-
-                    {/* ============== ADMIN / CS SECTION ============== */}
-                    {isAdmin && (
-                        <div className="space-y-10">
-
-
-                            {/* Main Management Menus */}
-                            <section>
-                                <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                    <QuickCard
-                                        href={route('admin.orders.index')}
-                                        title="Manajemen Order"
-                                        description="Mengelola Jadwal, Pasien dan Pembayaran"
-                                        iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                                        color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.courses.index')}
-                                        title="Manajemen Kelas"
-                                        description="Kelola kelas online dan kurikulum"
-                                        iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                        color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.finance.index')}
-                                        title="Keuangan"
-                                        description="Laporan, Pengeluaran & Kas Kecil"
-                                        iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.62 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.62-1M12 17v1m2-9.5V7a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2h2m4-3.5v3.5a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2h2"
-                                        color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.blog.index')}
-                                        title="Blog & Artikel"
-                                        description="Kelola publikasi konten edukasi"
-                                        iconPath="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        color="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
-                                    />
-                                    {isSuperAdmin && (
-                                        <QuickCard
-                                            href={route('admin.users.index')}
-                                            title="Manajemen User"
-                                            description="Atur hak akses terapis & pasien"
-                                            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"
-                                            color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
-                                        />
-                                    )}
-                                    <QuickCard
-                                        href={route('admin.pricing.vouchers.index')}
-                                        title="Harga & Voucher"
-                                        description="Kelola tarif layanan dan kode promo"
-                                        iconPath="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                        color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
-                                    />
-                                    <QuickCard
-                                        href={route('admin.petty-cash.index')}
-                                        title="Workflow Kas Kecil"
-                                        description="Sistem Approval Dana & Belanja"
-                                        iconPath="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                        color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                                    />
-                                </div>
-                            </section>
                         </div>
                     )}
 

@@ -31,7 +31,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
 
-export default function FinanceIndex({ reports, expenses, pettyCash, filters, auth }) {
+export default function FinanceIndex({ reports, expenses = [], pettyCash, filters, auth }) {
     const [activeTab, setActiveTab] = useState('reports');
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -289,11 +289,11 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                 <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] border border-gray-100 dark:border-gray-800">
                                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Kas Kecil Tersedia</h4>
                                     <p className="text-2xl font-black text-gray-900 dark:text-white">
-                                        Rp {pettyCash.currentBalance.toLocaleString('id-ID')}
+                                        Rp {(pettyCash?.currentBalance ?? 0).toLocaleString('id-ID')}
                                     </p>
                                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
                                         <span className="text-gray-400">Total Pemasukan Bulan ini:</span>
-                                        <span className="text-indigo-600">Rp {reports.stats.revenue.toLocaleString('id-ID')}</span>
+                                        <span className="text-indigo-600">Rp {(reports?.stats?.revenue ?? 0).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -313,10 +313,10 @@ export default function FinanceIndex({ reports, expenses, pettyCash, filters, au
                                         {/* Status Stats Grid */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                                             {[
-                                                { label: 'Total Pemasukan', val: reports.stats.revenue, color: 'indigo' },
-                                                { label: 'Biaya Operasional', val: reports.stats.expenses, color: 'rose' },
-                                                { label: 'Komisi Afiliasi', val: reports.stats.commissions, color: 'amber' },
-                                                { label: 'Laba Bersih', val: reports.stats.netIncome, color: 'emerald', highlight: true }
+                                                { label: 'Total Pemasukan', val: reports?.stats?.revenue ?? 0, color: 'indigo' },
+                                                { label: 'Biaya Operasional', val: reports?.stats?.expenses ?? 0, color: 'rose' },
+                                                { label: 'Komisi Afiliasi', val: reports?.stats?.commissions ?? 0, color: 'amber' },
+                                                { label: 'Laba Bersih', val: reports?.stats?.netIncome ?? 0, color: 'emerald', highlight: true }
                                             ].map((stat, i) => (
                                                 <div key={i} className={`p-8 rounded-[2.5rem] shadow-xl border transition-all duration-500 ${stat.highlight
                                                     ? 'bg-indigo-600 text-white border-transparent'

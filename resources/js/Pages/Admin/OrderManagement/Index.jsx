@@ -1081,7 +1081,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                             const hasDiscount = tx.transactionable?.user_voucher?.voucher;
                                                             const booking = tx.transactionable; // Assuming tx.transactionable is the booking object if isBooking is true
                                                             const user = usePage().props.auth.user;
-                                                            const isAdminOrSuperAdmin = user.roles.some(r => ['admin', 'super_admin'].includes(r.name));
+                                                            const isAdminOrSuperAdmin = user.roles.some(r => ['admin', 'super_admin'].includes(r));
                                                             const isAssignedTherapist = booking?.therapist_id === user.id;
 
                                                             return (

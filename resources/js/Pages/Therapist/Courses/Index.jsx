@@ -4,7 +4,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function CoursesIndex({ courses }) {
     const { auth, flash } = usePage().props;
-    const isAdmin = auth.user.roles.some(r => ['admin', 'super_admin'].includes(r.name));
+    const isAdmin = auth.user.roles.some(r => ['admin', 'super_admin'].includes(r));
     const { delete: destroy } = useForm();
 
     const handleDelete = (id, title) => {

@@ -17,8 +17,8 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [selectedCourseAgreement, setSelectedCourseAgreement] = useState(null);
 
-    const isPatient = userModel.roles.some(r => r.name === 'patient');
-    const isTherapist = userModel.roles.some(r => r.name === 'therapist');
+    const isPatient = (userModel.roles || []).includes('patient');
+    const isTherapist = (userModel.roles || []).includes('therapist');
 
     const completionRate = profileCompletion?.percentage || 0;
     const ktpDocumentPath = userModel.ktp_photo;

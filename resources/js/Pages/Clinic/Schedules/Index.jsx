@@ -16,7 +16,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [] }) {
     const { auth, flash, errors: pageErrors } = usePage().props;
-    const isAdmin = auth.user?.roles?.some(r => ['admin', 'super_admin'].includes(r.name)) ?? false;
+    const isAdmin = auth.user?.roles?.some(r => ['admin', 'super_admin'].includes(r)) ?? false;
 
     const [selectedHistoryPatient, setSelectedHistoryPatient] = useState(null);
     const [selectedCompletingBooking, setSelectedCompletingBooking] = useState(null);

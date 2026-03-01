@@ -5,7 +5,7 @@ import ProfileProgressCard from '@/Components/ProfileProgressCard';
 
 export default function Documents({ profileProgress, auth }) {
     const user = auth.user;
-    const isPatient = user.roles.some(role => role.name === 'patient');
+    const isPatient = (user.roles ?? []).includes('patient');
 
     return (
         <AuthenticatedLayout

@@ -10,7 +10,7 @@ import LiquidBackground from '@/Components/LiquidBackground';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
-    const roles = user?.roles?.map(r => r.name) ?? [];
+    const roles = user?.roles ?? [];
     const isAdmin = roles.some(r => ['admin', 'super_admin', 'cs'].includes(r));
     const isSuperAdmin = roles.includes('super_admin');
     const isTherapist = roles.includes('therapist');

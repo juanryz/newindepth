@@ -39,7 +39,6 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     const tabs = [
         { id: 'users', label: 'Daftar Pengguna', icon: Users, count: users.total },
         { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, count: roles.length },
-        { id: 'permissions', label: 'Izin Akses (Permissions)', icon: Key, count: permissions.length },
     ];
 
     const handleSearch = (e) => {
@@ -248,16 +247,20 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                 </td>
                                                                 <td className="px-8 py-6">
                                                                     <div className="flex flex-wrap gap-2">
-                                                                        {user.roles.map(role => (
-                                                                            <span key={role.id} className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full ${role.name === 'super_admin'
-                                                                                ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                                                                                : role.name === 'therapist'
-                                                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                                                    : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
-                                                                                }`}>
-                                                                                {role.name}
-                                                                            </span>
-                                                                        ))}
+                                                                        {user.roles.map((role, i) => {
+                                                                            const roleName = typeof role === 'string' ? role : role.name;
+                                                                            const roleId = typeof role === 'string' ? `${role}-${i}` : role.id;
+                                                                            return (
+                                                                                <span key={roleId} className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full ${roleName === 'super_admin'
+                                                                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                                                                                    : roleName === 'therapist'
+                                                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                                                        : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+                                                                                    }`}>
+                                                                                    {roleName}
+                                                                                </span>
+                                                                            );
+                                                                        })}
                                                                         {user.roles.length === 0 && <span className="text-[10px] text-gray-400 italic font-medium px-2 py-1">Belum ada role</span>}
                                                                     </div>
                                                                 </td>
@@ -407,82 +410,6 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                     </motion.div>
                                 )}
 
-                                {activeTab === 'permissions' && (
-                                    <motion.div
-                                        key="permissions"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        className="space-y-6"
-                                    >
-                                        {/* Add Permission Form */}
-                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-6 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <form onSubmit={handleCreatePermission} className="flex flex-col sm:flex-row gap-4">
-                                                <div className="flex-1 relative">
-                                                    <Key className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Nama permission baru (contoh: manage_clinics)..."
-                                                        className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-[1.5rem] pl-14 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
-                                                        value={newPermission}
-                                                        onChange={(e) => setNewPermission(e.target.value)}
-                                                        required
-                                                    />
-                                                </div>
-                                                <button type="submit" className="px-8 py-4 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-                                                    Simpan Izin Baru
-                                                </button>
-                                            </form>
-                                        </div>
-
-                                        {/* Permissions Grid */}
-                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {permissions.map((perm) => (
-                                                    <div key={perm.id} className="group flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all">
-                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                            <div className="w-8 h-8 rounded-xl bg-white dark:bg-gray-900 shadow-sm flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors">
-                                                                <Key className="w-3.5 h-3.5" />
-                                                            </div>
-                                                            {editingPermission?.id === perm.id ? (
-                                                                <input
-                                                                    type="text"
-                                                                    className="flex-1 bg-white dark:bg-gray-800 border-indigo-500 rounded-lg text-[11px] font-black p-1"
-                                                                    value={editingPermission.name}
-                                                                    onChange={(e) => setEditingPermission({ ...editingPermission, name: e.target.value })}
-                                                                    onBlur={() => {
-                                                                        router.put(route('admin.permissions.update', perm.id), { name: editingPermission.name });
-                                                                        setEditingPermission(null);
-                                                                    }}
-                                                                    onKeyDown={(e) => {
-                                                                        if (e.key === 'Enter') {
-                                                                            router.put(route('admin.permissions.update', perm.id), { name: editingPermission.name });
-                                                                            setEditingPermission(null);
-                                                                        }
-                                                                    }}
-                                                                    autoFocus
-                                                                />
-                                                            ) : (
-                                                                <span
-                                                                    className="text-[11px] font-black uppercase tracking-tight text-gray-700 dark:text-gray-300 truncate cursor-pointer hover:text-indigo-600"
-                                                                    onClick={() => setEditingPermission(perm)}
-                                                                >
-                                                                    {perm.name.replace(/_/g, ' ')}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <button
-                                                            onClick={() => handleDeletePermission(perm.id)}
-                                                            className="p-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-rose-600 transition-all"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
                             </AnimatePresence>
                         </div>
                     </div>

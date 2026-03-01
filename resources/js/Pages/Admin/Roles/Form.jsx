@@ -28,34 +28,55 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         permissions: rolePermissions || [],
     });
 
-    // Group permissions by category
-    const groupedPermissions = useMemo(() => {
-        const categories = {
-            'Booking & Konsultasi': ['booking', 'schedule'],
-            'Transaksi & Pembayaran': ['transaction', 'pricing', 'voucher'],
-            'Manajemen Pengguna': ['user', 'role', 'permission'],
-            'Konten & Blog': ['blog', 'course', 'lesson'],
-            'Laporan & Statistik': ['report', 'finance', 'expense'],
-            'Lainnya': []
-        };
+    // Map resources to categories
+    const categoryMapping = {
+        'Booking & Konsultasi': ['bookings', 'schedules'],
+        'Transaksi & Pembayaran': ['transactions', 'packages', 'vouchers'],
+        'Manajemen Pengguna': ['users', 'roles', 'permissions'],
+        'Konten & Blog': ['blog_posts', 'courses', 'lessons'],
+        'Laporan & Statistik': ['reports', 'finance', 'expenses', 'petty_cash'],
+    };
 
-        const result = {};
-        Object.keys(categories).forEach(cat => result[cat] = []);
+    // Parse permission name into { action, resource }
+    const parsePermission = (name) => {
+        const parts = name.split(' ');
+        if (parts.length >= 2) {
+            const action = parts[0];
+            const resource = parts.slice(1).join('_');
+            return { action, resource };
+        }
+        return { action: name, resource: 'general' };
+    };
+
+    // Group permissions by category and then by resource
+    const permissionStructure = useMemo(() => {
+        const structure = {};
+        Object.keys(categoryMapping).forEach(cat => structure[cat] = {});
 
         permissions.forEach(perm => {
-            let found = false;
-            for (const [cat, keywords] of Object.entries(categories)) {
-                if (keywords.some(k => perm.name.toLowerCase().includes(k))) {
-                    result[cat].push(perm);
-                    found = true;
+            const { action, resource } = parsePermission(perm.name);
+            let category = 'Lainnya';
+
+            for (const [cat, resources] of Object.entries(categoryMapping)) {
+                if (resources.includes(resource)) {
+                    category = cat;
                     break;
                 }
             }
-            if (!found) result['Lainnya'].push(perm);
+
+            if (!structure[category]) structure[category] = {};
+            if (!structure[category][resource]) structure[category][resource] = [];
+
+            structure[category][resource].push({
+                id: perm.id,
+                name: perm.name,
+                action: action,
+                resource: resource
+            });
         });
 
         // Filter out empty categories
-        return Object.fromEntries(Object.entries(result).filter(([_, perms]) => perms.length > 0));
+        return Object.fromEntries(Object.entries(structure).filter(([_, resources]) => Object.keys(resources).length > 0));
     }, [permissions]);
 
     const handlePermissionChange = (e) => {
@@ -67,8 +88,20 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         }
     };
 
-    const toggleGroup = (groupPerms) => {
-        const allNames = groupPerms.map(p => p.name);
+    const toggleResource = (resourcePerms) => {
+        const allNames = resourcePerms.map(p => p.name);
+        const allSelected = allNames.every(name => data.permissions.includes(name));
+
+        if (allSelected) {
+            setData('permissions', data.permissions.filter(p => !allNames.includes(p)));
+        } else {
+            const newPerms = [...new Set([...data.permissions, ...allNames])];
+            setData('permissions', newPerms);
+        }
+    };
+
+    const toggleCategory = (resources) => {
+        const allNames = Object.values(resources).flat().map(p => p.name);
         const allSelected = allNames.every(name => data.permissions.includes(name));
 
         if (allSelected) {
@@ -99,12 +132,36 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         }
     };
 
+    const formatResourceName = (name) => {
+        return name.replace(/_/g, ' ').toUpperCase();
+    };
+
+    const formatActionName = (name) => {
+        const mapping = {
+            'view': 'VIEW',
+            'create': 'CREATE',
+            'edit': 'EDIT',
+            'delete': 'DELETE',
+            'cancel': 'CANCEL',
+            'validate': 'VALIDATE',
+            'reject': 'REJECT',
+            'publish': 'PUBLISH',
+            'approve': 'APPROVE',
+            'export': 'EXPORT',
+            'analyze': 'ANALYZE',
+            'bulk_delete': 'BULK DEL',
+            'assign': 'ASSIGN',
+            'view_agreement': 'AGREEMENT'
+        };
+        return mapping[name] || name.toUpperCase();
+    };
+
     return (
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
                     <Link
-                        href={route('admin.users.index')}
+                        href={route('admin.users.index', { tab: 'roles' })}
                         className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
                     >
                         <ChevronLeft className="w-6 h-6" />
@@ -123,7 +180,7 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
             <Head title={isEditing ? 'Atur Hak Akses' : 'Tambah Role'} />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
-                <div className="max-w-5xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
 
                     <form onSubmit={submit} className="space-y-8">
 
@@ -154,98 +211,164 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
                                     )}
                                 </div>
                                 <InputError message={errors.name} className="mt-2 ml-1" />
-                                <p className="mt-3 text-[10px] text-gray-400 font-medium px-1">
-                                    Gunakan huruf kecil dan garis bawah (underscore) untuk nama role teknis.
-                                </p>
                             </div>
                         </div>
 
                         {/* PERMISSIONS SECTION */}
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             <div className="flex items-center gap-4 px-2">
                                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
                                 <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Daftar Izin Akses</h3>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {Object.entries(groupedPermissions).map(([category, perms]) => {
-                                    const allSelected = perms.map(p => p.name).every(name => data.permissions.includes(name));
+                            {Object.entries(permissionStructure).map(([category, resources]) => {
+                                const allInCat = Object.values(resources).flat().map(p => p.name);
+                                const allSelected = allInCat.every(name => data.permissions.includes(name));
 
-                                    return (
-                                        <div key={category} className="bg-white dark:bg-gray-900 rounded-[2rem] p-6 shadow-lg border border-white dark:border-gray-800 transition-all hover:shadow-indigo-500/5">
-                                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50 dark:border-gray-800">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">
-                                                        {getIconForCategory(category)}
-                                                    </div>
-                                                    <span className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white">{category}</span>
+                                return (
+                                    <div key={category} className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 overflow-hidden">
+                                        <div className="px-8 py-5 bg-gray-50/50 dark:bg-gray-800/30 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2.5 rounded-2xl bg-white dark:bg-gray-900 shadow-sm text-indigo-600 dark:text-indigo-400 border border-gray-100 dark:border-gray-800">
+                                                    {getIconForCategory(category)}
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleGroup(perms)}
-                                                    className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all ${allSelected
-                                                            ? 'bg-rose-50 text-rose-600'
-                                                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
-                                                        }`}
-                                                >
-                                                    {allSelected ? 'Lepas Semua' : 'Pilih Semua'}
-                                                </button>
+                                                <span className="text-sm font-black uppercase tracking-[0.1em] text-gray-900 dark:text-white">{category}</span>
                                             </div>
-
-                                            <div className="space-y-3">
-                                                {perms.map((perm) => (
-                                                    <label
-                                                        key={perm.id}
-                                                        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group ${data.permissions.includes(perm.name)
-                                                                ? 'bg-indigo-500/5 border-indigo-200 dark:border-indigo-900/50 ring-1 ring-indigo-100 dark:ring-indigo-900/20'
-                                                                : 'bg-gray-50 dark:bg-gray-800/50 border-transparent hover:border-gray-200 dark:hover:border-gray-700'
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${data.permissions.includes(perm.name)
-                                                                    ? 'bg-indigo-600 border-indigo-600'
-                                                                    : 'border-gray-300 dark:border-gray-600 group-hover:border-indigo-400'
-                                                                }`}>
-                                                                {data.permissions.includes(perm.name) && (
-                                                                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
-                                                                )}
-                                                            </div>
-                                                            <span className={`text-[11px] font-bold uppercase tracking-tight transition-colors ${data.permissions.includes(perm.name) ? 'text-indigo-700 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'
-                                                                }`}>
-                                                                {perm.name.replace(/_/g, ' ')}
-                                                            </span>
-                                                        </div>
-                                                        <input
-                                                            type="checkbox"
-                                                            className="hidden"
-                                                            value={perm.name}
-                                                            checked={data.permissions.includes(perm.name)}
-                                                            onChange={handlePermissionChange}
-                                                        />
-                                                    </label>
-                                                ))}
-                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleCategory(resources)}
+                                                className={`text-[10px] font-black uppercase tracking-widest px-5 py-2 rounded-xl transition-all border ${allSelected
+                                                    ? 'bg-rose-50 border-rose-100 text-rose-600'
+                                                    : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600'
+                                                    }`}
+                                            >
+                                                {allSelected ? 'Lepas Semua Kategori' : 'Pilih Semua Kategori'}
+                                            </button>
                                         </div>
-                                    );
-                                })}
-                            </div>
+
+                                        <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                                            {Object.entries(resources).map(([resource, perms]) => {
+                                                const allResSelected = perms.map(p => p.name).every(name => data.permissions.includes(name));
+
+                                                // Split into common CRUD and specialized actions
+                                                const commonActions = ['view', 'create', 'edit', 'delete'];
+                                                const commonPerms = perms.filter(p => commonActions.includes(p.action));
+                                                const specialPerms = perms.filter(p => !commonActions.includes(p.action));
+
+                                                return (
+                                                    <div key={resource} className="p-8 hover:bg-gray-50/30 dark:hover:bg-gray-800/10 transition-colors">
+                                                        <div className="flex flex-col xl:flex-row xl:items-start gap-8">
+                                                            <div className="xl:w-1/4">
+                                                                <div className="flex items-center gap-3 mb-1">
+                                                                    <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                                                    <span className="text-[12px] font-black tracking-widest text-gray-900 dark:text-white">
+                                                                        {formatResourceName(resource)}
+                                                                    </span>
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => toggleResource(perms)}
+                                                                    className="text-[9px] font-bold text-indigo-400 hover:text-indigo-600 uppercase tracking-tighter transition-colors"
+                                                                >
+                                                                    {allResSelected ? 'Deselect All' : 'Select All'}
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="xl:w-3/4">
+                                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                                                    {/* Render Common CRUD in order */}
+                                                                    {commonActions.map(action => {
+                                                                        const perm = commonPerms.find(p => p.action === action);
+                                                                        if (!perm) return <div key={action} className="hidden sm:block"></div>;
+
+                                                                        return (
+                                                                            <label
+                                                                                key={perm.id}
+                                                                                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all cursor-pointer group ${data.permissions.includes(perm.name)
+                                                                                    ? 'bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-600/20'
+                                                                                    : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800'
+                                                                                    }`}
+                                                                            >
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    className="hidden"
+                                                                                    value={perm.name}
+                                                                                    checked={data.permissions.includes(perm.name)}
+                                                                                    onChange={handlePermissionChange}
+                                                                                />
+                                                                                <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${data.permissions.includes(perm.name)
+                                                                                    ? 'bg-white border-white'
+                                                                                    : 'border-gray-200 dark:border-gray-700 group-hover:border-indigo-400'
+                                                                                    }`}>
+                                                                                    {data.permissions.includes(perm.name) && (
+                                                                                        <svg className="w-2.5 h-2.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+                                                                                    )}
+                                                                                </div>
+                                                                                <span className={`text-[9px] font-black uppercase tracking-widest transition-colors ${data.permissions.includes(perm.name) ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                                                                                    }`}>
+                                                                                    {formatActionName(action)}
+                                                                                </span>
+                                                                            </label>
+                                                                        );
+                                                                    })}
+
+                                                                    {/* Render Specialized actions */}
+                                                                    {specialPerms.map((perm) => (
+                                                                        <label
+                                                                            key={perm.id}
+                                                                            className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all cursor-pointer group ${data.permissions.includes(perm.name)
+                                                                                ? 'bg-emerald-600 border-emerald-600 shadow-lg shadow-emerald-600/20'
+                                                                                : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                                                                }`}
+                                                                        >
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="hidden"
+                                                                                value={perm.name}
+                                                                                checked={data.permissions.includes(perm.name)}
+                                                                                onChange={handlePermissionChange}
+                                                                            />
+                                                                            <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${data.permissions.includes(perm.name)
+                                                                                ? 'bg-white border-white'
+                                                                                : 'border-gray-200 dark:border-gray-700 group-hover:border-emerald-400'
+                                                                                }`}>
+                                                                                {data.permissions.includes(perm.name) && (
+                                                                                    <svg className="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+                                                                                )}
+                                                                            </div>
+                                                                            <span className={`text-[9px] font-black uppercase tracking-widest transition-colors ${data.permissions.includes(perm.name) ? 'text-white' : 'text-emerald-500/80 dark:text-emerald-400/80'
+                                                                                }`}>
+                                                                                {formatActionName(perm.action)}
+                                                                            </span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         {/* SUBMIT AREA */}
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-xl border border-white dark:border-gray-800 sticky bottom-8 transition-all duration-500">
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-2xl border border-white dark:border-gray-800 sticky bottom-8 transition-all duration-500 backdrop-blur-md bg-white/90 dark:bg-gray-900/90">
                             <Link
-                                href={route('admin.users.index')}
-                                className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors px-6"
+                                href={route('admin.users.index', { tab: 'roles' })}
+                                className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-rose-500 transition-colors px-6"
                             >
                                 Batal & Kembali
                             </Link>
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 disabled:opacity-50"
+                                className="flex items-center gap-4 px-10 py-5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-700 hover:-translate-y-1 transition-all shadow-xl shadow-indigo-600/30 active:scale-95 disabled:opacity-50"
                             >
-                                <Save className="w-4 h-4" />
-                                {isEditing ? 'Simpan Hak Akses' : 'Buat Role Sistem'}
+                                <Save className="w-5 h-5" />
+                                {isEditing ? 'Simpan Perubahan' : 'Buat Role Baru'}
                             </button>
                         </div>
 

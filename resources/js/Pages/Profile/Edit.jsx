@@ -8,9 +8,9 @@ import ProfileProgressCard from '@/Components/ProfileProgressCard';
 
 export default function Edit({ mustVerifyEmail, status, profileProgress, auth }) {
     const user = auth.user;
-    const isPatient = user.roles.some(role => role.name === 'patient');
-    const isTherapist = user.roles.some(role => role.name === 'therapist');
-    const isSuperAdmin = user.roles.some(role => role.name === 'super_admin');
+    const isPatient = (user.roles || []).includes('patient');
+    const isTherapist = (user.roles || []).includes('therapist');
+    const isSuperAdmin = (user.roles || []).includes('super_admin');
 
     return (
         <AuthenticatedLayout

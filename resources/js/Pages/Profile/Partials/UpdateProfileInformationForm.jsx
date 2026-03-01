@@ -11,8 +11,8 @@ export default function UpdateProfileInformation({
     className = '',
 }) {
     const user = usePage().props.auth.user;
-    const isPatient = user.roles?.some(role => role.name === 'patient');
-    const isTherapist = user.roles?.some(role => role.name === 'therapist');
+    const isPatient = user.roles?.includes('patient');
+    const isTherapist = user.roles?.includes('therapist');
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({

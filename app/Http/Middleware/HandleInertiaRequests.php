@@ -33,7 +33,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? clone $request->user()->load('roles') : null,
+                'user' => $request->user() ? array_merge($request->user()->toArray(), [
+                    'roles' => $request->user()->getRoleNames()->values()->toArray(),
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->values()->toArray(),
+                ]) : null,
                 'notifications' => $request->user() ? $request->user()->notifications()->take(5)->get() : [],
                 'unread_notifications_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
             ],

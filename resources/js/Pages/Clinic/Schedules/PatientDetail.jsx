@@ -763,7 +763,7 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusColor(booking.status)}`}>
                                                                                 {booking.status === 'completed' ? 'TERLESAIKAN' : booking.status === 'in_progress' ? 'SEDANG BERJALAN' : 'AKAN DATANG'}
                                                                             </span>
-                                                                            {booking.status === 'confirmed' && (booking.therapist_id === auth.user.id || auth.user.roles.some(r => ['admin', 'super_admin'].includes(r.name))) && (
+                                                                            {booking.status === 'confirmed' && (booking.therapist_id === auth.user.id || auth.user.roles.some(r => ['admin', 'super_admin'].includes(r))) && (
                                                                                 <div className="flex gap-2">
                                                                                     <button
                                                                                         onClick={() => handleStartSession(booking.id)}

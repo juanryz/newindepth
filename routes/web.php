@@ -103,105 +103,162 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
     );
 
-    // CS / Admin / Santa Maria Routes
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':cs|admin|super_admin|santa_maria')->prefix('admin')->name('admin.')->group(
+    // Unified Admin Routes with Granular Permissions
+    Route::middleware('role:super_admin|admin|cs|therapist|santa_maria')->prefix('admin')->name('admin.')->group(
         function () {
-            // Unified Order Management
-            Route::get('/order-management', [\App\Http\Controllers\Admin\OrderManagementController::class, 'index'])->name('orders.index');
+            // Order Management
+            Route::get('/order-management', [\App\Http\Controllers\Admin\OrderManagementController::class, 'index'])
+                ->middleware('permission:view bookings')
+                ->name('orders.index');
 
-            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])->name('transactions.index');
-            Route::get('/transactions/expired', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'expired'])->name('transactions.expired');
-            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])->name('transactions.validate');
-            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])->name('transactions.reject');
+            // Transactions
+            Route::get('/transactions', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'index'])
+                ->middleware('permission:view transactions')
+                ->name('transactions.index');
+            Route::get('/transactions/expired', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'expired'])
+                ->middleware('permission:view transactions')
+                ->name('transactions.expired');
+            Route::post('/transactions/{transaction}/validate', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'validatePayment'])
+                ->middleware('permission:validate transactions')
+                ->name('transactions.validate');
+            Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])
+                ->middleware('permission:reject transactions')
+                ->name('transactions.reject');
 
-            // Petty Cash (Kas Kecil) Workflow
-            Route::get('/petty-cash', [\App\Http\Controllers\Admin\PettyCashController::class, 'index'])->name('petty-cash.index');
-            Route::post('/petty-cash/proposals', [\App\Http\Controllers\Admin\PettyCashController::class, 'store'])->name('petty-cash.proposals.store');
-            Route::post('/petty-cash/proposals/{proposal}/approve', [\App\Http\Controllers\Admin\PettyCashController::class, 'approveProposal'])->name('petty-cash.proposals.approve');
-            Route::post('/petty-cash/proposals/{proposal}/reject', [\App\Http\Controllers\Admin\PettyCashController::class, 'rejectProposal'])->name('petty-cash.proposals.reject');
-            Route::post('/petty-cash/proposals/{proposal}/proofs', [\App\Http\Controllers\Admin\PettyCashController::class, 'storeProof'])->name('petty-cash.proofs.store');
-            Route::post('/petty-cash/proofs/{proof}/approve', [\App\Http\Controllers\Admin\PettyCashController::class, 'approveProof'])->name('petty-cash.proofs.approve');
-            Route::post('/petty-cash/proofs/{proof}/reject', [\App\Http\Controllers\Admin\PettyCashController::class, 'rejectProof'])->name('petty-cash.proofs.reject');
+            // Petty Cash
+            Route::get('/petty-cash', [\App\Http\Controllers\Admin\PettyCashController::class, 'index'])
+                ->middleware('permission:view petty_cash')
+                ->name('petty-cash.index');
+            Route::post('/petty-cash/proposals', [\App\Http\Controllers\Admin\PettyCashController::class, 'store'])
+                ->middleware('permission:create petty_cash')
+                ->name('petty-cash.proposals.store');
+            Route::post('/petty-cash/proposals/{proposal}/approve', [\App\Http\Controllers\Admin\PettyCashController::class, 'approveProposal'])
+                ->middleware('permission:approve petty_cash')
+                ->name('petty-cash.proposals.approve');
+            Route::post('/petty-cash/proposals/{proposal}/reject', [\App\Http\Controllers\Admin\PettyCashController::class, 'rejectProposal'])
+                ->middleware('permission:reject petty_cash')
+                ->name('petty-cash.proposals.reject');
 
             // Blog CMS
-            Route::post('blog/analyze', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'analyze'])->name('blog.analyze');
-            Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class);
+            Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class)
+                ->middleware('permission:view blog_posts|create blog_posts|edit blog_posts|delete blog_posts');
+            Route::post('blog/analyze', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'analyze'])
+                ->middleware('permission:analyze blog_posts')
+                ->name('blog.analyze');
 
-            // Unified Finance Management
-            Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('finance.index');
-            Route::post('/finance/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
-            Route::delete('/finance/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])->name('finance.expenses.destroy');
-            Route::post('/finance/petty-cash', [\App\Http\Controllers\Admin\FinanceController::class, 'storePettyCash'])->name('finance.petty-cash.store');
-            Route::delete('/finance/petty-cash/{transaction}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyPettyCash'])->name('finance.petty-cash.destroy');
+            // Finance & Expenses
+            Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])
+                ->middleware('permission:view finance')
+                ->name('finance.index');
+            Route::post('/finance/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])
+                ->middleware('permission:create expenses')
+                ->name('finance.expenses.store');
+            Route::delete('/finance/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])
+                ->middleware('permission:delete expenses')
+                ->name('finance.expenses.destroy');
 
-            Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class);
+            // Courses & Lessons
+            Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class)
+                ->middleware('permission:view courses|create courses|edit courses|delete courses');
+            Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)
+                ->except(['show'])
+                ->middleware('permission:view lessons|create lessons|edit lessons|delete lessons');
 
-            // Redirects for old routes
-            Route::get(
-                '/reports',
-                function () {
-                return redirect()->route('admin.finance.index');
-            }
-            )->name('reports.index');
-            Route::get('/reports/export-csv', [\App\Http\Controllers\Admin\FinanceController::class, 'exportCsv'])->name('reports.export-csv');
-            Route::get(
-                '/expenses',
-                function () {
-                    return redirect()->route('admin.finance.index');
-                }
-            )->name('expenses.index');
-            Route::post('/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])->name('expenses.store');
-            Route::delete('/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])->name('expenses.destroy');
+            // Clinic / Bookings Admin
+            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])
+                ->middleware('permission:assign bookings')
+                ->name('bookings.assign-therapist');
+            Route::post('/clinic/bookings/{booking}/cancel', [\App\Http\Controllers\Admin\AdminBookingController::class, 'cancel'])
+                ->middleware('permission:cancel bookings')
+                ->name('bookings.cancel');
+            Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])
+                ->middleware('permission:create bookings')
+                ->name('bookings.store');
 
-            // Admin E-Learning CMS
-            Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class);
-            Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)->except(['show']);
+            // Schedules Admin
+            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])
+                ->middleware('permission:create schedules')
+                ->name('schedules.store');
+            Route::post('/schedules/bulk-delete', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'bulkDelete'])
+                ->middleware('permission:bulk_delete schedules')
+                ->name('schedules.bulk-delete');
+            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])
+                ->middleware('permission:delete schedules')
+                ->name('schedules.destroy');
 
-            // Admin Bookings
-            Route::get(
-                '/clinic/bookings',
-                function () {
-                return redirect()->route('admin.orders.index');
-            }
-            )->name('bookings.index');
-            Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])->name('bookings.assign-therapist');
-            Route::get('/clinic/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'show'])->name('schedules.show');
-            Route::patch('/clinic/bookings/{booking}/details', [\App\Http\Controllers\Admin\AdminBookingController::class, 'updateDetails'])->name('bookings.update-details');
-            Route::post('/clinic/bookings/{booking}/cancel', [\App\Http\Controllers\Admin\AdminBookingController::class, 'cancel'])->name('bookings.cancel');
-            Route::post('/clinic/bookings/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class, 'rescheduleSession'])->name('bookings.reschedule');
-            Route::post('/clinic/bookings/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])->name('bookings.no-show');
-            Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])->name('bookings.store');
+            // Pricing (Vouchers & Packages)
+            Route::get('/pricing', [\App\Http\Controllers\Admin\PricingController::class, 'index'])
+                ->middleware('permission:view vouchers|view packages')
+                ->name('pricing.index');
+            Route::post('/pricing/vouchers', [\App\Http\Controllers\Admin\PricingController::class, 'storeVoucher'])
+                ->middleware('permission:create vouchers')
+                ->name('pricing.vouchers.store');
+            Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'updateVoucher'])
+                ->middleware('permission:edit vouchers')
+                ->name('pricing.vouchers.update');
+            Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyVoucher'])
+                ->middleware('permission:delete vouchers')
+                ->name('pricing.vouchers.destroy');
 
-            // Admin Schedule Management
-            Route::get(
-                '/schedules',
-                function () {
-                return redirect()->route('admin.orders.index');
-            }
-            )->name('schedules.index');
-            Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])->name('schedules.store');
-            Route::post('/schedules/bulk-delete', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'bulkDelete'])->name('schedules.bulk-delete');
-            Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])->name('schedules.destroy');
-
-            // Admin Pricing — Vouchers & Packages
-            Route::get('/pricing', [\App\Http\Controllers\Admin\PricingController::class, 'index'])->name('pricing.index');
-            Route::get('/pricing/vouchers', [\App\Http\Controllers\Admin\PricingController::class, 'index'])->name('pricing.vouchers.index'); // Keep for compatibility
-            Route::post('/pricing/vouchers', [\App\Http\Controllers\Admin\PricingController::class, 'storeVoucher'])->name('pricing.vouchers.store');
-            Route::patch('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'updateVoucher'])->name('pricing.vouchers.update');
-            Route::delete('/pricing/vouchers/{voucher}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyVoucher'])->name('pricing.vouchers.destroy');
-
-            Route::post('/pricing/packages', [\App\Http\Controllers\Admin\PricingController::class, 'storePackage'])->name('pricing.packages.store');
-            Route::patch('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'updatePackage'])->name('pricing.packages.update');
-            Route::delete('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyPackage'])->name('pricing.packages.destroy');
+            Route::post('/pricing/packages', [\App\Http\Controllers\Admin\PricingController::class, 'storePackage'])
+                ->middleware('permission:create packages')
+                ->name('pricing.packages.store');
+            Route::patch('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'updatePackage'])
+                ->middleware('permission:edit packages')
+                ->name('pricing.packages.update');
+            Route::delete('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyPackage'])
+                ->middleware('permission:delete packages')
+                ->name('pricing.packages.destroy');
         }
     );
 
-    // Super Admin Only Routes (User Management, Role Management)
-    Route::middleware(\Spatie\Permission\Middleware\RoleMiddleware::class . ':super_admin')->prefix('admin')->name('admin.')->group(
+    // Admin User & Role Management (Super Admin & Admin with permissions)
+    Route::middleware('role:super_admin|admin')->prefix('admin')->name('admin.')->group(
         function () {
-            Route::get('users/{user}/agreement', [\App\Http\Controllers\Admin\UserController::class, 'agreement'])->name('users.agreement');
-            Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-            Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+            Route::get('users/{user}/agreement', [\App\Http\Controllers\Admin\UserController::class, 'agreement'])
+                ->middleware('permission:view_agreement users')
+                ->name('users.agreement');
+
+            Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])
+                ->middleware('permission:view users')
+                ->name('users.index');
+            Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])
+                ->middleware('permission:create users')
+                ->name('users.create');
+            Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])
+                ->middleware('permission:create users')
+                ->name('users.store');
+            Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])
+                ->middleware('permission:view users')
+                ->name('users.show');
+            Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])
+                ->middleware('permission:edit users')
+                ->name('users.edit');
+            Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])
+                ->middleware('permission:edit users')
+                ->name('users.update');
+            Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])
+                ->middleware('permission:delete users')
+                ->name('users.destroy');
+
+            Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])
+                ->middleware('permission:view roles')
+                ->name('roles.index');
+            Route::get('roles/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])
+                ->middleware('permission:create roles')
+                ->name('roles.create');
+            Route::post('roles', [\App\Http\Controllers\Admin\RoleController::class, 'store'])
+                ->middleware('permission:create roles')
+                ->name('roles.store');
+            Route::get('roles/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])
+                ->middleware('permission:edit roles')
+                ->name('roles.edit');
+            Route::put('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])
+                ->middleware('permission:edit roles')
+                ->name('roles.update');
+            Route::delete('roles/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])
+                ->middleware('permission:delete roles')
+                ->name('roles.destroy');
         }
     );
 
