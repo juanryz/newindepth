@@ -6,8 +6,14 @@ import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
 
 export default function ExpensesIndex({ expenses }) {
-    const { flash } = usePage().props;
+    const { auth, flash } = usePage().props;
+    const { user } = auth;
     const [isFormOpen, setIsFormOpen] = useState(false);
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return user.roles?.includes('super_admin') || user.permissions?.includes(permissionName);
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         description: '',
@@ -32,13 +38,15 @@ export default function ExpensesIndex({ expenses }) {
             header={
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Manajemen Pengeluaran</h2>
-                    <PrimaryButton
-                        onClick={() => setIsFormOpen(!isFormOpen)}
-                        className={`!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !h-auto !shadow-xl !uppercase transition-all duration-300 transform active:scale-95 ${isFormOpen ? '!bg-gray-200 !text-gray-800 hover:!bg-gray-300' : '!bg-gold-600 hover:!bg-gold-500 !shadow-gold-600/20'
-                            }`}
-                    >
-                        {isFormOpen ? 'Tutup Form' : 'Catat Pengeluaran Baru'}
-                    </PrimaryButton>
+                    {hasPermission('create expenses') && (
+                        <PrimaryButton
+                            onClick={() => setIsFormOpen(!isFormOpen)}
+                            className={`!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !h-auto !shadow-xl !uppercase transition-all duration-300 transform active:scale-95 ${isFormOpen ? '!bg-gray-200 !text-gray-800 hover:!bg-gray-300' : '!bg-gold-600 hover:!bg-gold-500 !shadow-gold-600/20'
+                                }`}
+                        >
+                            {isFormOpen ? 'Tutup Form' : 'Catat Pengeluaran Baru'}
+                        </PrimaryButton>
+                    )}
                 </div>
             }
         >
@@ -193,15 +201,17 @@ export default function ExpensesIndex({ expenses }) {
                                                     ) : <span className="text-gray-300 dark:text-gray-700 italic text-xs">—</span>}
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium">
-                                                    <Link
-                                                        href={route('admin.expenses.destroy', expense.id)}
-                                                        method="delete"
-                                                        as="button"
-                                                        onBefore={() => confirm('Hapus detail pengeluaran ini?')}
-                                                        className="px-4 py-2 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-600/20 transition-all active:scale-95"
-                                                    >
-                                                        Hapus
-                                                    </Link>
+                                                    {hasPermission('delete expenses') && (
+                                                        <Link
+                                                            href={route('admin.expenses.destroy', expense.id)}
+                                                            method="delete"
+                                                            as="button"
+                                                            onBefore={() => confirm('Hapus detail pengeluaran ini?')}
+                                                            className="px-4 py-2 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-600/20 transition-all active:scale-95"
+                                                        >
+                                                            Hapus
+                                                        </Link>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

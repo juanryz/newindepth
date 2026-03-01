@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -23,6 +23,14 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
     const [patientSubTab, setPatientSubTab] = useState('summary');
     const [selectedCourseAgreement, setSelectedCourseAgreement] = useState(null);
     const [showChecklist, setShowChecklist] = useState({});
+
+    const { auth } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+    };
 
     // Form states
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
@@ -216,13 +224,15 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                 <div className="space-y-4">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Aksi Cepat</p>
                                     <div className="flex flex-col gap-2">
-                                        <button
-                                            onClick={() => setIsAddingPatient(true)}
-                                            disabled={new Date(`${schedule.date}T${schedule.start_time}`) < new Date()}
-                                            className={`flex items-center justify-between px-5 py-3 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed dark:bg-gray-800 dark:border-gray-700' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100'}`}
-                                        >
-                                            {new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal Kadaluarsa' : 'Tambah Pasien'} <Plus className="w-4 h-4" />
-                                        </button>
+                                        {hasPermission('create bookings') && (
+                                            <button
+                                                onClick={() => setIsAddingPatient(true)}
+                                                disabled={new Date(`${schedule.date}T${schedule.start_time}`) < new Date()}
+                                                className={`flex items-center justify-between px-5 py-3 border rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed dark:bg-gray-800 dark:border-gray-700' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100'}`}
+                                            >
+                                                {new Date(`${schedule.date}T${schedule.start_time}`) < new Date() ? 'Jadwal Kadaluarsa' : 'Tambah Pasien'} <Plus className="w-4 h-4" />
+                                            </button>
+                                        )}
                                         <button onClick={() => router.get(route('admin.schedules.index'))} className="flex items-center justify-between px-5 py-3 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-2xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all font-black text-[10px] uppercase tracking-widest">
                                             Kembali ke Kalender <Calendar className="w-4 h-4" />
                                         </button>
@@ -491,7 +501,9 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                             <div className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-md rounded-[3rem] p-24 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 flex flex-col items-center">
                                                 <Users className="w-12 h-12 text-gray-200 mb-4" />
                                                 <h4 className="text-2xl font-black text-gray-300 uppercase tracking-tight">Belum Ada Pasien</h4>
-                                                <button onClick={() => setIsAddingPatient(true)} className="mt-8 px-10 py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-2xl shadow-xl">Tambah Pasien Manual</button>
+                                                {hasPermission('create bookings') && (
+                                                    <button onClick={() => setIsAddingPatient(true)} className="mt-8 px-10 py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-2xl shadow-xl">Tambah Pasien Manual</button>
+                                                )}
                                             </div>
                                         )}
                                     </motion.div>
@@ -512,15 +524,17 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                                     <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase leading-relaxed p-4 bg-white/50 dark:bg-gray-900/50 rounded-2xl border border-rose-100/50">
                                                         Hapus jadwal hanya jika belum ada pendaftaran. Jika pendaftaran sudah ada, sistem akan memblokir penghapusan otomatis.
                                                     </p>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (schedule.booked_count > 0) return alert('Sudah ada pasien terdaftar periksa tab Daftar Pasien.');
-                                                            if (confirm('Hapus slot?')) router.delete(route('admin.schedules.destroy', schedule.id));
-                                                        }}
-                                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${schedule.booked_count > 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-rose-600 text-white shadow-xl shadow-rose-600/20 hover:bg-rose-700'}`}
-                                                    >
-                                                        Hapus Seluruh Jadwal
-                                                    </button>
+                                                    {hasPermission('delete schedules') && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (schedule.booked_count > 0) return alert('Sudah ada pasien terdaftar periksa tab Daftar Pasien.');
+                                                                if (confirm('Hapus slot?')) router.delete(route('admin.schedules.destroy', schedule.id));
+                                                            }}
+                                                            className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${schedule.booked_count > 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-rose-600 text-white shadow-xl shadow-rose-600/20 hover:bg-rose-700'}`}
+                                                        >
+                                                            Hapus Seluruh Jadwal
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <div className="space-y-4">
                                                     <div className="p-6 bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700/50 rounded-3xl">

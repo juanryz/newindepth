@@ -35,8 +35,8 @@ class PettyCashController extends Controller
 
     public function approveProposal(Request $request, PettyCashProposal $proposal)
     {
-        if (!auth()->user()->hasRole('santa_maria')) {
-            return back()->with('error', 'Hanya Santa Maria yang dapat menyetujui pengajuan kas kecil eksternal.');
+        if (!$request->user()->can('approve petty_cash')) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk menyetujui pengajuan kas kecil ini.');
         }
 
         if ($proposal->type === 'funding') {
@@ -84,8 +84,8 @@ class PettyCashController extends Controller
 
     public function rejectProposal(Request $request, PettyCashProposal $proposal)
     {
-        if (!auth()->user()->hasRole('santa_maria')) {
-            return back()->with('error', 'Hanya Santa Maria yang dapat menolak pengajuan kas kecil eksternal.');
+        if (!$request->user()->can('reject petty_cash')) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk menolak pengajuan kas kecil ini.');
         }
 
         $request->validate([
@@ -122,10 +122,10 @@ class PettyCashController extends Controller
         return redirect()->back()->with('success', 'Bukti belanja berhasil diunggah.');
     }
 
-    public function approveProof(PettyCashProof $proof)
+    public function approveProof(Request $request, PettyCashProof $proof)
     {
-        if (!auth()->user()->hasRole('santa_maria')) {
-            return back()->with('error', 'Hanya Santa Maria yang dapat menyetujui bukti belanja.');
+        if (!$request->user()->can('approve petty_cash')) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk menyetujui bukti belanja.');
         }
 
         $proof->update([
@@ -151,10 +151,10 @@ class PettyCashController extends Controller
         return redirect()->back()->with('success', 'Bukti belanja disetujui.');
     }
 
-    public function rejectProof(PettyCashProof $proof)
+    public function rejectProof(Request $request, PettyCashProof $proof)
     {
-        if (!auth()->user()->hasRole('santa_maria')) {
-            return back()->with('error', 'Hanya Santa Maria yang dapat menolak bukti belanja.');
+        if (!$request->user()->can('reject petty_cash')) {
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk menolak bukti belanja.');
         }
 
         $proof->update([

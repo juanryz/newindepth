@@ -344,9 +344,7 @@ export default function Dashboard() {
     // A user is only "just a patient" if they don't have management roles, or we can check the role explicitly
     const isPatient = roles.includes('patient');
 
-    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p =>
-        ['view bookings', 'view courses', 'view transactions', 'view finance', 'view blog_posts', 'view users', 'view vouchers', 'view packages'].includes(p)
-    );
+    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p => p.startsWith('view ') && p !== 'view own_schedule');
 
     // For UI display prioritization
     const isStaff = canSeeManagement || isTherapist;

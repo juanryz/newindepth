@@ -3,7 +3,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function CoursesIndex({ courses }) {
-    const { flash } = usePage().props;
+    const { auth, flash } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return user.roles?.includes('super_admin') || user.permissions?.includes(permissionName);
+    };
+
     const { delete: destroy } = useForm();
 
     const handleDelete = (id, title) => {
@@ -35,9 +42,11 @@ export default function CoursesIndex({ courses }) {
                         <div className="text-gray-900 dark:text-gray-100 font-medium tracking-tight h-[38px] flex items-center">
                             Daftar Kelas (Course Catalog)
                         </div>
-                        <Link href={route('admin.courses.create')} className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 transition ease-in-out duration-150">
-                            + Buat Kelas Baru
-                        </Link>
+                        {hasPermission('create courses') && (
+                            <Link href={route('admin.courses.create')} className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 transition ease-in-out duration-150">
+                                + Buat Kelas Baru
+                            </Link>
+                        )}
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -111,8 +120,12 @@ export default function CoursesIndex({ courses }) {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                                                <Link href={route('admin.courses.edit', course.id)} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">Edit</Link>
-                                                <button onClick={() => handleDelete(course.id, course.title)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Hapus</button>
+                                                {hasPermission('edit courses') && (
+                                                    <Link href={route('admin.courses.edit', course.id)} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">Edit</Link>
+                                                )}
+                                                {hasPermission('delete courses') && (
+                                                    <button onClick={() => handleDelete(course.id, course.title)} className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Hapus</button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

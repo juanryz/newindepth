@@ -4,7 +4,13 @@ import { Head, Link, usePage, router } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function BlogIndex({ posts }) {
-    const { flash } = usePage().props;
+    const { auth, flash } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return user.roles?.includes('super_admin') || user.permissions?.includes(permissionName);
+    };
 
     const handleDelete = (id) => {
         if (confirm('Hapus artikel ini permanen?')) {
@@ -19,11 +25,13 @@ export default function BlogIndex({ posts }) {
             header={
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kelola Blog Artikel</h2>
-                    <Link href="/admin/blog/create">
-                        <PrimaryButton className="!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !shadow-xl !shadow-gold-600/20 !uppercase !bg-gold-600 hover:!bg-gold-500 transition-all transform active:scale-95">
-                            Buat Artikel Baru
-                        </PrimaryButton>
-                    </Link>
+                    {hasPermission('create blog_posts') && (
+                        <Link href="/admin/blog/create">
+                            <PrimaryButton className="!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !shadow-xl !shadow-gold-600/20 !uppercase !bg-gold-600 hover:!bg-gold-500 transition-all transform active:scale-95">
+                                Buat Artikel Baru
+                            </PrimaryButton>
+                        </Link>
+                    )}
                 </div>
             }
         >
@@ -87,13 +95,17 @@ export default function BlogIndex({ posts }) {
                                                 </td>
                                                 <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-black space-x-4">
                                                     <a href={`/blog/${post.slug || ''}`} target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors">Lihat</a>
-                                                    <Link href={`/admin/blog/${post.id}/edit`} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
-                                                    <button
-                                                        onClick={() => handleDelete(post.id)}
-                                                        className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition-colors"
-                                                    >
-                                                        Hapus
-                                                    </button>
+                                                    {hasPermission('edit blog_posts') && (
+                                                        <Link href={`/admin/blog/${post.id}/edit`} className="text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">Edit</Link>
+                                                    )}
+                                                    {hasPermission('delete blog_posts') && (
+                                                        <button
+                                                            onClick={() => handleDelete(post.id)}
+                                                            className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition-colors"
+                                                        >
+                                                            Hapus
+                                                        </button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

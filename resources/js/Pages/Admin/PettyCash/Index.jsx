@@ -24,6 +24,12 @@ import InputError from '@/Components/InputError';
 import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function PettyCashIndex({ proposals, currentBalance, userRole, auth, filters }) {
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+    };
 
     const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -186,12 +192,14 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                                 <h4 className="text-xl font-black uppercase tracking-tight">Sistem Kas Terintegrasi</h4>
                                 <p className="text-indigo-100/70 text-[11px] font-bold uppercase tracking-widest mt-1">Gunakan formulir ini untuk permohonan dana dan pengajuan belanja operasional.</p>
                             </div>
-                            <button
-                                onClick={() => setIsProposalModalOpen(true)}
-                                className="px-8 py-4 bg-white text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all"
-                            >
-                                Buat Pengajuan Baru
-                            </button>
+                            {hasPermission('create petty_cash') && (
+                                <button
+                                    onClick={() => setIsProposalModalOpen(true)}
+                                    className="px-8 py-4 bg-white text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all"
+                                >
+                                    Buat Pengajuan Baru
+                                </button>
+                            )}
                         </div>
                     </div>
 

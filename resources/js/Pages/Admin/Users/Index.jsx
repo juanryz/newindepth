@@ -23,7 +23,13 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 
 export default function UsersIndex({ users, roles, permissions, filters }) {
-    const { flash } = usePage().props;
+    const { auth, flash } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return user.roles?.includes('super_admin') || user.permissions?.includes(permissionName);
+    };
     const queryParams = new URLSearchParams(window.location.search);
     const initialTab = queryParams.get('tab') || 'users';
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -89,7 +95,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
                     <div className="flex gap-3">
-                        {activeTab === 'users' ? (
+                        {activeTab === 'users' && hasPermission('create users') ? (
                             <Link
                                 href={route('admin.users.create')}
                                 className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
@@ -97,7 +103,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                 <UserPlus className="w-4 h-4 mr-2" />
                                 Tambah Pengguna
                             </Link>
-                        ) : activeTab === 'roles' ? (
+                        ) : activeTab === 'roles' && hasPermission('create roles') ? (
                             <Link
                                 href={route('admin.roles.create')}
                                 className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
@@ -285,20 +291,24 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                         >
                                                                             <Eye className="w-4 h-4" />
                                                                         </Link>
-                                                                        <Link
-                                                                            href={route('admin.users.edit', user.id)}
-                                                                            className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
-                                                                            title="Edit"
-                                                                        >
-                                                                            <Edit className="w-4 h-4" />
-                                                                        </Link>
-                                                                        <button
-                                                                            onClick={() => handleDeleteUser(user.id)}
-                                                                            className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
-                                                                            title="Hapus"
-                                                                        >
-                                                                            <Trash2 className="w-4 h-4" />
-                                                                        </button>
+                                                                        {hasPermission('edit users') && (
+                                                                            <Link
+                                                                                href={route('admin.users.edit', user.id)}
+                                                                                className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                title="Edit"
+                                                                            >
+                                                                                <Edit className="w-4 h-4" />
+                                                                            </Link>
+                                                                        )}
+                                                                        {hasPermission('delete users') && (
+                                                                            <button
+                                                                                onClick={() => handleDeleteUser(user.id)}
+                                                                                className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                title="Hapus"
+                                                                            >
+                                                                                <Trash2 className="w-4 h-4" />
+                                                                            </button>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -383,14 +393,16 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                 </td>
                                                                 <td className="px-8 py-6 text-right">
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Link
-                                                                            href={route('admin.roles.edit', role.id)}
-                                                                            className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
-                                                                            title="Atur Hak Akses"
-                                                                        >
-                                                                            <Key className="w-4 h-4" />
-                                                                        </Link>
-                                                                        {role.name !== 'super_admin' && (
+                                                                        {hasPermission('edit roles') && (
+                                                                            <Link
+                                                                                href={route('admin.roles.edit', role.id)}
+                                                                                className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                title="Atur Hak Akses"
+                                                                            >
+                                                                                <Key className="w-4 h-4" />
+                                                                            </Link>
+                                                                        )}
+                                                                        {role.name !== 'super_admin' && hasPermission('delete roles') && (
                                                                             <button
                                                                                 onClick={() => handleDeleteRole(role.id)}
                                                                                 className="p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"

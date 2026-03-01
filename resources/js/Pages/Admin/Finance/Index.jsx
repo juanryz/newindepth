@@ -62,6 +62,10 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     const [internalSearch, setInternalSearch] = useState('');
     const [externalSearch, setExternalSearch] = useState('');
 
+    const hasPermission = (permissionName) => {
+        return auth.user?.roles?.includes('super_admin') || auth.user?.permissions?.includes(permissionName);
+    };
+
     // Petty Cash External (Workflow) States
     const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -71,10 +75,9 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     const [selectedProof, setSelectedProof] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
-    const isSantaMaria = userRole?.some(role =>
-        role.toLowerCase().replace(/_/g, ' ') === 'santa maria' ||
-        role.toLowerCase() === 'santa_maria'
-    );
+    const canApprove = hasPermission('approve petty_cash');
+    const canReject = hasPermission('reject petty_cash');
+    const isSantaMaria = canApprove || canReject; // Keep variable name for minimal impact if used elsewhere, but logic is permission-based now
 
     const tabs = [
         { id: 'reports', label: 'Ringkasan Laporan', icon: LayoutDashboard },
@@ -499,13 +502,15 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                         onChange={(e) => setInternalSearch(e.target.value)}
                                                     />
                                                 </div>
-                                                <button
-                                                    onClick={() => setIsPettyCashModalOpen(true)}
-                                                    className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95 w-full sm:w-auto"
-                                                >
-                                                    <Plus className="w-4 h-4 mr-2" />
-                                                    Catat Kas Masuk/Keluar
-                                                </button>
+                                                {hasPermission('create petty_cash') && (
+                                                    <button
+                                                        onClick={() => setIsPettyCashModalOpen(true)}
+                                                        className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95 w-full sm:w-auto"
+                                                    >
+                                                        <Plus className="w-4 h-4 mr-2" />
+                                                        Catat Kas Masuk/Keluar
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
@@ -553,7 +558,9 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                                         {tx.receipt && (
                                                                             <button onClick={() => setSelectedReceipt(`/storage/${tx.receipt}`)} className="p-2 text-indigo-600"><Receipt className="w-4 h-4" /></button>
                                                                         )}
-                                                                        <button onClick={() => deletePettyCash(tx.id)} className="p-2 text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                                                                        {hasPermission('delete petty_cash') && (
+                                                                            <button onClick={() => deletePettyCash(tx.id)} className="p-2 text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -594,13 +601,15 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                         onChange={(e) => setExternalSearch(e.target.value)}
                                                     />
                                                 </div>
-                                                <button
-                                                    onClick={() => setIsProposalModalOpen(true)}
-                                                    className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95 w-full sm:w-auto"
-                                                >
-                                                    <Plus className="w-4 h-4 mr-2" />
-                                                    Buat Pengajuan Baru
-                                                </button>
+                                                {hasPermission('create petty_cash') && (
+                                                    <button
+                                                        onClick={() => setIsProposalModalOpen(true)}
+                                                        className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-600/20 active:scale-95 w-full sm:w-auto"
+                                                    >
+                                                        <Plus className="w-4 h-4 mr-2" />
+                                                        Buat Pengajuan Baru
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 

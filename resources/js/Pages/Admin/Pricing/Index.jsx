@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm, router, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 
 function formatRp(amount) {
@@ -8,7 +8,7 @@ function formatRp(amount) {
 }
 
 // --- VOUCHER COMPONENTS ---
-function VoucherRow({ voucher, onEdit, onDelete }) {
+function VoucherRow({ voucher, onEdit, onDelete, canEdit, canDelete }) {
     const isExpired = voucher.valid_until && new Date(voucher.valid_until) < new Date();
     return (
         <tr className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
@@ -32,15 +32,15 @@ function VoucherRow({ voucher, onEdit, onDelete }) {
                 </span>
             </td>
             <td className="px-4 py-4 text-right space-x-3">
-                <button onClick={() => onEdit(voucher)} className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 uppercase tracking-tighter">Edit</button>
-                <button onClick={() => onDelete(voucher.id)} className="text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-800 uppercase tracking-tighter">Hapus</button>
+                {canEdit && <button onClick={() => onEdit(voucher)} className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 uppercase tracking-tighter">Edit</button>}
+                {canDelete && <button onClick={() => onDelete(voucher.id)} className="text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-800 uppercase tracking-tighter">Hapus</button>}
             </td>
         </tr>
     );
 }
 
 // --- PACKAGE COMPONENTS ---
-function PackageCard({ pkg, onEdit, onDelete }) {
+function PackageCard({ pkg, onEdit, onDelete, canEdit, canDelete }) {
     const hasDiscount = pkg.discount_percentage > 0;
     const isDiscountActive = !pkg.discount_ends_at || new Date(pkg.discount_ends_at) > new Date();
 
@@ -97,18 +97,22 @@ function PackageCard({ pkg, onEdit, onDelete }) {
                 </div>
             </div>
             <div className="flex border-t border-gray-100 dark:border-gray-700">
-                <button
-                    onClick={() => onEdit(pkg)}
-                    className="flex-1 py-4 bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all uppercase tracking-[0.15em] border-r border-gray-100 dark:border-gray-700"
-                >
-                    Edit
-                </button>
-                <button
-                    onClick={() => onDelete(pkg.id)}
-                    className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all uppercase tracking-[0.15em]"
-                >
-                    Hapus
-                </button>
+                {canEdit && (
+                    <button
+                        onClick={() => onEdit(pkg)}
+                        className="flex-1 py-4 bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all uppercase tracking-[0.15em] border-r border-gray-100 dark:border-gray-700"
+                    >
+                        Edit
+                    </button>
+                )}
+                {canDelete && (
+                    <button
+                        onClick={() => onDelete(pkg.id)}
+                        className="flex-1 py-4 bg-gray-50 dark:bg-gray-800/50 text-[10px] font-black text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all uppercase tracking-[0.15em]"
+                    >
+                        Hapus
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -116,6 +120,13 @@ function PackageCard({ pkg, onEdit, onDelete }) {
 
 // --- MAIN PAGE ---
 export default function PricingIndex({ vouchers = [], packages = [] }) {
+    const { auth } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+    };
 
     // Voucher State
     const [showVoucherModal, setShowVoucherModal] = useState(false);
@@ -272,20 +283,24 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                     <h2 className="font-black text-2xl text-gray-800 dark:text-white uppercase tracking-tight">Manajemen Harga & Voucher</h2>
                 </div>
                 <div className="flex gap-3">
-                    <button
-                        onClick={openCreateVoucher}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-50 transition-all active:scale-95"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v12m-4-4h8m4-8c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
-                        Tambah Voucher
-                    </button>
-                    <button
-                        onClick={openCreatePackage}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
-                        Tambah Paket
-                    </button>
+                    {hasPermission('create vouchers') && (
+                        <button
+                            onClick={openCreateVoucher}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-50 transition-all active:scale-95"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v12m-4-4h8m4-8c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
+                            Tambah Voucher
+                        </button>
+                    )}
+                    {hasPermission('create packages') && (
+                        <button
+                            onClick={openCreatePackage}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                            Tambah Paket
+                        </button>
+                    )}
                 </div>
             </div>
         }>
@@ -301,7 +316,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                 <h3 className="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">1. Paket Layanan (Homepage & Pasien)</h3>
                                 <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-lg uppercase">{packages.length} Paket Terdaftar</span>
                             </div>
-                            {packages.length === 0 && (
+                            {packages.length === 0 && hasPermission('create packages') && (
                                 <button
                                     onClick={() => {
                                         const defaults = [
@@ -337,14 +352,23 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                 </div>
                                 <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Data Paket Masih Kosong!</h3>
                                 <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8 font-medium">Anda belum mendaftarkan paket layanan. Tambahkan minimal 1 paket agar tampil di halaman utama.</p>
-                                <button onClick={openCreatePackage} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all">
-                                    Tambah Paket Sekarang
-                                </button>
+                                {hasPermission('create packages') && (
+                                    <button onClick={openCreatePackage} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all">
+                                        Tambah Paket Sekarang
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {packages.map(p => (
-                                    <PackageCard key={p.id} pkg={p} onEdit={handleEditPackage} onDelete={handleDeletePackage} />
+                                    <PackageCard
+                                        key={p.id}
+                                        pkg={p}
+                                        onEdit={handleEditPackage}
+                                        onDelete={handleDeletePackage}
+                                        canEdit={hasPermission('edit packages')}
+                                        canDelete={hasPermission('delete packages')}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -379,13 +403,22 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                                 <td colSpan="7" className="py-20 text-center">
                                                     <div className="space-y-4">
                                                         <p className="text-gray-400 dark:text-gray-600 text-sm font-bold italic">Belum ada promo aktif...</p>
-                                                        <button onClick={openCreateVoucher} className="text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:underline">Tambah Kode Voucher Pertama</button>
+                                                        {hasPermission('create vouchers') && (
+                                                            <button onClick={openCreateVoucher} className="text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:underline">Tambah Kode Voucher Pertama</button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
                                         ) : (
                                             vouchers.map(v => (
-                                                <VoucherRow key={v.id} voucher={v} onEdit={handleEditVoucher} onDelete={handleDeleteVoucher} />
+                                                <VoucherRow
+                                                    key={v.id}
+                                                    voucher={v}
+                                                    onEdit={handleEditVoucher}
+                                                    onDelete={handleDeleteVoucher}
+                                                    canEdit={hasPermission('edit vouchers')}
+                                                    canDelete={hasPermission('delete vouchers')}
+                                                />
                                             ))
                                         )}
                                     </tbody>

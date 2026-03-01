@@ -5,9 +5,15 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import { Search, Filter, Clock, CheckCircle2, XCircle, AlertTriangle, LayoutList } from 'lucide-react';
 
 export default function TransactionsIndex({ transactions, therapists = [] }) {
-    const { flash, errors: pageErrors } = usePage().props;
+    const { flash, errors: pageErrors, auth } = usePage().props;
+    const { user } = auth;
     const [selectedReject, setSelectedReject] = useState(null);
     const [selectedValidate, setSelectedValidate] = useState(null);
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return user.roles?.includes('super_admin') || user.permissions?.includes(permissionName);
+    };
 
     // Search & Filter States
     const [searchQuery, setSearchQuery] = useState('');
@@ -168,15 +174,15 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                             key={tab.id}
                                             onClick={() => setStatusFilter(tab.id)}
                                             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${isActive
-                                                    ? `bg-white dark:bg-slate-700 text-${tab.color}-600 dark:text-${tab.color}-400 shadow-md`
-                                                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                                                ? `bg-white dark:bg-slate-700 text-${tab.color}-600 dark:text-${tab.color}-400 shadow-md`
+                                                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                                                 }`}
                                         >
                                             <Icon className="w-3.5 h-3.5" />
                                             {tab.label}
                                             <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[9px] ${isActive
-                                                    ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/30 text-${tab.color}-600 dark:text-${tab.color}-400`
-                                                    : 'bg-slate-200/60 dark:bg-slate-700/60 text-slate-400'
+                                                ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/30 text-${tab.color}-600 dark:text-${tab.color}-400`
+                                                : 'bg-slate-200/60 dark:bg-slate-700/60 text-slate-400'
                                                 }`}>
                                                 {statusCounts[tab.id]}
                                             </span>
@@ -302,25 +308,29 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
-                                                    {tx.status === 'pending' && (
+                                                    {tx.status === 'pending' && hasPermission('edit transactions') && (
                                                         <div className="flex justify-center gap-2">
                                                             {tx.payment_proof ? (
-                                                                <button
-                                                                    disabled={validating}
-                                                                    onClick={() => handleValidate(tx)}
-                                                                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
-                                                                >
-                                                                    {validating ? '...' : 'Validasi'}
-                                                                </button>
+                                                                hasPermission('validate transactions') && (
+                                                                    <button
+                                                                        disabled={validating}
+                                                                        onClick={() => handleValidate(tx)}
+                                                                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
+                                                                    >
+                                                                        {validating ? '...' : 'Validasi'}
+                                                                    </button>
+                                                                )
                                                             ) : (
                                                                 <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase rounded-xl border border-slate-200 dark:border-slate-700 cursor-not-allowed">Bukti Belum Ada</span>
                                                             )}
-                                                            <button
-                                                                onClick={() => setSelectedReject(tx)}
-                                                                className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all"
-                                                            >
-                                                                Tolak
-                                                            </button>
+                                                            {hasPermission('reject transactions') && (
+                                                                <button
+                                                                    onClick={() => setSelectedReject(tx)}
+                                                                    className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all"
+                                                                >
+                                                                    Tolak
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     )}
                                                     {tx.status === 'paid' && tx.validated_at && (

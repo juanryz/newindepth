@@ -102,6 +102,12 @@ const calendarStyles = `
 export default function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], therapists = [], availableSchedules = [], filters = {} }) {
     const [activeTab, setActiveTab] = useState('schedules');
     const { flash, errors: pageErrors, auth } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+    };
 
 
 
@@ -597,9 +603,11 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                         Unduh CSV
                                                     </button>
 
-                                                    <button onClick={() => setIsDisabling(true)} className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20 whitespace-nowrap">
-                                                        Liburkan Jadwal
-                                                    </button>
+                                                    {hasPermission('edit schedules') && (
+                                                        <button onClick={() => setIsDisabling(true)} className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20 whitespace-nowrap">
+                                                            Liburkan Jadwal
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -10,6 +10,14 @@ import { createPortal } from 'react-dom';
 import Form from './Form'; // Fixed import to just Form if it's in the same directory
 
 export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
+    const { auth } = usePage().props;
+    const { user } = auth;
+
+    // Permission checks
+    const hasPermission = (permissionName) => {
+        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+    };
+
     const [isAdding, setIsAdding] = useState(false);
     const [therapistId, setTherapistId] = useState(filters.therapist_id || '');
     const [view, setView] = useState('timeGridWeek');
@@ -218,16 +226,18 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                     Cetak Jadwal
                                 </button>
 
-                                <button
-                                    onClick={() => setIsAdding(true)}
-                                    className="group relative px-8 py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest overflow-hidden shadow-2xl shadow-indigo-600/20 active:scale-95 transition-all"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <span className="relative flex items-center gap-3">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
-                                        Tambah Slot Manual
-                                    </span>
-                                </button>
+                                {hasPermission('create schedules') && (
+                                    <button
+                                        onClick={() => setIsAdding(true)}
+                                        className="group relative px-8 py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest overflow-hidden shadow-2xl shadow-indigo-600/20 active:scale-95 transition-all"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        <span className="relative flex items-center gap-3">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                                            Tambah Slot Manual
+                                        </span>
+                                    </button>
+                                )}
                             </div>
                         </div>
 
