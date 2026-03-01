@@ -155,7 +155,9 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
             header={
                 <div className="flex justify-between items-center">
                     <div>
-                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">Workflow Kas Kecil Internal</h2>
+                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight uppercase tracking-tight">
+                            {isSantaMaria ? 'Kas kecil eksternal' : 'Kas kecil internal'}
+                        </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Approval & Monitoring System</p>
                     </div>
                 </div>
@@ -171,7 +173,7 @@ export default function PettyCashIndex({ proposals, currentBalance, userRole, au
                         <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 flex items-center justify-between overflow-hidden relative group">
                             <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
                             <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo Kas Kecil Internal</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Saldo {isSantaMaria ? 'Kas kecil eksternal' : 'Kas kecil internal'}</p>
                                 <h3 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">Rp {currentBalance.toLocaleString('id-ID')}</h3>
                             </div>
                             <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl">

@@ -50,12 +50,18 @@ function PackageCard({ pkg }) {
                     <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">Estimasi per sesi</p>
                 </div>
             </div>
-            <Link
-                href={route('bookings.create')}
-                className="w-full py-4 text-center bg-gray-900 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700 font-bold text-xs uppercase tracking-widest transition-all"
-            >
-                Pilih Jadwal
-            </Link>
+            {pkg.disabled_booking ? (
+                <button className="w-full py-4 text-center bg-gray-400 text-white font-bold text-xs uppercase tracking-widest cursor-not-allowed transition-all" disabled>
+                    Selesaikan Sesi Aktif
+                </button>
+            ) : (
+                <Link
+                    href={route('bookings.create')}
+                    className="w-full py-4 text-center bg-gray-900 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700 font-bold text-xs uppercase tracking-widest transition-all block"
+                >
+                    Pilih Jadwal
+                </Link>
+            )}
         </div>
     );
 }
@@ -121,8 +127,8 @@ export default function VouchersPatientIndex({ userVouchers, packages }) {
                             <p className="text-gray-500 dark:text-gray-400 max-w-lg">Pilih paket yang paling sesuai dengan kebutuhan wellness Anda. Dapatkan diskon otomatis pada paket yang sedang promo.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {packages.map(p => <PackageCard key={p.id} pkg={p} />)}
+                        <div className="flex flex-wrap justify-center gap-6">
+                            {packages.map(p => <div key={p.id} className="w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-1.5rem)]"><PackageCard pkg={p} /></div>)}
                         </div>
                     </section>
 

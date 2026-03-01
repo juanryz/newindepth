@@ -42,9 +42,18 @@ class VoucherController extends Controller
 
         $packages = \App\Models\Package::where('is_active', true)->orderBy('base_price', 'asc')->get();
 
+        $activeBooking = Booking::where('patient_id', $user->id)
+            ->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed', 'in_progress'])
+            ->exists();
+
+        $mappedPackages = $packages->map(function ($pkg) use ($activeBooking) {
+            $pkg->disabled_booking = $activeBooking;
+            return $pkg;
+        });
+
         return Inertia::render('Clinic/Vouchers/Index', [
             'userVouchers' => $userVouchers,
-            'packages' => $packages,
+            'packages' => $mappedPackages,
         ]);
     }
 

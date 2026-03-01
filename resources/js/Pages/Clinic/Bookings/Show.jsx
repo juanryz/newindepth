@@ -11,7 +11,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
     const isConfirmed = booking.status === 'confirmed';
     const isCompleted = booking.status === 'completed';
     const isCancelled = booking.status === 'cancelled';
-    const canCancel = ['pending_payment', 'pending_validation', 'pending_screening', 'pending', 'draft'].includes(booking.status);
+    const canCancel = ['pending_payment', 'pending_screening', 'pending', 'draft'].includes(booking.status);
     const hasAppliedVoucher = !!booking.user_voucher_id;
     const activeVouchers = userVouchers.filter(v => v.is_active);
 
