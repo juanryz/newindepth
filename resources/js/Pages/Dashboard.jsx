@@ -614,7 +614,7 @@ export default function Dashboard() {
                         <div className="space-y-8">
                             <section>
                                 <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}</SectionLabel>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <Link href={isAdmin ? route('admin.orders.index') : route('schedules.index')} className="block group">
                                         <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(99,102,241,0.06)] hover:border-indigo-200/50 dark:hover:border-indigo-500/20 transition-all">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Sesi Berhasil' : 'Total Sesi Selesai'}</p>
@@ -625,12 +625,6 @@ export default function Dashboard() {
                                         <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(16,185,129,0.06)] hover:border-emerald-200/50 dark:hover:border-emerald-500/20 transition-all">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Pasien Terdaftar' : 'Total Pasien Unik'}</p>
                                             <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">{therapistStats?.total_patients || 0}</p>
-                                        </GlassPanel>
-                                    </Link>
-                                    <Link href={isAdmin ? route('admin.courses.index') : route('therapist.courses.index')} className="block group">
-                                        <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(245,158,11,0.06)] hover:border-amber-200/50 dark:hover:border-amber-500/20 transition-all">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{isAdmin ? 'Total Kelas Online' : 'Kelas Online Saya'}</p>
-                                            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-400">{therapistStats?.active_courses || 0}</p>
                                         </GlassPanel>
                                     </Link>
                                 </div>
@@ -834,6 +828,15 @@ export default function Dashboard() {
                                                 iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                 color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
                                             />
+                                            {!isAdmin && (
+                                                <QuickCard
+                                                    href={route('therapist.courses.index')}
+                                                    title="Kelas Online Saya"
+                                                    description="Buat & kelola kursus yang Anda ajar"
+                                                    iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                                    color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
+                                                />
+                                            )}
                                             <QuickCard
                                                 href={route('profile.edit')}
                                                 title="Update Bio"
