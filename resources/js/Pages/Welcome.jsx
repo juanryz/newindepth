@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
 import LiquidBackground from '@/Components/LiquidBackground';
+import PageLoader from '@/Components/PageLoader';
 
 // Lazy loading below-the-fold components
 const VisionMissionSection = lazy(() => import('@/Components/VisionMissionSection'));
@@ -76,6 +77,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
+            <PageLoader />
             <Head title="InDepth Mental Wellness | Kesehatan Mental Terpadu & Profesional" />
 
             {/* Premium Liquid Background */}
