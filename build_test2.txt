@@ -1,0 +1,253 @@
+
+> build
+> vite build && vite build --ssr
+
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 4756 modules transformed.
+rendering chunks...
+computing gzip size...
+public/build/manifest.json                                     54.67 kB │ gzip:   4.82 kB
+public/build/assets/Form-D32Un0ak.css                          21.92 kB │ gzip:   3.42 kB
+public/build/assets/app-BaC_icCN.css                          261.60 kB │ gzip:  33.40 kB
+public/build/assets/chevron-right-BJ2rmd01.js                   0.14 kB │ gzip:   0.15 kB
+public/build/assets/chevron-left-BPNXbwft.js                    0.14 kB │ gzip:   0.15 kB
+public/build/assets/plus-D4xvLcjy.js                            0.17 kB │ gzip:   0.16 kB
+public/build/assets/circle-check-CD9CykR8.js                    0.19 kB │ gzip:   0.18 kB
+public/build/assets/InputError-DqwH7tbF.js                      0.20 kB │ gzip:   0.18 kB
+public/build/assets/user-CW11gYC0.js                            0.20 kB │ gzip:   0.19 kB
+public/build/assets/circle-x-SbhwopTn.js                        0.21 kB │ gzip:   0.19 kB
+public/build/assets/credit-card-CVhkenIM.js                     0.22 kB │ gzip:   0.20 kB
+public/build/assets/InputLabel-CTJqedrd.js                      0.22 kB │ gzip:   0.19 kB
+public/build/assets/mail-C_ImGIJf.js                            0.23 kB │ gzip:   0.21 kB
+public/build/assets/video-CG3f6CKC.js                           0.26 kB │ gzip:   0.23 kB
+public/build/assets/circle-alert-BBfctMlO.js                    0.26 kB │ gzip:   0.20 kB
+public/build/assets/eye-BMI-7yYu.js                             0.26 kB │ gzip:   0.21 kB
+public/build/assets/calendar-BCHbKnK9.js                        0.27 kB │ gzip:   0.21 kB
+public/build/assets/triangle-alert-D52oOGqt.js                  0.28 kB │ gzip:   0.23 kB
+public/build/assets/shield-CCeVkSK9.js                          0.28 kB │ gzip:   0.23 kB
+public/build/assets/book-open-yaJPjGcv.js                       0.29 kB │ gzip:   0.22 kB
+public/build/assets/users-BxkyWIsx.js                           0.32 kB │ gzip:   0.24 kB
+public/build/assets/shield-check-BL4gSm9_.js                    0.33 kB │ gzip:   0.26 kB
+public/build/assets/phone-C38a7SIs.js                           0.33 kB │ gzip:   0.24 kB
+public/build/assets/save-BoWU8ZP3.js                            0.34 kB │ gzip:   0.24 kB
+public/build/assets/clock-_Y337dMc.js                           0.36 kB │ gzip:   0.27 kB
+public/build/assets/file-text-DRGu8Yrv.js                       0.40 kB │ gzip:   0.26 kB
+public/build/assets/eye-off-Bu72AQrH.js                         0.44 kB │ gzip:   0.28 kB
+public/build/assets/trash-2-BhFngH2X.js                         0.47 kB │ gzip:   0.29 kB
+public/build/assets/wallet-B7Sg3aJ2.js                          0.47 kB │ gzip:   0.30 kB
+public/build/assets/heart-DKvQLZle.js                           0.47 kB │ gzip:   0.32 kB
+public/build/assets/PrimaryButton-CIQPVH8E.js                   0.53 kB │ gzip:   0.37 kB
+public/build/assets/SecondaryButton-T5bUzvxs.js                 0.63 kB │ gzip:   0.38 kB
+public/build/assets/TextInput-DR2dkwdO.js                       0.65 kB │ gzip:   0.41 kB
+public/build/assets/ErrorBoundary-DIiKIdak.js                   0.75 kB │ gzip:   0.44 kB
+public/build/assets/fingerprint-pattern-C-lk7Swf.js             0.83 kB │ gzip:   0.46 kB
+public/build/assets/with-selector-DV4auT_a.js                   0.95 kB │ gzip:   0.53 kB
+public/build/assets/createLucideIcon-DM5BuNCl.js                1.20 kB │ gzip:   0.69 kB
+public/build/assets/ThemeToggle-BhS98ZzC.js                     1.40 kB │ gzip:   0.72 kB
+public/build/assets/LiquidBackground-CQDtRy8g.js                1.41 kB │ gzip:   0.56 kB
+public/build/assets/Documents-BDd4KcXf.js                       1.47 kB │ gzip:   0.77 kB
+public/build/assets/ErrorBoundary-ZjmjfiIM.js                   2.07 kB │ gzip:   1.05 kB
+public/build/assets/UpdateTherapistProfileForm-DVvUOOIQ.js      2.37 kB │ gzip:   1.13 kB
+public/build/assets/ConfirmPassword-CeUWXBC3.js                 2.43 kB │ gzip:   1.14 kB
+public/build/assets/ProfileProgressCard-CscTtkYU.js             2.55 kB │ gzip:   1.01 kB
+public/build/assets/DeleteUserForm-BoVvV90e.js                  2.67 kB │ gzip:   1.27 kB
+public/build/assets/VerifySuccess-U20MJqE2.js                   2.81 kB │ gzip:   1.22 kB
+public/build/assets/Edit-k9SeqElH.js                            2.83 kB │ gzip:   0.99 kB
+public/build/assets/GuestLayout-Cb3Llsbg.js                     2.93 kB │ gzip:   1.16 kB
+public/build/assets/ForgotPassword-Cb4isaIp.js                  3.00 kB │ gzip:   1.39 kB
+public/build/assets/VerifyEmail-fU8wcAbw.js                     3.10 kB │ gzip:   1.50 kB
+public/build/assets/Index-Dlx9RfBX.js                           3.19 kB │ gzip:   1.32 kB
+public/build/assets/Show-4LZcHRFO.js                            3.47 kB │ gzip:   1.52 kB
+public/build/assets/UpdatePasswordForm-CMJ0sgqZ.js              3.58 kB │ gzip:   1.23 kB
+public/build/assets/Index-CMMhfn4t.js                           3.76 kB │ gzip:   1.35 kB
+public/build/assets/ResetPassword-EOCH5WfT.js                   3.79 kB │ gzip:   1.22 kB
+public/build/assets/index-DFplbCS7.js                           3.83 kB │ gzip:   1.81 kB
+public/build/assets/Expired-j4XuHquY.js                         3.99 kB │ gzip:   1.33 kB
+public/build/assets/RefundPolicyContent-BVqAMl4Q.js             4.05 kB │ gzip:   1.85 kB
+public/build/assets/DisclaimerSection-C6NKDOR9.js               4.21 kB │ gzip:   1.47 kB
+public/build/assets/UpdateProfileInformationForm-VWCfcgo9.js    4.24 kB │ gzip:   1.60 kB
+public/build/assets/MyCourses-D2WJcY8H.js                       4.65 kB │ gzip:   1.73 kB
+public/build/assets/Footer-BG8jMdLV.js                          4.75 kB │ gzip:   1.53 kB
+public/build/assets/Index-C0VYUKHD.js                           4.89 kB │ gzip:   1.48 kB
+public/build/assets/VisionMissionSection-Cgh3mCky.js            4.95 kB │ gzip:   1.95 kB
+public/build/assets/Index-OJYTrQI8.js                           5.31 kB │ gzip:   1.72 kB
+public/build/assets/Form-CUx-WpV1.js                            5.47 kB │ gzip:   2.03 kB
+public/build/assets/Form-B9rWpk3N.js                            6.21 kB │ gzip:   2.11 kB
+public/build/assets/Index-CmcZVgME.js                           6.27 kB │ gzip:   2.34 kB
+public/build/assets/Index-BdZ3WBer.js                           6.38 kB │ gzip:   2.50 kB
+public/build/assets/Index-iCqSCNRP.js                           6.43 kB │ gzip:   1.91 kB
+public/build/assets/Index-Ck-XTezE.js                           6.50 kB │ gzip:   1.85 kB
+public/build/assets/Form-DKHaRwh5.js                            6.50 kB │ gzip:   2.15 kB
+public/build/assets/AgreementDetail-TLoOq8Js.js                 6.61 kB │ gzip:   2.09 kB
+public/build/assets/Form-DXHOyOcR.js                            6.78 kB │ gzip:   1.65 kB
+public/build/assets/Privacy-DHu56Pra.js                         6.91 kB │ gzip:   2.53 kB
+public/build/assets/Index-DJKVonwZ.js                           7.06 kB │ gzip:   2.26 kB
+public/build/assets/Terms-D3jGPtN5.js                           7.31 kB │ gzip:   2.73 kB
+public/build/assets/Disclaimer-C_CbkqW-.js                      7.55 kB │ gzip:   2.74 kB
+public/build/assets/Index-DFlPjaUU.js                           7.62 kB │ gzip:   2.45 kB
+public/build/assets/Index-i3zC8mwC.js                           7.93 kB │ gzip:   2.61 kB
+public/build/assets/TransactionHistory-DLk941UF.js              7.96 kB │ gzip:   2.42 kB
+public/build/assets/Register-Dn37OBvO.js                        8.28 kB │ gzip:   2.46 kB
+public/build/assets/Login-DO7nXwj7.js                           8.32 kB │ gzip:   3.10 kB
+public/build/assets/Form-C4jk1soA.js                            8.74 kB │ gzip:   3.13 kB
+public/build/assets/Index-BhI2tO_9.js                           8.97 kB │ gzip:   2.45 kB
+public/build/assets/Form-C6X6B8v0.js                            9.17 kB │ gzip:   3.03 kB
+public/build/assets/Index-DkFkK44_.js                           9.40 kB │ gzip:   3.25 kB
+public/build/assets/AffiliateAgreementContent-DUY99geM.js       9.69 kB │ gzip:   2.52 kB
+public/build/assets/Index-BfK_m3xs.js                          11.33 kB │ gzip:   3.18 kB
+public/build/assets/Payment-C2FpdQdJ.js                        11.96 kB │ gzip:   3.44 kB
+public/build/assets/Form-DvHem9B_.js                           12.56 kB │ gzip:   2.84 kB
+public/build/assets/AuthenticatedLayout-DgIct_fJ.js            12.91 kB │ gzip:   3.71 kB
+public/build/assets/SessionHistory-GOiL8UWE.js                 13.17 kB │ gzip:   3.18 kB
+public/build/assets/Navbar-BB5c9NvA.js                         13.71 kB │ gzip:   3.94 kB
+public/build/assets/Show-qOVEwaWV.js                           14.29 kB │ gzip:   3.65 kB
+public/build/assets/Show-k5yM6zur.js                           14.35 kB │ gzip:   4.31 kB
+public/build/assets/transition-Ba-xo0Yk.js                     14.62 kB │ gzip:   5.83 kB
+public/build/assets/Index-C2cLIvXF.js                          15.07 kB │ gzip:   4.34 kB
+public/build/assets/Index-CqUseZqo.js                          15.30 kB │ gzip:   4.25 kB
+public/build/assets/Agreement-CNeOGQEW.js                      15.47 kB │ gzip:   4.28 kB
+public/build/assets/IndepthTrance-DiTTV2VB.js                  15.72 kB │ gzip:   4.07 kB
+public/build/assets/Upload-B0fwpB1j.js                         15.96 kB │ gzip:   4.70 kB
+public/build/assets/ServiceAgreementForm-BOWblWnS.js           16.62 kB │ gzip:   4.89 kB
+public/build/assets/Index-DQrnhVJP.js                          16.77 kB │ gzip:   3.84 kB
+public/build/assets/IndepthSolution-I0fsCWsD.js                17.16 kB │ gzip:   4.43 kB
+public/build/assets/AgreementDetail-CTAv-CEH.js                17.18 kB │ gzip:   4.36 kB
+public/build/assets/SupremeTrance-fVQBUlUx.js                  18.03 kB │ gzip:   4.41 kB
+public/build/assets/Dashboard-1QSqW9WY.js                      18.43 kB │ gzip:   4.83 kB
+public/build/assets/Index-DKfG0wnE.js                          18.57 kB │ gzip:   4.83 kB
+public/build/assets/Index--HrwfCnG.js                          19.29 kB │ gzip:   4.12 kB
+public/build/assets/Index-DcG_o8uK.js                          19.85 kB │ gzip:   4.84 kB
+public/build/assets/Create-BcMmG9Zv.js                         22.83 kB │ gzip:   7.00 kB
+public/build/assets/Show-CG8eqG5w.js                           23.45 kB │ gzip:   6.59 kB
+public/build/assets/Index-RjAMQw-r.js                          24.12 kB │ gzip:   5.88 kB
+public/build/assets/Index-BHkYZH7J.js                          25.86 kB │ gzip:   5.59 kB
+public/build/assets/Screening-Qj6WvcyL.js                      27.17 kB │ gzip:   7.14 kB
+public/build/assets/ActiveSession-C821JhPr.js                  28.94 kB │ gzip:   7.51 kB
+public/build/assets/Modal-eGQtCzzj.js                          29.95 kB │ gzip:  10.82 kB
+public/build/assets/Index-DSIf3gQI.js                          30.74 kB │ gzip:   6.94 kB
+public/build/assets/InitialAgreement-CCsF29dT.js               31.45 kB │ gzip:   8.11 kB
+public/build/assets/Show-Us2THePA.js                           36.44 kB │ gzip:  10.35 kB
+public/build/assets/Index-CeZzR7U0.js                          45.48 kB │ gzip:  10.50 kB
+public/build/assets/Show-CWwIbPU1.js                           48.92 kB │ gzip:   9.07 kB
+public/build/assets/Dashboard-B2yz5lf1.js                      49.46 kB │ gzip:  12.26 kB
+public/build/assets/Show-WXFtyOFY.js                           51.04 kB │ gzip:  10.78 kB
+public/build/assets/PatientDetail-BiY2-36U.js                  54.97 kB │ gzip:   8.74 kB
+public/build/assets/Welcome-DTdqE1pY.js                        55.50 kB │ gzip:  10.28 kB
+public/build/assets/UpdatePatientDocumentsForm-C8SwRvdR.js     60.70 kB │ gzip:  23.65 kB
+public/build/assets/Index-DimWohDP.js                          91.52 kB │ gzip:  15.84 kB
+public/build/assets/proxy-CSJSBgdc.js                         118.84 kB │ gzip:  38.96 kB
+public/build/assets/Form-4xY5bNhD.js                          255.70 kB │ gzip:  68.42 kB
+public/build/assets/index-DHEXE8vM.js                         259.73 kB │ gzip:  75.60 kB
+public/build/assets/app-BfOSaUtF.js                           348.81 kB │ gzip: 116.19 kB
+public/build/assets/PieChart-CnP4t-9Q.js                      365.86 kB │ gzip: 107.95 kB
+✓ built in 4.16s
+vite v7.3.1 building ssr environment for production...
+transforming...
+"useCallback" is imported from external module "react" but never used in "resources/js/Pages/Admin/Blog/Form.jsx".
+"MoreHorizontal", "X", "UserCheck", "MessageSquare" and "ArrowRight" are imported from external module "lucide-react" but never used in "resources/js/Pages/Admin/Users/Index.jsx", "resources/js/Pages/Clinic/Schedules/ActiveSession.jsx", "resources/js/Pages/Clinic/Schedules/PatientDetail.jsx" and "resources/js/Components/VisionMissionSection.jsx".
+"BarChart" and "Bar" are imported from external module "recharts" but never used in "resources/js/Pages/Admin/Finance/Index.jsx" and "resources/js/Pages/Admin/Reports/Index.jsx".
+"default" is imported from external module "@fullcalendar/core/locales/id" but never used in "resources/js/Pages/Admin/Schedules/Index.jsx".
+✓ 113 modules transformed.
+rendering chunks...
+bootstrap/ssr/ssr-manifest.json                                 10.82 kB
+bootstrap/ssr/manifest.json                                     38.84 kB
+bootstrap/ssr/assets/InputError-2JjWc6nJ.js                      0.32 kB
+bootstrap/ssr/assets/InputLabel-CnBOqvzp.js                      0.35 kB
+bootstrap/ssr/assets/PrimaryButton-DsRkdqwY.js                   0.65 kB
+bootstrap/ssr/assets/SecondaryButton-D0HLp6wy.js                 0.77 kB
+bootstrap/ssr/assets/TextInput-DcEnl-Ka.js                       0.95 kB
+bootstrap/ssr/assets/ErrorBoundary-veTPa1Ma.js                   1.13 kB
+bootstrap/ssr/assets/LiquidBackground-DsMP_cZ6.js                1.75 kB
+bootstrap/ssr/assets/ThemeToggle-SHr-61ed.js                     1.98 kB
+bootstrap/ssr/assets/Modal-BSrLMD0w.js                           2.06 kB
+bootstrap/ssr/assets/Documents-Deg_CBeo.js                       2.13 kB
+bootstrap/ssr/assets/ErrorBoundary-DBZzD0st.js                   2.76 kB
+bootstrap/ssr/assets/ConfirmPassword-BLVGDxq3.js                 3.35 kB
+bootstrap/ssr/assets/ProfileProgressCard-ICeDvvkZ.js             3.47 kB
+bootstrap/ssr/assets/UpdateTherapistProfileForm-z-gJtDOo.js      3.63 kB
+bootstrap/ssr/assets/Edit-BlkypiJi.js                            3.81 kB
+bootstrap/ssr/assets/GuestLayout-6VFu8n0g.js                     4.01 kB
+bootstrap/ssr/assets/ForgotPassword-CJ2rt9_C.js                  4.02 kB
+bootstrap/ssr/assets/RefundPolicyContent-ReYH2tDD.js             4.26 kB
+bootstrap/ssr/assets/DeleteUserForm-O0MgLm3F.js                  4.27 kB
+bootstrap/ssr/assets/Index-D7RWHdJZ.js                           4.45 kB
+bootstrap/ssr/assets/VerifyEmail-v0f6nAfP.js                     4.48 kB
+bootstrap/ssr/assets/VerifySuccess-MxsmKp1z.js                   4.53 kB
+bootstrap/ssr/assets/Index-D-rwMdKQ.js                           5.05 kB
+bootstrap/ssr/assets/Show-CrKFrCBO.js                            5.27 kB
+bootstrap/ssr/assets/ResetPassword-CqX6DPUQ.js                   5.45 kB
+bootstrap/ssr/assets/DisclaimerSection-xOYLaWsi.js               5.49 kB
+bootstrap/ssr/assets/Expired-DHdP_Mft.js                         5.81 kB
+bootstrap/ssr/assets/VisionMissionSection-vKKXp_Lr.js            6.19 kB
+bootstrap/ssr/assets/Footer-LkZ7OU5t.js                          6.33 kB
+bootstrap/ssr/assets/MyCourses-Dk3036Nv.js                       6.35 kB
+bootstrap/ssr/assets/Index-DVcBUQAJ.js                           6.48 kB
+bootstrap/ssr/assets/UpdatePasswordForm-D7wLRZo6.js              6.77 kB
+bootstrap/ssr/assets/UpdateProfileInformationForm-CQZvEjPU.js    7.19 kB
+bootstrap/ssr/assets/Index-0NaL7dtg.js                           7.47 kB
+bootstrap/ssr/assets/Index-BNTaaJ0F.js                           8.32 kB
+bootstrap/ssr/assets/Index-BVcLvesU.js                           8.54 kB
+bootstrap/ssr/assets/Index-pJH9iWlO.js                           8.58 kB
+bootstrap/ssr/assets/Form-NkTmmAe8.js                            8.59 kB
+bootstrap/ssr/assets/Index-Cy7SGnd3.js                           8.73 kB
+bootstrap/ssr/assets/AgreementDetail-SGyCEKaE.js                 9.11 kB
+bootstrap/ssr/assets/Privacy-Byo6VrJf.js                         9.87 kB
+bootstrap/ssr/assets/Index-etowKr3t.js                           9.88 kB
+bootstrap/ssr/assets/Terms-BmXNPJ6y.js                          10.01 kB
+bootstrap/ssr/assets/Form-ZldotCyj.js                           10.09 kB
+bootstrap/ssr/assets/Form-dFVY9Gch.js                           10.26 kB
+bootstrap/ssr/assets/Disclaimer-BgBBl_pa.js                     10.37 kB
+bootstrap/ssr/assets/Form-Bsc5qJmV.js                           10.84 kB
+bootstrap/ssr/assets/Index-D-DwZbjE.js                          11.21 kB
+bootstrap/ssr/assets/UpdatePatientDocumentsForm-BlVrwsYF.js     11.35 kB
+bootstrap/ssr/assets/Index-CUcuW9C0.js                          11.41 kB
+bootstrap/ssr/assets/TransactionHistory-D_accv64.js             11.90 kB
+bootstrap/ssr/assets/Login-D5Z-slbJ.js                          11.96 kB
+bootstrap/ssr/assets/Index-B0HCyEiK.js                          12.03 kB
+bootstrap/ssr/assets/AffiliateAgreementContent-BWGUMIZF.js      12.05 kB
+bootstrap/ssr/assets/Show-BSj2nNu1.js                           12.06 kB
+bootstrap/ssr/assets/Register-CxounuNv.js                       12.13 kB
+bootstrap/ssr/assets/Form-hltjL-kt.js                           12.60 kB
+bootstrap/ssr/assets/Form-m8NMG8hG.js                           13.65 kB
+bootstrap/ssr/assets/Index-DwQ-06zU.js                          13.76 kB
+bootstrap/ssr/assets/Index-UqPKuiSh.js                          16.50 kB
+bootstrap/ssr/assets/Payment-QDj1jC9p.js                        17.74 kB
+bootstrap/ssr/assets/SessionHistory-DK6JmKio.js                 19.17 kB
+bootstrap/ssr/assets/Form-DnBMCvKU.js                           19.43 kB
+bootstrap/ssr/assets/Show-CvV2W_kp.js                           19.74 kB
+bootstrap/ssr/assets/Index-HfcU1Dh2.js                          20.13 kB
+bootstrap/ssr/assets/AuthenticatedLayout-D5ONeOE2.js            20.30 kB
+bootstrap/ssr/assets/Form-BW48Yhnk.js                           20.94 kB
+bootstrap/ssr/assets/Show-jrwWGt9V.js                           21.29 kB
+bootstrap/ssr/assets/Navbar-CWE111IA.js                         22.01 kB
+bootstrap/ssr/assets/Agreement-b87mcP9s.js                      22.19 kB
+bootstrap/ssr/assets/IndepthTrance-BnntBvWm.js                  22.83 kB
+bootstrap/ssr/assets/ServiceAgreementForm-DouPxeB4.js           23.58 kB
+bootstrap/ssr/assets/Upload-DZTpTCv_.js                         24.64 kB
+bootstrap/ssr/assets/Index-DvHBEyZ9.js                          24.95 kB
+bootstrap/ssr/assets/IndepthSolution-CPVvNnb5.js                24.95 kB
+bootstrap/ssr/assets/AgreementDetail-BMHFxAcP.js                25.32 kB
+bootstrap/ssr/assets/Index-DczEYU3s.js                          25.93 kB
+bootstrap/ssr/assets/SupremeTrance-CD_i_k8q.js                  26.05 kB
+bootstrap/ssr/assets/Index-TVxFS4ie.js                          26.44 kB
+bootstrap/ssr/assets/Dashboard-Bs4tipAf.js                      27.44 kB
+bootstrap/ssr/assets/Index-Ckv44Lkh.js                          28.68 kB
+bootstrap/ssr/ssr.js                                            30.09 kB
+bootstrap/ssr/assets/Index-BlGKahx2.js                          30.32 kB
+bootstrap/ssr/assets/Create-CHF5foaa.js                         30.87 kB
+bootstrap/ssr/assets/Show-CTu8UHfg.js                           31.21 kB
+bootstrap/ssr/assets/Index-C34-upYt.js                          38.79 kB
+bootstrap/ssr/assets/Index-BBjSbZUe.js                          39.96 kB
+bootstrap/ssr/assets/Screening-C4x6A6BF.js                      40.96 kB
+bootstrap/ssr/assets/ActiveSession-2T00afh7.js                  44.91 kB
+bootstrap/ssr/assets/InitialAgreement-BUuWvqWd.js               46.86 kB
+bootstrap/ssr/assets/Index-BYJhqpxY.js                          50.16 kB
+bootstrap/ssr/assets/Welcome-CKyKbr9N.js                        71.78 kB
+bootstrap/ssr/assets/Index-Cr4tUUnJ.js                          73.63 kB
+bootstrap/ssr/assets/Dashboard-03_ktMY3.js                      75.58 kB
+bootstrap/ssr/assets/Show-DEQUWbiJ.js                           75.96 kB
+bootstrap/ssr/assets/Show-CPI-7XlN.js                           77.31 kB
+bootstrap/ssr/assets/PatientDetail-CDFg3dBg.js                  92.09 kB
+bootstrap/ssr/assets/Index-BjNXm0zo.js                         147.04 kB
+✓ built in 742ms
