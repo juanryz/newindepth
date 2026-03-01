@@ -344,8 +344,12 @@ export default function Dashboard() {
     // A user is only "just a patient" if they don't have management roles, or we can check the role explicitly
     const isPatient = roles.includes('patient');
 
+    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p =>
+        ['view bookings', 'view courses', 'view transactions', 'view finance', 'view blog_posts', 'view users', 'view vouchers', 'view packages'].includes(p)
+    );
+
     // For UI display prioritization
-    const isStaff = isAdmin || isTherapist || isSantaMaria;
+    const isStaff = canSeeManagement || isTherapist;
 
     const isProfileComplete = profileProgress ? profileProgress.percentage === 100 : true;
 
@@ -371,7 +375,7 @@ export default function Dashboard() {
                             Selamat datang, {user.name} 👋
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                            {isAdmin ? 'Panel Admin & CS' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
+                            {canSeeManagement ? 'Panel Manajemen Utama' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
                         </p>
                     </div>
                     {!!user.agreement_signed_at && (
@@ -499,7 +503,7 @@ export default function Dashboard() {
                     )}
 
                     {/* ============== ADMIN / CS / SPECIAL STAFF SECTION ============== */}
-                    {(isAdmin || isSantaMaria) && (
+                    {canSeeManagement && (
                         <div className="space-y-10">
                             {/* Main Management Menus */}
                             <section>
@@ -574,7 +578,7 @@ export default function Dashboard() {
                     )}
 
                     {/* ============== PATIENT ONLY: Screening Banner ============== */}
-                    {isPatient && !isAdmin && (
+                    {isPatient && !canSeeManagement && (
                         <div className="space-y-6">
                             <ScreeningBanner
                                 screeningResult={screeningResult}

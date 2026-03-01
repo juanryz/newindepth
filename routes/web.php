@@ -104,7 +104,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     );
 
     // Unified Admin Routes with Granular Permissions
-    Route::middleware('role:super_admin|admin|cs|therapist|santa_maria')->prefix('admin')->name('admin.')->group(
+    Route::prefix('admin')->name('admin.')->group(
         function () {
             // Order Management
             Route::get('/order-management', [\App\Http\Controllers\Admin\OrderManagementController::class, 'index'])
@@ -216,7 +216,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     );
 
     // Admin User & Role Management (Super Admin & Admin with permissions)
-    Route::middleware('role:super_admin|admin')->prefix('admin')->name('admin.')->group(
+    Route::prefix('admin')->name('admin.')->group(
         function () {
             Route::get('users/{user}/agreement', [\App\Http\Controllers\Admin\UserController::class, 'agreement'])
                 ->middleware('permission:view_agreement users')
