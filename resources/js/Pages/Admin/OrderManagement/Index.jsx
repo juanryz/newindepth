@@ -423,7 +423,12 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     }, [therapistId]);
 
     // ─── Handlers ───
-    const handleEventClick = (info) => router.visit(route('admin.schedules.show', info.event.id));
+    const handleEventClick = (info) => {
+        // Fallback for missing admin.schedules.show route
+        if (window.route().has('schedules.index')) {
+            router.visit(route('schedules.index'));
+        }
+    };
     const handleAssign = (bookingId) => patch(route('admin.bookings.assign-therapist', bookingId), { onSuccess: () => setEditingBooking(null) });
     const handleReschedule = (e) => {
         e.preventDefault();
@@ -441,10 +446,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                 }
             });
         } else {
-            postReschedule(route('admin.bookings.reschedule', reschedulingBooking.id), { onSuccess: () => { setReschedulingBooking(null); resetReschedule(); } });
+            postReschedule(route('schedules.reschedule', reschedulingBooking.id), { onSuccess: () => { setReschedulingBooking(null); resetReschedule(); } });
         }
     };
-    const handleNoShow = (e) => { e.preventDefault(); postNoShow(route('admin.bookings.no-show', noShowBooking.id), { onSuccess: () => { setNoShowBooking(null); resetNoShow(); } }); };
+    const handleNoShow = (e) => { e.preventDefault(); postNoShow(route('schedules.no-show', noShowBooking.id), { onSuccess: () => { setNoShowBooking(null); resetNoShow(); } }); };
     const handleValidate = (tx) => {
         setValidatingTx(tx.id);
         router.post(route('admin.transactions.validate', tx.id), {}, {
@@ -872,11 +877,11 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                             <div className="flex flex-col gap-2">
                                                                                 <div className="flex items-center justify-between group/tp">
                                                                                     <div className="flex flex-col">
-                                                                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">PJ</span>
+                                                                                        <span className="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-0.5">TERAPIS</span>
                                                                                         {booking.therapist ? (
                                                                                             <span className="text-xs font-bold text-gray-900 dark:text-white">{booking.therapist.name}</span>
                                                                                         ) : (
-                                                                                            <span className="text-xs font-bold text-amber-500">
+                                                                                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                                                                                                 {['pending_payment', 'pending_validation'].includes(booking.status) ? '⏳ Otomatis' : 'BELUM'}
                                                                                             </span>
                                                                                         )}
@@ -887,7 +892,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                                 </div>
                                                                                 <div className="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/50">
                                                                                     {booking.schedule_id && (
-                                                                                        <Link href={route('admin.schedules.show', booking.schedule_id)} className="px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 hover:text-indigo-500 transition-all">Detail</Link>
+                                                                                        <Link href={route('schedules.index')} className="px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 hover:text-indigo-500 transition-all">Jadwal</Link>
                                                                                     )}
                                                                                     {['confirmed', 'in_progress'].includes(booking.status) && (
                                                                                         <>

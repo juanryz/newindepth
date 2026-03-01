@@ -94,7 +94,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     });
 
     const { data: proposalData, setData: setProposalData, post: postProposal, processing: processingProposal, reset: resetProposal, errors: proposalErrors } = useForm({
-        type: 'spending',
+        type: 'funding',
         title: '',
         description: '',
         amount: '',
@@ -300,6 +300,8 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                 resetPettyInternal();
                 setIsPettyCashModalOpen(false);
             },
+            preserveScroll: true,
+            forceFormData: true,
         });
     };
 
@@ -876,7 +878,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
 
             {/* Petty Cash Internal Modal */}
             <Modal show={isPettyCashModalOpen} onClose={() => setIsPettyCashModalOpen(false)}>
-                <form onSubmit={submitPettyInternal} className="p-8 dark:bg-gray-900 rounded-[2.5rem]">
+                <form onSubmit={submitPettyInternal} className="p-8 dark:bg-gray-900">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Catat Kas Internal</h2>
                         <button type="button" onClick={() => setIsPettyCashModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400">✕</button>
@@ -961,30 +963,13 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
 
             {/* External: Create Proposal Modal */}
             <Modal show={isProposalModalOpen} onClose={() => setIsProposalModalOpen(false)}>
-                <form onSubmit={submitProposal} className="p-8 dark:bg-gray-900 rounded-[2.5rem]">
+                <form onSubmit={submitProposal} className="p-8 dark:bg-gray-900">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Buat Pengajuan Kas Kecil</h2>
                         <button type="button" onClick={() => setIsProposalModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400">✕</button>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex gap-4 p-2 bg-gray-50 dark:bg-gray-800 rounded-2xl mb-4">
-                            <button
-                                type="button"
-                                onClick={() => setProposalData('type', 'spending')}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${proposalData.type === 'spending' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'text-gray-400'}`}
-                            >
-                                Belanja (Out)
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setProposalData('type', 'funding')}
-                                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${proposalData.type === 'funding' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-gray-400'}`}
-                            >
-                                Isi Saldo (In)
-                            </button>
-                        </div>
-
                         <div>
                             <InputLabel value="Judul Pengajuan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
                             <TextInput
@@ -1000,7 +985,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                         <div>
                             <InputLabel value="Detail Deskripsi & Keperluan" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1" />
                             <textarea
-                                className="w-full bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold placeholder-gray-300 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px]"
+                                className="w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold placeholder-gray-300 dark:placeholder-gray-500 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px]"
                                 value={proposalData.description}
                                 onChange={e => setProposalData('description', e.target.value)}
                                 placeholder="Jelaskan rincian keperluan dana ini secara mendetail..."
@@ -1037,7 +1022,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
 
             {/* External: Approve Funding Modal */}
             <Modal show={isApproveModalOpen} onClose={() => setIsApproveModalOpen(false)}>
-                <form onSubmit={submitApproveFunding} className="p-8 dark:bg-gray-900 rounded-[2.5rem]">
+                <form onSubmit={submitApproveFunding} className="p-8 dark:bg-gray-900">
                     <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">Persetujuan Pengisian Saldo</h2>
 
                     <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 rounded-2xl mb-6">
@@ -1222,6 +1207,6 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                     </motion.div>
                 )}
             </AnimatePresence>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

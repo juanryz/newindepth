@@ -166,8 +166,8 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
             description: v.description || '',
             discount_amount: v.discount_amount,
             max_claims: v.max_claims || '',
-            valid_from: v.valid_from ? v.valid_from.split('T')[0] : '',
-            valid_until: v.valid_until ? v.valid_until.split('T')[0] : '',
+            valid_from: v.valid_from ? v.valid_from.split('T')[0].split(' ')[0] : '',
+            valid_until: v.valid_until ? v.valid_until.split('T')[0].split(' ')[0] : '',
             is_active: !!v.is_active,
         });
         setShowVoucherModal(true);
@@ -209,15 +209,22 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
     };
 
     const handleEditPackage = (p) => {
+        let safelyParsedFeatures = [];
+        try {
+            safelyParsedFeatures = Array.isArray(p.features) ? p.features : (typeof p.features === 'string' && p.features.trim() ? JSON.parse(p.features) : []);
+        } catch (e) {
+            safelyParsedFeatures = [];
+        }
+
         setEditPackage(p);
         packageForm.setData({
             name: p.name,
             description: p.description || '',
             base_price: p.base_price,
             discount_percentage: p.discount_percentage,
-            discount_ends_at: p.discount_ends_at ? p.discount_ends_at.split('T')[0] : '',
+            discount_ends_at: p.discount_ends_at ? p.discount_ends_at.split('T')[0].split(' ')[0] : '',
             is_active: !!p.is_active,
-            features: p.features || [],
+            features: safelyParsedFeatures,
         });
         setShowPackageModal(true);
     };
@@ -409,7 +416,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     type="text"
                                     value={packageForm.data.name}
                                     onChange={e => packageForm.setData('name', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20"
                                     placeholder="Contoh: Paket Reguler"
                                     required
                                 />
@@ -422,7 +429,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     rows="2"
                                     value={packageForm.data.description}
                                     onChange={e => packageForm.setData('description', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20"
                                     placeholder="Jelaskan secara singkat target dari paket ini..."
                                 />
                             </div>
@@ -433,7 +440,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     type="number"
                                     value={packageForm.data.base_price}
                                     onChange={e => packageForm.setData('base_price', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-sm font-black focus:ring-2 focus:ring-indigo-500/20"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-black focus:ring-2 focus:ring-indigo-500/20"
                                     required
                                 />
                             </div>
@@ -456,13 +463,13 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     <div>
                                         <label className="block text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5">Persen Diskon (0-100)</label>
                                         <div className="relative">
-                                            <input type="number" min="0" max="100" value={packageForm.data.discount_percentage} onChange={e => packageForm.setData('discount_percentage', e.target.value)} className="w-full bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-900/50 rounded-xl pr-10 text-sm font-black" />
+                                            <input type="number" min="0" max="100" value={packageForm.data.discount_percentage} onChange={e => packageForm.setData('discount_percentage', e.target.value)} className="w-full bg-white dark:bg-gray-900 border-indigo-200 dark:border-indigo-900/50 text-gray-900 dark:text-white rounded-xl pr-10 text-sm font-black focus:ring-2 focus:ring-indigo-500/20" />
                                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 font-black">%</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5">Batas Waktu</label>
-                                        <input type="date" value={packageForm.data.discount_ends_at} onChange={e => packageForm.setData('discount_ends_at', e.target.value)} className="w-full bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-900/50 rounded-xl text-sm font-bold" />
+                                        <input type="date" value={packageForm.data.discount_ends_at} onChange={e => packageForm.setData('discount_ends_at', e.target.value)} className="w-full bg-white dark:bg-gray-900 border-indigo-200 dark:border-indigo-900/50 text-gray-900 dark:text-white rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20" />
                                     </div>
                                 </div>
                                 <p className="text-[9px] text-indigo-400 mt-3 font-bold uppercase tracking-tight italic">Sistem akan otomatis kembali ke harga normal setelah tanggal berakhir.</p>
@@ -477,7 +484,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                                 type="text"
                                                 value={feature}
                                                 onChange={(e) => handleFeatureChange(idx, e.target.value)}
-                                                className="flex-1 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2 text-sm font-medium"
+                                                className="flex-1 bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20"
                                                 placeholder={`Fitur ${idx + 1}`}
                                             />
                                             <button
@@ -541,7 +548,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                         type="text"
                                         value={voucherForm.data.code}
                                         onChange={e => voucherForm.setData('code', e.target.value.toUpperCase())}
-                                        className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-lg font-black text-indigo-600 dark:text-indigo-400 uppercase font-mono tracking-widest focus:ring-2 focus:ring-indigo-500/20"
+                                        className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 text-lg font-black text-indigo-600 dark:text-indigo-400 uppercase font-mono tracking-widest focus:ring-2 focus:ring-indigo-500/20"
                                         placeholder="PROMO2024"
                                         required
                                     />
@@ -568,7 +575,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     type="number"
                                     value={voucherForm.data.discount_amount}
                                     onChange={e => voucherForm.setData('discount_amount', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-lg font-black text-green-600 focus:ring-2 focus:ring-green-500/20"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 text-lg font-black text-green-600 dark:text-green-400 focus:ring-2 focus:ring-green-500/20"
                                     placeholder="50000"
                                     required
                                 />
@@ -580,7 +587,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     type="text"
                                     value={voucherForm.data.description}
                                     onChange={e => voucherForm.setData('description', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-sm font-bold"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500/20"
                                     placeholder="Khusus pengguna baru, momen hari pahlawan, dll..."
                                 />
                             </div>
@@ -591,7 +598,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     type="number"
                                     value={voucherForm.data.max_claims}
                                     onChange={e => voucherForm.setData('max_claims', e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-4 py-3 text-sm font-black"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-black focus:ring-2 focus:ring-indigo-500/20"
                                     placeholder="100"
                                 />
                             </div>
@@ -599,11 +606,11 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Mulai</label>
-                                    <input type="date" value={voucherForm.data.valid_from} onChange={e => voucherForm.setData('valid_from', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-3 py-3 text-xs font-bold" required />
+                                    <input type="date" value={voucherForm.data.valid_from} onChange={e => voucherForm.setData('valid_from', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-3 py-3 text-xs font-bold focus:ring-2 focus:ring-indigo-500/20" required />
                                 </div>
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Selesai</label>
-                                    <input type="date" value={voucherForm.data.valid_until} onChange={e => voucherForm.setData('valid_until', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-2xl px-3 py-3 text-xs font-bold" />
+                                    <input type="date" value={voucherForm.data.valid_until} onChange={e => voucherForm.setData('valid_until', e.target.value)} className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-3 py-3 text-xs font-bold focus:ring-2 focus:ring-indigo-500/20" />
                                 </div>
                             </div>
                         </div>
