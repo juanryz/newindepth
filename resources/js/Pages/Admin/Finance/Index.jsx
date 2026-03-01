@@ -48,7 +48,7 @@ const getStatusColor = (status) => {
 };
 
 export default function FinanceIndex({ reports, pettyCash, filters, auth, userRole }) {
-    const [activeTab, setActiveTab] = useState('reports');
+    const [activeTab, setActiveTab] = useState(filters.active_tab || 'reports');
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
 

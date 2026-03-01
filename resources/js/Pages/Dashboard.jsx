@@ -334,17 +334,18 @@ export default function Dashboard() {
     const roles = user?.roles ?? [];
     user.permissions = user?.permissions ?? [];
 
-    const isSuperAdmin = roles.includes('super_admin');
-    const isActuallyAdmin = roles.includes('admin');
-    const isActuallyCS = roles.includes('cs');
+    const isSuperAdmin = roles.some(r => r.toLowerCase() === 'super_admin');
+    const isActuallyAdmin = roles.some(r => r.toLowerCase() === 'admin');
+    const isActuallyCS = roles.some(r => r.toLowerCase() === 'cs');
+    const isActuallySantaMaria = roles.some(r => r.toLowerCase() === 'santa_maria');
 
     const isAdmin = isSuperAdmin || isActuallyAdmin || isActuallyCS;
-    const isTherapist = roles.includes('therapist');
-    const isSantaMaria = roles.includes('santa_maria');
+    const isTherapist = roles.some(r => r.toLowerCase() === 'therapist');
+    const isSantaMaria = isActuallySantaMaria || user.permissions.includes('approve petty_cash') || user.permissions.includes('reject petty_cash');
     // A user is only "just a patient" if they don't have management roles, or we can check the role explicitly
-    const isPatient = roles.includes('patient');
+    const isPatient = roles.some(r => r.toLowerCase() === 'patient');
 
-    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p => p.startsWith('view ') && p !== 'view own_schedule');
+    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p => p.startsWith('view ') && p !== 'view own_schedule') || user.permissions.includes('approve petty_cash');
 
     // For UI display prioritization
     const isStaff = canSeeManagement || isTherapist;
@@ -507,7 +508,7 @@ export default function Dashboard() {
                             <section>
                                 <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                    {(isSuperAdmin || user.permissions.includes('view bookings')) && (
+                                    {(isSuperAdmin || (user.permissions.includes('view bookings') && !isTherapist)) && (
                                         <QuickCard
                                             href={route('admin.orders.index')}
                                             title="Manajemen Order"
@@ -536,7 +537,7 @@ export default function Dashboard() {
                                     )}
                                     {(isSuperAdmin || user.permissions.includes('view finance')) && (
                                         <QuickCard
-                                            href={route('admin.finance.index')}
+                                            href={route('admin.finance.index', { active_tab: 'reports' })}
                                             title="Keuangan"
                                             description="Laporan, Pengeluaran & Kas Kecil"
                                             iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.62 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.62-1M12 17v1m2-9.5V7a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2h2m4-3.5v3.5a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2h2"
@@ -599,7 +600,7 @@ export default function Dashboard() {
                             <SectionLabel>Manajemen Otoritas Kas</SectionLabel>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                                 <QuickCard
-                                    href={route('admin.finance.index')}
+                                    href={route('admin.finance.index', { active_tab: 'petty_cash_external' })}
                                     title="Laporan Keuangan"
                                     description="Monitoring pemasukan dan pengeluaran"
                                     iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
@@ -828,7 +829,7 @@ export default function Dashboard() {
                                                 iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                 color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
                                             />
-                                            {!isAdmin && (
+                                            {!isAdmin && !isTherapist && (
                                                 <QuickCard
                                                     href={route('therapist.courses.index')}
                                                     title="Kelas Online Saya"
@@ -837,13 +838,15 @@ export default function Dashboard() {
                                                     color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                                 />
                                             )}
-                                            <QuickCard
-                                                href={route('profile.edit')}
-                                                title="Update Bio"
-                                                description="Edit profil publik Anda"
-                                                iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                                color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
-                                            />
+                                            {!isTherapist && (
+                                                <QuickCard
+                                                    href={route('profile.edit')}
+                                                    title="Update Bio"
+                                                    description="Edit profil publik Anda"
+                                                    iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                                    color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                                />
+                                            )}
                                         </div>
                                     </section>
                                 </div>
@@ -943,7 +946,7 @@ export default function Dashboard() {
                     )}
 
                     {/* ============== SHARED QUICK LINKS (Hidden for Admins who have management hub) ============== */}
-                    {!isAdmin && (
+                    {!isAdmin && !isTherapist && (
                         <section>
                             <SectionLabel>Akses Cepat</SectionLabel>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

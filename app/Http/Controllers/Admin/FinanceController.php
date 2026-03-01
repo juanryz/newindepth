@@ -110,6 +110,7 @@ class FinanceController extends Controller
                 'month' => $month,
                 'year' => $year,
                 'proposal_status' => $proposalStatus,
+                'active_tab' => $request->get('active_tab', 'reports'),
             ]
         ]);
     }
