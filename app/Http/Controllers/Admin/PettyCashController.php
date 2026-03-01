@@ -13,23 +13,7 @@ class PettyCashController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PettyCashProposal::with(['user', 'approver', 'proofs.approver'])->latest();
-
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $proposals = $query->paginate(10)->withQueryString();
-
-        $currentBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
-            - PettyCashTransaction::where('type', 'out')->sum('amount');
-
-        return Inertia::render('Admin/PettyCash/Index', [
-            'proposals' => $proposals,
-            'currentBalance' => (float) $currentBalance,
-            'userRole' => auth()->user()->roles->pluck('name')->toArray(),
-            'filters' => $request->only(['status']),
-        ]);
+        return redirect()->route('admin.finance.index', ['tab' => 'petty_cash_external']);
     }
 
     public function store(Request $request)
@@ -51,6 +35,10 @@ class PettyCashController extends Controller
 
     public function approveProposal(Request $request, PettyCashProposal $proposal)
     {
+        if (!auth()->user()->hasRole('santa_maria')) {
+            return back()->with('error', 'Hanya Santa Maria yang dapat menyetujui pengajuan kas kecil eksternal.');
+        }
+
         if ($proposal->type === 'funding') {
             $request->validate([
                 'payment_method' => 'required|in:transfer,cash',
@@ -96,6 +84,10 @@ class PettyCashController extends Controller
 
     public function rejectProposal(Request $request, PettyCashProposal $proposal)
     {
+        if (!auth()->user()->hasRole('santa_maria')) {
+            return back()->with('error', 'Hanya Santa Maria yang dapat menolak pengajuan kas kecil eksternal.');
+        }
+
         $request->validate([
             'rejection_reason' => 'required|string',
         ]);
@@ -132,6 +124,10 @@ class PettyCashController extends Controller
 
     public function approveProof(PettyCashProof $proof)
     {
+        if (!auth()->user()->hasRole('santa_maria')) {
+            return back()->with('error', 'Hanya Santa Maria yang dapat menyetujui bukti belanja.');
+        }
+
         $proof->update([
             'status' => 'approved',
             'approved_by' => auth()->id(),
@@ -157,6 +153,10 @@ class PettyCashController extends Controller
 
     public function rejectProof(PettyCashProof $proof)
     {
+        if (!auth()->user()->hasRole('santa_maria')) {
+            return back()->with('error', 'Hanya Santa Maria yang dapat menolak bukti belanja.');
+        }
+
         $proof->update([
             'status' => 'rejected',
             'approved_by' => auth()->id(),

@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
+import { Search, Filter, Clock, CheckCircle2, XCircle, AlertTriangle, LayoutList } from 'lucide-react';
 
 export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { flash, errors: pageErrors } = usePage().props;
     const [selectedReject, setSelectedReject] = useState(null);
     const [selectedValidate, setSelectedValidate] = useState(null);
+
+    // Search & Filter States
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     const { data: rejectData, setData: setRejectData, post: rejectPost, reset: resetReject, processing: rejecting } = useForm({
         rejection_reason: '',
@@ -55,6 +60,44 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
         }
     };
 
+    // Status filter tabs
+    const statusTabs = [
+        { id: 'all', label: 'Semua', icon: LayoutList, color: 'indigo' },
+        { id: 'pending', label: 'Menunggu', icon: Clock, color: 'amber' },
+        { id: 'paid', label: 'Valid', icon: CheckCircle2, color: 'emerald' },
+        { id: 'rejected', label: 'Ditolak', icon: XCircle, color: 'rose' },
+        { id: 'expired', label: 'Kadaluarsa', icon: AlertTriangle, color: 'slate' },
+    ];
+
+    // Client-side filtering
+    const filteredTransactions = useMemo(() => {
+        return transactions.data.filter(tx => {
+            // Status filter
+            if (statusFilter !== 'all' && tx.status !== statusFilter) return false;
+
+            // Search filter
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                const matchInvoice = tx.invoice_number?.toLowerCase().includes(q);
+                const matchName = tx.user?.name?.toLowerCase().includes(q);
+                const matchEmail = tx.user?.email?.toLowerCase().includes(q);
+                const matchBank = tx.payment_bank?.toLowerCase().includes(q);
+                if (!matchInvoice && !matchName && !matchEmail && !matchBank) return false;
+            }
+
+            return true;
+        });
+    }, [transactions.data, statusFilter, searchQuery]);
+
+    // Stats counts
+    const statusCounts = useMemo(() => {
+        const counts = { all: transactions.data.length, pending: 0, paid: 0, rejected: 0, expired: 0 };
+        transactions.data.forEach(tx => {
+            if (counts[tx.status] !== undefined) counts[tx.status]++;
+        });
+        return counts;
+    }, [transactions.data]);
+
     return (
         <AuthenticatedLayout
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Dashboard Validasi Transaksi</h2>}
@@ -93,9 +136,53 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                     href={route('admin.transactions.expired')}
                                     className="px-6 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest border border-rose-500/20 transition-all flex items-center gap-2"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <Clock className="w-4 h-4" />
                                     Cek Riwayat Kadaluarsa
                                 </Link>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Search & Filter Bar */}
+                    <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-2xl border border-white dark:border-slate-800 p-6 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] dark:shadow-none transition-all duration-500">
+                        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                            {/* Search Input */}
+                            <div className="relative flex-1 w-full group">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Cari invoice, nama, email, bank..."
+                                    className="w-full pl-11 pr-4 py-3.5 bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl text-sm font-bold text-slate-900 dark:text-white placeholder-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Status Filter Tabs */}
+                            <div className="flex flex-wrap gap-1.5 bg-slate-100/60 dark:bg-slate-800/40 p-1.5 rounded-2xl border border-slate-200/30 dark:border-slate-700/30">
+                                {statusTabs.map(tab => {
+                                    const Icon = tab.icon;
+                                    const isActive = statusFilter === tab.id;
+                                    return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setStatusFilter(tab.id)}
+                                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${isActive
+                                                    ? `bg-white dark:bg-slate-700 text-${tab.color}-600 dark:text-${tab.color}-400 shadow-md`
+                                                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                                                }`}
+                                        >
+                                            <Icon className="w-3.5 h-3.5" />
+                                            {tab.label}
+                                            <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[9px] ${isActive
+                                                    ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/30 text-${tab.color}-600 dark:text-${tab.color}-400`
+                                                    : 'bg-slate-200/60 dark:bg-slate-700/60 text-slate-400'
+                                                }`}>
+                                                {statusCounts[tab.id]}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -115,7 +202,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                    {transactions.data.map((tx) => {
+                                    {filteredTransactions.map((tx) => {
                                         const scheduleInfo = formatSchedule(tx);
                                         const isBooking = tx.transactionable_type?.includes('Booking');
                                         const hasDiscount = tx.transactionable?.user_voucher?.voucher;
@@ -218,13 +305,13 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                     {tx.status === 'pending' && (
                                                         <div className="flex justify-center gap-2">
                                                             {tx.payment_proof ? (
-                                                                     <button
-                                                                         disabled={validating}
-                                                                         onClick={() => handleValidate(tx)}
-                                                                         className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
-                                                                     >
-                                                                         {validating ? '...' : 'Validasi'}
-                                                                     </button>
+                                                                <button
+                                                                    disabled={validating}
+                                                                    onClick={() => handleValidate(tx)}
+                                                                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
+                                                                >
+                                                                    {validating ? '...' : 'Validasi'}
+                                                                </button>
                                                             ) : (
                                                                 <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase rounded-xl border border-slate-200 dark:border-slate-700 cursor-not-allowed">Bukti Belum Ada</span>
                                                             )}
@@ -264,12 +351,24 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                             </table>
                         </div>
 
-                        {transactions.data.length === 0 && (
+                        {filteredTransactions.length === 0 && (
                             <div className="py-32 text-center">
                                 <div className="bg-slate-100 dark:bg-slate-800 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
-                                    <svg className="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <Search className="w-10 h-10 text-slate-300" />
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-600 font-black uppercase tracking-[0.2em] italic">Bersih. Tidak ada transaksi tertunda.</p>
+                                <p className="text-slate-500 dark:text-slate-600 font-black uppercase tracking-[0.2em] italic">
+                                    {searchQuery || statusFilter !== 'all'
+                                        ? 'Tidak ada transaksi yang cocok dengan filter.'
+                                        : 'Bersih. Tidak ada transaksi tertunda.'}
+                                </p>
+                                {(searchQuery || statusFilter !== 'all') && (
+                                    <button
+                                        onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}
+                                        className="mt-4 px-6 py-2 bg-indigo-500/10 text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all"
+                                    >
+                                        Reset Filter
+                                    </button>
+                                )}
                             </div>
                         )}
 

@@ -18,6 +18,13 @@ class TransactionValidationController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
+        // Explicitly convert to array for consistent serialization
+        $transactions->getCollection()->transform(function ($tx) {
+            $data = $tx->toArray();
+            $data['validated_by_user'] = $tx->validatedBy ? $tx->validatedBy->toArray() : null;
+            return $data;
+        });
+
         $therapists = User::role('therapist')->select('id', 'name')->get();
         $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
         $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
@@ -43,6 +50,10 @@ class TransactionValidationController extends Controller
             ->where('status', 'expired')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
+
+        $transactions->getCollection()->transform(function ($tx) {
+            return $tx->toArray();
+        });
 
         return Inertia::render('Admin/Clinic/Transactions/Expired', [
             'transactions' => $transactions,

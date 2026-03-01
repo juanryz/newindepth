@@ -523,6 +523,15 @@ export default function Dashboard() {
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                         />
                                     )}
+                                    {user.permissions.includes('view transactions') && (
+                                        <QuickCard
+                                            href={route('admin.transactions.index')}
+                                            title="Validasi Transaksi"
+                                            description="Review bukti bayar dan aktivasi order"
+                                            iconPath="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                            color="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400"
+                                        />
+                                    )}
                                     {user.permissions.includes('view finance') && (
                                         <QuickCard
                                             href={route('admin.finance.index')}
@@ -559,15 +568,6 @@ export default function Dashboard() {
                                             color="bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-400"
                                         />
                                     )}
-                                    {user.permissions.includes('view petty_cash') && (
-                                        <QuickCard
-                                            href={route('admin.petty-cash.index')}
-                                            title="Workflow Kas Kecil"
-                                            description="Sistem Approval Dana & Belanja"
-                                            iconPath="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                            color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                                        />
-                                    )}
                                 </div>
                             </section>
                         </div>
@@ -596,13 +596,6 @@ export default function Dashboard() {
                         <section>
                             <SectionLabel>Manajemen Otoritas Kas</SectionLabel>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                <QuickCard
-                                    href={route('admin.petty-cash.index')}
-                                    title="Workflow Kas Kecil"
-                                    description="Approval permohonan dana dan belanja"
-                                    iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.62 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.62-1M12 17v1m2-9.5V7a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2h2m4-3.5v3.5a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2h2"
-                                    color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                                />
                                 <QuickCard
                                     href={route('admin.finance.index')}
                                     title="Laporan Keuangan"
@@ -947,26 +940,28 @@ export default function Dashboard() {
                         </>
                     )}
 
-                    {/* ============== SHARED QUICK LINKS ============== */}
-                    <section>
-                        <SectionLabel>Akses Cepat</SectionLabel>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <QuickCard
-                                href="/blog"
-                                title="Blog Artikel"
-                                description="Baca artikel kesehatan mental terbaru"
-                                iconPath="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                                color="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300"
-                            />
-                            <QuickCard
-                                href={route('profile.edit')}
-                                title="Edit Profil"
-                                description="Update nama, email, dan kata sandi"
-                                iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                color="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300"
-                            />
-                        </div>
-                    </section>
+                    {/* ============== SHARED QUICK LINKS (Hidden for Admins who have management hub) ============== */}
+                    {!isAdmin && (
+                        <section>
+                            <SectionLabel>Akses Cepat</SectionLabel>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <QuickCard
+                                    href="/blog"
+                                    title="Blog Artikel"
+                                    description="Baca artikel kesehatan mental terbaru"
+                                    iconPath="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                                    color="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300"
+                                />
+                                <QuickCard
+                                    href={route('profile.edit')}
+                                    title="Edit Profil"
+                                    description="Update nama, email, dan kata sandi"
+                                    iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    color="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300"
+                                />
+                            </div>
+                        </section>
+                    )}
 
                 </div>
             </div>

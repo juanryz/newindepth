@@ -138,6 +138,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/petty-cash/proposals/{proposal}/reject', [\App\Http\Controllers\Admin\PettyCashController::class, 'rejectProposal'])
                 ->middleware('permission:reject petty_cash')
                 ->name('petty-cash.proposals.reject');
+            Route::delete('/petty-cash/{transaction}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyPettyCash'])
+                ->middleware('permission:delete petty_cash')
+                ->name('finance.petty-cash.destroy');
 
             // Blog CMS
             Route::resource('blog', \App\Http\Controllers\Admin\BlogPostCMSController::class)
@@ -146,16 +149,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('permission:analyze blog_posts')
                 ->name('blog.analyze');
 
-            // Finance & Expenses
+            // Finance
             Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])
                 ->middleware('permission:view finance')
                 ->name('finance.index');
-            Route::post('/finance/expenses', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])
-                ->middleware('permission:create expenses')
-                ->name('finance.expenses.store');
-            Route::delete('/finance/expenses/{expense}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyExpense'])
-                ->middleware('permission:delete expenses')
-                ->name('finance.expenses.destroy');
+            Route::post('/finance/petty-cash', [\App\Http\Controllers\Admin\FinanceController::class, 'storePettyCash'])
+                ->middleware('permission:manage petty cash')
+                ->name('finance.petty-cash.store');
+            Route::get('/finance/export', [\App\Http\Controllers\Admin\FinanceController::class, 'exportCsv'])
+                ->middleware('permission:export reports')
+                ->name('finance.export-csv');
 
             // Courses & Lessons
             Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class)

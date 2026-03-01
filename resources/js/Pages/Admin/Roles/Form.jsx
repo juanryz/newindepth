@@ -30,11 +30,26 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
 
     // Map resources to categories
     const categoryMapping = {
-        'Booking & Konsultasi': ['bookings', 'schedules'],
-        'Transaksi & Pembayaran': ['transactions', 'packages', 'vouchers'],
+        'Booking & Konsultasi': ['bookings', 'schedules', 'own_schedule'],
+        'Transaksi & Pembayaran': ['transactions', 'all_transactions'],
         'Manajemen Pengguna': ['users', 'roles', 'permissions'],
-        'Konten & Blog': ['blog_posts', 'courses', 'lessons'],
-        'Laporan & Statistik': ['reports', 'finance', 'expenses', 'petty_cash'],
+        'Konten Akses Publik': ['blog_posts', 'courses', 'lessons'],
+        'Laporan & Keuangan': ['reports', 'finance', 'expenses', 'petty_cash'],
+    };
+
+    // Descriptions per resource
+    const resourceDescriptions = {
+        'bookings': 'Akses mengelola pesanan (booking) layanan.',
+        'schedules': 'Mengatur keseluruhan jadwal praktek terapis.',
+        'own_schedule': 'Akses khusus terapis melihat jadwal prakteknya sendiri.',
+        'transactions': 'Memvalidasi atau menolak pembayaran dari pesanan baru.',
+        'all_transactions': 'Akses melihat seluruh history transaksi pengguna.',
+        'users': 'Manajemen daftar pengguna dan pemberian hak akses.',
+        'blog_posts': 'Mengelola informasi artikel blog publik.',
+        'courses': 'Mengelola paket dan konten kursus edukasi.',
+        'reports': 'Export dan view laporan statistik bulanan.',
+        'finance': 'Melihat arus kas utama & dashboard finance.',
+        'petty_cash': 'Mengelola pengajuan dan saldo kas kecil.'
     };
 
     // Parse permission name into { action, resource }
@@ -126,14 +141,27 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
             case 'Booking & Konsultasi': return <Calendar className="w-4 h-4" />;
             case 'Transaksi & Pembayaran': return <CreditCard className="w-4 h-4" />;
             case 'Manajemen Pengguna': return <Users className="w-4 h-4" />;
-            case 'Konten & Blog': return <BookOpen className="w-4 h-4" />;
-            case 'Laporan & Statistik': return <BarChart className="w-4 h-4" />;
+            case 'Konten Akses Publik': return <BookOpen className="w-4 h-4" />;
+            case 'Laporan & Keuangan': return <BarChart className="w-4 h-4" />;
             default: return <Settings className="w-4 h-4" />;
         }
     };
 
     const formatResourceName = (name) => {
-        return name.replace(/_/g, ' ').toUpperCase();
+        const mapping = {
+            'bookings': 'Data Booking Pasien',
+            'schedules': 'Jadwal Reguler Terapis',
+            'own_schedule': 'Jadwal Personal (Terapis)',
+            'transactions': 'Validasi Transaksi Masuk',
+            'all_transactions': 'Seluruh Riwayat Transaksi',
+            'users': 'Manajemen Pengguna & Admin',
+            'blog_posts': 'Artikel Blog Publik',
+            'courses': 'Layanan Kursus Edukasi',
+            'reports': 'Laporan Sistem Utama',
+            'finance': 'Dashboard Keuangan (Finance)',
+            'petty_cash': 'Kas Kecil Internal/Eksternal',
+        };
+        return mapping[name] || name.replace(/_/g, ' ').toUpperCase();
     };
 
     const formatActionName = (name) => {
@@ -259,18 +287,23 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
                                                     <div key={resource} className="p-8 hover:bg-gray-50/30 dark:hover:bg-gray-800/10 transition-colors">
                                                         <div className="flex flex-col xl:flex-row xl:items-start gap-8">
                                                             <div className="xl:w-1/4">
-                                                                <div className="flex items-center gap-3 mb-1">
-                                                                    <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                                                                    <span className="text-[12px] font-black tracking-widest text-gray-900 dark:text-white">
-                                                                        {formatResourceName(resource)}
-                                                                    </span>
+                                                                <div className="flex items-start gap-3 mb-2">
+                                                                    <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0"></div>
+                                                                    <div>
+                                                                        <span className="text-[12px] font-black tracking-widest text-gray-900 dark:text-white block mb-0.5">
+                                                                            {formatResourceName(resource)}
+                                                                        </span>
+                                                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                                                            {resourceDescriptions[resource] || 'Hak akses untuk mengelola modul ini.'}
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => toggleResource(perms)}
-                                                                    className="text-[9px] font-bold text-indigo-400 hover:text-indigo-600 uppercase tracking-tighter transition-colors"
+                                                                    className="text-[9px] font-bold text-indigo-400 hover:text-indigo-600 uppercase tracking-tighter transition-colors mt-2 ml-5"
                                                                 >
-                                                                    {allResSelected ? 'Deselect All' : 'Select All'}
+                                                                    {allResSelected ? 'Hapus Semua Centang' : 'Pilih Semua (Penuh)'}
                                                                 </button>
                                                             </div>
 

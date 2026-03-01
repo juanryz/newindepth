@@ -30,10 +30,6 @@ class FinanceController extends Controller
             ->whereYear('created_at', $year)
             ->sum('commission_amount');
 
-        $expensesSum = Expense::whereMonth('expense_date', $month)
-            ->whereYear('expense_date', $year)
-            ->sum('amount');
-
         $pettyCashExpenses = PettyCashTransaction::where('type', 'out')
             ->whereMonth('transaction_date', $month)
             ->whereYear('transaction_date', $year)
@@ -44,7 +40,7 @@ class FinanceController extends Controller
             ->whereYear('transaction_date', $year)
             ->sum('amount');
 
-        $totalExpensesSum = $expensesSum + $pettyCashExpenses;
+        $totalExpensesSum = $pettyCashExpenses;
 
         $pettyCashBalance = PettyCashTransaction::where('type', 'in')->sum('amount')
             - PettyCashTransaction::where('type', 'out')->sum('amount');
@@ -62,16 +58,7 @@ class FinanceController extends Controller
             ->orderBy('sort_key')
             ->get();
 
-        $expensesByCategoryRaw = Expense::select(
-            'category',
-            DB::raw('SUM(amount) as total')
-        )
-            ->whereMonth('expense_date', $month)
-            ->whereYear('expense_date', $year)
-            ->groupBy('category')
-            ->get();
-
-        $pettyCashByCategory = PettyCashTransaction::select(
+        $expensesByCategory = PettyCashTransaction::select(
             DB::raw('"Kas Kecil" as category'),
             DB::raw('SUM(amount) as total')
         )
@@ -81,49 +68,38 @@ class FinanceController extends Controller
             ->groupBy('category')
             ->get();
 
-        // Combine categories
-        $expensesByCategory = $expensesByCategoryRaw->concat($pettyCashByCategory);
-
-        $expensesSum = $totalExpensesSum; // For the rest of the logic to use combined total
-
-        // --- EXPENSES TAB DATA ---
-        $expenses = Expense::with('recorder')
-            ->whereMonth('expense_date', $month)
-            ->whereYear('expense_date', $year)
-            ->orderBy('expense_date', 'desc')
-            ->get();
-
         // --- PETTY CASH TAB DATA ---
         $pettyCashTransactions = PettyCashTransaction::with('recorder')
             ->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $pettyCashProposals = \App\Models\PettyCashProposal::with(['user', 'approver'])
-            ->latest()
-            ->get();
+        $proposalStatus = $request->get('proposal_status', 'all');
+        $proposalsQuery = \App\Models\PettyCashProposal::with(['user', 'approver', 'proofs.approver'])->latest();
 
-        // $pettyCashBalance moved up to be included in stats array if needed
-        // but it was already here, keeping it dry.
+        if ($proposalStatus !== 'all') {
+            $proposalsQuery->where('status', $proposalStatus);
+        }
+
+        $pettyCashProposals = $proposalsQuery->get();
 
         return Inertia::render('Admin/Finance/Index', [
             'reports' => [
                 'stats' => [
                     'revenue' => (float) $revenue,
                     'commissions' => (float) $commissions,
-                    'operational_expenses' => (float) $expensesSum,
-                    'petty_cash_expenses' => (float) $pettyCashExpenses, // keeping legacy name for safety or removing if unused
+                    'operational_expenses' => (float) $totalExpensesSum,
+                    'petty_cash_expenses' => (float) $pettyCashExpenses,
                     'petty_cash_balance' => (float) $pettyCashBalance,
                     'petty_cash_inflow' => (float) $pettyCashInflow,
                     'expenses' => (float) $totalExpensesSum,
                     'netIncome' => (float) $netIncome,
                 ],
                 'charts' => [
-                    'revenueByMonth' => $revenueByMonth,
-                    'expensesByCategory' => $expensesByCategory,
+                    'revenueByMonth' => $revenueByMonth->toArray(),
+                    'expensesByCategory' => $expensesByCategory->toArray(),
                 ]
             ],
-            'expenses' => $expenses,
             'pettyCash' => [
                 'transactions' => $pettyCashTransactions,
                 'proposals' => $pettyCashProposals,
@@ -133,38 +109,9 @@ class FinanceController extends Controller
             'filters' => [
                 'month' => $month,
                 'year' => $year,
+                'proposal_status' => $proposalStatus,
             ]
         ]);
-    }
-
-    public function storeExpense(Request $request)
-    {
-        $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'category' => 'required|string|max:100',
-            'amount' => 'required|numeric|min:0',
-            'expense_date' => 'required|date',
-            'receipt' => 'nullable|image|max:2048',
-        ]);
-
-        $validated['recorded_by'] = auth()->id();
-
-        if ($request->hasFile('receipt')) {
-            $validated['receipt'] = $request->file('receipt')->store('expenses', 'public');
-        }
-
-        Expense::create($validated);
-
-        return redirect()->back()->with('success', 'Pengeluaran operasional berhasil dicatat.');
-    }
-
-    public function destroyExpense(Expense $expense)
-    {
-        if ($expense->receipt) {
-            Storage::disk('public')->delete($expense->receipt);
-        }
-        $expense->delete();
-        return redirect()->back()->with('success', 'Data pengeluaran berhasil dihapus.');
     }
 
     public function storePettyCash(Request $request)
@@ -220,11 +167,6 @@ class FinanceController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $expenses = Expense::whereMonth('expense_date', $month)
-            ->whereYear('expense_date', $year)
-            ->orderBy('expense_date', 'asc')
-            ->get();
-
         $filename = "Laporan_Keuangan_{$year}_{$month}.csv";
 
         $headers = [
@@ -235,7 +177,7 @@ class FinanceController extends Controller
             "Expires" => "0"
         ];
 
-        $callback = function () use ($transactions, $expenses) {
+        $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
 
             // Pemasukan Section
@@ -257,29 +199,10 @@ class FinanceController extends Controller
             fputcsv($file, ['', '', '', 'TOTAL PEMASUKAN', $totalRevenue], ';');
             fputcsv($file, [], ';'); // Empty line
 
-            // Pengeluaran Section
-            fputcsv($file, ['BAGIAN 2: PENGELUARAN (BIAYA OPERASIONAL)'], ';');
-            fputcsv($file, ['Tanggal', 'Kategori', 'Deskripsi', '', 'Nominal (Rp)'], ';');
-
-            $totalExpenses = 0;
-            foreach ($expenses as $ex) {
-                fputcsv($file, [
-                    $ex->expense_date,
-                    $ex->category,
-                    $ex->description,
-                    '',
-                    $ex->amount
-                ], ';');
-                $totalExpenses += $ex->amount;
-            }
-            fputcsv($file, ['', '', '', 'TOTAL PENGELUARAN', $totalExpenses], ';');
-            fputcsv($file, [], ';');
-
             // Summary Section
             fputcsv($file, ['RINGKASAN'], ';');
             fputcsv($file, ['Total Pemasukan', '', '', '', $totalRevenue], ';');
-            fputcsv($file, ['Total Pengeluaran', '', '', '', $totalExpenses], ';');
-            fputcsv($file, ['LABA BERSIH', '', '', '', $totalRevenue - $totalExpenses], ';');
+            fputcsv($file, ['LABA BERSIH', '', '', '', $totalRevenue], ';');
 
             fclose($file);
         };

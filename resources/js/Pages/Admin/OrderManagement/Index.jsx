@@ -114,7 +114,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
         end_time: '20:00',
         therapist_id: filters.therapist_id || ''
     });
-    const [therapistId, setTherapistId] = useState(filters.therapist_id || '');
+    const [therapistId, setTherapistId] = useState(String(filters.therapist_id || ''));
     const [calendarView, setCalendarView] = useState('timeGridWeek');
     const calendarRef = useRef(null);
 
@@ -165,9 +165,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
         if (txFilterStatus && tx.status !== txFilterStatus) return false;
         if (txFilterSearch) {
             const q = txFilterSearch.toLowerCase();
-            if (!tx.invoice_number?.toLowerCase().includes(q) &&
-                !tx.user?.name?.toLowerCase().includes(q) &&
-                !tx.user?.email?.toLowerCase().includes(q)) return false;
+            if (!(tx.invoice_number?.toLowerCase() ?? "").includes(q) &&
+                !(tx.user?.name?.toLowerCase() ?? "").includes(q) &&
+                !(tx.user?.email?.toLowerCase() ?? "").includes(q)) return false;
         }
         if (txFilterDateFrom && new Date(tx.created_at) < new Date(txFilterDateFrom)) return false;
         if (txFilterDateTo && new Date(tx.created_at) > new Date(txFilterDateTo + 'T23:59:59')) return false;
@@ -184,10 +184,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
         if (bkFilterStatus && bk.status !== bkFilterStatus) return false;
         if (bkFilterSearch) {
             const q = bkFilterSearch.toLowerCase();
-            if (!bk.booking_code?.toLowerCase().includes(q) &&
-                !bk.patient?.name?.toLowerCase().includes(q) &&
-                !bk.patient?.email?.toLowerCase().includes(q) &&
-                !bk.therapist?.name?.toLowerCase().includes(q)) return false;
+            if (!(bk.booking_code?.toLowerCase() ?? "").includes(q) &&
+                !(bk.patient?.name?.toLowerCase() ?? "").includes(q) &&
+                !(bk.patient?.email?.toLowerCase() ?? "").includes(q) &&
+                !(bk.therapist?.name?.toLowerCase() ?? "").includes(q)) return false;
         }
         if (bkFilterDateFrom && bk.schedule?.date && new Date(bk.schedule.date) < new Date(bkFilterDateFrom)) return false;
         if (bkFilterDateTo && bk.schedule?.date && new Date(bk.schedule.date) > new Date(bkFilterDateTo + 'T23:59:59')) return false;
@@ -269,10 +269,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
             if (logFilterType && log.type !== logFilterType) return false;
             if (logFilterSearch) {
                 const q = logFilterSearch.toLowerCase();
-                if (!log.actor?.toLowerCase().includes(q) &&
-                    !log.subject?.toLowerCase().includes(q) &&
-                    !log.detail?.toLowerCase().includes(q) &&
-                    !log.action?.toLowerCase().includes(q)) return false;
+                if (!(log.actor?.toLowerCase() ?? "").includes(q) &&
+                    !(log.subject?.toLowerCase() ?? "").includes(q) &&
+                    !(log.detail?.toLowerCase() ?? "").includes(q) &&
+                    !(log.action?.toLowerCase() ?? "").includes(q)) return false;
             }
             if (logFilterDateFrom && new Date(log.date) < new Date(logFilterDateFrom)) return false;
             if (logFilterDateTo && new Date(log.date) > new Date(logFilterDateTo + 'T23:59:59')) return false;
@@ -417,7 +417,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     }, []);
 
     useEffect(() => {
-        if (therapistId !== (filters.therapist_id || '')) {
+        if (therapistId !== String(filters.therapist_id || '')) {
             router.get(route('admin.orders.index'), { ...filters, therapist_id: therapistId }, { preserveState: true, replace: true });
         }
     }, [therapistId]);

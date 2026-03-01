@@ -35,22 +35,26 @@ class OrderManagementController extends Controller
             $data['formatted_date'] = $date;
             $data['formatted_start'] = $startTime;
             $data['formatted_end'] = $endTime;
+            // Ensure relation data is correctly nested
             $data['therapist'] = $schedule->therapist ? $schedule->therapist->toArray() : null;
             $data['bookings'] = $schedule->bookings ? $schedule->bookings->toArray() : [];
             return $data;
-        });
+        })->toArray(); // Ensure the final result is an array
 
         // Bookings
         $bookings = Booking::with(['patient.screeningResults', 'patient.roles', 'schedule', 'therapist'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
+                // Convert to array first to allow adding custom properties that survive serialization
+                $data = $booking->toArray();
                 if ($booking->patient) {
                     $booking->patient->append('profile_completion');
-                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+                    // Add both object and array style for maximum compatibility
+                    $data['patient_profile_stats'] = $booking->patient->getProfileCompletionStats();
                 }
-                return $booking;
-            });
+                return $data;
+            })->toArray();
 
         // Transactions
         $transactions = Transaction::with([
@@ -63,12 +67,19 @@ class OrderManagementController extends Controller
             }
         ])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($tx) {
+                $data = $tx->toArray();
+                // Rename relation key to avoid conflict with the validated_by integer column
+                $data['validated_by_user'] = $tx->validatedBy ? $tx->validatedBy->toArray() : null;
+                return $data;
+            })->toArray();
 
         // Therapists
         $therapists = User::role('therapist')
             ->select('id', 'name')
-            ->get();
+            ->get()
+            ->toArray();
 
         // Available Schedules (for reschedule)
         $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
@@ -81,7 +92,8 @@ class OrderManagementController extends Controller
             ->whereColumn('booked_count', '<', 'quota')
             ->orderBy('date')
             ->orderBy('start_time')
-            ->get();
+            ->get()
+            ->toArray();
 
         return Inertia::render('Admin/OrderManagement/Index', [
             'schedules' => $schedules,
