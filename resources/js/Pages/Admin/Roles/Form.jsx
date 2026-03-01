@@ -31,7 +31,7 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
     // Map resources to categories
     const categoryMapping = {
         'Booking & Konsultasi': ['bookings', 'schedules', 'own_schedule'],
-        'Transaksi & Pembayaran': ['transactions', 'all_transactions'],
+        'Transaksi & Pembayaran': ['transactions', 'all_transactions', 'packages', 'vouchers'],
         'Manajemen Pengguna': ['users', 'roles', 'permissions'],
         'Konten Akses Publik': ['blog_posts', 'courses', 'lessons'],
         'Laporan & Keuangan': ['reports', 'finance', 'expenses', 'petty_cash'],
@@ -49,7 +49,9 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         'courses': 'Mengelola paket dan konten kursus edukasi.',
         'reports': 'Export dan view laporan statistik bulanan.',
         'finance': 'Melihat arus kas utama & dashboard finance.',
-        'petty_cash': 'Mengelola pengajuan dan saldo kas kecil.'
+        'petty_cash': 'Mengelola pengajuan dan saldo kas kecil.',
+        'packages': 'Mengelola daftar jenis paket dan layanan terapi.',
+        'vouchers': 'Membuat dan mengelola kupon diskon atau promo.',
     };
 
     // Parse permission name into { action, resource }
@@ -160,6 +162,8 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
             'reports': 'Laporan Sistem Utama',
             'finance': 'Dashboard Keuangan (Finance)',
             'petty_cash': 'Kas Kecil Internal/Eksternal',
+            'packages': 'Manajemen Layanan & Paket',
+            'vouchers': 'Manajemen Kode Voucher'
         };
         return mapping[name] || name.replace(/_/g, ' ').toUpperCase();
     };
