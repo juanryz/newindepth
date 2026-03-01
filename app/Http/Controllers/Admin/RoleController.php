@@ -45,7 +45,9 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         $permissions = Permission::all();
-        $rolePermissions = $role->permissions->pluck('name');
+        $rolePermissions = $role->name === 'super_admin'
+            ? $permissions->pluck('name')
+            : $role->permissions->pluck('name');
 
         return Inertia::render('Admin/Roles/Form', [
             'roleModel' => $role,
