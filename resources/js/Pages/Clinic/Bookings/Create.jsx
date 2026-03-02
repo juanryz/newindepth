@@ -6,6 +6,8 @@ import TimeSlotPicker from '@/Components/Clinic/TimeSlotPicker';
 import ScreeningFormRenderer from '@/Components/Clinic/ScreeningFormRenderer';
 import RefundPolicyContent from '@/Components/Clinic/RefundPolicyContent';
 import PrivacyPolicyContent from '@/Components/Clinic/PrivacyPolicyContent';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect } from 'react';
 
 const POLICIES = {
     privacy: {
@@ -31,6 +33,17 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
         agree_access: false,
         agree_chargeback: false,
     });
+
+    const scheduleRef = useRef(null);
+
+    // Auto-scroll ke jadwal saat paket dipilih
+    useEffect(() => {
+        if (data.package_type && step === 2 && scheduleRef.current) {
+            setTimeout(() => {
+                scheduleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    }, [data.package_type, step]);
 
     const goToStep2 = () => {
         if (!data.agree_privacy) {
@@ -210,11 +223,33 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                         })}
                                     </div>
                                     {errors.package_type && <p className="text-xs font-bold text-red-600 mt-4 uppercase tracking-widest">{errors.package_type}</p>}
+
+                                    {/* Indikator scroll untuk lansia */}
+                                    <AnimatePresence>
+                                        {!data.package_type && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0 }}
+                                                className="flex flex-col items-center justify-center mt-8 text-gray-400 dark:text-gray-500"
+                                            >
+                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2">Lihat Jadwal di Bawah</p>
+                                                <motion.div
+                                                    animate={{ y: [0, 8, 0] }}
+                                                    transition={{ repeat: Infinity, duration: 1.5 }}
+                                                >
+                                                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 14l-7 7-7-7" />
+                                                    </svg>
+                                                </motion.div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
 
                             {/* Step 3: Schedule Selection */}
-                            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+                            <div ref={scheduleRef} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-all duration-500">
                                 <div className="bg-gradient-to-r from-gray-900 to-indigo-950 p-6 text-white">
                                     <h3 className="text-lg font-black uppercase tracking-tighter">3. Pilih Waktu Konsultasi</h3>
                                 </div>
