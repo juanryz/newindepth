@@ -48,16 +48,16 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                             <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/60 dark:border-gray-700/50 shadow-sm text-sm font-medium text-gold-600 dark:text-gold-400">
                                 <span className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-gold-500"></span>
-                                    InDepth Self-Therapy
+                                    InDepth Offline Training
                                 </span>
                             </div>
                             <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
-                                {isMyCourses ? 'Koleksi' : 'Pelatihan'} <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">{isMyCourses ? 'Kelas Saya' : 'Video & Materi'}</span>
+                                {isMyCourses ? 'Koleksi' : 'Pelatihan'} <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">{isMyCourses ? 'Kelas Saya' : 'Offline'}</span>
                             </h2>
                             <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300 font-light">
                                 {isMyCourses
-                                    ? 'Akses semua materi kelas self-therapy yang telah Anda miliki untuk dibaca atau ditonton kembali.'
-                                    : 'Pelajari kelas dan metode self-therapy yang bisa Anda praktikkan secara mandiri di mana saja, kapan saja.'
+                                    ? 'Akses semua materi kelas pelatihan yang telah Anda miliki untuk dibaca atau dipelajari kembali.'
+                                    : 'Ikuti program pelatihan intensif tatap muka (offline) untuk mendalam teknik terapi dan pengembangan diri secara profesional bersama praktisi ahli kami.'
                                 }
                             </p>
                         </div>
@@ -108,7 +108,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                                 )}
                                                 <div className="absolute top-4 left-4">
                                                     <span className="px-4 py-1.5 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-xs font-bold text-gold-600 dark:text-gold-400 shadow-sm border border-white/40 dark:border-gray-700/40">
-                                                        Self-Therapy
+                                                        Offline Training
                                                     </span>
                                                 </div>
                                             </Link>

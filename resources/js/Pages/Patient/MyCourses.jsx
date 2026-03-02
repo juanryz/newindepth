@@ -7,8 +7,8 @@ export default function MyCourses({ courses = [] }) {
     const safeCourses = Array.isArray(courses) ? courses : [];
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Pelatihan Praktisi Saya</h2>}>
-            <Head title="Pelatihan Praktisi Saya" />
+        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Pelatihan Saya</h2>}>
+            <Head title="Pelatihan Saya" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -16,8 +16,8 @@ export default function MyCourses({ courses = [] }) {
                     <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-2xl border border-blue-100 dark:border-blue-800/50 shadow-sm flex items-start gap-4">
                         <svg className="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.754 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                         <div>
-                            <h3 className="font-bold text-lg mb-1">Akses Materi Pelatihan Anda</h3>
-                            <p className="text-sm">Di sini Anda dapat melihat dan mengakses seluruh video serta materi pelatihan yang sudah Anda miliki.</p>
+                            <h3 className="font-bold text-lg mb-1">Program Pelatihan Saya</h3>
+                            <p className="text-sm">Di sini Anda dapat melihat program pelatihan offline yang telah Anda ikuti dan mengunduh sertifikat penyelesaian.</p>
                         </div>
                     </div>
 
@@ -28,10 +28,10 @@ export default function MyCourses({ courses = [] }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.754 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
                                 <p className="text-lg font-medium text-gray-500 dark:text-gray-400">
-                                    Anda belum memiliki kelas aktif.
+                                    Anda belum memiliki riwayat pelatihan offline.
                                 </p>
                                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                                    Silakan pilih kelas di katalog Pelatihan.
+                                    Silakan pilih program pelatihan di katalog.
                                 </p>
                             </div>
                         ) : (
@@ -71,16 +71,29 @@ export default function MyCourses({ courses = [] }) {
                                                     {description}
                                                 </p>
                                             </Link>
-                                            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                                                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 rounded-full">
-                                                    Akses Penuh
-                                                </span>
-                                                <Link
-                                                    href={`/courses/${course.slug}`}
-                                                    className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+                                            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-full">
+                                                        Terdaftar
+                                                    </span>
+                                                    <Link
+                                                        href={`/courses/${course.slug}`}
+                                                        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+                                                    >
+                                                        Lihat Detail &rarr;
+                                                    </Link>
+                                                </div>
+
+                                                {/* Download Certificate Button — Mocked for now (checks if offline) */}
+                                                <button
+                                                    onClick={() => alert('Sertifikat Anda sedang diproses. Silakan hubungi admin jika pelatihan telah selesai namun sertifikat belum muncul.')}
+                                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-gold-500/20 uppercase tracking-widest"
                                                 >
-                                                    Mulai Belajar &rarr;
-                                                </Link>
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    Download Sertifikat
+                                                </button>
                                             </div>
                                         </div>
                                     </motion.article>

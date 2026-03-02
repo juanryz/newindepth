@@ -30,6 +30,7 @@ class CourseController extends Controller
         try {
             $courses = auth()->user()->courses()
                 ->where('is_published', true)
+                ->where('course_type', 'offline')
                 ->get();
         } catch (\Throwable $e) {
             Log::error('[CourseController] myCourses error: ' . $e->getMessage());
