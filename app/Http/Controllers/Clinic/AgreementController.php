@@ -54,7 +54,7 @@ class AgreementController extends Controller
             'agreement_data' => $validated['agreement_data'],
         ]);
 
-        return redirect()->route('agreement.show')->with('success', 'Persyaratan awal disetujui. Berikut adalah salinan dokumen yang telah Anda tandatangani.');
+        return redirect()->route('screening.show')->with('success', 'Persyaratan awal disetujui. Silakan lanjutkan ke tahap screening mandiri.');
     }
 
     public function patientAgreement(Request $request, \App\Models\User $user)
