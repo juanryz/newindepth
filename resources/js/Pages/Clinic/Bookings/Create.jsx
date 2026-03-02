@@ -150,46 +150,61 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                             Kami merekomendasikan {packageOptions.recommended === 'reguler' ? 'Paket Reguler' : 'Paket Premium'} berdasarkan hasil skrining Anda.
                                         </p>
                                     )}
-                                    <div className="flex overflow-x-auto pb-6 -mx-6 px-6 gap-4 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:grid lg:grid-cols-3 lg:gap-6 no-scrollbar">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                                         {Object.values(packageOptions.packages).map((pkg) => {
                                             const isRecommended = packageOptions.recommended === pkg.id && !packageOptions.is_vip_only;
+                                            const isSelected = data.package_type === pkg.id;
+                                            const isLocked = packageOptions.is_vip_only && pkg.id !== 'vip';
+
                                             return (
                                                 <div key={pkg.id}
-                                                    className={`relative min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center rounded-2xl border-2 p-5 sm:p-6 transition-all duration-300 cursor-pointer flex flex-col ${data.package_type === pkg.id
-                                                        ? 'border-gold-500 bg-gold-50/50 dark:bg-gold-900/30 shadow-lg ring-1 ring-gold-500/20'
-                                                        : (packageOptions.is_vip_only && pkg.id !== 'vip'
-                                                            ? 'opacity-40 grayscale cursor-not-allowed border-gray-100 dark:border-gray-800'
-                                                            : 'border-gray-100 dark:border-gray-800 bg-white/40 dark:bg-gray-800/40 hover:border-gold-300')}`}
-                                                    onClick={() => (!packageOptions.is_vip_only || pkg.id === 'vip') && setData('package_type', pkg.id)}>
+                                                    className={`relative rounded-2xl border-2 p-5 sm:p-6 transition-all duration-300 cursor-pointer flex flex-col md:flex-row lg:flex-col items-center md:items-start text-center md:text-left lg:text-center gap-4 ${isSelected
+                                                        ? 'border-gold-500 bg-gold-50 dark:bg-gold-900/40 shadow-xl ring-1 ring-gold-500/20'
+                                                        : (isLocked
+                                                            ? 'opacity-40 grayscale cursor-not-allowed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50'
+                                                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-gold-300 shadow-sm')}`}
+                                                    onClick={() => !isLocked && setData('package_type', pkg.id)}>
 
                                                     {isRecommended && (
-                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg z-10 whitespace-nowrap">
-                                                            Rekomendasi
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg z-10 whitespace-nowrap">
+                                                            Pilihan Terbaik
                                                         </div>
                                                     )}
 
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <h4 className="font-black text-xs sm:text-sm uppercase tracking-widest text-gray-900 dark:text-white">{pkg.name}</h4>
-                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${data.package_type === pkg.id ? 'border-gold-500 bg-gold-500' : 'border-gray-300'}`}>
-                                                            {data.package_type === pkg.id && <div className="w-2 h-2 rounded-full bg-white text-[10px] flex items-center justify-center" />}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="mb-4">
-                                                        {pkg.original_price && (
-                                                            <div className="text-[10px] text-gray-400 dark:text-gray-500 line-through mb-0.5">
-                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
+                                                    <div className="flex-1 w-full">
+                                                        <div className="flex justify-center md:justify-between lg:justify-center items-center mb-2">
+                                                            <h4 className={`font-black text-sm sm:text-base uppercase tracking-widest ${isSelected ? 'text-gold-700 dark:text-gold-400' : 'text-gray-900 dark:text-white'}`}>
+                                                                {pkg.name}
+                                                            </h4>
+                                                            <div className={`hidden md:flex lg:hidden w-6 h-6 rounded-full border-2 items-center justify-center ${isSelected ? 'border-gold-500 bg-gold-500' : 'border-gray-300'}`}>
+                                                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                                                             </div>
-                                                        )}
-                                                        <p className="text-xl sm:text-2xl font-black text-gold-600 dark:text-gold-400 leading-none">
-                                                            Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}
-                                                        </p>
-                                                        <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">
-                                                            *Belum termasuk PPN 11%
-                                                        </p>
+                                                        </div>
+
+                                                        <div className="mb-2">
+                                                            {pkg.original_price && (
+                                                                <div className="text-[11px] text-gray-400 dark:text-gray-500 line-through">
+                                                                    Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
+                                                                </div>
+                                                            )}
+                                                            <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
+                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}
+                                                            </p>
+                                                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
+                                                                *Sudah Termasuk Konsultasi
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="text-[11px] sm:text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed max-w-xs mx-auto md:mx-0 lg:mx-auto" dangerouslySetInnerHTML={{ __html: pkg.description }} />
                                                     </div>
 
-                                                    <div className="text-[10px] sm:text-[11px] font-medium text-gray-600 dark:text-gray-200 leading-relaxed prose prose-sm dark:prose-invert max-w-none flex-grow" dangerouslySetInnerHTML={{ __html: pkg.description }} />
+                                                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all md:hidden lg:flex ${isSelected ? 'border-gold-500 bg-gold-500 shadow-lg scale-110' : 'border-gray-300 bg-white dark:bg-gray-800'}`}>
+                                                        {isSelected && (
+                                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             );
                                         })}
