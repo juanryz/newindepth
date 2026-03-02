@@ -31,7 +31,7 @@ export default function MyCourses({ courses = [] }) {
                                     Anda belum memiliki kelas aktif.
                                 </p>
                                 <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                                    Silakan pilih kelas di katalog E-Learning.
+                                    Silakan pilih kelas di katalog Pelatihan.
                                 </p>
                             </div>
                         ) : (

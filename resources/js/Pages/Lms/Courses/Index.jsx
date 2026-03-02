@@ -12,7 +12,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
 
     // Set page title (replaces Inertia <Head> which crashes with null head entries)
     useEffect(() => {
-        document.title = (isMyCourses ? 'Koleksi Saya' : 'E-Learning') + ' - InDepth Mental Wellness';
+        document.title = (isMyCourses ? 'Koleksi Saya' : 'Pelatihan') + ' - InDepth Mental Wellness';
     }, [isMyCourses]);
 
     // Smooth scroll for anchor links
@@ -52,7 +52,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                 </span>
                             </div>
                             <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
-                                {isMyCourses ? 'Koleksi' : 'E-Learning'} <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">{isMyCourses ? 'Kelas Saya' : 'Video & Materi'}</span>
+                                {isMyCourses ? 'Koleksi' : 'Pelatihan'} <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600">{isMyCourses ? 'Kelas Saya' : 'Video & Materi'}</span>
                             </h2>
                             <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300 font-light">
                                 {isMyCourses
@@ -71,7 +71,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
                                     </svg>
                                     <p className="text-xl text-gray-500 dark:text-gray-400 font-light">
                                         {isMyCourses
-                                            ? 'Anda belum memiliki kelas aktif. Silakan pilih kelas di katalog E-Learning.'
+                                            ? 'Anda belum memiliki kelas aktif. Silakan pilih kelas di katalog Pelatihan.'
                                             : 'Belum ada kelas yang dipublikasikan saat ini, nantikan update selanjutnya.'
                                         }
                                     </p>

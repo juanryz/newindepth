@@ -14,14 +14,14 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                 { name: 'Home', href: '/', key: 'home' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
-                { name: 'E-Learning', href: '/courses', key: 'courses' }
+                { name: 'Pelatihan', href: '/courses', key: 'courses' }
             ];
         } catch (e) {
             return [
                 { name: 'Home', href: '/', key: 'home' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
-                { name: 'E-Learning', href: '/courses', key: 'courses' }
+                { name: 'Pelatihan', href: '/courses', key: 'courses' }
             ];
         }
     };
@@ -73,7 +73,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                     onClick={() => setIsChatOpen(true)}
                                     className="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
                                 >
-                                    Contact Us
+                                    Kontak Kami
                                 </button>
                             </div>
                         )}
@@ -159,7 +159,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                             onClick={() => { setIsMobileMenuOpen(false); setIsChatOpen(true); }}
                             className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-200"
                         >
-                            Contact Us
+                            Kontak Kami
                         </button>
 
                         {/* Divider */}

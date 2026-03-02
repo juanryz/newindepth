@@ -90,7 +90,7 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                             <div className="font-medium whitespace-nowrap">
                                                                 {isCourse ? (
                                                                     <div className="flex flex-col">
-                                                                        <span className="text-[10px] font-black uppercase text-indigo-500">Kelas E-Learning</span>
+                                                                        <span className="text-[10px] font-black uppercase text-indigo-500">Kelas Pelatihan</span>
                                                                         <span>{tx.transactionable?.title || '-'}</span>
                                                                     </div>
                                                                 ) : isBooking ? (

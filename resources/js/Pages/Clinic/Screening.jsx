@@ -245,8 +245,17 @@ export default function Screening() {
         }
     };
 
+    // ── Masalah Utama helpers ─────────────────────────────────────────────────
+    const needsObesitasStep = () =>
+        stepData.masalah_utama === 'Obesitas';
+
+    const isPengembanganDiri = () =>
+        stepData.masalah_utama === 'Pengembangan diri';
+
     // ── Validation per step ───────────────────────────────────────────────────
     const isStepValid = () => {
+        // Pengembangan Diri: steps 3–8 tidak relevan, selalu lolos
+        if (isPengembanganDiri() && step >= 3 && step <= 8) return true;
         switch (step) {
             case 1:
                 return stepData.nama && stepData.gender && stepData.usia && stepData.wa && stepData.email
@@ -277,15 +286,14 @@ export default function Screening() {
         }
     };
 
-    const needsObesitasStep = () =>
-        stepData.masalah_utama === 'Obesitas';
-
     const getNextStep = (current) => {
+        if (current === 2 && isPengembanganDiri()) return 9;  // skip langsung ke essay
         if (current === 2 && !needsObesitasStep()) return 4;
         return current + 1;
     };
 
     const getPrevStep = (current) => {
+        if (current === 9 && isPengembanganDiri()) return 2;  // balik ke pilihan masalah
         if (current === 4 && !needsObesitasStep()) return 2;
         return current - 1;
     };
@@ -398,8 +406,10 @@ export default function Screening() {
         );
     }
 
-    const effectiveTotal = needsObesitasStep() ? 10 : 9;
-    const displayStep = step > 2 && !needsObesitasStep() ? step - 1 : step;
+    const effectiveTotal = isPengembanganDiri() ? 3 : (needsObesitasStep() ? 10 : 9);
+    const displayStep = isPengembanganDiri()
+        ? (step === 1 ? 1 : step === 2 ? 2 : 3)  // step 9→3, step 10→... (10 tidak ada di Pengembangan Diri path)
+        : (step > 2 && !needsObesitasStep() ? step - 1 : step);
 
     return (
         <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Skrining Klinis InDepth</h2>}>
