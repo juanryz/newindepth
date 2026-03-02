@@ -35,6 +35,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
     });
 
     const scheduleRef = useRef(null);
+    const packageSectionRef = useRef(null);
 
     // Auto-scroll ke jadwal saat paket dipilih
     useEffect(() => {
@@ -50,8 +51,13 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
             alert('Silakan setujui Kebijakan Privasi terlebih dahulu.');
             return;
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
         setStep(2);
+        // Langsung scroll ke bagian paket agar full tampilan
+        setTimeout(() => {
+            if (packageSectionRef.current) {
+                packageSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
     };
 
     const goToStep3 = () => {
@@ -83,36 +89,38 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
             <div className="py-12">
                 <div className="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-                    {/* Header Info Status Accordions */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <details className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl border border-emerald-100 dark:border-emerald-900/30 group mb-4 lg:mb-0 transition-all duration-300">
-                            <summary className="p-6 cursor-pointer list-none flex items-center justify-between outline-none [&::-webkit-details-marker]:hidden">
-                                <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                    Keamanan Data
-                                </h3>
-                                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                            </summary>
-                            <div className="px-6 pb-6 text-sm text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed border-t border-emerald-100 dark:border-emerald-900/30 pt-4 animate-fade-in-up">
-                                Data Anda dilindungi dengan enkripsi end-to-end dan hanya dapat diakses oleh praktisi yang menangani Anda.
-                            </div>
-                        </details>
+                    {/* Header Info Status Accordions - Hanya di Step 1 agar tidak mengganggu fokus */}
+                    {step === 1 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+                            <details className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl border border-emerald-100 dark:border-emerald-900/30 group mb-4 lg:mb-0 transition-all duration-300">
+                                <summary className="p-6 cursor-pointer list-none flex items-center justify-between outline-none [&::-webkit-details-marker]:hidden">
+                                    <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Keamanan Data
+                                    </h3>
+                                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                </summary>
+                                <div className="px-6 pb-6 text-sm text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed border-t border-emerald-100 dark:border-emerald-900/30 pt-4 animate-fade-in-up">
+                                    Data Anda dilindungi dengan enkripsi end-to-end dan hanya dapat diakses oleh praktisi yang menangani Anda.
+                                </div>
+                            </details>
 
-                        <details className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl border border-indigo-100 dark:border-indigo-900/30 group transition-all duration-300">
-                            <summary className="p-6 cursor-pointer list-none flex items-center justify-between outline-none [&::-webkit-details-marker]:hidden">
-                                <h3 className="text-lg font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    Standar Layanan
-                                </h3>
-                                <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                            </summary>
-                            <div className="px-6 pb-6 border-t border-indigo-100 dark:border-indigo-900/30 pt-4 animate-fade-in-up">
-                                <Link href={route('agreement.show')} className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                                    Lihat Standar Perjanjian Layanan (PDF)
-                                </Link>
-                            </div>
-                        </details>
-                    </div>
+                            <details className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm rounded-2xl border border-indigo-100 dark:border-indigo-900/30 group transition-all duration-300">
+                                <summary className="p-6 cursor-pointer list-none flex items-center justify-between outline-none [&::-webkit-details-marker]:hidden">
+                                    <h3 className="text-lg font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Standar Layanan
+                                    </h3>
+                                    <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                </summary>
+                                <div className="px-6 pb-6 border-t border-indigo-100 dark:border-indigo-900/30 pt-4 animate-fade-in-up">
+                                    <Link href={route('agreement.show')} className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                        Lihat Standar Perjanjian Layanan (PDF)
+                                    </Link>
+                                </div>
+                            </details>
+                        </div>
+                    )}
 
                     {step === 1 && (
                         <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden animate-fade-in-up">
@@ -149,7 +157,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                     {step === 2 && (
                         <div className="space-y-8 animate-fade-in-up">
                             {/* Step 2: Package Selection */}
-                            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+                            <div ref={packageSectionRef} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
                                 <div className="bg-gradient-to-r from-gray-900 to-indigo-950 p-6 text-white">
                                     <h3 className="text-lg font-black uppercase tracking-tighter">2. Pilih Program Terapi</h3>
                                 </div>
