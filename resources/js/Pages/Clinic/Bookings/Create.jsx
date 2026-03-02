@@ -34,30 +34,12 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
         agree_chargeback: false,
     });
 
-    const scheduleRef = useRef(null);
-    const packageSectionRef = useRef(null);
-
-    // Auto-scroll ke jadwal saat paket dipilih
-    useEffect(() => {
-        if (data.package_type && step === 2 && scheduleRef.current) {
-            setTimeout(() => {
-                scheduleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        }
-    }, [data.package_type, step]);
-
     const goToStep2 = () => {
         if (!data.agree_privacy) {
             alert('Silakan setujui Kebijakan Privasi terlebih dahulu.');
             return;
         }
         setStep(2);
-        // Langsung scroll ke bagian paket agar full tampilan
-        setTimeout(() => {
-            if (packageSectionRef.current) {
-                packageSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
     };
 
     const goToStep3 = () => {
@@ -65,7 +47,6 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
             alert('Silakan pilih jadwal terlebih dahulu.');
             return;
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
         setStep(3);
     };
 
@@ -157,7 +138,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                     {step === 2 && (
                         <div className="space-y-8 animate-fade-in-up">
                             {/* Step 2: Package Selection */}
-                            <div ref={packageSectionRef} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+                            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
                                 <div className="bg-gradient-to-r from-gray-900 to-indigo-950 p-6 text-white">
                                     <h3 className="text-lg font-black uppercase tracking-tighter">2. Pilih Program Terapi</h3>
                                 </div>
@@ -257,7 +238,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                             </div>
 
                             {/* Step 3: Schedule Selection */}
-                            <div ref={scheduleRef} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden transition-all duration-500">
+                            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-sm sm:rounded-2xl border border-gray-100 dark:border-gray-700/50 overflow-hidden">
                                 <div className="bg-gradient-to-r from-gray-900 to-indigo-950 p-6 text-white">
                                     <h3 className="text-lg font-black uppercase tracking-tighter">3. Pilih Waktu Konsultasi</h3>
                                 </div>
