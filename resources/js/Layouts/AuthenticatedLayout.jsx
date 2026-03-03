@@ -9,12 +9,12 @@ import NotificationBell from '@/Components/NotificationBell';
 import LiquidBackground from '@/Components/LiquidBackground';
 
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
+    const user = usePage().props.auth?.user;
     const roles = user?.roles ?? [];
-    const isAdmin = roles.some(r => ['admin', 'super_admin', 'cs'].includes(r.toLowerCase()));
-    const isSuperAdmin = roles.some(r => r.toLowerCase() === 'super_admin');
-    const isTherapist = roles.some(r => r.toLowerCase() === 'therapist');
-    const isPatient = roles.some(r => r.toLowerCase() === 'patient');
+    const isAdmin = roles.some(r => typeof r === 'string' && ['admin', 'super_admin', 'cs', 'santa_maria'].includes(r.toLowerCase()));
+    const isSuperAdmin = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'super_admin');
+    const isTherapist = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'therapist');
+    const isPatient = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'patient');
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);

@@ -329,23 +329,19 @@ function ActiveBookingCard({ booking }) {
 
 export default function Dashboard() {
     const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking, therapistUpcomingSessions, therapistActiveSessions, therapistPastSessions, therapistStats } = usePage().props;
-    const user = auth.user;
-    // Hybrid approach: ensure arrays exist
+    const user = auth?.user;
     const roles = user?.roles ?? [];
-    user.permissions = user?.permissions ?? [];
+    const permissions = user?.permissions ?? [];
 
-    const isSuperAdmin = roles.some(r => r.toLowerCase() === 'super_admin');
-    const isActuallyAdmin = roles.some(r => r.toLowerCase() === 'admin');
-    const isActuallyCS = roles.some(r => r.toLowerCase() === 'cs');
-    const isActuallySantaMaria = roles.some(r => r.toLowerCase() === 'santa_maria');
-
-    const isAdmin = isSuperAdmin || isActuallyAdmin || isActuallyCS;
-    const isTherapist = roles.some(r => r.toLowerCase() === 'therapist');
-    const isSantaMaria = isActuallySantaMaria || user.permissions.includes('approve petty_cash') || user.permissions.includes('reject petty_cash');
+    const isSuperAdmin = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'super_admin');
+    const isAdmin = roles.some(r => typeof r === 'string' && ['admin', 'super_admin', 'cs'].includes(r.toLowerCase()));
+    const isTherapist = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'therapist');
+    const isPatient = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'patient');
     // A user is only "just a patient" if they don't have management roles, or we can check the role explicitly
-    const isPatient = roles.some(r => r.toLowerCase() === 'patient');
+    const isActuallySantaMaria = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'santa_maria');
+    const isSantaMaria = isActuallySantaMaria || permissions.includes('approve petty_cash') || permissions.includes('reject petty_cash');
 
-    const canSeeManagement = isAdmin || isSantaMaria || user.permissions.some(p => p.startsWith('view ') && p !== 'view own_schedule') || user.permissions.includes('approve petty_cash');
+    const canSeeManagement = isAdmin || isSantaMaria || permissions.some(p => typeof p === 'string' && p.startsWith('view ') && p !== 'view own_schedule') || permissions.includes('approve petty_cash');
 
     // For UI display prioritization
     const isStaff = canSeeManagement || isTherapist;
