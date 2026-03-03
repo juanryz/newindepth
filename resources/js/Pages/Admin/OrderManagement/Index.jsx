@@ -16,6 +16,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 /* ─── Calendar Event Renderer ─── */
 function renderEventContent(eventInfo) {
+    // bookings here only contains confirmed/in_progress/completed (filtered on backend)
+    // so if bookings.length > 0, the slot is genuinely occupied by a validated booking
     const isBooked = eventInfo.event.extendedProps.bookings?.length > 0;
     const therapistName = eventInfo.event.extendedProps.therapist?.name || 'Terapis';
     const isPast = eventInfo.event.start < new Date();

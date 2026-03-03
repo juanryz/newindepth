@@ -38,7 +38,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $package = $request->query('package', null);
-        $validPackages = ['hipnoterapi', 'vip', 'premium'];
+        $validPackages = ['reguler', 'hipnoterapi', 'vip', 'premium'];
         $recommendedPackage = in_array($package, $validPackages) ? $package : null;
 
         $user = User::create([

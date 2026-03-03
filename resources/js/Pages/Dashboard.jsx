@@ -137,8 +137,9 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
 
     /* Sudah screening */
 
+    const packageLabelMap = { reguler: 'Reguler', hipnoterapi: 'Hipnoterapi', premium: 'Premium', vip: 'VIP' };
     const packageLabel = screeningResult.recommended_package
-        ? (screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()))
+        ? (packageLabelMap[screeningResult.recommended_package] ?? screeningResult.recommended_package)
         : null;
 
     return (
@@ -522,7 +523,7 @@ export default function Dashboard() {
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || permissions.includes('view transactions')) && (
+                                    {(!isSuperAdmin && permissions.includes('view transactions')) && (
                                         <QuickCard
                                             href={route('admin.transactions.index')}
                                             title="Validasi Transaksi"

@@ -191,7 +191,7 @@ class BookingController extends Controller
     {
         $validated = $request->validate([
             'schedule_id' => 'required|exists:schedules,id',
-            'package_type' => 'required|in:hipnoterapi,premium,vip',
+            'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
             'agree_refund' => 'required|accepted',
             'agree_final' => 'required|accepted',
             'agree_access' => 'required|accepted',

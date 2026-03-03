@@ -167,7 +167,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-gray-600 dark:text-gray-400">Layanan InDepth Mental Wellness</span>
                                     <span className="font-medium truncate dark:text-white">
-                                        {booking.package_type === 'vip' ? 'Paket VIP (Intensive Care)' : booking.package_type === 'premium' ? 'Paket Premium' : 'Paket Hipnoterapi'}
+                                        {booking.package_type === 'vip' ? 'Paket VIP (Intensive Care)' : booking.package_type === 'premium' ? 'Paket Premium' : booking.package_type === 'reguler' ? 'Paket Reguler' : 'Paket Hipnoterapi'}
                                     </span>
                                 </div>
                                 {hasAppliedVoucher && (

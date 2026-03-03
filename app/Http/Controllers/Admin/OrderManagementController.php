@@ -17,7 +17,14 @@ class OrderManagementController extends Controller
         $therapistId = $request->get('therapist_id');
 
         // Schedules — show all history so calendar doesn't look empty for past dates
-        $schedulesQuery = Schedule::with(['therapist:id,name', 'bookings.patient.screeningResults', 'bookings.therapist'])
+        // Only load bookings that are confirmed/in-progress/completed to correctly reflect slot occupancy
+        $schedulesQuery = Schedule::with([
+            'therapist:id,name',
+            'bookings' => function ($query) {
+                $query->whereIn('status', ['confirmed', 'in_progress', 'completed'])
+                    ->with(['patient.screeningResults', 'therapist']);
+            }
+        ])
             ->orderBy('date')
             ->orderBy('start_time');
 

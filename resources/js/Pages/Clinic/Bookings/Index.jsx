@@ -79,7 +79,7 @@ export default function BookingIndex({ bookings, profileProgress }) {
                                                         </td>
                                                         <td className="py-4 px-4 align-top">
                                                             <div className="font-medium whitespace-nowrap">
-                                                                {booking.package_type === 'vip' ? 'Paket VIP' : booking.package_type === 'premium' ? 'Paket Premium' : 'Paket Hipnoterapi'}
+                                                                {booking.package_type === 'vip' ? 'Paket VIP' : booking.package_type === 'premium' ? 'Paket Premium' : booking.package_type === 'reguler' ? 'Paket Reguler' : 'Paket Hipnoterapi'}
                                                             </div>
                                                         </td>
                                                         <td className="py-4 px-4 align-top min-w-[200px]">

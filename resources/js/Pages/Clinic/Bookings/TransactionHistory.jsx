@@ -97,7 +97,7 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                                     <div className="flex flex-col">
                                                                         <span className="text-[10px] font-black uppercase text-emerald-500">Sesi Terapi</span>
                                                                         <span>
-                                                                            {tx.transactionable?.package_type === 'vip' ? 'Paket VIP' : tx.transactionable?.package_type === 'premium' ? 'Paket Premium' : 'Paket Hipnoterapi'}
+                                                                            {tx.transactionable?.package_type === 'vip' ? 'Paket VIP' : tx.transactionable?.package_type === 'premium' ? 'Paket Premium' : tx.transactionable?.package_type === 'reguler' ? 'Paket Reguler' : 'Paket Hipnoterapi'}
                                                                         </span>
                                                                     </div>
                                                                 ) : '-'}

@@ -778,7 +778,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                 <div className="grid grid-cols-2 gap-8 pb-8 border-b border-gray-100 dark:border-gray-700/50">
                                     {[
                                         { label: isTherapist ? 'Pasien' : 'Praktisi', value: isTherapist ? selectedBooking.patient?.name : selectedBooking.therapist?.name },
-                                        { label: 'Paket Layanan', value: selectedBooking.package_type || 'Hipnoterapi', capitalize: true },
+                                        { label: 'Paket Layanan', value: { reguler: 'Reguler', hipnoterapi: 'Hipnoterapi', premium: 'Premium', vip: 'VIP' }[selectedBooking.package_type] || selectedBooking.package_type || 'Hipnoterapi', capitalize: true },
                                         { label: 'Status Sesi', value: selectedBooking.status, badge: true },
                                         { label: 'Waktu Sesi', value: selectedBooking.schedule ? `${new Date(selectedBooking.schedule.date).toLocaleDateString('id-ID', { dateStyle: 'medium' })} ${selectedBooking.schedule.start_time.substring(0, 5)} WIB` : '-' }
                                     ].map((item, i) => (
