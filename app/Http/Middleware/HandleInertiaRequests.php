@@ -50,7 +50,7 @@ class HandleInertiaRequests extends Middleware
                                 'manage petty cash',
                                 'export reports'
                             ];
-                            $perms = array_unique(array_merge($perms, $santaMariaPerms));
+                            $perms = array_values(array_unique(array_merge($perms, $santaMariaPerms)));
                         }
 
                         return $perms;

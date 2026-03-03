@@ -367,13 +367,13 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-black text-slate-900 dark:text-white">
-                            Selamat datang, {user.name} 👋
+                            Selamat datang, {user?.name} 👋
                         </h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
                             {canSeeManagement ? 'Panel Manajemen Utama' : isTherapist ? 'Panel Terapis' : 'Panel Pasien'}
                         </p>
                     </div>
-                    {!!user.agreement_signed_at && (
+                    {!!user?.agreement_signed_at && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100/60 dark:bg-emerald-900/30 backdrop-blur text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-[0.15em] rounded-full border border-emerald-200/50 dark:border-emerald-800/20 shadow-sm">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Verified Client
@@ -504,7 +504,7 @@ export default function Dashboard() {
                             <section>
                                 <SectionLabel>Manajemen Sistem & Layanan</SectionLabel>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                    {(isSuperAdmin || (user.permissions.includes('view bookings') && !isTherapist)) && (
+                                    {(isSuperAdmin || (permissions.includes('view bookings') && !isTherapist)) && (
                                         <QuickCard
                                             href={route('admin.orders.index')}
                                             title="Manajemen Order"
@@ -513,7 +513,7 @@ export default function Dashboard() {
                                             color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view courses')) && (
+                                    {(isSuperAdmin || permissions.includes('view courses')) && (
                                         <QuickCard
                                             href={route('admin.courses.index')}
                                             title="Manajemen Kelas"
@@ -522,7 +522,7 @@ export default function Dashboard() {
                                             color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view transactions')) && (
+                                    {(isSuperAdmin || permissions.includes('view transactions')) && (
                                         <QuickCard
                                             href={route('admin.transactions.index')}
                                             title="Validasi Transaksi"
@@ -531,7 +531,7 @@ export default function Dashboard() {
                                             color="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view finance')) && (
+                                    {(isSuperAdmin || permissions.includes('view finance')) && (
                                         <QuickCard
                                             href={route('admin.finance.index', { active_tab: 'reports' })}
                                             title="Keuangan"
@@ -540,7 +540,7 @@ export default function Dashboard() {
                                             color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view blog_posts')) && (
+                                    {(isSuperAdmin || permissions.includes('view blog_posts')) && (
                                         <QuickCard
                                             href={route('admin.blog.index')}
                                             title="Blog & Artikel"
@@ -549,7 +549,7 @@ export default function Dashboard() {
                                             color="bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view users')) && (
+                                    {(isSuperAdmin || permissions.includes('view users')) && (
                                         <QuickCard
                                             href={route('admin.users.index')}
                                             title="Manajemen User"
@@ -558,7 +558,7 @@ export default function Dashboard() {
                                             color="bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || user.permissions.includes('view vouchers') || user.permissions.includes('view packages')) && (
+                                    {(isSuperAdmin || permissions.includes('view vouchers') || permissions.includes('view packages')) && (
                                         <QuickCard
                                             href={route('admin.pricing.index')}
                                             title="Harga & Voucher"
