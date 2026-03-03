@@ -59,6 +59,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         { id: 3, short: 'Rab', long: 'Rabu' },
         { id: 4, short: 'Kam', long: 'Kamis' },
         { id: 5, short: 'Jum', long: 'Jumat' },
+        { id: 6, short: 'Sab', long: 'Sabtu' },
+        { id: 0, short: 'Min', long: 'Minggu' },
     ];
 
     const toggleDay = (dayId) => {
@@ -646,7 +648,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1 flex items-center gap-3">
                                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Atur Ketersediaan Mingguan
                                         </h3>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Pilih hari & jam — sistem otomatis membagi slot 2 jam & LIBUR SABTU MINGGU</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Pilih hari & jam — sistem otomatis membagi slot 2 jam</p>
                                         <form onSubmit={handleAddSchedule} className="space-y-7">
                                             <div>
                                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">Hari Aktif <span className="text-rose-400">*</span>

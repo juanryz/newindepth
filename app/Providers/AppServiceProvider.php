@@ -19,7 +19,28 @@ class AppServiceProvider extends ServiceProvider
     {
         // Implicitly grant "Super Admin" role all permissions
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('super_admin') ? true : null;
+            if ($user->hasRole('super_admin')) {
+                return true;
+            }
+
+            // Dynamic Santa Maria Role based on role name
+            if ($user->hasRole('santa_maria')) {
+                $santaMariaPermissions = [
+                    'view finance',
+                    'view reports',
+                    'view petty_cash',
+                    'approve petty_cash',
+                    'reject petty_cash',
+                    'manage petty cash',
+                    'export reports',
+                ];
+
+                if (in_array($ability, $santaMariaPermissions)) {
+                    return true;
+                }
+            }
+
+            return null;
         });
 
         if (config('app.env') === 'production') {

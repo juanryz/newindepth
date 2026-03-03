@@ -144,13 +144,9 @@ class AdminScheduleController extends Controller
             'bookings.patient.transactions.validatedBy',
         ]);
 
-        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
-        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
-
         $availableSchedules = Schedule::with('therapist')
             ->where('date', '>=', now()->toDateString())
             ->where('status', 'available')
-            ->whereRaw("NOT ({$weekendSql})")
             ->whereColumn('booked_count', '<', 'quota')
             ->orderBy('date')
             ->orderBy('start_time')

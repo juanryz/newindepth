@@ -387,11 +387,7 @@ class ScheduleController extends Controller
         $current = $start->copy();
 
         while ($current->lte($end)) {
-            // Force block weekend even if user somehow selected it
-            if ($current->isWeekend()) {
-                $current->addDay();
-                continue;
-            }
+
 
             if (in_array($current->dayOfWeek, $days)) {
                 $created += $this->generateSegments(
@@ -440,10 +436,7 @@ class ScheduleController extends Controller
     private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
     {
         $dt = \Carbon\Carbon::parse($date);
-        // Weekend Off: Skip Saturday (6) and Sunday (0)
-        if ($dt->isWeekend()) {
-            return 0;
-        }
+
 
         $standardSlots = [
             ['start' => '08:00:00', 'end' => '10:00:00'],

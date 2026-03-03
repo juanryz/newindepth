@@ -35,7 +35,26 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
                     'roles' => $request->user()->getRoleNames()->values()->toArray(),
-                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->values()->toArray(),
+                    'permissions' => (function () use ($request) {
+                        $user = $request->user();
+                        $perms = $user->getAllPermissions()->pluck('name')->values()->toArray();
+
+                        // Add dynamic permissions for display logic in frontend
+                        if ($user->hasRole('santa_maria')) {
+                            $santaMariaPerms = [
+                                'view finance',
+                                'view reports',
+                                'view petty_cash',
+                                'approve petty_cash',
+                                'reject petty_cash',
+                                'manage petty cash',
+                                'export reports'
+                            ];
+                            $perms = array_unique(array_merge($perms, $santaMariaPerms));
+                        }
+
+                        return $perms;
+                    })(),
                 ]) : null,
                 'notifications' => $request->user() ? $request->user()->notifications()->take(5)->get() : [],
                 'unread_notifications_count' => $request->user() ? $request->user()->unreadNotifications()->count() : 0,
