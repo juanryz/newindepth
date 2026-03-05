@@ -744,19 +744,20 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         ) : (
                                             <div className="divide-y divide-gray-50 dark:divide-gray-800">
                                                 {currentSchedules.length > 0 ? currentSchedules.map((sc, i) => {
-                                                    // Robust date parsing: handle YYYY-MM-DD or ISO strings
-                                                    const dateOnly = sc.date.includes('T') ? sc.date.split('T')[0] : sc.date;
-                                                    const d = new Date(dateOnly + 'T00:00:00');
+                                                    // Robust date parsing: handle YYYY-MM-DD, ISO strings, or null
+                                                    const rawDate = sc.date ? String(sc.date) : '';
+                                                    const dateOnly = rawDate.includes('T') ? rawDate.split('T')[0] : rawDate.substring(0, 10);
+                                                    const d = dateOnly ? new Date(dateOnly + 'T00:00:00') : new Date('invalid');
                                                     const isValidDate = !isNaN(d.getTime());
                                                     return (
                                                         <div key={sc.id} className="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
                                                             <div className="flex items-center gap-5">
                                                                 <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
-                                                                    <span className="text-xs">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
-                                                                    <span className="text-xl leading-none">{d.getDate()}</span>
+                                                                    <span className="text-xs">{isValidDate ? d.toLocaleDateString('id-ID', { month: 'short' }) : '??'}</span>
+                                                                    <span className="text-xl leading-none">{isValidDate ? d.getDate() : '-'}</span>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{d.toLocaleDateString('id-ID', { weekday: 'long' })}, {d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{isValidDate ? `${d.toLocaleDateString('id-ID', { weekday: 'long' })}, ${d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}` : `Tanggal tidak valid (${rawDate})`}</p>
                                                                     <p className="text-xs font-bold text-gray-400 mt-0.5">🕐 {sc.start_time?.substring(0, 5)} – {sc.end_time?.substring(0, 5)} WIB</p>
                                                                 </div>
                                                             </div>

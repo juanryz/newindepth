@@ -108,11 +108,24 @@ class ScheduleController extends Controller
                 ->orderBy('start_time')
                 ->get()
                 ->map(function ($schedule) {
+                    // Ensure date is always Y-m-d string (not Carbon object which serializes to ISO with timezone shifts)
+                    $dateStr = $schedule->date instanceof \Carbon\Carbon
+                        ? $schedule->date->format('Y-m-d')
+                        : (is_string($schedule->date) ? substr($schedule->date, 0, 10) : $schedule->date);
+
+                    // Ensure time strings are properly formatted (handle both string and Carbon)
+                    $startTime = $schedule->start_time instanceof \Carbon\Carbon
+                        ? $schedule->start_time->format('H:i')
+                        : substr((string) $schedule->start_time, 0, 5);
+                    $endTime = $schedule->end_time instanceof \Carbon\Carbon
+                        ? $schedule->end_time->format('H:i')
+                        : substr((string) $schedule->end_time, 0, 5);
+
                     return [
                         'id' => $schedule->id,
-                        'date' => $schedule->date,
-                        'start_time' => substr($schedule->start_time, 0, 5),
-                        'end_time' => substr($schedule->end_time, 0, 5),
+                        'date' => $dateStr,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
                         'quota' => $schedule->quota,
                         'booked_count' => $schedule->booked_count,
                         'status' => $schedule->status,
