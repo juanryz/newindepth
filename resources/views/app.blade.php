@@ -55,8 +55,8 @@
     <!-- ═══════════════════════════════════════════════════ -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "MedicalBusiness",
+      "@@context": "https://schema.org",
+      "@@type": "MedicalBusiness",
       "name": "InDepth Mental Wellness — Klinik Hipnoterapi Semarang",
       "alternateName": "InDepth Hipnoterapi Semarang",
       "url": "https://indepth.co.id",
@@ -67,7 +67,7 @@
       "currenciesAccepted": "IDR",
       "paymentAccepted": "Transfer Bank, Virtual Account",
       "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "streetAddress": "Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237",
         "addressLocality": "Semarang",
         "addressRegion": "Jawa Tengah",
@@ -75,19 +75,19 @@
         "addressCountry": "ID"
       },
       "geo": {
-        "@type": "GeoCoordinates",
+        "@@type": "GeoCoordinates",
         "latitude": "-7.0051",
         "longitude": "110.4381"
       },
       "openingHoursSpecification": [
         {
-          "@type": "OpeningHoursSpecification",
+          "@@type": "OpeningHoursSpecification",
           "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
           "opens": "09:00",
           "closes": "17:00"
         },
         {
-          "@type": "OpeningHoursSpecification",
+          "@@type": "OpeningHoursSpecification",
           "dayOfWeek": "Saturday",
           "opens": "09:00",
           "closes": "14:00"
@@ -99,22 +99,22 @@
       "medicalSpecialty": "Hypnotherapy",
       "availableService": [
         {
-          "@type": "MedicalTherapy",
+          "@@type": "MedicalTherapy",
           "name": "Hipnoterapi untuk Kecemasan",
           "description": "Sesi hipnoterapi privat untuk mengatasi gangguan kecemasan dan serangan panik"
         },
         {
-          "@type": "MedicalTherapy",
+          "@@type": "MedicalTherapy",
           "name": "Hipnoterapi Trauma",
           "description": "Penanganan trauma psikologis dengan metode InDepth Trance State"
         },
         {
-          "@type": "MedicalTherapy",
+          "@@type": "MedicalTherapy",
           "name": "Hipnoterapi Kebiasaan Buruk",
           "description": "Lepas dari kebiasaan buruk seperti merokok, makan berlebih, dan adiksi lainnya"
         },
         {
-          "@type": "MedicalTherapy",
+          "@@type": "MedicalTherapy",
           "name": "Hipnoterapi Insomnia",
           "description": "Pemulihan pola tidur dan kualitas istirahat melalui hipnoterapi"
         }
@@ -124,7 +124,7 @@
         "https://www.facebook.com/indepthsemarang"
       ],
       "aggregateRating": {
-        "@type": "AggregateRating",
+        "@@type": "AggregateRating",
         "ratingValue": "5",
         "reviewCount": "50",
         "bestRating": "5",
@@ -136,38 +136,38 @@
     {{-- FAQ Schema for featured snippets --}}
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
+      "@@context": "https://schema.org",
+      "@@type": "FAQPage",
       "mainEntity": [
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Berapa biaya hipnoterapi di Semarang?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Biaya hipnoterapi di InDepth Semarang mulai dari Rp 500.000 per sesi untuk paket Reguler, Rp 1.000.000 untuk paket Premium, dan Rp 2.000.000+ untuk paket VIP. Harga dapat berubah sesuai promo yang berlaku."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Apa saja masalah yang bisa ditangani hipnoterapi di Semarang?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Klinik Hipnoterapi InDepth Semarang menangani: kecemasan, fobia, trauma, insomnia, kebiasaan buruk (merokok, dll.), stres, depresi ringan, psikosomatis, dan kondisi yang membutuhkan pengembangan diri."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Apakah hipnoterapi di InDepth Semarang aman?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Ya, hipnoterapi di InDepth Semarang dilakukan oleh terapis bersertifikat yang telah terlatih secara profesional. Kami menggunakan metode ilmiah yang terbukti aman dan efektif. Setiap sesi bersifat privat dan rahasia."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Berapa sesi hipnoterapi yang dibutuhkan?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Jumlah sesi bervariasi tergantung kondisi klien. Banyak klien merasakan perubahan signifikan dalam 1-3 sesi. InDepth menyediakan paket Reguler (kondisi ringan), Premium (kondisi sedang), dan VIP (kondisi kompleks)."
           }
         }

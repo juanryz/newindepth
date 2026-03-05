@@ -50,12 +50,7 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                                 <img
                                     src="/images/logo-color.png"
                                     alt="InDepth Mental Wellness"
-                                    className="h-20 w-auto object-contain block dark:hidden"
-                                />
-                                <img
-                                    src="/images/logo-white.png"
-                                    alt="InDepth Mental Wellness"
-                                    className="h-20 w-auto object-contain hidden dark:block"
+                                    className="h-20 w-auto object-contain"
                                 />
                             </Link>
                         </div>

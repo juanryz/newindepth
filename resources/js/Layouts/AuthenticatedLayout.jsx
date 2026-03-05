@@ -48,12 +48,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <img
                                         src="/images/logo-color.png"
                                         alt="InDepth Mental Wellness"
-                                        className="h-20 w-auto object-contain block dark:hidden relative z-10"
-                                    />
-                                    <img
-                                        src="/images/logo-white.png"
-                                        alt="InDepth Mental Wellness"
-                                        className="h-20 w-auto object-contain hidden dark:block relative z-10"
+                                        className="h-20 w-auto object-contain relative z-10"
                                     />
                                 </Link>
                             </div>
@@ -222,8 +217,8 @@ export default function AuthenticatedLayout({ header, children }) {
             {flashMsg && (
                 <div
                     className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold backdrop-blur-xl border animate-in slide-in-from-bottom-4 duration-300 max-w-[90vw] ${flashType === 'success'
-                            ? 'bg-emerald-50/95 dark:bg-emerald-900/90 border-emerald-200 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-200'
-                            : 'bg-red-50/95 dark:bg-red-900/90 border-red-200 dark:border-red-700/60 text-red-800 dark:text-red-200'
+                        ? 'bg-emerald-50/95 dark:bg-emerald-900/90 border-emerald-200 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-200'
+                        : 'bg-red-50/95 dark:bg-red-900/90 border-red-200 dark:border-red-700/60 text-red-800 dark:text-red-200'
                         }`}
                     role="alert"
                 >
