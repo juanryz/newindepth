@@ -241,45 +241,107 @@ function LastSessionCard({ booking }) {
     );
 }
 
+// Countdown hitung mundur hingga 2 jam sebelum jadwal
+const SessionReminderCountdown = ({ scheduleDate, startTime }) => {
+    const [label, setLabel] = React.useState('');
+    const [urgent, setUrgent] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!scheduleDate || !startTime) return;
+        const tick = () => {
+            const datePart = String(scheduleDate).match(/\d{4}-\d{2}-\d{2}/)?.[0];
+            if (!datePart) return;
+            const sched = new Date(`${datePart}T${startTime}`);
+            if (isNaN(sched.getTime())) return;
+            const now = new Date();
+            const diff = sched - now;
+            if (diff <= 0) {
+                setLabel('Sesi sudah dimulai / terlewat');
+                setUrgent(true);
+                return;
+            }
+            const twoHours = 2 * 60 * 60 * 1000;
+            if (diff <= twoHours) setUrgent(true);
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            setLabel(`${h}j ${m}m ${s}d lagi`);
+        };
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+    }, [scheduleDate, startTime]);
+
+    if (!label) return null;
+    return (
+        <div className={`mt-3 flex items-center gap-2 px-4 py-2.5 rounded-2xl border ${urgent
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/40'
+            : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/40'
+            }`}>
+            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${urgent ? 'bg-red-500 animate-ping' : 'bg-amber-500'
+                }`} />
+            <div>
+                <p className={`text-[9px] font-black uppercase tracking-widest ${urgent ? 'text-red-500' : 'text-amber-600 dark:text-amber-400'
+                    }`}>⏰ Ingatkan Hadir</p>
+                <p className={`text-sm font-black tabular-nums ${urgent ? 'text-red-600 dark:text-red-400' : 'text-amber-700 dark:text-amber-300'
+                    }`}>{label}</p>
+                <p className={`text-[9px] font-bold ${urgent ? 'text-red-400' : 'text-amber-500'
+                    }`}>Hadir 2 jam sebelum jadwal dimulai</p>
+            </div>
+        </div>
+    );
+};
+
 function ActiveBookingCard({ booking }) {
     if (!booking) return null;
 
-    const { schedule, therapist, status, booking_code } = booking;
+    const { schedule, therapist, status, booking_code, transaction } = booking;
 
     const statusLabels = {
         'pending_payment': 'Menunggu Pembayaran',
         'pending_validation': 'Menunggu Validasi Admin',
-        'confirmed': 'Jadwal Dikonfirmasi',
+        'confirmed': 'Jadwal Dikonfirmasi ✅',
         'in_progress': 'Sesi Sedang Berlangsung',
     };
 
     const statusColors = {
         'pending_payment': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
         'pending_validation': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        'confirmed': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+        'confirmed': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
         'in_progress': 'bg-red-500 text-white animate-pulse',
     };
 
     const formatGoogleCalDate = (date, time) => {
-        return date.replace(/-/g, '') + 'T' + time.replace(/:/g, '');
+        const d = String(date).match(/\d{4}-\d{2}-\d{2}/)?.[0] || date;
+        const t = String(time).replace(/:/g, '').substring(0, 6);
+        return d.replace(/-/g, '') + 'T' + t + '00';
     };
 
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sesi+Hipnoterapi+-+InDepth&dates=${formatGoogleCalDate(schedule.date, schedule.start_time)}/${formatGoogleCalDate(schedule.date, schedule.end_time)}&details=Sesi+Hipnoterapi+bersama+Terapis:+${therapist?.name || 'Akan diinfokan'}`;
 
     const isInProgress = status === 'in_progress';
+    const isConfirmed = status === 'confirmed';
+    const isPendingPayment = status === 'pending_payment';
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
-        // Handle format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
-        const cleanDate = dateStr.includes(' ') ? dateStr.split(' ')[0] : (dateStr.includes('T') ? dateStr.split('T')[0] : dateStr);
+        const cleanDate = String(dateStr).match(/\d{4}-\d{2}-\d{2}/)?.[0];
+        if (!cleanDate) return dateStr;
         const d = new Date(cleanDate + 'T00:00:00');
         if (isNaN(d.getTime())) return dateStr;
         return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     };
 
+    const borderCls = isInProgress
+        ? '!border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
+        : isConfirmed
+            ? '!border-emerald-300/50 dark:!border-emerald-700/30 shadow-[0_0_30px_rgba(16,185,129,0.08)]'
+            : '!border-indigo-200/50 dark:!border-indigo-800/20';
+
     return (
-        <GlassPanel className={`p-6 mb-8 relative overflow-hidden transition-all duration-500 ${isInProgress ? '!border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]' : '!border-indigo-200/50 dark:!border-indigo-800/20'}`}>
-            <div className={`absolute inset-0 bg-gradient-to-br from-transparent pointer-events-none ${isInProgress ? 'from-red-500/10' : 'from-indigo-50/50 dark:from-indigo-900/10'}`} />
+        <GlassPanel className={`p-6 mb-8 relative overflow-hidden transition-all duration-500 ${borderCls}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br from-transparent pointer-events-none ${isInProgress ? 'from-red-500/10' : isConfirmed ? 'from-emerald-50/50 dark:from-emerald-900/10' : 'from-indigo-50/50 dark:from-indigo-900/10'
+                }`} />
             {isInProgress && (
                 <div className="absolute top-0 right-0 p-4">
                     <span className="flex h-3 w-3 relative">
@@ -289,11 +351,15 @@ function ActiveBookingCard({ booking }) {
                 </div>
             )}
 
-            <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10">
-                <div>
+            <div className="relative flex flex-col md:flex-row justify-between items-start gap-4 z-10">
+                {/* Left: info */}
+                <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                        <h3 className={`font-bold text-lg ${isInProgress ? 'text-red-600 dark:text-red-400' : 'text-indigo-900 dark:text-indigo-300'}`}>
-                            {isInProgress ? '🔴 Sesi Sedang Berlangsung' : 'Jadwal Aktif Anda'}
+                        <h3 className={`font-bold text-lg ${isInProgress ? 'text-red-600 dark:text-red-400'
+                            : isConfirmed ? 'text-emerald-700 dark:text-emerald-300'
+                                : 'text-indigo-900 dark:text-indigo-300'
+                            }`}>
+                            {isInProgress ? '🔴 Sesi Sedang Berlangsung' : isConfirmed ? '✅ Jadwal Aktif Anda' : 'Jadwal Aktif Anda'}
                         </h3>
                         <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur ${statusColors[status] || 'bg-slate-100 text-slate-800'}`}>
                             {statusLabels[status] || status}
@@ -304,9 +370,26 @@ function ActiveBookingCard({ booking }) {
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Jadwal:</strong> {formatDate(schedule.date)} ({schedule.start_time?.substring(0, 5) || '--:--'} WIB)</p>
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
                     </div>
+
+                    {/* ---- 2-hour reminder (only for confirmed) ---- */}
+                    {isConfirmed && (
+                        <SessionReminderCountdown scheduleDate={schedule.date} startTime={schedule.start_time} />
+                    )}
+
+                    {/* ---- Pending Payment: tampilkan nominal & tombol bayar ---- */}
+                    {isPendingPayment && transaction && (
+                        <div className="mt-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40 rounded-2xl">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-yellow-600 dark:text-yellow-400 mb-1">Nominal yang harus dibayar</p>
+                            <p className="text-xl font-black text-yellow-700 dark:text-yellow-300">
+                                Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}
+                            </p>
+                            <p className="text-[9px] text-yellow-500 mt-0.5">*Sudah termasuk PPN 11% dan kode unik</p>
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+                {/* Right: actions */}
+                <div className="flex flex-col gap-3 w-full md:w-auto md:min-w-[180px]">
                     <Link
                         href={route('bookings.show', booking.id)}
                         className={`inline-flex justify-center items-center px-6 py-3 text-sm font-black rounded-2xl transition-all shadow-sm border ${isInProgress
@@ -316,8 +399,21 @@ function ActiveBookingCard({ booking }) {
                     >
                         {isInProgress ? 'MASUK KE RUANG SESI' : 'LIHAT DETAIL'}
                     </Link>
-                    {!isInProgress && (
-                        <a href={gcalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-wide">
+
+                    {/* Tombol Lengkapi Bukti Bayar — pending_payment */}
+                    {isPendingPayment && (
+                        <Link
+                            href={route('payments.create', booking.id)}
+                            className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-sm font-black rounded-2xl transition-all shadow-lg shadow-amber-500/25 uppercase tracking-wide"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                            Lengkapi Bukti Bayar
+                        </Link>
+                    )}
+
+                    {/* Simpan ke Google Calendar — hanya confirmed */}
+                    {isConfirmed && (
+                        <a href={gcalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 bg-emerald-600 text-white text-sm font-black rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 uppercase tracking-wide">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             Simpan Kalender
                         </a>
@@ -416,6 +512,42 @@ export default function Dashboard() {
                             >
                                 Tutup
                             </button>
+                        </motion.div>
+                    )}
+
+                    {/* ============== PENDING VALIDATION BANNER ============== */}
+                    {isPatient && activeBooking?.status === 'pending_validation' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800/50 rounded-[2.5rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-xl shadow-blue-500/10"
+                        >
+                            {/* Icon animasi centang */}
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl sm:rounded-[2rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30">
+                                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div className="flex-1 text-center sm:text-left">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1">Status Pembayaran</p>
+                                <h3 className="text-xl sm:text-2xl font-black text-blue-900 dark:text-blue-100 leading-tight tracking-tight mb-2">
+                                    Bukti Pembayaran Sedang Diproses 🕐
+                                </h3>
+                                <p className="text-sm font-bold text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
+                                    Bukti pembayaranmu sudah kami terima dan akan <strong>divalidasi oleh tim kami</strong> dalam waktu maksimal 1×24 jam. Jadwal konsultasi Anda akan aktif otomatis setelah tervalidasi.
+                                </p>
+                                <div className="mt-4 flex flex-wrap gap-3 justify-center sm:justify-start">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase tracking-widest rounded-full">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                                        Kode: #{activeBooking.booking_code}
+                                    </span>
+                                    {activeBooking.transaction?.amount && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-black uppercase tracking-widest rounded-full">
+                                            💳 Rp {new Intl.NumberFormat('id-ID').format(activeBooking.transaction.amount)}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </motion.div>
                     )}
 

@@ -128,6 +128,6 @@ class PaymentController extends Controller
             \Illuminate\Support\Facades\Log::error('Admin Notification Failure: ' . $n->getMessage());
         }
 
-        return redirect()->route('bookings.show', $booking->id)->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu validasi admin.');
+        return redirect()->route('dashboard')->with('success', 'Bukti pembayaran berhasil diunggah. Tim kami akan segera memvalidasi pembayaranmu.');
     }
 }

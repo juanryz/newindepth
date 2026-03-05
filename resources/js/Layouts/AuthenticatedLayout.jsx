@@ -3,21 +3,34 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import NotificationBell from '@/Components/NotificationBell';
 import LiquidBackground from '@/Components/LiquidBackground';
 
 export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth?.user;
+    const page = usePage();
+    const user = page.props.auth?.user;
+    const flash = page.props.flash ?? {};
     const roles = user?.roles ?? [];
     const isAdmin = roles.some(r => typeof r === 'string' && ['admin', 'super_admin', 'cs', 'santa_maria'].includes(r.toLowerCase()));
     const isSuperAdmin = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'super_admin');
     const isTherapist = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'therapist');
     const isPatient = roles.some(r => typeof r === 'string' && r.toLowerCase() === 'patient');
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+    // Flash toast state
+    const [flashMsg, setFlashMsg] = useState(null);
+    const [flashType, setFlashType] = useState('success');
+
+    useEffect(() => {
+        if (flash.success) { setFlashMsg(flash.success); setFlashType('success'); }
+        else if (flash.error) { setFlashMsg(flash.error); setFlashType('error'); }
+        else { setFlashMsg(null); return; }
+        const t = setTimeout(() => setFlashMsg(null), 5500);
+        return () => clearTimeout(t);
+    }, [flash.success, flash.error]);
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 transition-colors duration-500 overflow-x-hidden relative">
@@ -204,6 +217,26 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main className="relative z-30">{children}</main>
+
+            {/* ====== FLASH TOAST ====== */}
+            {flashMsg && (
+                <div
+                    className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl text-sm font-bold backdrop-blur-xl border animate-in slide-in-from-bottom-4 duration-300 max-w-[90vw] ${flashType === 'success'
+                            ? 'bg-emerald-50/95 dark:bg-emerald-900/90 border-emerald-200 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-200'
+                            : 'bg-red-50/95 dark:bg-red-900/90 border-red-200 dark:border-red-700/60 text-red-800 dark:text-red-200'
+                        }`}
+                    role="alert"
+                >
+                    {flashType === 'success'
+                        ? <svg className="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        : <svg className="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    }
+                    <span>{flashMsg}</span>
+                    <button onClick={() => setFlashMsg(null)} className="ml-2 opacity-50 hover:opacity-100 transition-opacity flex-shrink-0">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
