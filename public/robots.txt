@@ -1,2 +1,39 @@
+# robots.txt — InDepth Mental Wellness (indepth.co.id)
+# Klinik Hipnoterapi Semarang
+
 User-agent: *
-Disallow:
+Allow: /
+Allow: /blog/
+Allow: /courses/
+Allow: /metode/
+Allow: /testimoni
+Allow: /therapists/
+
+# Block internal/admin pages from indexing
+Disallow: /dashboard
+Disallow: /admin/
+Disallow: /profile
+Disallow: /screening
+Disallow: /agreement
+Disallow: /bookings/
+Disallow: /payments/
+Disallow: /vouchers/
+Disallow: /schedules/
+Disallow: /affiliate/
+Disallow: /setup-*
+Disallow: /login-*
+Disallow: /fix-*
+Disallow: /api/
+
+# Block query parameters that cause duplicate content
+Disallow: /*?*
+
+# Allow important static assets
+Allow: /images/
+Allow: /storage/
+
+# Crawl delay (optional, reduces server load)
+Crawl-delay: 1
+
+# Sitemap location — submit ke Google Search Console!
+Sitemap: https://indepth.co.id/sitemap.xml

@@ -310,27 +310,58 @@ Route::get('/metode/indepth-solution', [App\Http\Controllers\MethodsDetailContro
 Route::get('/therapists', [\App\Http\Controllers\TherapistController::class, 'index'])->name('therapists.index');
 Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::class, 'show'])->name('therapists.show');
 
-// Dynamic XML Sitemap
+// Dynamic XML Sitemap — SEO Optimized
 Route::get('/sitemap.xml', function () {
-    $posts = \App\Models\BlogPost::where('is_published', true)->get();
-    $courses = \App\Models\Course::where('is_published', true)->get();
+    $posts = \App\Models\BlogPost::where('is_published', true)->latest('published_at')->get();
+    $courses = \App\Models\Course::where('is_published', true)->latest()->get();
+    $now = now()->toAtomString();
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>';
-    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">';
 
-    // Static pages
-    $xml .= '<url><loc>' . url('/') . '</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>';
-    $xml .= '<url><loc>' . url('/blog') . '</loc><changefreq>daily</changefreq><priority>0.9</priority></url>';
-    $xml .= '<url><loc>' . url('/courses') . '</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>';
+    // ── Static Priority Pages ─────────────────────────────────
+    $staticPages = [
+        ['url' => url('/'), 'freq' => 'weekly', 'priority' => '1.0'],
+        ['url' => url('/blog'), 'freq' => 'daily', 'priority' => '0.9'],
+        ['url' => url('/courses'), 'freq' => 'weekly', 'priority' => '0.8'],
+        ['url' => url('/metode'), 'freq' => 'monthly', 'priority' => '0.8'],
+        ['url' => url('/testimoni'), 'freq' => 'monthly', 'priority' => '0.8'],
+        ['url' => url('/therapists'), 'freq' => 'monthly', 'priority' => '0.7'],
+        ['url' => url('/disclaimer'), 'freq' => 'yearly', 'priority' => '0.3'],
+        ['url' => url('/privacy'), 'freq' => 'yearly', 'priority' => '0.3'],
+        ['url' => url('/terms'), 'freq' => 'yearly', 'priority' => '0.3'],
+        ['url' => url('/metode/indepth-trance'), 'freq' => 'monthly', 'priority' => '0.7'],
+        ['url' => url('/metode/supreme-trance'), 'freq' => 'monthly', 'priority' => '0.7'],
+        ['url' => url('/metode/indepth-solution'), 'freq' => 'monthly', 'priority' => '0.7'],
+    ];
 
-    // Dynamic pages (Blog)
-    foreach ($posts as $post) {
-        $xml .= '<url><loc>' . url('/blog/' . $post->slug) . '</loc><lastmod>' . $post->updated_at->toAtomString() . '</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>';
+    foreach ($staticPages as $page) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . htmlspecialchars($page['url']) . '</loc>';
+        $xml .= '<lastmod>' . $now . '</lastmod>';
+        $xml .= '<changefreq>' . $page['freq'] . '</changefreq>';
+        $xml .= '<priority>' . $page['priority'] . '</priority>';
+        $xml .= '</url>';
     }
 
-    // Dynamic pages (Courses)
+    // ── Blog Posts ─────────────────────────────────────────────
+    foreach ($posts as $post) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . htmlspecialchars(url('/blog/' . $post->slug)) . '</loc>';
+        $xml .= '<lastmod>' . $post->updated_at->toAtomString() . '</lastmod>';
+        $xml .= '<changefreq>monthly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
+
+    // ── Courses ─────────────────────────────────────────────────
     foreach ($courses as $course) {
-        $xml .= '<url><loc>' . url('/courses/' . $course->slug) . '</loc><lastmod>' . $course->updated_at->toAtomString() . '</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>';
+        $xml .= '<url>';
+        $xml .= '<loc>' . htmlspecialchars(url('/courses/' . $course->slug)) . '</loc>';
+        $xml .= '<lastmod>' . $course->updated_at->toAtomString() . '</lastmod>';
+        $xml .= '<changefreq>monthly</changefreq>';
+        $xml .= '<priority>0.7</priority>';
+        $xml .= '</url>';
     }
 
     $xml .= '</urlset>';
