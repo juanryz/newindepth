@@ -500,14 +500,28 @@ class ScheduleController extends Controller
                 $sc->delete();
                 $count++;
             } catch (\Illuminate\Database\QueryException $e) {
-                // If it has a cancelled/draft booking attached, this throws a foreign key constraint. We gracefully skip.
-                $failed++;
+                // It has a historical/cancelled booking attached. Detach it so we can delete.
+                \App\Models\Booking::where('schedule_id', $sc->id)->update([
+                    'schedule_id' => null,
+                    'notes' => 'Jadwal dihapus (Belum Ditentukan)'
+                ]);
+                \App\Models\Booking::where('original_schedule_id', $sc->id)->update([
+                    'original_schedule_id' => null
+                ]);
+
+                // Try deleting again after detaching
+                try {
+                    $sc->delete();
+                    $count++;
+                } catch (\Exception $e2) {
+                    $failed++;
+                }
             }
         }
 
         $msg = "$count slot jadwal berhasil dihapus.";
         if ($failed > 0) {
-            $msg .= " ($failed slot tidak dihapus karena masih terkait riwayat pesanan pasien seperti pesanan batal/draft).";
+            $msg .= " ($failed slot tidak dihapus karena error tidak terduga).";
         }
 
         return redirect()->back()->with('success', $msg);
@@ -604,7 +618,17 @@ class ScheduleController extends Controller
             $schedule->delete();
             return redirect()->back()->with('success', 'Jadwal berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $e) {
-            return redirect()->back()->withErrors(['error' => 'Jadwal tidak bisa dihapus karena masih terkait data riwayat pasien (misal pesanan sempat terbuat lalu dibatalkan).']);
+            // Detach and delete
+            \App\Models\Booking::where('schedule_id', $schedule->id)->update([
+                'schedule_id' => null,
+                'notes' => 'Jadwal dihapus (Belum Ditentukan)'
+            ]);
+            \App\Models\Booking::where('original_schedule_id', $schedule->id)->update([
+                'original_schedule_id' => null
+            ]);
+
+            $schedule->delete();
+            return redirect()->back()->with('success', 'Jadwal berhasil dihapus. (Pesanan riwayat diubah menjadi Belum Ditentukan).');
         }
     }
 }

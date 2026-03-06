@@ -184,13 +184,26 @@ class AdminScheduleController extends Controller
 
     public function destroy(Schedule $schedule)
     {
-        if ($schedule->bookings()->count() > 0) {
-            return back()->withErrors(['error' => 'Tidak dapat menghapus jadwal yang sudah dibooking.']);
+        if ($schedule->bookings()->whereIn('status', ['confirmed', 'in_progress'])->count() > 0) {
+            return back()->withErrors(['error' => 'Tidak dapat menghapus jadwal yang sedang ada pesanan aktif.']);
         }
 
-        $schedule->delete();
+        try {
+            $schedule->delete();
+            return back()->with('success', 'Jadwal berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Detach and delete
+            \App\Models\Booking::where('schedule_id', $schedule->id)->update([
+                'schedule_id' => null,
+                'notes' => 'Jadwal dihapus oleh Admin (Belum Ditentukan)'
+            ]);
+            \App\Models\Booking::where('original_schedule_id', $schedule->id)->update([
+                'original_schedule_id' => null
+            ]);
 
-        return back()->with('success', 'Jadwal berhasil dihapus.');
+            $schedule->delete();
+            return back()->with('success', 'Jadwal berhasil dihapus. (Pesanan riwayat diubah menjadi Belum Ditentukan).');
+        }
     }
 
     public function bulkDelete(Request $request)
