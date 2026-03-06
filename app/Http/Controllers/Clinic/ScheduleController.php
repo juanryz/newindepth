@@ -473,7 +473,11 @@ class ScheduleController extends Controller
         $therapistId = $request->user()->id;
         $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
 
-        $query = Schedule::where('booked_count', 0)
+        // Instead of strict booked_count = 0, we check if there are no active bookings.
+        // This allows safely deleting "bugged" slots left behind by deleted users.
+        $query = Schedule::whereDoesntHave('bookings', function ($q) {
+            $q->whereIn('status', ['confirmed', 'in_progress']);
+        })
             ->where('date', '>=', now()->toDateString());
 
         if (!$isAdmin) {
@@ -487,6 +491,8 @@ class ScheduleController extends Controller
             }
             $schedulesToDelete = $query->get();
         } elseif (!empty($validated['ids'])) {
+            // Re-apply the same query (which now filters out active bookings) but just for the specific IDs. 
+            // This prevents deleting active bookings if a user manipulated the IDs.
             $schedulesToDelete = $query->whereIn('id', $validated['ids'])->get();
         } else {
             return redirect()->back()->withErrors(['error' => 'Tidak ada jadwal yang dipilih untuk dihapus.']);
@@ -610,7 +616,7 @@ class ScheduleController extends Controller
             abort(403);
         }
 
-        if ($schedule->booked_count > 0) {
+        if ($schedule->bookings()->whereIn('status', ['confirmed', 'in_progress'])->count() > 0) {
             return redirect()->back()->withErrors(['error' => 'Tidak bisa menghapus jadwal yang sedang ada pesanan aktif.']);
         }
 

@@ -231,7 +231,9 @@ class AdminScheduleController extends Controller
         $query = Schedule::query()
             ->where('date', '>=', $request->date_from)
             ->where('date', '<=', $request->date_to)
-            ->where('booked_count', 0); // Only delete empty schedules
+            ->whereDoesntHave('bookings', function ($q) {
+                $q->whereIn('status', ['confirmed', 'in_progress']);
+            }); // Only target schedules without active bookings
 
         if ($request->therapist_id) {
             $query->where('therapist_id', $request->therapist_id);
