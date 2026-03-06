@@ -480,22 +480,37 @@ class ScheduleController extends Controller
             $query->where('therapist_id', $therapistId);
         }
 
+        $schedulesToDelete = collect();
         if (!empty($validated['delete_all'])) {
-            // Delete all available future slots (optionally filtered by status)
             if (!empty($validated['filter_status'])) {
                 $query->where('status', $validated['filter_status']);
             }
-            $count = $query->count();
-            $query->delete();
+            $schedulesToDelete = $query->get();
         } elseif (!empty($validated['ids'])) {
-            // Delete only selected ids that belong to this therapist and have no bookings
-            $count = $query->whereIn('id', $validated['ids'])->count();
-            $query->whereIn('id', $validated['ids'])->delete();
+            $schedulesToDelete = $query->whereIn('id', $validated['ids'])->get();
         } else {
             return redirect()->back()->withErrors(['error' => 'Tidak ada jadwal yang dipilih untuk dihapus.']);
         }
 
-        return redirect()->back()->with('success', "$count slot jadwal berhasil dihapus.");
+        $count = 0;
+        $failed = 0;
+
+        foreach ($schedulesToDelete as $sc) {
+            try {
+                $sc->delete();
+                $count++;
+            } catch (\Illuminate\Database\QueryException $e) {
+                // If it has a cancelled/draft booking attached, this throws a foreign key constraint. We gracefully skip.
+                $failed++;
+            }
+        }
+
+        $msg = "$count slot jadwal berhasil dihapus.";
+        if ($failed > 0) {
+            $msg .= " ($failed slot tidak dihapus karena masih terkait riwayat pesanan pasien seperti pesanan batal/draft).";
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function store(Request $request)
@@ -582,11 +597,14 @@ class ScheduleController extends Controller
         }
 
         if ($schedule->booked_count > 0) {
-            return redirect()->back()->withErrors(['error' => 'Tidak bisa menghapus jadwal yang sudah ada booking.']);
+            return redirect()->back()->withErrors(['error' => 'Tidak bisa menghapus jadwal yang sedang ada pesanan aktif.']);
         }
 
-        $schedule->delete();
-
-        return redirect()->back()->with('success', 'Jadwal berhasil dihapus.');
+        try {
+            $schedule->delete();
+            return redirect()->back()->with('success', 'Jadwal berhasil dihapus.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect()->back()->withErrors(['error' => 'Jadwal tidak bisa dihapus karena masih terkait data riwayat pasien (misal pesanan sempat terbuat lalu dibatalkan).']);
+        }
     }
 }
