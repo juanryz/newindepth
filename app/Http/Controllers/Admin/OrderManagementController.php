@@ -99,19 +99,23 @@ class OrderManagementController extends Controller
             ->get()
             ->toArray();
 
+        try {
+            $clinicSettings = [
+                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
+                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
+            ];
+        } catch (\Throwable $e) {
+            $clinicSettings = ['open_time' => '08:00', 'close_time' => '22:00'];
+        }
+
         return Inertia::render('Admin/OrderManagement/Index', [
             'schedules' => $schedules,
             'bookings' => $bookings,
             'transactions' => $transactions,
             'therapists' => $therapists,
             'availableSchedules' => $availableSchedules,
-            'clinicSettings' => [
-                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
-                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
-            ],
-            'filters' => [
-                'therapist_id' => $therapistId,
-            ],
+            'clinicSettings' => $clinicSettings,
+            'filters' => ['therapist_id' => $therapistId],
         ]);
     }
 }

@@ -179,12 +179,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('permission:create bookings')
                 ->name('bookings.store');
 
-            // Schedules Admin
+            // Schedules Admin — prefixed with 'admin.' from the group, full name: admin.schedules.*
             Route::post('/schedules', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'store'])
                 ->middleware('permission:create schedules')
                 ->name('schedules.store');
             Route::post('/schedules/bulk-delete', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'bulkDelete'])
-                ->middleware('permission:bulk_delete schedules')
+                ->middleware('permission:bulk_delete schedules|delete schedules')
                 ->name('schedules.bulk-delete');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Admin\AdminScheduleController::class, 'destroy'])
                 ->middleware('permission:delete schedules')

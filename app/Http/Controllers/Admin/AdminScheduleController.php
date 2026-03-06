@@ -56,17 +56,21 @@ class AdminScheduleController extends Controller
             ->select('id', 'name')
             ->get();
 
-        return Inertia::render('Admin/Schedules/Index', [
-            'schedules' => $schedules,
-            'therapists' => $therapists,
-            'clinicSettings' => [
+        try {
+            $clinicSettings = [
                 'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
                 'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
                 'standard_slots' => ClinicSetting::getStandardSlots(),
-            ],
-            'filters' => [
-                'therapist_id' => $therapistId,
-            ]
+            ];
+        } catch (\Throwable $e) {
+            $clinicSettings = ['open_time' => '08:00', 'close_time' => '22:00', 'standard_slots' => []];
+        }
+
+        return Inertia::render('Admin/Schedules/Index', [
+            'schedules' => $schedules,
+            'therapists' => $therapists,
+            'clinicSettings' => $clinicSettings,
+            'filters' => ['therapist_id' => $therapistId],
         ]);
     }
 
@@ -101,8 +105,18 @@ class AdminScheduleController extends Controller
 
     private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
     {
-        // Load standard slots dynamically from clinic settings
-        $standardSlots = ClinicSetting::getStandardSlots();
+        // Load standard slots dynamically from clinic settings (with fallback)
+        try {
+            $standardSlots = ClinicSetting::getStandardSlots();
+        } catch (\Throwable $e) {
+            $standardSlots = [
+                ['start' => '08:00:00', 'end' => '10:00:00', 'label' => 'Sesi 1'],
+                ['start' => '10:00:00', 'end' => '12:00:00', 'label' => 'Sesi 2'],
+                ['start' => '13:00:00', 'end' => '15:00:00', 'label' => 'Sesi 3'],
+                ['start' => '15:00:00', 'end' => '17:00:00', 'label' => 'Sesi 4'],
+                ['start' => '18:00:00', 'end' => '20:00:00', 'label' => 'Sesi 5'],
+            ];
+        }
 
         $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
         $userEnd = \Carbon\Carbon::parse($endTime)->format('H:i:s');

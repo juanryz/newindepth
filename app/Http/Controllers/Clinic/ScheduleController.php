@@ -136,18 +136,30 @@ class ScheduleController extends Controller
                 });
         }
 
+        // Load clinic settings with graceful fallback if table doesn't exist yet
+        try {
+            $clinicSettings = [
+                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
+                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
+                'standard_slots' => ClinicSetting::getStandardSlots(),
+                'session_auto_close_min' => ClinicSetting::getSessionAutoCloseMins(),
+            ];
+        } catch (\Throwable $e) {
+            $clinicSettings = [
+                'open_time' => '08:00',
+                'close_time' => '22:00',
+                'standard_slots' => [],
+                'session_auto_close_min' => 95,
+            ];
+        }
+
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
             'availableSchedules' => $availableSchedules,
             'calendarSchedules' => $calendarSchedules,
             'mySchedules' => $mySchedules,
             'serverNow' => now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
-            'clinicSettings' => [
-                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
-                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
-                'standard_slots' => ClinicSetting::getStandardSlots(),
-                'session_auto_close_min' => ClinicSetting::getSessionAutoCloseMins(),
-            ],
+            'clinicSettings' => $clinicSettings,
         ]);
     }
 
@@ -517,7 +529,19 @@ class ScheduleController extends Controller
     private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
     {
         // Load standard slots dynamically from clinic settings
-        $standardSlots = ClinicSetting::getStandardSlots();
+        // Wrapped in try-catch in case migration hasn't run yet on production
+        try {
+            $standardSlots = ClinicSetting::getStandardSlots();
+        } catch (\Throwable $e) {
+            // Fallback if clinic_settings table doesn't exist yet
+            $standardSlots = [
+                ['start' => '08:00:00', 'end' => '10:00:00', 'label' => 'Sesi 1'],
+                ['start' => '10:00:00', 'end' => '12:00:00', 'label' => 'Sesi 2'],
+                ['start' => '13:00:00', 'end' => '15:00:00', 'label' => 'Sesi 3'],
+                ['start' => '15:00:00', 'end' => '17:00:00', 'label' => 'Sesi 4'],
+                ['start' => '18:00:00', 'end' => '20:00:00', 'label' => 'Sesi 5'],
+            ];
+        }
 
         // Format user times to HH:mm:ss for comparison
         $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
