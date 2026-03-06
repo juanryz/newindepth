@@ -9,9 +9,14 @@ import idLocale from '@fullcalendar/core/locales/id';
 import { createPortal } from 'react-dom';
 import Form from './Form'; // Fixed import to just Form if it's in the same directory
 
-export default function AdminSchedulesIndex({ schedules, therapists, filters }) {
+export default function AdminSchedulesIndex({ schedules, therapists, filters, clinicSettings = {} }) {
     const { auth } = usePage().props;
     const { user } = auth;
+
+    // ── Dynamic clinic settings (from DB, not hardcoded) ──
+    const calendarOpenTime = clinicSettings.open_time || '08:00';
+    const calendarCloseTime = clinicSettings.close_time || '22:00';
+    const standardSlots = clinicSettings.standard_slots || [];
 
     // Permission checks
     const hasPermission = (permissionName) => {
@@ -273,8 +278,8 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                 }}
                                 titleFormat={{ year: 'numeric', month: 'long', day: 'numeric' }}
                                 locale="id"
-                                slotMinTime="08:00:00"
-                                slotMaxTime="22:00:00"
+                                slotMinTime={calendarOpenTime.length === 5 ? calendarOpenTime + ':00' : calendarOpenTime}
+                                slotMaxTime={calendarCloseTime.length === 5 ? calendarCloseTime + ':00' : calendarCloseTime}
                                 slotDuration={'01:00:00'}
                                 allDaySlot={false}
                                 events={schedules}
@@ -317,7 +322,7 @@ export default function AdminSchedulesIndex({ schedules, therapists, filters }) 
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
-                            <Form therapists={therapists} onSuccess={() => setIsAdding(false)} />
+                            <Form therapists={therapists} standardSlots={standardSlots} onSuccess={() => setIsAdding(false)} />
                         </div>
                     </div>,
                     document.body

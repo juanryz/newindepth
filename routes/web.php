@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/schedules/patients/{user}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'patientDetail'])->name('schedules.patient-detail');
             Route::post('/schedules', [\App\Http\Controllers\Clinic\ScheduleController::class, 'store'])->name('schedules.store');
             Route::post('/schedules/recurring', [\App\Http\Controllers\Clinic\ScheduleController::class, 'storeRecurring'])->name('schedules.store-recurring');
+            Route::post('/schedules/bulk-delete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'bulkDelete'])->name('schedules.bulk-delete');
             Route::delete('/schedules/{schedule}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'destroy'])->name('schedules.destroy');
             Route::post('/schedules/sessions/{booking}/start', [\App\Http\Controllers\Clinic\ScheduleController::class, 'startSession'])->name('schedules.start');
             Route::get('/schedules/sessions/{booking}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'activeSession'])->name('schedules.active-session');
@@ -212,6 +213,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/pricing/packages/{package}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyPackage'])
                 ->middleware('permission:delete packages')
                 ->name('pricing.packages.destroy');
+
+            // Clinic Settings (Dynamic Schedule Configuration — no hardcoding)
+            Route::get('/clinic-settings', [\App\Http\Controllers\Admin\ClinicSettingController::class, 'index'])
+                ->name('clinic-settings.index');
+            Route::post('/clinic-settings', [\App\Http\Controllers\Admin\ClinicSettingController::class, 'update'])
+                ->name('clinic-settings.update');
         }
     );
 

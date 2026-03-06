@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 
-export default function Form({ therapists, onSuccess }) {
+export default function Form({ therapists, standardSlots = [], onSuccess }) {
     const { data, setData, post, processing, errors, reset, transform } = useForm({
         schedule_type: 'consultation',
         date: '',
@@ -11,13 +11,19 @@ export default function Form({ therapists, onSuccess }) {
         therapist_id: '',
     });
 
+    // Build SESSIONS dynamically from clinic settings (via standardSlots prop)
     const SESSIONS = [
-        { id: '1', name: 'Sesi 1 (08:00 - 10:00)', start: '08:00', end: '10:00' },
-        { id: '2', name: 'Sesi 2 (10:00 - 12:00)', start: '10:00', end: '12:00' },
-        { id: '3', name: 'Sesi 3 (13:00 - 15:00)', start: '13:00', end: '15:00' },
-        { id: '4', name: 'Sesi 4 (15:00 - 17:00)', start: '15:00', end: '17:00' },
-        { id: '5', name: 'Sesi 5 (18:00 - 20:00)', start: '18:00', end: '20:00' },
-        { id: 'custom', name: 'Waktu Custom (Otomatis Bagi 2 Jam)', start: '', end: '' },
+        ...standardSlots.map((slot, idx) => {
+            const startDisp = slot.start.substring(0, 5);
+            const endDisp = slot.end.substring(0, 5);
+            return {
+                id: String(idx + 1),
+                name: `${slot.label || ('Sesi ' + (idx + 1))} (${startDisp} - ${endDisp})`,
+                start: startDisp,
+                end: endDisp,
+            };
+        }),
+        { id: 'custom', name: 'Waktu Custom (Otomatis Bagi Slot)', start: '', end: '' },
     ];
 
     // Returns today's date string YYYY-MM-DD in local time

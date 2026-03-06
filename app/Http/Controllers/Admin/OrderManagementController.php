@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\ClinicSetting;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
@@ -108,6 +109,10 @@ class OrderManagementController extends Controller
             'transactions' => $transactions,
             'therapists' => $therapists,
             'availableSchedules' => $availableSchedules,
+            'clinicSettings' => [
+                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
+                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
+            ],
             'filters' => [
                 'therapist_id' => $therapistId,
             ],

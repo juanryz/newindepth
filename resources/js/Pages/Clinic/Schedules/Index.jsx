@@ -14,9 +14,15 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 
 
-export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [] }) {
+export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [], serverNow, clinicSettings = {} }) {
     const { auth, flash, errors: pageErrors } = usePage().props;
     const isAdmin = auth.user?.roles?.some(r => ['admin', 'super_admin'].includes(r)) ?? false;
+
+    // ── Clinic settings (dynamic from DB, not hardcoded) ──
+    const calendarOpenTime = clinicSettings.open_time || '08:00:00';
+    const calendarCloseTime = clinicSettings.close_time || '22:00:00';
+    const standardSlots = clinicSettings.standard_slots || [];
+    const autoCloseMins = clinicSettings.session_auto_close_min || 95;
 
     const [selectedHistoryPatient, setSelectedHistoryPatient] = useState(null);
     const [selectedCompletingBooking, setSelectedCompletingBooking] = useState(null);
@@ -30,11 +36,62 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     const [isAdding, setIsAdding] = useState(false);
     const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
-    // Schedule pagination
+    // Bulk delete state
+    const [selectedScheduleIds, setSelectedScheduleIds] = useState([]);
+    const [scheduleFilter, setScheduleFilter] = useState('all'); // all | available | booked
+    const [showBulkConfirm, setShowBulkConfirm] = useState(false);
+    const [bulkDeleteAll, setBulkDeleteAll] = useState(false);
+
+    // Server "now" for determining past sessions
+    const nowDt = serverNow ? new Date(serverNow.replace(' ', 'T')) : new Date();
+    const isPastBooking = (booking) => {
+        if (!booking.schedule?.date || !booking.schedule?.end_time) return false;
+        // booking.schedule.date may be ISO string "2026-03-06T00:00:00.000000Z" or plain "2026-03-06"
+        // Always extract just the date part (YYYY-MM-DD) before use
+        const rawDate = String(booking.schedule.date);
+        const dateOnly = rawDate.includes('T') ? rawDate.substring(0, 10) : rawDate.substring(0, 10);
+        // end_time is plain "HH:MM:SS"
+        const endTimeStr = String(booking.schedule.end_time).substring(0, 8);
+        const endDt = new Date(dateOnly + 'T' + endTimeStr);
+        return !isNaN(endDt.getTime()) && endDt < nowDt;
+    };
+
+    // Schedule pagination & filter
     const [schedulePage, setSchedulePage] = useState(1);
     const scheduleItemsPerPage = 10;
-    const currentSchedules = mySchedules.slice((schedulePage - 1) * scheduleItemsPerPage, schedulePage * scheduleItemsPerPage);
-    const totalSchedulePages = Math.ceil(mySchedules.length / scheduleItemsPerPage);
+
+    // Filtered schedules for the slot list
+    const filteredSchedules = mySchedules.filter(sc => {
+        if (scheduleFilter === 'available') return sc.booked_count === 0;
+        if (scheduleFilter === 'booked') return sc.booked_count >= 1;
+        return true;
+    });
+    const currentSchedules = filteredSchedules.slice((schedulePage - 1) * scheduleItemsPerPage, schedulePage * scheduleItemsPerPage);
+    const totalSchedulePages = Math.ceil(filteredSchedules.length / scheduleItemsPerPage);
+
+    const toggleSelectSchedule = (id) => {
+        setSelectedScheduleIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    };
+    const selectAllOnPage = () => {
+        const ids = currentSchedules.filter(sc => sc.booked_count === 0).map(sc => sc.id);
+        setSelectedScheduleIds(prev => {
+            const withoutPage = prev.filter(id => !currentSchedules.map(sc => sc.id).includes(id));
+            return [...withoutPage, ...ids];
+        });
+    };
+    const clearSelection = () => setSelectedScheduleIds([]);
+
+    const handleBulkDelete = (deleteAll) => {
+        setBulkDeleteAll(deleteAll);
+        setShowBulkConfirm(true);
+    };
+    const confirmBulkDelete = () => {
+        if (bulkDeleteAll) {
+            router.post(route('schedules.bulk-delete'), { delete_all: true }, { onSuccess: () => setShowBulkConfirm(false) });
+        } else {
+            router.post(route('schedules.bulk-delete'), { ids: selectedScheduleIds }, { onSuccess: () => { setShowBulkConfirm(false); setSelectedScheduleIds([]); } });
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -424,7 +481,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             <div className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-md rounded-[2rem] border border-gray-100 dark:border-gray-700/50 p-2 shadow-sm">
                                 {[
                                     { id: 'calendar', label: 'Kalender', icon: '📅' },
-                                    { id: 'history', label: 'Daftar Sesi', icon: '📋', count: bookings?.filter(b => ['confirmed', 'in_progress'].includes(b.status)).length },
+                                    { id: 'history', label: 'Daftar Sesi', icon: '📋', count: bookings?.filter(b => ['confirmed', 'in_progress'].includes(b.status) && !isPastBooking(b)).length },
                                     ...(!isAdmin ? [{ id: 'mySchedules', label: 'Jadwal Saya', icon: '✦', count: mySchedules.length }] : []),
                                 ].map(tab => (
                                     <button
@@ -446,8 +503,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                 <h4 className="text-[10px] font-black tracking-[0.2em] text-indigo-600 dark:text-indigo-500 uppercase">Ringkasan</h4>
                                 {[
                                     { label: 'Total Sesi', value: bookings?.length ?? 0, color: 'text-gray-900 dark:text-white' },
-                                    { label: 'Akan Datang', value: bookings?.filter(b => b.status === 'confirmed').length ?? 0, color: 'text-indigo-600' },
-                                    { label: 'Slot Tersedia', value: mySchedules.length, color: 'text-emerald-600' },
+                                    { label: 'Akan Datang', value: bookings?.filter(b => b.status === 'confirmed' && !isPastBooking(b)).length ?? 0, color: 'text-indigo-600' },
+                                    { label: 'Sedang Live', value: bookings?.filter(b => b.status === 'in_progress').length ?? 0, color: 'text-red-500' },
+                                    ...(!isAdmin ? [{ label: 'Slot Saya', value: mySchedules.length, color: 'text-emerald-600' }] : []),
                                 ].map(s => (
                                     <div key={s.label} className="flex justify-between items-center">
                                         <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{s.label}</span>
@@ -491,8 +549,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             eventClick={handleEventClick}
                                             eventContent={renderEventContent}
                                             height="auto"
-                                            slotMinTime="08:00:00"
-                                            slotMaxTime="22:00:00"
+                                            slotMinTime={calendarOpenTime.length === 5 ? calendarOpenTime + ':00' : calendarOpenTime}
+                                            slotMaxTime={calendarCloseTime.length === 5 ? calendarCloseTime + ':00' : calendarCloseTime}
                                             slotDuration="01:00:00"
                                             allDaySlot={false}
                                             nowIndicator={true}
@@ -511,11 +569,17 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                         <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3 mb-6">
                                             <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Daftar Sesi
                                         </h3>
-                                        <div className="flex gap-2 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
-                                            {[['pending', 'Akan Datang'], ['completed', 'Selesai'], ['all', 'Semua']].map(([val, label]) => (
+                                        <div className="flex flex-wrap gap-2 p-1.5 bg-slate-100/50 dark:bg-slate-800/30 rounded-2xl w-fit border border-slate-200/50 dark:border-slate-800">
+                                            {[
+                                                ['pending', 'Aktif', bookings?.filter(b => ['confirmed', 'in_progress'].includes(b.status) && !isPastBooking(b)).length],
+                                                ['berlalu', 'Berlalu', bookings?.filter(b => isPastBooking(b) && b.status === 'confirmed').length],
+                                                ['completed', 'Selesai', bookings?.filter(b => b.status === 'completed').length],
+                                                ['all', 'Semua', bookings?.length],
+                                            ].map(([val, label, cnt]) => (
                                                 <button key={val} onClick={() => setHistoryFilter(val)}
-                                                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${historyFilter === val ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}>
+                                                    className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 ${historyFilter === val ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white dark:hover:bg-slate-700'}`}>
                                                     {label}
+                                                    {cnt > 0 && <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${historyFilter === val ? 'bg-white/20' : val === 'berlalu' ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}`}>{cnt}</span>}
                                                 </button>
                                             ))}
                                         </div>
@@ -575,10 +639,13 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     </div>
 
                                     {bookings.filter(b => {
-                                        if (historyFilter === 'pending' && !['confirmed', 'in_progress'].includes(b.status)) return false;
+                                        const past = isPastBooking(b) && b.status === 'confirmed';
+                                        const schedDate = b.schedule?.date ? String(b.schedule.date).substring(0, 10) : null;
+                                        if (historyFilter === 'pending' && (past || !['confirmed', 'in_progress'].includes(b.status))) return false;
+                                        if (historyFilter === 'berlalu' && !past) return false;
                                         if (historyFilter === 'completed' && b.status !== 'completed') return false;
-                                        if (historyDateFrom && b.schedule?.date && b.schedule.date < historyDateFrom) return false;
-                                        if (historyDateTo && b.schedule?.date && b.schedule.date > historyDateTo) return false;
+                                        if (historyDateFrom && schedDate && schedDate < historyDateFrom) return false;
+                                        if (historyDateTo && schedDate && schedDate > historyDateTo) return false;
                                         return true;
                                     }).length === 0 ? (
                                         <div className="text-center py-20 bg-white dark:bg-gray-800/40 rounded-[2.5rem] border border-dashed border-gray-200 dark:border-gray-700">
@@ -587,28 +654,45 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {bookings.filter(b => {
-                                                if (historyFilter === 'pending' && !['confirmed', 'in_progress'].includes(b.status)) return false;
+                                                const past = isPastBooking(b) && b.status === 'confirmed';
+                                                const schedDate = b.schedule?.date ? String(b.schedule.date).substring(0, 10) : null;
+                                                if (historyFilter === 'pending' && (past || !['confirmed', 'in_progress'].includes(b.status))) return false;
+                                                if (historyFilter === 'berlalu' && !past) return false;
                                                 if (historyFilter === 'completed' && b.status !== 'completed') return false;
-                                                if (historyDateFrom && b.schedule?.date && b.schedule.date < historyDateFrom) return false;
-                                                if (historyDateTo && b.schedule?.date && b.schedule.date > historyDateTo) return false;
+                                                if (historyDateFrom && schedDate && schedDate < historyDateFrom) return false;
+                                                if (historyDateTo && schedDate && schedDate > historyDateTo) return false;
                                                 return true;
                                             }).map(booking => {
                                                 const isNoShow = booking.completion_outcome?.startsWith('No-Show');
                                                 const wasRescheduled = !!booking.rescheduled_at;
+                                                const isPast = isPastBooking(booking) && booking.status === 'confirmed';
                                                 return (
                                                     <div key={booking.id} id={`booking-${booking.id}`}
-                                                        className={`rounded-[2.5rem] border shadow-sm p-7 flex flex-col transition-all ${isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800/30' : booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700' : booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/10 border-red-200 dark:border-red-800/30 ring-2 ring-red-500' : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50'}`}>
+                                                        className={`rounded-[2.5rem] border shadow-sm p-7 flex flex-col transition-all ${isPast ? 'bg-slate-50/80 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700 opacity-80' :
+                                                            isNoShow ? 'bg-orange-50/30 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800/30' :
+                                                                booking.status === 'completed' ? 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700' :
+                                                                    booking.status === 'in_progress' ? 'bg-red-50/30 dark:bg-red-900/10 border-red-200 dark:border-red-800/30 ring-2 ring-red-500' :
+                                                                        'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/50'
+                                                            }`}>
                                                         <div className="flex items-start justify-between mb-4">
                                                             <div>
                                                                 <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">{booking.patient?.name || 'Pasien Tidak Dikenal'}</h4>
                                                                 <p className="text-xs text-gray-400 font-bold italic">{booking.patient?.email || '-'}</p>
                                                             </div>
-                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${isNoShow ? 'bg-orange-100 text-orange-600' : booking.status === 'completed' ? 'bg-gray-100 text-gray-500' : booking.status === 'in_progress' ? 'bg-red-100 text-red-600' : 'bg-indigo-100 text-indigo-600'}`}>
-                                                                {isNoShow ? 'No-Show' : booking.status === 'completed' ? 'Selesai' : booking.status === 'in_progress' ? '🔴 Live' : wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}
-                                                            </span>
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${isPast ? 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400' :
+                                                                    isNoShow ? 'bg-orange-100 text-orange-600' :
+                                                                        booking.status === 'completed' ? 'bg-gray-100 text-gray-500' :
+                                                                            booking.status === 'in_progress' ? 'bg-red-100 text-red-600' :
+                                                                                'bg-indigo-100 text-indigo-600'
+                                                                    }`}>
+                                                                    {isPast ? '⏰ Berlalu' : isNoShow ? 'No-Show' : booking.status === 'completed' ? 'Selesai' : booking.status === 'in_progress' ? '🔴 Live' : wasRescheduled ? 'Dijadwal Ulang' : 'Akan Datang'}
+                                                                </span>
+                                                                {isPast && <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Tidak dapat dimulai</span>}
+                                                            </div>
                                                         </div>
                                                         <div className="bg-indigo-50/50 dark:bg-slate-800 rounded-2xl p-4 mb-4 text-xs font-bold text-indigo-900 dark:text-indigo-300 space-y-1">
-                                                            <p>📅 {booking.schedule ? new Date(booking.schedule.date + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No Date'}</p>
+                                                            <p>📅 {booking.schedule ? new Date(String(booking.schedule.date).substring(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No Date'}</p>
                                                             <p>🕐 {booking.schedule?.start_time?.substring(0, 5)} – {booking.schedule?.end_time?.substring(0, 5)} WIB</p>
                                                             <p className="text-[10px] uppercase tracking-widest text-indigo-600/70 pt-1">Paket: {booking.package_type || 'REGULER'}</p>
                                                         </div>
@@ -616,7 +700,12 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             <Link href={booking.patient ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                                 Rekam Medis & Detail
                                                             </Link>
-                                                            {booking.status === 'confirmed' && (
+                                                            {isPast && (
+                                                                <div className="text-center py-2.5 px-4 rounded-2xl bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sesi sudah berlalu — tidak dapat dimulai</p>
+                                                                </div>
+                                                            )}
+                                                            {booking.status === 'confirmed' && !isPast && (
                                                                 <button onClick={() => handleStartSession(booking.id)} className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl shadow-lg uppercase">Mulai Sesi</button>
                                                             )}
                                                             {booking.status === 'in_progress' && (
@@ -625,11 +714,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             {booking.status === 'completed' && (
                                                                 <button onClick={() => openCompleteModal(booking)} className="w-full text-center text-xs font-black text-white bg-slate-900 py-3 rounded-2xl uppercase">Update Data Sesi</button>
                                                             )}
-                                                            {['confirmed', 'in_progress'].includes(booking.status) && (
+                                                            {['confirmed', 'in_progress'].includes(booking.status) && !isPast && (
                                                                 <div className="flex gap-2">
                                                                     <button onClick={() => openRescheduleModal(booking)} className="flex-1 text-[10px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2.5 rounded-2xl uppercase">Jadwal Ulang</button>
                                                                     <button onClick={() => openNoShowModal(booking)} className="flex-1 text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">Tidak Hadir</button>
                                                                 </div>
+                                                            )}
+                                                            {isPast && booking.status === 'confirmed' && (
+                                                                <button onClick={() => openNoShowModal(booking)} className="w-full text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">
+                                                                    Isi Alasan Tidak Hadir
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </div>
@@ -725,33 +819,76 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
                                     {/* Slot list */}
                                     <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm overflow-hidden">
-                                        <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
-                                            <div>
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
-                                                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>Slot Mendatang
-                                                </h3>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Jadwal yang sudah Anda daftarkan</p>
-                                            </div>
-                                            {mySchedules.length > 0 && (
+                                        {/* Header */}
+                                        <div className="p-8 border-b border-gray-100 dark:border-gray-700/50 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                                        <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>Slot Mendatang
+                                                    </h3>
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Jadwal yang sudah Anda daftarkan</p>
+                                                </div>
                                                 <span className="px-4 py-2 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase">{mySchedules.length} Slot</span>
-                                            )}
+                                            </div>
+                                            {/* Filter row */}
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <div className="flex gap-1.5 p-1 bg-slate-100/70 dark:bg-slate-800/50 rounded-xl border border-slate-200/50 dark:border-slate-700">
+                                                    {[['all', 'Semua'], ['available', 'Tersedia'], ['booked', 'Terisi']].map(([val, lbl]) => (
+                                                        <button key={val} onClick={() => { setScheduleFilter(val); setSchedulePage(1); clearSelection(); }}
+                                                            className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${scheduleFilter === val ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-indigo-400' : 'text-slate-400 hover:text-slate-600'}`}>
+                                                            {lbl}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className="flex gap-2 ml-auto flex-wrap">
+                                                    {selectedScheduleIds.length > 0 && (
+                                                        <button onClick={() => handleBulkDelete(false)}
+                                                            className="px-4 py-2 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all">
+                                                            🗑 Hapus {selectedScheduleIds.length} Dipilih
+                                                        </button>
+                                                    )}
+                                                    <button onClick={() => handleBulkDelete(true)}
+                                                        className="px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 border border-rose-200 dark:border-rose-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all">
+                                                        🗑 Hapus Semua Kosong
+                                                    </button>
+                                                    {currentSchedules.some(sc => sc.booked_count === 0) && (
+                                                        <button onClick={selectAllOnPage}
+                                                            className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                                                            ☑ Pilih Halaman Ini
+                                                        </button>
+                                                    )}
+                                                    {selectedScheduleIds.length > 0 && (
+                                                        <button onClick={clearSelection} className="px-4 py-2 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-slate-600 transition-all">
+                                                            ✕ Batal
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                         {mySchedules.length === 0 ? (
                                             <div className="py-20 text-center">
                                                 <p className="text-gray-400 font-black text-sm uppercase tracking-widest">Belum ada slot terdaftar</p>
                                                 <p className="text-gray-300 text-xs mt-2">Gunakan form di atas untuk menambah ketersediaan mingguan</p>
                                             </div>
+                                        ) : filteredSchedules.length === 0 ? (
+                                            <div className="py-10 text-center">
+                                                <p className="text-gray-400 font-black text-sm uppercase tracking-widest">Tidak ada slot untuk filter ini</p>
+                                            </div>
                                         ) : (
                                             <div className="divide-y divide-gray-50 dark:divide-gray-800">
-                                                {currentSchedules.length > 0 ? currentSchedules.map((sc, i) => {
-                                                    // Robust date parsing: handle YYYY-MM-DD, ISO strings, or null
+                                                {currentSchedules.map((sc) => {
                                                     const rawDate = sc.date ? String(sc.date) : '';
                                                     const dateOnly = rawDate.includes('T') ? rawDate.split('T')[0] : rawDate.substring(0, 10);
                                                     const d = dateOnly ? new Date(dateOnly + 'T00:00:00') : new Date('invalid');
                                                     const isValidDate = !isNaN(d.getTime());
+                                                    const isSelected = selectedScheduleIds.includes(sc.id);
                                                     return (
-                                                        <div key={sc.id} className="px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
-                                                            <div className="flex items-center gap-5">
+                                                        <div key={sc.id} className={`px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors ${isSelected ? 'bg-rose-50/50 dark:bg-rose-900/10' : ''}`}>
+                                                            <div className="flex items-center gap-4">
+                                                                {sc.booked_count === 0 && (
+                                                                    <input type="checkbox" checked={isSelected} onChange={() => toggleSelectSchedule(sc.id)}
+                                                                        className="w-4 h-4 rounded accent-rose-500 cursor-pointer flex-shrink-0" />
+                                                                )}
                                                                 <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
                                                                     <span className="text-xs">{isValidDate ? d.toLocaleDateString('id-ID', { month: 'short' }) : '??'}</span>
                                                                     <span className="text-xl leading-none">{isValidDate ? d.getDate() : '-'}</span>
@@ -774,29 +911,19 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             </div>
                                                         </div>
                                                     );
-                                                }) : null}
+                                                })}
 
                                                 {/* Pagination */}
-                                                {mySchedules.length > 0 && (
+                                                {filteredSchedules.length > scheduleItemsPerPage && (
                                                     <div className="px-8 py-5 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/20">
                                                         <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                                            Menampilkan {(schedulePage - 1) * scheduleItemsPerPage + 1} sampai {Math.min(schedulePage * scheduleItemsPerPage, mySchedules.length)} dari {mySchedules.length} SLOT
+                                                            {(schedulePage - 1) * scheduleItemsPerPage + 1}–{Math.min(schedulePage * scheduleItemsPerPage, filteredSchedules.length)} dari {filteredSchedules.length} Slot
                                                         </span>
                                                         <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => setSchedulePage(p => Math.max(1, p - 1))}
-                                                                disabled={schedulePage === 1}
-                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700"
-                                                            >
-                                                                PREV
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setSchedulePage(p => Math.min(totalSchedulePages, p + 1))}
-                                                                disabled={schedulePage === totalSchedulePages}
-                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700"
-                                                            >
-                                                                NEXT
-                                                            </button>
+                                                            <button onClick={() => setSchedulePage(p => Math.max(1, p - 1))} disabled={schedulePage === 1}
+                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700">PREV</button>
+                                                            <button onClick={() => setSchedulePage(p => Math.min(totalSchedulePages, p + 1))} disabled={schedulePage === totalSchedulePages}
+                                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-500 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700">NEXT</button>
                                                         </div>
                                                     </div>
                                                 )}
@@ -989,7 +1116,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     .filter(s => s.id !== selectedRescheduleBooking?.schedule_id)
                                     .map(s => (
                                         <option key={s.id} value={s.id}>
-                                            {new Date(s.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })} — {s.start_time?.substring(0, 5)} WIB
+                                            {new Date(String(s.date).substring(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })} — {s.start_time?.substring(0, 5)} WIB
                                         </option>
                                     ))}
                             </select>
@@ -1068,6 +1195,26 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                     </div>
                 </form>
             </Modal>
-        </AuthenticatedLayout >
+
+            {/* Modal: Bulk Delete Confirm */}
+            <Modal show={showBulkConfirm} onClose={() => setShowBulkConfirm(false)}>
+                <div className="p-8">
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Konfirmasi Hapus</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        {bulkDeleteAll
+                            ? 'Semua slot kosong (belum ada booking) yang mendatang akan dihapus. Tindakan ini tidak dapat dibatalkan.'
+                            : `${selectedScheduleIds.length} slot yang dipilih akan dihapus. Slot yang sudah terisi tidak akan terpengaruh.`
+                        }
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <SecondaryButton onClick={() => setShowBulkConfirm(false)} className="rounded-2xl">Batal</SecondaryButton>
+                        <button onClick={confirmBulkDelete}
+                            className="inline-flex items-center px-6 py-3 bg-rose-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-rose-700 transition-all">
+                            Ya, Hapus Sekarang
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+        </AuthenticatedLayout>
     );
 }

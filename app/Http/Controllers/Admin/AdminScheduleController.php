@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClinicSetting;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,6 +59,11 @@ class AdminScheduleController extends Controller
         return Inertia::render('Admin/Schedules/Index', [
             'schedules' => $schedules,
             'therapists' => $therapists,
+            'clinicSettings' => [
+                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
+                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
+                'standard_slots' => ClinicSetting::getStandardSlots(),
+            ],
             'filters' => [
                 'therapist_id' => $therapistId,
             ]
@@ -95,13 +101,8 @@ class AdminScheduleController extends Controller
 
     private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
     {
-        $standardSlots = [
-            ['start' => '08:00:00', 'end' => '10:00:00'],
-            ['start' => '10:00:00', 'end' => '12:00:00'],
-            ['start' => '13:00:00', 'end' => '15:00:00'],
-            ['start' => '15:00:00', 'end' => '17:00:00'],
-            ['start' => '18:00:00', 'end' => '20:00:00'],
-        ];
+        // Load standard slots dynamically from clinic settings
+        $standardSlots = ClinicSetting::getStandardSlots();
 
         $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
         $userEnd = \Carbon\Carbon::parse($endTime)->format('H:i:s');

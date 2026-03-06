@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Clinic;
 
 use App\Http\Controllers\Controller;
 use App\Models\Schedule;
+use App\Models\ClinicSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -140,6 +141,13 @@ class ScheduleController extends Controller
             'availableSchedules' => $availableSchedules,
             'calendarSchedules' => $calendarSchedules,
             'mySchedules' => $mySchedules,
+            'serverNow' => now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
+            'clinicSettings' => [
+                'open_time' => ClinicSetting::getValue('clinic_open_time', '08:00'),
+                'close_time' => ClinicSetting::getValue('clinic_close_time', '22:00'),
+                'standard_slots' => ClinicSetting::getStandardSlots(),
+                'session_auto_close_min' => ClinicSetting::getSessionAutoCloseMins(),
+            ],
         ]);
     }
 
@@ -185,6 +193,17 @@ class ScheduleController extends Controller
 
         if ($booking->status !== 'confirmed') {
             return redirect()->back()->withErrors(['error' => 'Hanya sesi yang sudah dikonfirmasi yang dapat dimulai.']);
+        }
+
+        // Prevent starting a session whose scheduled time has already passed
+        if ($booking->schedule) {
+            $scheduleEnd = \Carbon\Carbon::parse(
+                \Carbon\Carbon::parse($booking->schedule->date)->format('Y-m-d') . ' ' . $booking->schedule->end_time,
+                'Asia/Jakarta'
+            );
+            if ($scheduleEnd->isPast()) {
+                return redirect()->back()->withErrors(['error' => 'Tidak dapat memulai sesi yang sudah berlalu.']);
+            }
         }
 
         $booking->update([
@@ -249,7 +268,7 @@ class ScheduleController extends Controller
         $patientNotes = $request->patient_visible_notes;
 
         if ($isAuto) {
-            $therapistNotes = ($therapistNotes ? $therapistNotes . "\n\n" : "") . "[Sesi ditutup otomatis oleh sistem karena melebihi durasi 95 menit]";
+            $therapistNotes = ($therapistNotes ? $therapistNotes . "\n\n" : "") . "[Sesi ditutup otomatis oleh sistem karena melebihi durasi " . ClinicSetting::getSessionAutoCloseMins() . " menit]";
             $patientNotes = ($patientNotes ? $patientNotes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.";
         }
 
@@ -392,19 +411,18 @@ class ScheduleController extends Controller
         ]);
 
         $therapistId = $request->user()->id;
-        $start = \Carbon\Carbon::parse($validated['date_from'], 'Asia/Jakarta');
-        $end = \Carbon\Carbon::parse($validated['date_to'], 'Asia/Jakarta');
+        // Use startOfDay to avoid timezone drift when iterating days
+        $start = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['date_from'], 'Asia/Jakarta')->startOfDay();
+        $end = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['date_to'], 'Asia/Jakarta')->startOfDay();
         $days = array_map('intval', $validated['days_of_week']);
 
         $created = 0;
         $current = $start->copy();
 
         while ($current->lte($end)) {
-
-
             if (in_array($current->dayOfWeek, $days)) {
                 $created += $this->generateSegments(
-                    $current->toDateString(),
+                    $current->format('Y-m-d'),
                     $validated['start_time'],
                     $validated['end_time'],
                     $therapistId,
@@ -412,10 +430,47 @@ class ScheduleController extends Controller
                     $validated['schedule_type'] ?? 'consultation'
                 );
             }
-            $current->addDay();
+            $current->addDay()->startOfDay();
         }
 
         return redirect()->back()->with('success', "$created slot jadwal berhasil dibuat (Sesuai siklus 2 jam).");
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'integer|exists:schedules,id',
+            'delete_all' => 'nullable|boolean',
+            'filter_status' => 'nullable|string|in:available,full',
+        ]);
+
+        $therapistId = $request->user()->id;
+        $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
+
+        $query = Schedule::where('booked_count', 0)
+            ->where('date', '>=', now()->toDateString());
+
+        if (!$isAdmin) {
+            $query->where('therapist_id', $therapistId);
+        }
+
+        if (!empty($validated['delete_all'])) {
+            // Delete all available future slots (optionally filtered by status)
+            if (!empty($validated['filter_status'])) {
+                $query->where('status', $validated['filter_status']);
+            }
+            $count = $query->count();
+            $query->delete();
+        } elseif (!empty($validated['ids'])) {
+            // Delete only selected ids that belong to this therapist and have no bookings
+            $count = $query->whereIn('id', $validated['ids'])->count();
+            $query->whereIn('id', $validated['ids'])->delete();
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Tidak ada jadwal yang dipilih untuk dihapus.']);
+        }
+
+        return redirect()->back()->with('success', "$count slot jadwal berhasil dihapus.");
     }
 
     public function store(Request $request)
@@ -448,16 +503,8 @@ class ScheduleController extends Controller
 
     private function generateSegments($date, $startTime, $endTime, $therapistId, $quota, $type)
     {
-        $dt = \Carbon\Carbon::parse($date);
-
-
-        $standardSlots = [
-            ['start' => '08:00:00', 'end' => '10:00:00'],
-            ['start' => '10:00:00', 'end' => '12:00:00'],
-            ['start' => '13:00:00', 'end' => '15:00:00'],
-            ['start' => '15:00:00', 'end' => '17:00:00'],
-            ['start' => '18:00:00', 'end' => '20:00:00'],
-        ];
+        // Load standard slots dynamically from clinic settings
+        $standardSlots = ClinicSetting::getStandardSlots();
 
         // Format user times to HH:mm:ss for comparison
         $userStart = \Carbon\Carbon::parse($startTime)->format('H:i:s');
@@ -498,7 +545,7 @@ class ScheduleController extends Controller
         }
 
         if ($schedule->booked_count > 0) {
-            return redirect()->back()->withErrors(['error' => 'Tidak bisa menghapus jadwal yang sudah dipesan.']);
+            return redirect()->back()->withErrors(['error' => 'Tidak bisa menghapus jadwal yang sudah ada booking.']);
         }
 
         $schedule->delete();

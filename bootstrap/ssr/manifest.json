@@ -231,7 +231,7 @@
     ]
   },
   "resources/js/Pages/Admin/OrderManagement/Index.jsx": {
-    "file": "assets/Index-D0ShUl2E.js",
+    "file": "assets/Index-CZiRakK6.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/OrderManagement/Index.jsx",
     "isDynamicEntry": true,
@@ -320,13 +320,13 @@
     ]
   },
   "resources/js/Pages/Admin/Schedules/Form.jsx": {
-    "file": "assets/Form-ZldotCyj.js",
+    "file": "assets/Form-DjIdnlkw.js",
     "name": "Form",
     "src": "resources/js/Pages/Admin/Schedules/Form.jsx",
     "isDynamicEntry": true
   },
   "resources/js/Pages/Admin/Schedules/Index.jsx": {
-    "file": "assets/Index-xaQqouGq.js",
+    "file": "assets/Index-DRw91hrc.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Schedules/Index.jsx",
     "isDynamicEntry": true,
@@ -348,6 +348,17 @@
       "_TextInput-DcEnl-Ka.js",
       "_SecondaryButton-D0HLp6wy.js",
       "resources/js/Pages/Admin/Users/ErrorBoundary.jsx",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/Settings/Index.jsx": {
+    "file": "assets/Index-CGy6h4k6.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Admin/Settings/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
       "_ThemeToggle-SHr-61ed.js",
       "_LiquidBackground-DsMP_cZ6.js"
     ]
@@ -661,7 +672,7 @@
     ]
   },
   "resources/js/Pages/Clinic/Schedules/Index.jsx": {
-    "file": "assets/Index-Dwlf3mi-.js",
+    "file": "assets/Index-C7HvFGup.js",
     "name": "Index",
     "src": "resources/js/Pages/Clinic/Schedules/Index.jsx",
     "isDynamicEntry": true,
@@ -713,7 +724,7 @@
     ]
   },
   "resources/js/Pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-CrNN-LfI.js",
+    "file": "assets/Dashboard-B_hQbz1g.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.jsx",
     "isDynamicEntry": true,
@@ -1102,6 +1113,7 @@
       "resources/js/Pages/Admin/Schedules/Form.jsx",
       "resources/js/Pages/Admin/Schedules/Index.jsx",
       "resources/js/Pages/Admin/Schedules/Show.jsx",
+      "resources/js/Pages/Admin/Settings/Index.jsx",
       "resources/js/Pages/Admin/Users/Agreement.jsx",
       "resources/js/Pages/Admin/Users/ErrorBoundary.jsx",
       "resources/js/Pages/Admin/Users/Form.jsx",
