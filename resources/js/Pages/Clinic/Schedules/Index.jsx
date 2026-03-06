@@ -893,10 +893,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                     return (
                                                         <div key={sc.id} className={`px-8 py-5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors ${isSelected ? 'bg-rose-50/50 dark:bg-rose-900/10' : ''}`}>
                                                             <div className="flex items-center gap-4">
-                                                                {sc.booked_count === 0 && (
-                                                                    <input type="checkbox" checked={isSelected} onChange={() => toggleSelectSchedule(sc.id)}
-                                                                        className="w-4 h-4 rounded accent-rose-500 cursor-pointer flex-shrink-0" />
-                                                                )}
+                                                                {/* Always show checkbox, backend will reject if legitimately booked */}
+                                                                <input type="checkbox" checked={isSelected} onChange={() => toggleSelectSchedule(sc.id)}
+                                                                    className="w-4 h-4 rounded accent-rose-500 cursor-pointer flex-shrink-0" />
                                                                 <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
                                                                     <span className="text-xs">{isValidDate ? d.toLocaleDateString('id-ID', { month: 'short' }) : '??'}</span>
                                                                     <span className="text-xl leading-none">{isValidDate ? d.getDate() : '-'}</span>
@@ -910,12 +909,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${sc.booked_count >= 1 ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'}`}>
                                                                     {sc.booked_count >= 1 ? '✅ Terisi' : '🟢 Tersedia'}
                                                                 </span>
-                                                                {sc.booked_count === 0 && (
-                                                                    <button onClick={() => { if (confirm('Hapus slot ini?')) router.delete(route('schedules.destroy', sc.id)); }}
-                                                                        className="p-2 rounded-xl bg-rose-50 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-all">
-                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                                    </button>
-                                                                )}
+                                                                {/* Always show delete button, if backend says no, it'll return error */}
+                                                                <button onClick={() => { if (confirm('Hapus slot ini?')) router.delete(route('schedules.destroy', sc.id)); }}
+                                                                    className="p-2 rounded-xl bg-rose-50 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-all">
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     );
@@ -1223,6 +1221,6 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                     </div>
                 </div>
             </Modal>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }
