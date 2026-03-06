@@ -21,6 +21,34 @@ class User extends Authenticatable implements MustVerifyEmail
                 $user->referral_code = self::generateUniqueReferralCode();
             }
         });
+
+        static::deleting(function ($user) {
+            // 1. Return quota to schedule if patient is deleted while holding active bookings
+            $activeBookings = \App\Models\Booking::with('schedule')
+                ->where('patient_id', $user->id)
+                ->whereIn('status', ['confirmed', 'in_progress'])
+                ->get();
+
+            foreach ($activeBookings as $booking) {
+                if ($booking->schedule && $booking->schedule->booked_count > 0) {
+                    $booking->schedule->decrement('booked_count');
+                    if ($booking->schedule->status === 'full' && $booking->schedule->booked_count < $booking->schedule->quota) {
+                        $booking->schedule->update(['status' => 'available']);
+                    }
+                }
+            }
+
+            // 2. Clear related data to prevent Foreign Key constraints
+            $user->bookings()->delete();
+            $user->transactions()->delete();
+            $user->screeningResults()->delete();
+
+            // 3. Clear schedule if therapist is deleted
+            if ($user->hasRole('therapist')) {
+                \App\Models\Schedule::where('therapist_id', $user->id)->delete();
+                \App\Models\Booking::where('therapist_id', $user->id)->update(['therapist_id' => null]);
+            }
+        });
     }
 
     public static function generateUniqueReferralCode()
@@ -122,22 +150,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class , 'therapist_id');
+        return $this->hasMany(Schedule::class, 'therapist_id');
     }
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class , 'patient_id');
+        return $this->hasMany(Booking::class, 'patient_id');
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class , 'user_id');
+        return $this->hasMany(Transaction::class, 'user_id');
     }
 
     public function earnedCommissions()
     {
-        return $this->hasMany(Commission::class , 'affiliate_user_id');
+        return $this->hasMany(Commission::class, 'affiliate_user_id');
     }
 
     public function courses()
@@ -211,8 +239,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($isTherapist) {
             $fields['specialization'] = ['label' => 'Keahlian/Spesialisasi', 'filled' => filled($this->specialization)];
             $fields['bio'] = ['label' => 'Biografi Singkat', 'filled' => filled($this->bio)];
-        }
-        else {
+        } else {
             $fields['ktp_photo'] = ['label' => 'Foto KTP', 'filled' => filled($this->ktp_photo)];
             $fields['emergency_contact_name'] = ['label' => 'Nama Kontak Darurat', 'filled' => filled($this->emergency_contact_name)];
             $fields['emergency_contact_phone'] = ['label' => 'No. HP Kontak Darurat', 'filled' => filled($this->emergency_contact_phone)];
@@ -229,7 +256,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $isComplete = count(array_filter(array_column($mandatoryFields, 'filled'))) === count($mandatoryFields);
 
         return [
-            'percentage' => (int)round(($completedCount / $totalCount) * 100),
+            'percentage' => (int) round(($completedCount / $totalCount) * 100),
             'fields' => $fields,
             'completed_count' => $completedCount,
             'total_count' => $totalCount,

@@ -186,19 +186,7 @@ class UserController extends Controller
         }
 
         try {
-            // Cleanup related data to avoid integrity constraint violations
-            $user->bookings()->delete();
-            $user->transactions()->delete();
-            $user->screeningResults()->delete();
-
-            // If they are a therapist, handle their managed sessions
-            if ($user->hasRole('therapist')) {
-                \App\Models\Schedule::where('therapist_id', $user->id)->delete();
-                \App\Models\Booking::where('therapist_id', $user->id)->update(['therapist_id' => null]);
-            }
-
             $user->delete();
-
             return redirect()->route('admin.users.index')->with('success', 'User dan data terkait berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal menghapus user karena masih memiliki data aktif: ' . $e->getMessage());
