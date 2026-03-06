@@ -80,16 +80,20 @@ class DashboardController extends Controller
                 $baseCourseQuery->where('instructor_id', $user->id);
             }
 
-            // Upcoming sessions
+            // Upcoming + overdue confirmed sessions (include past sessions that still need action)
             $therapistUpcomingSessions = (clone $baseBookingQuery)
                 ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
                 ->select('bookings.*')
                 ->with(['patient', 'schedule.therapist', 'therapist'])
                 ->whereIn('bookings.status', ['confirmed'])
-                ->where('schedules.date', '>=', now()->toDateString())
+                ->where(function ($q) {
+                    // Show upcoming sessions AND past sessions within 30 days back that still need action
+                    $q->where('schedules.date', '>=', now()->subDays(30)->toDateString());
+                })
+                ->orderByRaw("CASE WHEN schedules.date < CURDATE() THEN 0 ELSE 1 END ASC") // overdue first
                 ->orderBy('schedules.date', 'asc')
                 ->orderBy('schedules.start_time', 'asc')
-                ->take(5)
+                ->take(10)
                 ->get();
 
             // Ongoing sessions (in_progress)

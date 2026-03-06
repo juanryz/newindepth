@@ -708,11 +708,20 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             <Link href={booking.patient ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                                 Rekam Medis & Detail
                                                             </Link>
-                                                            {isPast && (
+                                                            {isPast && booking.status === 'confirmed' && (
+                                                                <div className="space-y-1.5">
+                                                                    <p className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-center">⏰ Jadwal Sudah Berlalu</p>
+                                                                    <div className="flex gap-2">
+                                                                        <button onClick={() => openRescheduleModal(booking)} className="flex-1 text-[10px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2.5 rounded-2xl uppercase">Reschedule</button>
+                                                                        <button onClick={() => openNoShowModal(booking)} className="flex-1 text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">No Show</button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {/* {isPast && (
                                                                 <div className="text-center py-2.5 px-4 rounded-2xl bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
                                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sesi sudah berlalu — tidak dapat dimulai</p>
                                                                 </div>
-                                                            )}
+                                                            )} */}
                                                             {booking.status === 'confirmed' && !isPast && (
                                                                 <button onClick={() => handleStartSession(booking.id)} className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl shadow-lg uppercase">Mulai Sesi</button>
                                                             )}
@@ -728,11 +737,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                                     <button onClick={() => openNoShowModal(booking)} className="flex-1 text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">Tidak Hadir</button>
                                                                 </div>
                                                             )}
-                                                            {isPast && booking.status === 'confirmed' && (
+                                                            {/* {isPast && booking.status === 'confirmed' && (
                                                                 <button onClick={() => openNoShowModal(booking)} className="w-full text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">
                                                                     Isi Alasan Tidak Hadir
                                                                 </button>
-                                                            )}
+                                                            )} */}
                                                         </div>
                                                     </div>
                                                 );
