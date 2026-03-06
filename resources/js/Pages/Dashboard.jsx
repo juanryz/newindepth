@@ -907,17 +907,21 @@ export default function Dashboard() {
 
                                                             {/* CTA */}
                                                             {(() => {
-                                                                let isReady = true;
+                                                                let state = 'upcoming'; // upcoming | ready | passed
                                                                 if (sched && sched.date && sched.start_time && sched.end_time) {
                                                                     const dateStr = String(sched.date).includes('T') ? String(sched.date).split('T')[0] : String(sched.date).substring(0, 10);
                                                                     const sessionDate = new Date(`${dateStr}T${sched.start_time}+07:00`);
                                                                     const sessionEnd = new Date(`${dateStr}T${sched.end_time}+07:00`);
                                                                     const now = new Date();
                                                                     const minStart = new Date(sessionDate.getTime() - 30 * 60000);
-                                                                    isReady = now >= minStart && now <= sessionEnd;
+                                                                    if (now > sessionEnd) {
+                                                                        state = 'passed';
+                                                                    } else if (now >= minStart) {
+                                                                        state = 'ready';
+                                                                    }
                                                                 }
 
-                                                                if (isReady) {
+                                                                if (state === 'ready') {
                                                                     return (
                                                                         <button
                                                                             onClick={() => {
@@ -929,6 +933,28 @@ export default function Dashboard() {
                                                                         >
                                                                             Mulai
                                                                         </button>
+                                                                    );
+                                                                } else if (state === 'passed') {
+                                                                    return (
+                                                                        <div className="flex flex-col gap-1.5 items-end">
+                                                                            <span className="text-[9px] font-black uppercase tracking-widest text-rose-500 mb-0.5">⏰ Jadwal Sudah Berlalu</span>
+                                                                            <button
+                                                                                onClick={() => router.visit(route('schedules.active-session', booking.id))}
+                                                                                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                                                            >
+                                                                                Reschedule
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    if (confirm('Tandai pasien sebagai Tidak Hadir (No Show)?')) {
+                                                                                        router.post(route('schedules.no-show', booking.id));
+                                                                                    }
+                                                                                }}
+                                                                                className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                                                            >
+                                                                                No Show
+                                                                            </button>
+                                                                        </div>
                                                                     );
                                                                 } else {
                                                                     return (
