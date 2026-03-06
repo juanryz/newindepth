@@ -112,7 +112,10 @@ class DashboardController extends Controller
             // Therapist Stats (Global if admin, otherwise specific)
             $therapistStats = [
                 'total_sessions' => (clone $baseBookingQuery)->where('status', 'completed')->count(),
-                'total_patients' => (clone $baseBookingQuery)->distinct()->count('patient_id'),
+                'total_patients' => (clone $baseBookingQuery)
+                    ->whereIn('status', ['confirmed', 'in_progress', 'completed'])
+                    ->distinct()
+                    ->count('patient_id'),
                 'active_courses' => (clone $baseCourseQuery)->count(),
             ];
 
