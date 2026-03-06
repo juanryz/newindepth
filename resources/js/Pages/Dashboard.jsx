@@ -906,16 +906,42 @@ export default function Dashboard() {
                                                             </div>
 
                                                             {/* CTA */}
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
-                                                                        router.post(route('schedules.start', booking.id));
-                                                                    }
-                                                                }}
-                                                                className="flex-shrink-0 px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/25 hover:from-indigo-700 hover:to-indigo-800 active:scale-95 transition-all"
-                                                            >
-                                                                Mulai
-                                                            </button>
+                                                            {(() => {
+                                                                let isReady = true;
+                                                                if (sched && sched.date && sched.start_time && sched.end_time) {
+                                                                    const dateStr = String(sched.date).includes('T') ? String(sched.date).split('T')[0] : String(sched.date).substring(0, 10);
+                                                                    const sessionDate = new Date(`${dateStr}T${sched.start_time}+07:00`);
+                                                                    const sessionEnd = new Date(`${dateStr}T${sched.end_time}+07:00`);
+                                                                    const now = new Date();
+                                                                    const minStart = new Date(sessionDate.getTime() - 30 * 60000);
+                                                                    isReady = now >= minStart && now <= sessionEnd;
+                                                                }
+
+                                                                if (isReady) {
+                                                                    return (
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                if (confirm('Mulai sesi terapi sekarang? Status akan berubah menjadi Sedang Berlangsung.')) {
+                                                                                    router.post(route('schedules.start', booking.id));
+                                                                                }
+                                                                            }}
+                                                                            className="flex-shrink-0 px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/25 hover:from-indigo-700 hover:to-indigo-800 active:scale-95 transition-all"
+                                                                        >
+                                                                            Mulai
+                                                                        </button>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <button
+                                                                            disabled
+                                                                            title="Hanya bisa dimulai 30 menit sebelum jadwal aktif"
+                                                                            className="flex-shrink-0 px-5 py-3 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                                                                        >
+                                                                            Belum Waktu
+                                                                        </button>
+                                                                    );
+                                                                }
+                                                            })()}
                                                         </motion.div>
                                                     );
                                                 })}

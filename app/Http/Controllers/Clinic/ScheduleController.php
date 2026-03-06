@@ -207,13 +207,20 @@ class ScheduleController extends Controller
             return redirect()->back()->withErrors(['error' => 'Hanya sesi yang sudah dikonfirmasi yang dapat dimulai.']);
         }
 
-        // Prevent starting a session whose scheduled time has already passed
+        // Prevent starting a session too early or if it has already passed
         if ($booking->schedule) {
-            $scheduleEnd = \Carbon\Carbon::parse(
-                \Carbon\Carbon::parse($booking->schedule->date)->format('Y-m-d') . ' ' . $booking->schedule->end_time,
-                'Asia/Jakarta'
-            );
-            if ($scheduleEnd->isPast()) {
+            $datePart = \Carbon\Carbon::parse($booking->schedule->date)->format('Y-m-d');
+            $scheduleStart = \Carbon\Carbon::parse($datePart . ' ' . $booking->schedule->start_time, 'Asia/Jakarta');
+            $scheduleEnd = \Carbon\Carbon::parse($datePart . ' ' . $booking->schedule->end_time, 'Asia/Jakarta');
+
+            // Allow starting up to 30 mins before
+            $allowableStart = $scheduleStart->copy()->subMinutes(30);
+
+            if (now('Asia/Jakarta')->lt($allowableStart)) {
+                return redirect()->back()->withErrors(['error' => 'Belum waktunya. Sesi hanya dapat dimulai maksimal 30 menit sebelum jadwal.']);
+            }
+
+            if (now('Asia/Jakarta')->gt($scheduleEnd)) {
                 return redirect()->back()->withErrors(['error' => 'Tidak dapat memulai sesi yang sudah berlalu.']);
             }
         }
