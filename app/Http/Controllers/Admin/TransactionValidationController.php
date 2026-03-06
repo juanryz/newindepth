@@ -26,12 +26,9 @@ class TransactionValidationController extends Controller
         });
 
         $therapists = User::role('therapist')->select('id', 'name')->get();
-        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
-        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
 
         $availableSchedules = \App\Models\Schedule::where('date', '>=', now()->toDateString())
             ->where('status', 'available')
-            ->whereRaw("NOT ({$weekendSql})")
             ->whereColumn('booked_count', '<', 'quota')
             ->orderBy('date')
             ->orderBy('start_time')

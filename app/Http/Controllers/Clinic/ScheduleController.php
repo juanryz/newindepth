@@ -399,9 +399,18 @@ class ScheduleController extends Controller
 
     public function storeRecurring(Request $request)
     {
+        // NOTE: days_of_week can contain 0 (Sunday). Laravel's 'required' on arrays
+        // may strip falsy values in some serialization scenarios.
+        // We manually extract and cast to int BEFORE validation.
+        $rawDays = $request->input('days_of_week', []);
+        $days = array_values(array_unique(array_map('intval', (array) $rawDays)));
+
+        // Reinject the cleaned days back so validation sees them
+        $request->merge(['days_of_week' => $days]);
+
         $validated = $request->validate([
             'days_of_week' => 'required|array|min:1',
-            'days_of_week.*' => 'integer|between:0,6', // 0=Sun,1=Mon,...,6=Sat
+            'days_of_week.*' => 'integer|between:0,6', // 0=Sun, 1=Mon, ..., 6=Sat
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'date_from' => 'required|date|after_or_equal:today',
@@ -411,16 +420,20 @@ class ScheduleController extends Controller
         ]);
 
         $therapistId = $request->user()->id;
-        // Use startOfDay to avoid timezone drift when iterating days
+        // Use startOfDay with explicit timezone to avoid drift
         $start = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['date_from'], 'Asia/Jakarta')->startOfDay();
         $end = \Carbon\Carbon::createFromFormat('Y-m-d', $validated['date_to'], 'Asia/Jakarta')->startOfDay();
-        $days = array_map('intval', $validated['days_of_week']);
+
+        // Final cast — ensure all values are int so strict in_array works
+        $days = array_values(array_unique(array_map('intval', $validated['days_of_week'])));
 
         $created = 0;
         $current = $start->copy();
 
         while ($current->lte($end)) {
-            if (in_array($current->dayOfWeek, $days)) {
+            // Carbon dayOfWeek: 0=Sunday, 1=Monday, ..., 6=Saturday
+            // Use strict comparison to avoid type-coercion bugs (0 == false, etc.)
+            if (in_array((int) $current->dayOfWeek, $days, true)) {
                 $created += $this->generateSegments(
                     $current->format('Y-m-d'),
                     $validated['start_time'],
@@ -433,7 +446,7 @@ class ScheduleController extends Controller
             $current->addDay()->startOfDay();
         }
 
-        return redirect()->back()->with('success', "$created slot jadwal berhasil dibuat (Sesuai siklus 2 jam).");
+        return redirect()->back()->with('success', "$created slot jadwal berhasil dibuat.");
     }
 
     public function bulkDelete(Request $request)

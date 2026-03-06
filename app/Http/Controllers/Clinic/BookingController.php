@@ -117,18 +117,14 @@ class BookingController extends Controller
         $now = \Illuminate\Support\Carbon::now('Asia/Jakarta');
         $toDate = $now->copy()->addDays(14);
 
-        $isSqlite = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite';
-        $weekendSql = $isSqlite ? "strftime('%w', date) IN ('0', '6')" : "DAYOFWEEK(date) IN (1, 7)";
-
         $rawSchedules = Schedule::where('schedule_type', 'consultation')
             ->where('date', '>=', $now->toDateString())
             ->where('date', '<=', $toDate->toDateString())
             ->whereNotNull('therapist_id') // Slot MUST have a therapist to be valid/available
             ->where('status', 'available')
-            ->whereRaw("NOT ({$weekendSql})") // Sab/Min Libur
             ->withCount([
                 'bookings' => function ($query) {
-                    $query->where('status', 'confirmed'); // Kuota hanya berkurang jika sudah divalidasi (confirmed)
+                    $query->where('status', 'confirmed');
                 }
             ])
             ->orderBy('date')

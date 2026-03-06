@@ -218,7 +218,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const handleAddSchedule = (e) => {
         e.preventDefault();
+        // IMPORTANT: Inertia's useForm serializes via FormData which may drop
+        // numeric 0 as falsy. We use router.post with explicit transform to
+        // ensure Sunday (id=0) is always included in the array.
+        const payload = {
+            ...recurData,
+            // Stringify each day value to avoid 0 being treated as falsy
+            days_of_week: recurData.days_of_week.map(d => Number(d)),
+        };
         postRecur(route('schedules.store-recurring'), {
+            data: payload,
             onSuccess: () => resetRecur(),
         });
     };
