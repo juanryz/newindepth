@@ -468,23 +468,31 @@ export default function Dashboard() {
     const hasScreening = !!screeningResult;
     const hasActiveBooking = !!activeBooking;
 
+    const [isProcessingScreening, setIsProcessingScreening] = useState(false);
+
     // Process pending public screening data safely on mount
     React.useEffect(() => {
         if (!isPatient) return;
         try {
             const raw = localStorage.getItem('indepth_public_screening');
             if (raw) {
+                setIsProcessingScreening(true);
                 axios.post('/screening/store-public', JSON.parse(raw))
                     .then(() => {
                         localStorage.removeItem('indepth_public_screening');
                         // Reload the page silently to fetch the newly saved screeningResult
                         router.reload({
-                            only: ['screeningResult', 'profileProgress', 'canTakeScreening', 'auth']
+                            only: ['screeningResult', 'profileProgress', 'canTakeScreening', 'auth'],
+                            onFinish: () => setIsProcessingScreening(false)
                         });
                     })
-                    .catch(() => { /* Ignore or retry manually later */ });
+                    .catch(() => {
+                        setIsProcessingScreening(false);
+                    });
             }
-        } catch (e) { }
+        } catch (e) {
+            setIsProcessingScreening(false);
+        }
     }, [isPatient]);
 
     const [showBookingBlocked, setShowBookingBlocked] = useState(false);
