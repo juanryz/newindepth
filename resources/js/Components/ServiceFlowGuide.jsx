@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
 
-export default function ServiceFlowGuide({ user, profileProgress, activeBooking }) {
+export default function ServiceFlowGuide({ user, profileProgress, activeBooking, isProcessingScreening }) {
     if (!user) return null;
 
     // Determine step completion
@@ -19,7 +19,7 @@ export default function ServiceFlowGuide({ user, profileProgress, activeBooking 
     })();
 
     const isAgreementDone = !!user.agreement_signed_at;
-    const isScreeningDone = !!user.screening_completed_at;
+    const isScreeningDone = !!user.screening_completed_at || isProcessingScreening;
 
     // If ALL steps done, hide the entire component
     if (isBasicProfileDone && isDocsDone && isAgreementDone && isScreeningDone) {

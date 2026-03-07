@@ -112,8 +112,27 @@ const severityColors = {
     'High Risk': 'bg-red-200 text-red-900 dark:bg-red-900/60 dark:text-red-200',
 };
 
-function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScreening, isProfileComplete }) {
+function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScreening, isProfileComplete, isProcessingScreening }) {
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+
+    if (isProcessingScreening) {
+        return (
+            <GlassPanel className="!border-indigo-200/60 dark:!border-indigo-700/30 p-5 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/30 to-purple-100/10 dark:from-indigo-900/10 dark:to-transparent pointer-events-none animate-pulse" />
+                <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-indigo-100/80 dark:bg-indigo-800/30 flex items-center justify-center shadow-sm animate-spin">
+                        <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-bold text-indigo-900 dark:text-indigo-200">Sedang Memproses Hasil Skrining...</p>
+                        <p className="text-sm text-indigo-700 dark:text-indigo-400 mt-0.5">Mohon tunggu sebentar, AI kami sedang menganalisis jawaban dan riwayat keluhan Anda.</p>
+                    </div>
+                </div>
+            </GlassPanel>
+        );
+    }
 
     if (!screeningResult) {
         if (isProfileComplete) return null; // Hide if profile is 100% complete
@@ -742,12 +761,14 @@ export default function Dashboard() {
                                 canTakeScreening={canTakeScreening}
                                 daysUntilNextScreening={daysUntilNextScreening}
                                 isProfileComplete={isProfileComplete}
+                                isProcessingScreening={isProcessingScreening}
                             />
 
                             <ServiceFlowGuide
                                 user={auth.user}
                                 profileProgress={profileProgress}
                                 activeBooking={activeBooking}
+                                isProcessingScreening={isProcessingScreening}
                             />
                         </div>
                     )}
