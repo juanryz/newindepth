@@ -403,7 +403,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 </ul>
                             </div>
 
-                            <Link href="/register?package=reguler" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
+                            <Link href="/screening/public?package=reguler" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
                                 Pilih Reguler
                             </Link>
                         </div>
@@ -536,7 +536,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 </ul>
                             </div>
 
-                            <Link href="/register?package=vip" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500/50 text-white font-bold hover:bg-gold-500 transition-all duration-300 mt-auto relative z-10">
+                            <Link href="/screening/public?package=vip" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500/50 text-white font-bold hover:bg-gold-500 transition-all duration-300 mt-auto relative z-10">
                                 Pilih VIP
                             </Link>
                         </div>

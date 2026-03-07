@@ -127,8 +127,8 @@ function ScreeningBanner({ screeningResult, canTakeScreening, daysUntilNextScree
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-bold text-amber-900 dark:text-amber-200">Anda Belum Melengkapi Profil</p>
-                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">Lengkapi profil Anda terlebih dahulu agar Anda bisa membeli paket dan membuat janji konsultasi.</p>
+                        <p className="font-bold text-amber-900 dark:text-amber-200">Lengkapi Profil untuk Melihat Hasil Skrining</p>
+                        <p className="text-sm text-amber-700 dark:text-amber-400 mt-0.5">Jawaban skrining Anda sudah tersimpan aman. Silakan lengkapi profil Anda terlebih dahulu untuk membuka hasil analisis dan membuat janji konsultasi.</p>
                     </div>
                 </div>
             </GlassPanel>

@@ -53,7 +53,7 @@
     "/build/assets/AuthenticatedLayout-DSi5ya3j.js"
   ],
   "resources/js/Components/PageLoader.jsx": [
-    "/build/assets/Welcome-Bwf3isBe.js"
+    "/build/assets/Welcome-s2Whlwls.js"
   ],
   "resources/js/Components/PrimaryButton.jsx": [
     "/build/assets/PrimaryButton-DsRkdqwY.js"
@@ -63,6 +63,9 @@
   ],
   "resources/js/Components/ResponsiveNavLink.jsx": [
     "/build/assets/AuthenticatedLayout-DSi5ya3j.js"
+  ],
+  "resources/js/Components/Screening/shared.jsx": [
+    "/build/assets/shared-DNq1YJS6.js"
   ],
   "resources/js/Components/SecondaryButton.jsx": [
     "/build/assets/SecondaryButton-D0HLp6wy.js"
@@ -186,7 +189,7 @@
     "/build/assets/Login-C2s4wZCr.js"
   ],
   "resources/js/Pages/Auth/Register.jsx": [
-    "/build/assets/Register-uIJAEsPK.js"
+    "/build/assets/Register-rJicnjqr.js"
   ],
   "resources/js/Pages/Auth/ResetPassword.jsx": [
     "/build/assets/ResetPassword-SMkCXGnr.js"
@@ -237,7 +240,7 @@
     "/build/assets/PatientDetail-Q-08xTfU.js"
   ],
   "resources/js/Pages/Clinic/Screening.jsx": [
-    "/build/assets/Screening-lLeatG6r.js"
+    "/build/assets/Screening-BmlCdYJA.js"
   ],
   "resources/js/Pages/Clinic/Vouchers/Index.jsx": [
     "/build/assets/Index-D59YzOKf.js"
@@ -305,6 +308,9 @@
   "resources/js/Pages/Profile/Partials/UpdateTherapistProfileForm.jsx": [
     "/build/assets/UpdateTherapistProfileForm-z-gJtDOo.js"
   ],
+  "resources/js/Pages/Screening/PublicScreening.jsx": [
+    "/build/assets/PublicScreening-IoB8cG0W.js"
+  ],
   "resources/js/Pages/Testimonials/Index.jsx": [
     "/build/assets/Index-6tAAGBrH.js"
   ],
@@ -327,7 +333,7 @@
     "/build/assets/Show-2zY67Svm.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-Bwf3isBe.js"
+    "/build/assets/Welcome-s2Whlwls.js"
   ],
   "resources/js/ssr.jsx": [],
   "vendor/tightenco/ziggy/dist/index.js": []

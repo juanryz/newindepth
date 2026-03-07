@@ -35,22 +35,20 @@ class OpenAIScreeningService
         $this->model = config('services.openai.model', 'gpt-4o-mini');
 
         $this->systemPrompt = <<<PROMPT
-Kamu adalah Asisten Klinis dari InDepth Mental Wellness Center.
+Kamu adalah seorang konsultan kesehatan mental dari InDepth Mental Wellness Center. Namamu adalah Nadia.
 
-Peranmu:
-Peranmu:
-- Mendampingi calon pasien dengan hangat, empatik, dan profesional
-- Mendengarkan cerita calon pasien di tahap akhir skrining (Detail Masalah & Outcome)
-- Memberikan respons empatik singkat (2–4 kalimat) yang membuat calon pasien merasa didengar
-- TIDAK mendiagnosis, TIDAK memberikan saran terapi spesifik
-- Jika mendeteksi risiko tinggi (bunuh diri, bisikan, putus asa), respons dengan tenang dan informasikan bahwa tim akan segera menghubungi
+Sifatmu:
+- Hangat, sabar, dan seperti teman curhat yang bisa dipercaya — bukan robot
+- Berbicara secara alami, menggunakan bahasa Indonesia sehari-hari yang santun namun tidak kaku
+- Aktif mendengarkan: ulangi atau parafrasekan sedikit apa yang disampaikan pasien agar mereka merasa benar-benar didengar
+- Sesekali boleh bertanya 1 pertanyaan tindak lanjut yang personal dan spesifik — jangan generik
+- Jangan memberi diagnosis, jangan merekomendasikan obat, jangan terdengar seperti chatbot
 
-Gaya bahasa:
-- Gunakan Bahasa Indonesia yang hangat dan formal
-- Tidak terlalu kaku, tidak terlalu santai
-- Selalu akhiri dengan kalimat validasi atau dorongan ringan
+Batasan:
+- Jika ada tanda risiko tinggi (bunuh diri, menyakiti diri, bisikan), respons dengan sangat tenang dan empatik, lalu sampaikan bahwa tim InDepth akan segera menghubungi secara prioritas
+- Respons maksimal 3-4 kalimat. Cukup singkat tapi bermakna
 
-Penting: Respons maksimal 3–4 kalimat. Jangan bertanya terlalu banyak pertanyaan balik.
+Ingat: Kamu bukan dokter dan bukan terapis — kamu adalah teman bicara awal yang membantu mereka merasa nyaman sebelum bertemu tim profesional InDepth.
 PROMPT;
     }
 
@@ -75,18 +73,20 @@ PROMPT;
 
             if (!$this->apiKey || $this->apiKey === 'sk-test-fakekey-only-for-demo') {
                 $msg = strtolower($userMessage ?? '');
-                $reply = 'Terima kasih sudah berbagi. Kami sangat menghargai keterbukaan Anda dan tim kami di InDepth siap mendampingi proses pemulihan Anda.';
+                $reply = 'Makasih ya udah mau cerita — butuh keberanian lho buat nulis hal seperti ini 😊 Tim InDepth siap menemani kamu lebih lanjut.';
 
                 if (str_contains($msg, 'sedih') || str_contains($msg, 'bingung') || str_contains($msg, 'stres')) {
-                    $reply = 'Kami mengerti bahwa perasaan tersebut sangat tidak nyaman. Di InDepth, kami akan membantu Anda menemukan akar dari perasaan tersebut melalui metode trance yang aman.';
+                    $reply = 'Duh, kedengarannya berat banget ya... Wajar banget kamu ngerasa kayak gitu. Boleh cerita lebih, biasanya situasi seperti apa yang paling sering bikin kamu ngerasa begini?';
                 } elseif (str_contains($msg, 'trauma') || str_contains($msg, 'masa lalu')) {
-                    $reply = 'Trauma masa lalu memang berat, tapi Anda tidak sendirian. Metode InDepth dirancang khusus untuk membantu pelepasan emosi yang tertahan di lapisan somatic mind.';
+                    $reply = 'Hal yang kamu alami di masa lalu itu nyata dan dampaknya pun nyata. Kamu nggak perlu menanggungnya sendiri — ini langkah yang tepat buat mulai proses pemulihannya.';
                 } elseif (str_contains($msg, 'takut') || str_contains($msg, 'cemas')) {
-                    $reply = 'Kecemasan adalah sinyal dari pikiran bawah sadar. Kami akan membantu Anda berkomunikasi dengan bagian tersebut untuk menciptakan rasa tenang yang baru.';
+                    $reply = 'Rasa takut dan cemas itu melelahkan banget, apalagi kalau sudah lama dirasakan. Kira-kira ada nggak situasi tertentu yang paling sering memicu perasaan itu?';
+                } elseif (str_contains($msg, 'capek') || str_contains($msg, 'lelah') || str_contains($msg, 'burnout')) {
+                    $reply = 'Kelelahan seperti ini — baik fisik maupun emosi — sering kali diabaikan padahal itu sinyal penting dari diri sendiri. Sudah berapa lama kamu merasakannya?';
                 }
 
                 return [
-                    'reply' => $reply . " (Mode Simulasi Skrining)",
+                    'reply' => $reply,
                     'is_high_risk' => $this->detectCrisis($userMessage ?? ''),
                 ];
             }

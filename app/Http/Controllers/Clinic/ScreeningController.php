@@ -186,6 +186,56 @@ class ScreeningController extends Controller
         return [$package, $severityLabel, $isHighRisk];
     }
 
+    public function storeFromPublic(Request $request)
+    {
+        $user = auth()->user()->fresh();
+
+        $request->validate([
+            'package_type' => 'required|string|in:reguler,vip',
+            'step_data' => 'required|array',
+            'is_high_risk' => 'nullable|boolean',
+        ]);
+
+        $stepData = $request->input('step_data');
+        $packageType = $request->input('package_type');
+        $clientHighRisk = $request->input('is_high_risk', false);
+
+        // Run decision engine
+        [$recommendedPackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, []);
+        $isHighRisk = $isHighRisk || $clientHighRisk;
+
+        // Generate AI summary
+        try {
+            $service = new OpenAIScreeningService();
+            $aiSummary = $service->generateSummary($stepData, []);
+        } catch (\Throwable $e) {
+            $aiSummary = 'Ringkasan tidak tersedia.';
+        }
+
+        ScreeningResult::create([
+            'user_id' => $user->id,
+            'step_data' => $stepData,
+            'chat_history' => [],
+            'severity_label' => $severityLabel,
+            'recommended_package' => $recommendedPackage,
+            'ai_summary' => $aiSummary,
+            'is_high_risk' => $isHighRisk,
+            'completed_at' => now(),
+        ]);
+
+        $user->update([
+            'name' => $stepData['nama'] ?? $user->name,
+            'phone' => $stepData['wa'] ?? $user->phone,
+            'age' => $stepData['usia'] ?? $user->age,
+            'gender' => $stepData['gender'] ?? $user->gender,
+            'screening_answers' => $stepData,
+            'screening_completed_at' => now(),
+            'recommended_package' => in_array($recommendedPackage, ['reguler', 'premium', 'vip']) ? $recommendedPackage : $packageType,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
     private function extractChatText(array $chatHistory): string
     {
         return collect($chatHistory)

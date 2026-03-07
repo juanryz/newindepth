@@ -4,9 +4,32 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Register() {
+    // Check if there is screening data in localStorage
+    const [screeningData, setScreeningData] = useState(null);
+
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem('indepth_public_screening');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                setScreeningData(parsed);
+                // Pre-fill form with screening data
+                if (parsed.step_data) {
+                    setData(prev => ({
+                        ...prev,
+                        name: parsed.step_data.nama || prev.name,
+                        email: parsed.step_data.email || prev.email,
+                        phone: parsed.step_data.wa || prev.phone,
+                    }));
+                }
+            }
+        } catch (e) { /* ignore */ }
+    }, []);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -23,6 +46,17 @@ export default function Register() {
 
         post(route('register'), {
             onFinish: () => reset('password', 'password_confirmation'),
+            onSuccess: () => {
+                // After successful registration, send screening data if exists
+                try {
+                    const raw = localStorage.getItem('indepth_public_screening');
+                    if (raw) {
+                        axios.post('/screening/store-public', JSON.parse(raw))
+                            .then(() => localStorage.removeItem('indepth_public_screening'))
+                            .catch(() => { /* will be retried on next login */ });
+                    }
+                } catch (e) { /* ignore */ }
+            },
         });
     };
 

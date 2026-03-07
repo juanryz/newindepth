@@ -65,6 +65,10 @@
     "file": "assets/ThemeToggle-SHr-61ed.js",
     "name": "ThemeToggle"
   },
+  "_shared-DNq1YJS6.js": {
+    "file": "assets/shared-DNq1YJS6.js",
+    "name": "shared"
+  },
   "resources/js/Components/DisclaimerSection.jsx": {
     "file": "assets/DisclaimerSection-xOYLaWsi.js",
     "name": "DisclaimerSection",
@@ -493,7 +497,7 @@
     ]
   },
   "resources/js/Pages/Auth/Register.jsx": {
-    "file": "assets/Register-uIJAEsPK.js",
+    "file": "assets/Register-rJicnjqr.js",
     "name": "Register",
     "src": "resources/js/Pages/Auth/Register.jsx",
     "isDynamicEntry": true,
@@ -702,12 +706,13 @@
     ]
   },
   "resources/js/Pages/Clinic/Screening.jsx": {
-    "file": "assets/Screening-lLeatG6r.js",
+    "file": "assets/Screening-BmlCdYJA.js",
     "name": "Screening",
     "src": "resources/js/Pages/Clinic/Screening.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_AuthenticatedLayout-DSi5ya3j.js",
+      "_shared-DNq1YJS6.js",
       "_ThemeToggle-SHr-61ed.js",
       "_LiquidBackground-DsMP_cZ6.js"
     ]
@@ -987,6 +992,16 @@
       "_TextInput-DcEnl-Ka.js"
     ]
   },
+  "resources/js/Pages/Screening/PublicScreening.jsx": {
+    "file": "assets/PublicScreening-IoB8cG0W.js",
+    "name": "PublicScreening",
+    "src": "resources/js/Pages/Screening/PublicScreening.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ThemeToggle-SHr-61ed.js",
+      "_shared-DNq1YJS6.js"
+    ]
+  },
   "resources/js/Pages/Testimonials/Index.jsx": {
     "file": "assets/Index-6tAAGBrH.js",
     "name": "Index",
@@ -1071,7 +1086,7 @@
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-Bwf3isBe.js",
+    "file": "assets/Welcome-s2Whlwls.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
@@ -1165,6 +1180,7 @@
       "resources/js/Pages/Profile/Partials/UpdatePatientDocumentsForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.jsx",
       "resources/js/Pages/Profile/Partials/UpdateTherapistProfileForm.jsx",
+      "resources/js/Pages/Screening/PublicScreening.jsx",
       "resources/js/Pages/Testimonials/Index.jsx",
       "resources/js/Pages/Therapist/Courses/Form.jsx",
       "resources/js/Pages/Therapist/Courses/Index.jsx",

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'show'])->name('screening.show');
     Route::post('/screening', [\App\Http\Controllers\Clinic\ScreeningController::class, 'store'])->name('screening.store');
     Route::post('/screening/chat', [\App\Http\Controllers\Clinic\ScreeningController::class, 'chatMessage'])->name('screening.chat');
+    Route::post('/screening/store-public', [\App\Http\Controllers\Clinic\ScreeningController::class, 'storeFromPublic'])->name('screening.store-public');
 
     // Agreement
     Route::get('/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'show'])->name('agreement.show');
@@ -298,6 +299,20 @@ Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms
 // Public Blog Routes
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+
+// Public Screening Route (before registration)
+Route::get('/screening/public', function (\Illuminate\Http\Request $request) {
+    $package = $request->query('package', 'reguler');
+    if (!in_array($package, ['reguler', 'vip'])) {
+        $package = 'reguler';
+    }
+    return Inertia::render('Screening/PublicScreening', [
+        'packageType' => $package,
+    ]);
+})->name('screening.public');
+
+// Public Screening AI Chat (no auth required)
+Route::post('/screening/public/chat', [\App\Http\Controllers\Clinic\ScreeningController::class, 'chatMessage'])->name('screening.public.chat');
 
 // Public Testimonials Route
 Route::get('/testimoni', function () {

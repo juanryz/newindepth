@@ -6,6 +6,7 @@ import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import axios from 'axios';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -23,6 +24,17 @@ export default function Login({ status, canResetPassword }) {
 
         post(route('login'), {
             onFinish: () => reset('password'),
+            onSuccess: () => {
+                // After successful login, send screening data if exists
+                try {
+                    const raw = localStorage.getItem('indepth_public_screening');
+                    if (raw) {
+                        axios.post('/screening/store-public', JSON.parse(raw))
+                            .then(() => localStorage.removeItem('indepth_public_screening'))
+                            .catch(() => { /* will be retried later */ });
+                    }
+                } catch (e) { /* ignore */ }
+            },
         });
     };
 
