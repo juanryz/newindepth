@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import ProfileProgressCard from '@/Components/ProfileProgressCard';
 import ServiceFlowGuide from '@/Components/ServiceFlowGuide';
+import axios from 'axios';
 
 const GlassPanel = ({ children, className = '', ...props }) => (
     <div className={`bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-3xl transition-all duration-500 ${className}`} {...props}>{children}</div>
@@ -447,6 +448,25 @@ export default function Dashboard() {
 
     const hasScreening = !!screeningResult;
     const hasActiveBooking = !!activeBooking;
+
+    // Process pending public screening data safely on mount
+    React.useEffect(() => {
+        if (!isPatient) return;
+        try {
+            const raw = localStorage.getItem('indepth_public_screening');
+            if (raw) {
+                axios.post('/screening/store-public', JSON.parse(raw))
+                    .then(() => {
+                        localStorage.removeItem('indepth_public_screening');
+                        // Reload the page silently to fetch the newly saved screeningResult
+                        router.reload({
+                            only: ['screeningResult', 'profileProgress', 'canTakeScreening', 'auth']
+                        });
+                    })
+                    .catch(() => { /* Ignore or retry manually later */ });
+            }
+        } catch (e) { }
+    }, [isPatient]);
 
     const [showBookingBlocked, setShowBookingBlocked] = useState(false);
 
