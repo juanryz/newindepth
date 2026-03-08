@@ -218,8 +218,8 @@ class ScreeningController extends Controller
         $packageType = $request->input('package_type');
         $clientHighRisk = $request->input('is_high_risk', false);
 
-        // Run decision engine
-        [$recommendedPackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, []);
+        // Run decision engine — only for severity_label, NOT for package override
+        [$_, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, []);
         $isHighRisk = $isHighRisk || $clientHighRisk;
 
         // Generate AI summary
@@ -235,7 +235,7 @@ class ScreeningController extends Controller
             'step_data' => $stepData,
             'chat_history' => [],
             'severity_label' => $severityLabel,
-            'recommended_package' => $recommendedPackage,
+            'recommended_package' => $packageType, // tetap paket awal yang dipilih user
             'ai_summary' => $aiSummary,
             'is_high_risk' => $isHighRisk,
             'completed_at' => now(),
@@ -248,7 +248,7 @@ class ScreeningController extends Controller
             'gender' => $stepData['gender'] ?? $user->gender,
             'screening_answers' => $stepData,
             'screening_completed_at' => now(),
-            'recommended_package' => in_array($recommendedPackage, ['reguler', 'premium', 'vip']) ? $recommendedPackage : $packageType,
+            'recommended_package' => $packageType, // tetap paket awal yang dipilih user
         ]);
 
         return response()->json(['success' => true]);

@@ -7,7 +7,7 @@ import {
     MASALAH_OPTIONS, MASALAH_OPTIONS_REGULER, MASALAH_OPTIONS_VIP,
     USAHA_OPTIONS, DURASI_OPTIONS, TINGKAT_GANGGUAN_OPTIONS,
     DIAGNOSIS_OPTIONS, PERAWATAN_OPTIONS,
-    ProgressBar, AiBubble, UserBubble, CrisisBanner, VipRecommendationBanner,
+    ProgressBar, AiBubble, UserBubble, CrisisBanner,
     RadioGroup, CheckboxGroup, InputField, AutofillInputField,
     SkalaStep as Step4Skala, DiagnosisStep as Step6, ObesitasStep as Step3Obesitas,
     EssayStep, IdentitasStep,
@@ -280,9 +280,7 @@ export default function Screening() {
             ? (screeningResult.recommended_package === 'vip' ? 'VIP' : screeningResult.recommended_package.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
             : null;
 
-        // Check if user's chosen package was reguler but recommendation is VIP
-        const userChosenPackage = screeningResult.step_data?.chosen_package || 'reguler';
-        const isUpgradeRecommended = userChosenPackage === 'reguler' && screeningResult.recommended_package === 'vip';
+
 
         return (
             <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 dark:text-white leading-tight">Hasil Skrining Klinis</h2>}>
@@ -302,14 +300,6 @@ export default function Screening() {
                                         <p className="text-gray-500 dark:text-gray-400">Ringkasan hasil analisis kesehatan mental Anda</p>
                                     </div>
                                 </div>
-
-                                {/* VIP Recommendation */}
-                                {isUpgradeRecommended && (
-                                    <VipRecommendationBanner
-                                        masalahUtama={screeningResult.step_data?.masalah_utama}
-                                        severityInfo={screeningResult.severity_label}
-                                    />
-                                )}
 
                                 <div className="grid grid-cols-1 gap-6 mb-10">
                                     <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">

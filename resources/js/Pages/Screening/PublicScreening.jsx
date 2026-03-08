@@ -6,7 +6,7 @@ import {
     detectCrisis,
     MASALAH_OPTIONS_REGULER, MASALAH_OPTIONS_VIP, USAHA_OPTIONS, DURASI_OPTIONS,
     TINGKAT_GANGGUAN_OPTIONS, PERAWATAN_OPTIONS,
-    StepIndicator, AiBubble, UserBubble, CrisisBanner, VipRecommendationBanner,
+    StepIndicator, AiBubble, UserBubble, CrisisBanner,
     RadioGroup, CheckboxGroup,
     SkalaStep, DiagnosisStep, EssayStep, IdentitasStep,
 } from '@/Components/Screening/shared';
@@ -23,7 +23,6 @@ export default function PublicScreening() {
     const [isHighRisk, setIsHighRisk] = useState(false);
     const [showVipModal, setShowVipModal] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
-    const [recommendedVip, setRecommendedVip] = useState(false);
 
     // AI chat state
     const [chatHistory, setChatHistory] = useState([]);
@@ -207,21 +206,6 @@ export default function PublicScreening() {
         setStep(s => s + 1);
     };
 
-    // ── Determine if VIP is recommended for reguler user ──────────────────────
-    const checkVipRecommendation = () => {
-        if (isVip) return false; // already VIP
-
-        const tingkat = stepData.tingkat_gangguan || '';
-        const durasi = stepData.durasi || '';
-        const skala = stepData.skala ?? 5;
-
-        // Recommend VIP if severity is high
-        if (tingkat.startsWith('Berat') || tingkat.startsWith('Sangat Berat')) return true;
-        if (skala >= 8 && ['1–3 tahun', '> 3 tahun'].includes(durasi)) return true;
-
-        return false;
-    };
-
     // ── Save to localStorage & redirect ───────────────────────────────────────
     const handleClickFinish = () => {
         saveAndRedirect();
@@ -230,11 +214,9 @@ export default function PublicScreening() {
     const saveAndRedirect = () => {
         const allText = (stepData.detail_masalah || '') + ' ' + (stepData.outcome || '') + ' ' + (stepData.gejala_psikosomatis || '');
         const highRisk = detectCrisis(allText);
-        const shouldRecommendVip = checkVipRecommendation();
 
         const screeningData = {
             package_type: packageType, // tetap paket awal, TIDAK berubah
-            recommended_vip: shouldRecommendVip,
             step_data: stepData,
             chat_history: chatHistory,
             is_high_risk: highRisk || isHighRisk,
@@ -242,17 +224,8 @@ export default function PublicScreening() {
         };
 
         localStorage.setItem('indepth_public_screening', JSON.stringify(screeningData));
-        setRecommendedVip(shouldRecommendVip);
         setIsCompleted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // ── Helper: get severity info text ────────────────────────────────────────
-    const getSeverityInfoText = () => {
-        const parts = [];
-        if (stepData.tingkat_gangguan) parts.push(stepData.tingkat_gangguan.split(' — ')[0]);
-        if (stepData.durasi) parts.push(`sudah berlangsung ${stepData.durasi}`);
-        return parts.join(', ') || null;
     };
 
     // ── Step Rendering ────────────────────────────────────────────────────────
@@ -330,14 +303,6 @@ export default function PublicScreening() {
                             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
                                 Terima kasih sudah mengisi skrining dengan jujur. Jawaban Anda sudah tersimpan.
                             </p>
-
-                            {/* VIP Recommendation Banner — only shown if reguler user needs VIP */}
-                            {recommendedVip && !isVip && (
-                                <VipRecommendationBanner
-                                    masalahUtama={stepData.masalah_utama}
-                                    severityInfo={getSeverityInfoText()}
-                                />
-                            )}
 
                             <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl mb-6 text-left">
                                 <div className="flex items-start gap-3">
@@ -455,13 +420,6 @@ export default function PublicScreening() {
                             className="flex items-center justify-center w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-sm hover:opacity-90 transition-opacity shadow-lg"
                         >
                             Silakan Pindah ke Paket VIP →
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setShowVipModal(false)}
-                            className="w-full mt-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                        >
-                            Kembali
                         </button>
                     </div>
                 </div>
