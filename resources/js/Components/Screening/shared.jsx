@@ -32,11 +32,26 @@ export const MASALAH_OPTIONS = [
     'Pengembangan diri',
 ];
 
+// ── Pertanyaan Skrining Reguler ───────────────────────────────────────────────
+// Jika pilih A/B/C → lanjut skrining Reguler. Pilih D (Keluhan Fisik) → redirect VIP.
 export const MASALAH_OPTIONS_REGULER = [
     'Pikiran — sering cemas, overthinking, susah fokus',
     'Perasaan — sering sedih, mudah marah, takut berlebihan',
     'Perilaku — kebiasaan buruk yang susah dihentikan',
     'Keluhan Fisik akibat Stres — sakit kepala, nyeri lambung, sesak napas, dll yang muncul saat stres/emosi',
+];
+
+// ── Pertanyaan Skrining VIP (fokus: Psikosomatis) ────────────────────────────
+export const MASALAH_OPTIONS_VIP = [
+    'Sakit kepala / migrain yang muncul saat stres atau emosional',
+    'Nyeri lambung / maag yang kambuh saat cemas atau tertekan',
+    'Sesak napas / dada terasa berat tanpa sebab medis yang jelas',
+    'Gangguan tidur — insomnia, tidur tidak nyenyak, mimpi buruk',
+    'Nyeri otot / tubuh tegang yang berkaitan dengan kondisi emosional',
+    'Gangguan pencernaan — mual, diare, sembelit saat stres',
+    'Jantung berdebar-debar tanpa aktivitas fisik berat',
+    'Kelelahan kronis — tubuh terasa lelah terus-menerus meski sudah istirahat',
+    'Lainnya',
 ];
 
 export const USAHA_OPTIONS = [
@@ -51,6 +66,13 @@ export const USAHA_OPTIONS = [
 ];
 
 export const DURASI_OPTIONS = ['< 1 bulan', '1–6 bulan', '6–12 bulan', '1–3 tahun', '> 3 tahun'];
+
+export const TINGKAT_GANGGUAN_OPTIONS = [
+    'Ringan — masih bisa menjalankan aktivitas sehari-hari',
+    'Sedang — terganggu tapi masih bisa beraktivitas sebagian',
+    'Berat — sangat mengganggu, sulit menjalankan aktivitas normal',
+    'Sangat Berat — hampir tidak bisa beraktivitas sama sekali',
+];
 
 export const DIAGNOSIS_OPTIONS = [
     'Tidak pernah didiagnosis',
@@ -402,6 +424,38 @@ export function IdentitasStep({ data, update, autofilled = {} }) {
                     <InputField label="Email" type="email" value={data.email} onChange={v => update('email', v)} required />
                 </>
             )}
+        </div>
+    );
+}
+
+// ── VIP Recommendation Banner ─────────────────────────────────────────────────
+export function VipRecommendationBanner({ masalahUtama, severityInfo }) {
+    return (
+        <div className="mb-6 p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-700/50 rounded-2xl">
+            <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <span className="text-xl">💡</span>
+                </div>
+                <div className="flex-1">
+                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Rekomendasi dari Tim InDepth</h4>
+                    <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+                        Sebelumnya Anda memilih paket <strong>Reguler</strong>, namun berdasarkan hasil skrining Anda,
+                        {masalahUtama && (
+                            <> kami menemukan indikasi <strong>{masalahUtama}</strong>.</>
+                        )}
+                        {severityInfo && (
+                            <> Tingkat gangguan Anda termasuk <strong>{severityInfo}</strong>.</>
+                        )}
+                        {' '}Kami merekomendasikan paket <strong>VIP</strong> karena metode terapi yang lebih mendalam dan intensif akan <strong>lebih efektif</strong> untuk kondisi Anda.
+                    </p>
+                    <div className="mt-3 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Anda tetap dapat memilih paket sesuai keinginan Anda saat melakukan booking.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

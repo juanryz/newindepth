@@ -132,6 +132,7 @@ class ScreeningController extends Controller
         $masalahUtama = $stepData['masalah_utama'] ?? '';
         $skala = (int) ($stepData['skala'] ?? 0);
         $durasi = $stepData['durasi'] ?? '';
+        $tingkatGangguan = $stepData['tingkat_gangguan'] ?? '';
         $obesitasKg = $stepData['obesitas_kg'] ?? null;
         $chatText = $this->extractChatText($chatHistory);
 
@@ -150,7 +151,17 @@ class ScreeningController extends Controller
             $isVip = true;
         }
 
+        // Tingkat gangguan berat/sangat berat → VIP
+        if (str_starts_with($tingkatGangguan, 'Berat') || str_starts_with($tingkatGangguan, 'Sangat Berat')) {
+            $isVip = true;
+        }
+
         if ($skala >= 9 && in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas'])) {
+            $isVip = true;
+        }
+
+        // Skala berat + durasi lama → VIP
+        if ($skala >= 8 && in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas'])) {
             $isVip = true;
         }
 
@@ -160,13 +171,20 @@ class ScreeningController extends Controller
 
         $durasiKronis = in_array($durasi, ['1–3 tahun', '> 3 tahun', '> 3 tahun ke atas', '6–12 bulan']);
 
+        // Severity label based on tingkat_gangguan (priority) or skala
         if ($isHighRisk) {
             $severityLabel = 'High Risk';
+        } elseif (str_starts_with($tingkatGangguan, 'Sangat Berat')) {
+            $severityLabel = 'Berat Kronis';
+        } elseif (str_starts_with($tingkatGangguan, 'Berat') && $durasiKronis) {
+            $severityLabel = 'Berat Kronis';
+        } elseif (str_starts_with($tingkatGangguan, 'Berat')) {
+            $severityLabel = 'Berat Akut';
         } elseif ($skala >= 7 && $durasiKronis) {
             $severityLabel = 'Berat Kronis';
         } elseif ($skala >= 7) {
             $severityLabel = 'Berat Akut';
-        } elseif ($skala >= 4) {
+        } elseif (str_starts_with($tingkatGangguan, 'Sedang') || $skala >= 4) {
             $severityLabel = 'Sedang';
         } else {
             $severityLabel = 'Ringan';
