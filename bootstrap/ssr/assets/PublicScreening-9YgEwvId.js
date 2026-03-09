@@ -1,9 +1,9 @@
 import { jsxs, Fragment, jsx } from "react/jsx-runtime";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePage, Head, Link } from "@inertiajs/react";
 import axios from "axios";
 import { N as Navbar } from "./Navbar-OeYKUZUf.js";
-import { f as StepIndicator, A as AiBubble, U as UserBubble, C as CrisisBanner, e as detectCrisis, I as IdentitasStep, R as RadioGroup, g as MASALAH_OPTIONS_REGULER, S as SkalaStep, D as DURASI_OPTIONS, a as DiagnosisStep, b as PERAWATAN_OPTIONS, c as CheckboxGroup, d as USAHA_OPTIONS } from "./shared-DNq1YJS6.js";
+import { f as StepIndicator, A as AiBubble, U as UserBubble, C as CrisisBanner, e as detectCrisis, I as IdentitasStep, R as RadioGroup, g as MASALAH_OPTIONS_REGULER, D as DURASI_OPTIONS, T as TINGKAT_GANGGUAN_OPTIONS, a as DiagnosisStep, b as PERAWATAN_OPTIONS, c as CheckboxGroup, d as USAHA_OPTIONS, h as MASALAH_OPTIONS_VIP } from "./shared-BWLPB1vs.js";
 import "./ThemeToggle-SHr-61ed.js";
 import "react-dom";
 function PublicScreening() {
@@ -24,19 +24,40 @@ function PublicScreening() {
     gender: "",
     usia: "",
     masalah_utama: "",
+    masalah_detail_lainnya: "",
     skala: 5,
     durasi: "",
+    tingkat_gangguan: "",
     diagnosis: "",
     status_perawatan: "",
     usaha: [],
     detail_masalah: "",
     outcome: "",
     gejala_psikosomatis: "",
+    gejala_detail_lainnya: "",
     tinggi_badan: "",
     berat_badan: "",
     obesitas_mode: "calculate",
     obesitas_kg: ""
   });
+  useEffect(() => {
+    try {
+      const carried = localStorage.getItem("indepth_screening_carryover");
+      if (carried) {
+        const parsed = JSON.parse(carried);
+        localStorage.removeItem("indepth_screening_carryover");
+        setStepData((prev) => ({
+          ...prev,
+          nama: parsed.nama || prev.nama,
+          email: parsed.email || prev.email,
+          wa: parsed.wa || prev.wa,
+          gender: parsed.gender || prev.gender,
+          usia: parsed.usia || prev.usia
+        }));
+      }
+    } catch {
+    }
+  }, []);
   const chatEndRef = useRef(null);
   const totalSteps = 9;
   const update = (key, value) => setStepData((prev) => ({ ...prev, [key]: value }));
@@ -50,26 +71,26 @@ function PublicScreening() {
     if (isVip) {
       const vipOpeners = {
         1: "Halo 👋 Selamat datang di InDepth Mental Wellness. Kami akan membantu Anda melalui proses skrining VIP. Mari mulai dengan data diri Anda.",
-        2: "Ceritakan gejala fisik yang Anda rasakan — seperti sakit kepala, nyeri lambung, sesak napas, atau gejala lain yang muncul berkaitan dengan kondisi emosional Anda.",
-        3: "Seberapa besar gejala ini mengganggu kehidupan sehari-hari Anda?",
-        4: "Sudah berapa lama Anda mengalami gejala ini?",
-        5: "Apakah Anda pernah mendapatkan diagnosis dari profesional kesehatan?",
+        2: "Ceritakan gejala fisik (psikosomatis) yang Anda alami — seperti sakit kepala, nyeri lambung, sesak napas, jantung berdebar, atau gejala lain yang muncul berkaitan dengan kondisi emosional Anda.",
+        3: "Sudah berapa lama Anda mengalami gejala-gejala psikosomatis ini?",
+        4: "Seberapa besar gejala psikosomatis ini mengganggu aktivitas sehari-hari Anda?",
+        5: "Apakah Anda pernah mendapatkan diagnosa dari profesional kesehatan terkait gejala ini?",
         6: "Apakah saat ini Anda masih dalam perawatan atau pengobatan?",
-        7: "Upaya apa yang sudah pernah Anda lakukan untuk mengatasi kondisi ini?",
-        8: "Ceritakan lebih lanjut — apa yang paling Anda rasakan saat ini? Tulis saja apa yang ada di hati Anda.",
-        9: "Hampir selesai 🌟 Apa yang ingin Anda capai setelah menjalani program terapi bersama kami?"
+        7: "Upaya apa yang sudah pernah Anda lakukan untuk mengatasi gejala psikosomatis ini?",
+        8: "Ceritakan lebih lanjut — kapan gejala fisik ini biasanya muncul? Apakah ada hubungannya dengan emosi atau situasi tertentu?",
+        9: "Hampir selesai 🌟 Apa yang ingin Anda capai setelah menjalani program terapi? Bagaimana kondisi ideal yang Anda harapkan?"
       };
       return vipOpeners[step] || "";
     }
     const regulerOpeners = {
       1: "Halo 👋 Selamat datang di InDepth Mental Wellness. Saya akan menemani Anda melalui proses skrining singkat ini. Mari mulai dengan data diri Anda.",
-      2: "Terima kasih. Sekarang, tolong ceritakan — apa masalah utama yang ingin Anda atasi?",
-      3: "Seberapa besar kondisi ini mengganggu kehidupan sehari-hari Anda? Geser slider sesuai perasaan Anda (1 = sangat ringan, 10 = sangat parah).",
-      4: "Sudah berapa lama Anda mengalami kondisi ini?",
+      2: "Terima kasih. Sekarang, tolong ceritakan — apakah Anda mengalami masalah pada:",
+      3: "Sudah berapa lama Anda mengalami kondisi ini?",
+      4: "Seberapa besar kondisi ini mengganggu aktivitas sehari-hari Anda?",
       5: "Apakah Anda pernah mendapatkan diagnosis dari profesional kesehatan sebelumnya?",
       6: "Apakah saat ini Anda masih dalam perawatan atau pengobatan?",
       7: "Upaya apa yang sudah pernah Anda lakukan untuk mengatasi kondisi ini?",
-      8: "Ceritakan kepada saya — apa yang paling Anda rasakan atau alami saat ini? Tidak perlu terstruktur, tulis saja apa yang ada di hati Anda.",
+      8: "Ceritakan kepada saya — apa yang paling Anda rasakan atau pikirkan saat ini? Tidak perlu terstruktur, tulis saja apa yang ada di pikiran Anda.",
       9: "Hampir selesai 🌟 Apa yang ingin Anda capai setelah menjalani program terapi bersama kami?"
     };
     return regulerOpeners[step] || "";
@@ -108,7 +129,7 @@ function PublicScreening() {
       setAiTyping(false);
     }
   };
-  const isChatInitStep = step === 8 || step === 9 || isVip && step === 2;
+  const isChatInitStep = step === 8 || step === 9 || isVip && step === 8;
   useEffect(() => {
     if (isChatInitStep && !aiMessages[step]) {
       setTimeout(() => {
@@ -125,12 +146,15 @@ function PublicScreening() {
       switch (step) {
         case 1:
           return stepData.nama && stepData.gender && stepData.usia && stepData.wa && stepData.email;
-        case 2:
-          return !!stepData.gejala_psikosomatis?.trim();
+        case 2: {
+          if (!stepData.gejala_psikosomatis) return false;
+          if (stepData.gejala_psikosomatis === "Lainnya" && !stepData.gejala_detail_lainnya?.trim()) return false;
+          return true;
+        }
         case 3:
-          return stepData.skala != null;
-        case 4:
           return !!stepData.durasi;
+        case 4:
+          return !!stepData.tingkat_gangguan;
         case 5:
           return !!stepData.diagnosis;
         case 6:
@@ -151,9 +175,9 @@ function PublicScreening() {
       case 2:
         return !!stepData.masalah_utama;
       case 3:
-        return stepData.skala != null;
-      case 4:
         return !!stepData.durasi;
+      case 4:
+        return !!stepData.tingkat_gangguan;
       case 5:
         return !!stepData.diagnosis;
       case 6:
@@ -184,6 +208,7 @@ function PublicScreening() {
     const highRisk = detectCrisis(allText);
     const screeningData = {
       package_type: packageType,
+      // tetap paket awal, TIDAK berubah
       step_data: stepData,
       chat_history: chatHistory,
       is_high_risk: highRisk || isHighRisk,
@@ -197,28 +222,40 @@ function PublicScreening() {
     if (step === 1) return /* @__PURE__ */ jsx(IdentitasStep, { data: stepData, update });
     if (!isVip) {
       if (step === 2) return /* @__PURE__ */ jsx(RadioGroup, { options: MASALAH_OPTIONS_REGULER, value: stepData.masalah_utama, onChange: (opt) => update("masalah_utama", opt) });
-      if (step === 3) return /* @__PURE__ */ jsx(SkalaStep, { data: stepData, update });
-      if (step === 4) return /* @__PURE__ */ jsx(RadioGroup, { options: DURASI_OPTIONS, value: stepData.durasi, onChange: (v) => update("durasi", v) });
+      if (step === 3) return /* @__PURE__ */ jsx(RadioGroup, { options: DURASI_OPTIONS, value: stepData.durasi, onChange: (v) => update("durasi", v) });
+      if (step === 4) return /* @__PURE__ */ jsx(RadioGroup, { options: TINGKAT_GANGGUAN_OPTIONS, value: stepData.tingkat_gangguan, onChange: (v) => update("tingkat_gangguan", v) });
       if (step === 5) return /* @__PURE__ */ jsx(DiagnosisStep, { data: stepData, update });
       if (step === 6) return /* @__PURE__ */ jsx(RadioGroup, { options: PERAWATAN_OPTIONS, value: stepData.status_perawatan, onChange: (v) => update("status_perawatan", v) });
       if (step === 7) return /* @__PURE__ */ jsx(CheckboxGroup, { options: USAHA_OPTIONS, values: stepData.usaha, toggle: (opt) => toggleMulti("usaha", opt) });
-      if (step === 8) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "detail_masalah", update, onSendAi: sendAiMessage, placeholder: "Ceritakan apa yang Anda rasakan, kapan bermula, dan bagaimana kondisi ini memengaruhi hidup Anda...", color: "indigo", icon: "💬", subtitle: "untuk memahami dirimu lebih lanjut" });
+      if (step === 8) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "detail_masalah", update, onSendAi: sendAiMessage, placeholder: "Ceritakan lebih detail tentang apa yang Anda alami — kapan mulai muncul, dan bagaimana dampaknya di kehidupan sehari-hari...", color: "indigo", icon: "💬", subtitle: "untuk memahami kondisi Anda lebih lanjut" });
       if (step === 9) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "outcome", update, onSendAi: sendAiMessage, placeholder: "Apa yang ingin Anda capai setelah program terapi? Seperti apa kondisi ideal yang Anda impikan?", color: "purple", icon: "🌟", subtitle: "untuk memahami harapanmu lebih lanjut" });
     }
     if (isVip) {
-      if (step === 2) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "gejala_psikosomatis", update, onSendAi: sendAiMessage, placeholder: "Ceritakan gejala fisik yang Anda alami — seperti sakit kepala, nyeri lambung, sesak napas, dll...", color: "indigo", icon: "💬", subtitle: "untuk memahami kondisi fisik Anda lebih lanjut" });
-      if (step === 3) return /* @__PURE__ */ jsx(SkalaStep, { data: stepData, update });
-      if (step === 4) return /* @__PURE__ */ jsx(RadioGroup, { options: DURASI_OPTIONS, value: stepData.durasi, onChange: (v) => update("durasi", v) });
+      if (step === 2) return /* @__PURE__ */ jsxs("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ jsx(RadioGroup, { options: MASALAH_OPTIONS_VIP, value: stepData.gejala_psikosomatis, onChange: (opt) => update("gejala_psikosomatis", opt) }),
+        stepData.gejala_psikosomatis === "Lainnya" && /* @__PURE__ */ jsx(
+          "textarea",
+          {
+            rows: 3,
+            value: stepData.gejala_detail_lainnya || "",
+            onChange: (e) => update("gejala_detail_lainnya", e.target.value),
+            placeholder: "Jelaskan gejala fisik (psikosomatis) yang Anda alami...",
+            className: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition"
+          }
+        )
+      ] });
+      if (step === 3) return /* @__PURE__ */ jsx(RadioGroup, { options: DURASI_OPTIONS, value: stepData.durasi, onChange: (v) => update("durasi", v) });
+      if (step === 4) return /* @__PURE__ */ jsx(RadioGroup, { options: TINGKAT_GANGGUAN_OPTIONS, value: stepData.tingkat_gangguan, onChange: (v) => update("tingkat_gangguan", v) });
       if (step === 5) return /* @__PURE__ */ jsx(DiagnosisStep, { data: stepData, update });
       if (step === 6) return /* @__PURE__ */ jsx(RadioGroup, { options: PERAWATAN_OPTIONS, value: stepData.status_perawatan, onChange: (v) => update("status_perawatan", v) });
       if (step === 7) return /* @__PURE__ */ jsx(CheckboxGroup, { options: USAHA_OPTIONS, values: stepData.usaha, toggle: (opt) => toggleMulti("usaha", opt) });
-      if (step === 8) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "detail_masalah", update, onSendAi: sendAiMessage, placeholder: "Ceritakan apa yang Anda rasakan saat ini...", color: "indigo", icon: "💬", subtitle: "untuk memahami dirimu lebih lanjut" });
-      if (step === 9) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "outcome", update, onSendAi: sendAiMessage, placeholder: "Apa yang ingin Anda capai setelah program terapi?", color: "purple", icon: "🌟", subtitle: "untuk memahami harapanmu lebih lanjut" });
+      if (step === 8) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "detail_masalah", update, onSendAi: sendAiMessage, placeholder: "Ceritakan lebih detail — kapan gejala fisik ini biasanya muncul? Apakah ada hubungannya dengan emosi atau situasi tertentu?", color: "indigo", icon: "💬", subtitle: "untuk memahami kondisi psikosomatis Anda lebih lanjut" });
+      if (step === 9) return /* @__PURE__ */ jsx(ChatEssayStep, { data: stepData, dataKey: "outcome", update, onSendAi: sendAiMessage, placeholder: "Apa yang ingin Anda capai setelah program terapi? Bagaimana kondisi ideal yang Anda harapkan?", color: "purple", icon: "🌟", subtitle: "untuk memahami harapanmu lebih lanjut" });
     }
     return null;
   };
   const isLastStep = step === totalSteps;
-  const isChatStep = step === 8 || step === 9 || isVip && step === 2;
+  const isChatStep = step === 8 || step === 9;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(Head, { title: `Skrining ${isVip ? "VIP" : "Reguler"} — InDepth` }),
     /* @__PURE__ */ jsxs("div", { className: "min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors", children: [
@@ -322,11 +359,22 @@ function PublicScreening() {
         /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-center text-gray-900 dark:text-white mb-2", children: "Rekomendasi untuk Anda" }),
         /* @__PURE__ */ jsx("p", { className: "text-sm text-center text-gray-600 dark:text-gray-300 leading-relaxed mb-6", children: "Psikosomatis, bukan ranah layanan Reguler dan membutuhkan penanganan VIP." }),
         /* @__PURE__ */ jsx(
-          Link,
+          "button",
           {
-            href: "/screening/public?package=vip",
+            type: "button",
+            onClick: () => {
+              const carryover = {
+                nama: stepData.nama,
+                email: stepData.email,
+                wa: stepData.wa,
+                gender: stepData.gender,
+                usia: stepData.usia
+              };
+              localStorage.setItem("indepth_screening_carryover", JSON.stringify(carryover));
+              window.location.href = "/screening/public?package=vip";
+            },
             className: "flex items-center justify-center w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl text-sm hover:opacity-90 transition-opacity shadow-lg",
-            children: "Pindah ke Paket VIP →"
+            children: "Silakan Pindah ke Paket VIP →"
           }
         )
       ] })

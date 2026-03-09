@@ -32,6 +32,17 @@ const MASALAH_OPTIONS_REGULER = [
   "Perilaku — kebiasaan buruk yang susah dihentikan",
   "Keluhan Fisik akibat Stres — sakit kepala, nyeri lambung, sesak napas, dll yang muncul saat stres/emosi"
 ];
+const MASALAH_OPTIONS_VIP = [
+  "Sakit kepala / migrain yang muncul saat stres atau emosional",
+  "Nyeri lambung / maag yang kambuh saat cemas atau tertekan",
+  "Sesak napas / dada terasa berat tanpa sebab medis yang jelas",
+  "Gangguan tidur — insomnia, tidur tidak nyenyak, mimpi buruk",
+  "Nyeri otot / tubuh tegang yang berkaitan dengan kondisi emosional",
+  "Gangguan pencernaan — mual, diare, sembelit saat stres",
+  "Jantung berdebar-debar tanpa aktivitas fisik berat",
+  "Kelelahan kronis — tubuh terasa lelah terus-menerus meski sudah istirahat",
+  "Lainnya"
+];
 const USAHA_OPTIONS = [
   "Konsultasi psikolog",
   "Konsultasi psikiater",
@@ -43,6 +54,12 @@ const USAHA_OPTIONS = [
   "Belum pernah melakukan apa pun"
 ];
 const DURASI_OPTIONS = ["< 1 bulan", "1–6 bulan", "6–12 bulan", "1–3 tahun", "> 3 tahun"];
+const TINGKAT_GANGGUAN_OPTIONS = [
+  "Ringan — masih bisa menjalankan aktivitas sehari-hari",
+  "Sedang — terganggu tapi masih bisa beraktivitas sebagian",
+  "Berat — sangat mengganggu, sulit menjalankan aktivitas normal",
+  "Sangat Berat — hampir tidak bisa beraktivitas sama sekali"
+];
 const DIAGNOSIS_OPTIONS = [
   "Tidak pernah didiagnosis",
   "Pernah — oleh Dokter Umum",
@@ -359,6 +376,7 @@ export {
   ProgressBar as P,
   RadioGroup as R,
   SkalaStep as S,
+  TINGKAT_GANGGUAN_OPTIONS as T,
   UserBubble as U,
   DiagnosisStep as a,
   PERAWATAN_OPTIONS as b,
@@ -366,5 +384,6 @@ export {
   USAHA_OPTIONS as d,
   detectCrisis as e,
   StepIndicator as f,
-  MASALAH_OPTIONS_REGULER as g
+  MASALAH_OPTIONS_REGULER as g,
+  MASALAH_OPTIONS_VIP as h
 };

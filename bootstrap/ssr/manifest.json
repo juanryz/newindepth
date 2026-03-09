@@ -65,8 +65,8 @@
     "file": "assets/ThemeToggle-SHr-61ed.js",
     "name": "ThemeToggle"
   },
-  "_shared-DNq1YJS6.js": {
-    "file": "assets/shared-DNq1YJS6.js",
+  "_shared-BWLPB1vs.js": {
+    "file": "assets/shared-BWLPB1vs.js",
     "name": "shared"
   },
   "resources/js/Components/DisclaimerSection.jsx": {
@@ -706,13 +706,13 @@
     ]
   },
   "resources/js/Pages/Clinic/Screening.jsx": {
-    "file": "assets/Screening-BmlCdYJA.js",
+    "file": "assets/Screening-6AtLmAou.js",
     "name": "Screening",
     "src": "resources/js/Pages/Clinic/Screening.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_AuthenticatedLayout-DSi5ya3j.js",
-      "_shared-DNq1YJS6.js",
+      "_shared-BWLPB1vs.js",
       "_ThemeToggle-SHr-61ed.js",
       "_LiquidBackground-DsMP_cZ6.js"
     ]
@@ -993,13 +993,13 @@
     ]
   },
   "resources/js/Pages/Screening/PublicScreening.jsx": {
-    "file": "assets/PublicScreening-CzXyfcM5.js",
+    "file": "assets/PublicScreening-9YgEwvId.js",
     "name": "PublicScreening",
     "src": "resources/js/Pages/Screening/PublicScreening.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_Navbar-OeYKUZUf.js",
-      "_shared-DNq1YJS6.js",
+      "_shared-BWLPB1vs.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },

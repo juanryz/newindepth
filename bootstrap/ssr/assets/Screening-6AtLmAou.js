@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { A as AuthenticatedLayout } from "./AuthenticatedLayout-DSi5ya3j.js";
 import { usePage, Head, router } from "@inertiajs/react";
 import axios from "axios";
-import { P as ProgressBar, A as AiBubble, U as UserBubble, C as CrisisBanner, I as IdentitasStep, R as RadioGroup, M as MASALAH_OPTIONS, O as ObesitasStep, S as SkalaStep, D as DURASI_OPTIONS, a as DiagnosisStep, b as PERAWATAN_OPTIONS, c as CheckboxGroup, d as USAHA_OPTIONS, e as detectCrisis } from "./shared-DNq1YJS6.js";
+import { P as ProgressBar, A as AiBubble, U as UserBubble, C as CrisisBanner, I as IdentitasStep, R as RadioGroup, M as MASALAH_OPTIONS, O as ObesitasStep, S as SkalaStep, D as DURASI_OPTIONS, a as DiagnosisStep, b as PERAWATAN_OPTIONS, c as CheckboxGroup, d as USAHA_OPTIONS, e as detectCrisis } from "./shared-BWLPB1vs.js";
 import "@headlessui/react";
 import "./ThemeToggle-SHr-61ed.js";
 import "./LiquidBackground-DsMP_cZ6.js";
@@ -19,7 +19,10 @@ function Screening() {
     tinggi_badan: "",
     berat_badan: "",
     obesitas_mode: "calculate",
-    obesitas_kg: ""
+    obesitas_kg: "",
+    tingkat_gangguan: "",
+    masalah_detail_lainnya: "",
+    gejala_detail_lainnya: ""
   });
   useEffect(() => {
     if (Object.keys(prefill).length > 0) {

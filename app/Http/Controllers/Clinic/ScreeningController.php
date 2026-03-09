@@ -48,6 +48,7 @@ class ScreeningController extends Controller
         return Inertia::render('Clinic/Screening', [
             'screeningResult' => $showResults ? $screeningResult : null,
             'prefill' => $prefill,
+            'recommendedPackage' => $user->recommended_package ?? 'reguler',
         ]);
     }
 
@@ -97,7 +98,15 @@ class ScreeningController extends Controller
         $stepData = $request->input('step_data');
         $chatHistory = $request->input('chat_history', []);
 
-        [$recommendedPackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, $chatHistory);
+        [$enginePackage, $severityLabel, $isHighRisk] = $this->runDecisionEngine($stepData, $chatHistory);
+
+        // Respect user's existing VIP choice — never downgrade from VIP to reguler
+        $userExistingPackage = $user->recommended_package;
+        if ($userExistingPackage === 'vip' || $enginePackage === 'vip') {
+            $recommendedPackage = 'vip';
+        } else {
+            $recommendedPackage = $enginePackage;
+        }
 
         $service = new OpenAIScreeningService();
         $aiSummary = $service->generateSummary($stepData, $chatHistory);
