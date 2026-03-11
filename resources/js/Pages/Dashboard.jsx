@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
@@ -447,6 +447,15 @@ function ActiveBookingCard({ booking }) {
 export default function Dashboard() {
     const { auth, screeningResult, profileProgress, canTakeScreening, daysUntilNextScreening, activeBooking, latestCompletedBooking, therapistUpcomingSessions, therapistActiveSessions, therapistPastSessions, therapistStats } = usePage().props;
     const user = auth?.user;
+
+    useEffect(() => {
+        if (sessionStorage.getItem('payment_success')) {
+            sessionStorage.removeItem('payment_success');
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: 'payment_upload_success' });
+            console.log('GTM event fired!');
+        }
+    }, []);
     const roles = user?.roles ?? [];
     const permissions = user?.permissions ?? [];
 
