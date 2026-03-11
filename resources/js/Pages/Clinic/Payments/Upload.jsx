@@ -48,7 +48,13 @@ export default function PaymentUpload({ booking, transaction }) {
         e.preventDefault();
         post(route('payments.store', booking.id), {
             onSuccess: () => {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'payment_upload_success' });
+                console.log('✅ GTM event pushed!');
                 sessionStorage.setItem('payment_success', '1');
+            },
+            onError: (errors) => {
+                console.log('❌ Form errors:', errors);
             },
         });
     };
