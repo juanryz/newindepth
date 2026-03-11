@@ -46,7 +46,12 @@ export default function PaymentUpload({ booking, transaction }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('payments.store', booking.id));
+        post(route('payments.store', booking.id), {
+            onSuccess: () => {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'payment_upload_success' });
+            },
+        });
     };
 
     return (
