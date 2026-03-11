@@ -35,9 +35,10 @@
     <meta property="og:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness">
     <meta property="og:description"
         content="Klinik Hipnoterapi Semarang terpercaya dengan terapis bersertifikat. Bantu atasi kecemasan, trauma, insomnia & kebiasaan buruk. Konsultasi gratis!">
-    <meta property="og:image" content="{{ asset('images/logo-color.png') }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image" content="{{ asset('images/og-dark.jpg') }}">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="998">
+    <meta property="og:image:alt" content="InDepth Mental Wellness — Klinik Hipnoterapi Semarang">
     <meta property="og:locale" content="id_ID">
 
     <!-- ═══════════════════════════════════════════════════ -->
@@ -48,7 +49,8 @@
     <meta name="twitter:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness">
     <meta name="twitter:description"
         content="Klinik Hipnoterapi Semarang terpercaya. Bantu atasi kecemasan, trauma & kebiasaan buruk. Konsultasi gratis!">
-    <meta name="twitter:image" content="{{ asset('images/logo-color.png') }}">
+    <meta name="twitter:image" content="{{ asset('images/og-dark.jpg') }}">
+    <meta name="twitter:image:alt" content="InDepth Mental Wellness — Klinik Hipnoterapi Semarang">
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- STRUCTURED DATA — SCHEMA.ORG LocalBusiness/Medical -->
@@ -179,7 +181,9 @@
     <!-- TITLE & FAVICON                                     -->
     <!-- ═══════════════════════════════════════════════════ -->
     <title inertia>{{ config('app.name', 'InDepth Mental Wellness') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-color.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo-color.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logo-color.png') }}">
+    <meta name="theme-color" content="#b8960c">
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- FONTS & PERFORMANCE                                 -->
