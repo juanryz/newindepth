@@ -13,7 +13,7 @@ const GlassPanel = ({ children, className = '', ...props }) => (
 export default function PaymentUpload({ booking, transaction }) {
     const { errors: pageErrors } = usePage().props;
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, processing, errors } = useForm({
         payment_bank: '',
         payment_account_name: '',
         payment_account_number: '',
@@ -46,15 +46,28 @@ export default function PaymentUpload({ booking, transaction }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('payments.store', booking.id), {
+
+        const formData = new FormData();
+        formData.append('payment_bank', data.payment_bank);
+        formData.append('payment_account_name', data.payment_account_name);
+        formData.append('payment_account_number', data.payment_account_number);
+        formData.append('payment_method', data.payment_method);
+        formData.append('payment_proof', data.payment_proof);
+        formData.append('agree_refund', data.agree_refund ? '1' : '0');
+        formData.append('agree_final', data.agree_final ? '1' : '0');
+        formData.append('agree_access', data.agree_access ? '1' : '0');
+        formData.append('agree_chargeback', data.agree_chargeback ? '1' : '0');
+
+        router.post(route('payments.store', booking.id), formData, {
+            forceFormData: true,
             onSuccess: () => {
+                console.log('✅ onSuccess fired!');
                 window.dataLayer = window.dataLayer || [];
                 window.dataLayer.push({ event: 'payment_upload_success' });
-                console.log('✅ GTM event pushed!');
                 sessionStorage.setItem('payment_success', '1');
             },
             onError: (errors) => {
-                console.log('❌ Form errors:', errors);
+                console.log('❌ onError:', errors);
             },
         });
     };
