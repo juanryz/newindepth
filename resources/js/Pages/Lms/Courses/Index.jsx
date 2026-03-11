@@ -2,18 +2,13 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Footer from '@/Components/Footer';
 import LiquidBackground from '@/Components/LiquidBackground';
-import { Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import ErrorBoundary from '@/Components/ErrorBoundary';
 
 export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
     // Ensure courses is always a safe array
     const safeCourses = Array.isArray(courses) ? courses : [];
-
-    // Set page title (replaces Inertia <Head> which crashes with null head entries)
-    useEffect(() => {
-        document.title = (isMyCourses ? 'Koleksi Saya' : 'Pelatihan') + ' - InDepth Mental Wellness';
-    }, [isMyCourses]);
 
     // Smooth scroll for anchor links
     useEffect(() => {
@@ -32,6 +27,7 @@ export default function LmsIndex({ courses = [], auth, isMyCourses = false }) {
 
     return (
         <ErrorBoundary>
+            <Head title={isMyCourses ? 'Koleksi Saya' : 'Pelatihan'} />
             <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
 
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/Footer';
 import ErrorBoundary from '@/Components/ErrorBoundary';
@@ -63,11 +63,6 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
         rulesUnderstood: false
     });
 
-    useEffect(() => {
-        if (safeCourse.title) {
-            document.title = safeCourse.title + ' - InDepth Mental Wellness';
-        }
-    }, [safeCourse.title]);
 
     useEffect(() => {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -202,6 +197,7 @@ export default function LmsShow({ course = {}, isEnrolled = false, auth }) {
 
     return (
         <ErrorBoundary>
+            <Head title={safeCourse.title || 'Pelatihan'} />
             <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
 
                 {/* Premium Liquid Background */}
