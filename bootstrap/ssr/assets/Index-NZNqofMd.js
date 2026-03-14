@@ -83,10 +83,12 @@ function OrderManagementIndex({ schedules = [], bookings = [], transactions = []
   const calendarOpenTime = clinicSettings.open_time || "08:00";
   const calendarCloseTime = clinicSettings.close_time || "22:00";
   const hasPermission = (permissionName) => {
-    return auth.user.roles?.includes("super_admin") || auth.user.permissions?.includes(permissionName);
+    const roles = auth.user.roles || [];
+    const isSuperAdmin = roles.some((r) => (typeof r === "string" ? r : r?.name) === "super_admin");
+    return isSuperAdmin || auth.user.permissions?.includes(permissionName);
   };
   const [isDisabling, setIsDisabling] = useState(false);
-  const { data: disableData, setData: setDisableData, post: postDisable, processing: disabling, reset: resetDisable } = useForm({
+  const { data: disableData, setData: setDisableData, post: postDisable, processing: disabling, reset: resetDisable, errors: disableErrors } = useForm({
     date_from: "",
     date_to: "",
     start_time: "08:00",
@@ -1622,16 +1624,41 @@ function OrderManagementIndex({ schedules = [], bookings = [], transactions = []
         }, children: /* @__PURE__ */ jsxs("div", { className: "p-8 dark:bg-gray-900", children: [
           /* @__PURE__ */ jsx("h2", { className: "text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2", children: "Liburkan Jadwal" }),
           /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium", children: [
-            "Ini akan menghapus semua slot jadwal yang ",
-            /* @__PURE__ */ jsx("span", { className: "text-rose-500 font-bold", children: "belum dipesan" }),
+            "Ini akan meliburkan semua slot jadwal yang ",
+            /* @__PURE__ */ jsx("span", { className: "text-rose-500 font-bold", children: "belum ada booking aktif" }),
             " pada rentang waktu yang dipilih."
+          ] }),
+          Object.keys(disableErrors).length > 0 && /* @__PURE__ */ jsxs("div", { className: "mb-4 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-sm text-rose-700 dark:text-rose-300 font-bold space-y-1", children: [
+            disableErrors.date_from && /* @__PURE__ */ jsxs("p", { children: [
+              "• ",
+              disableErrors.date_from
+            ] }),
+            disableErrors.date_to && /* @__PURE__ */ jsxs("p", { children: [
+              "• ",
+              disableErrors.date_to
+            ] }),
+            disableErrors.start_time && /* @__PURE__ */ jsxs("p", { children: [
+              "• ",
+              disableErrors.start_time
+            ] }),
+            disableErrors.end_time && /* @__PURE__ */ jsxs("p", { children: [
+              "• ",
+              disableErrors.end_time
+            ] }),
+            disableErrors.error && /* @__PURE__ */ jsxs("p", { children: [
+              "• ",
+              disableErrors.error
+            ] })
           ] }),
           /* @__PURE__ */ jsxs("form", { onSubmit: (e) => {
             e.preventDefault();
             postDisable(route("admin.schedules.bulk-delete"), {
+              preserveScroll: true,
               onSuccess: () => {
                 setIsDisabling(false);
                 resetDisable();
+              },
+              onError: () => {
               }
             });
           }, children: [
