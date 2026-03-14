@@ -775,6 +775,47 @@ Route::get('/setup-migrate', function () {
     }
 });
 
+// Fix: Mengubah ENUM status schedules untuk mendukung nilai 'off' (fitur liburkan jadwal)
+Route::get('/setup-fix-schedule-off', function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement(
+            "ALTER TABLE schedules MODIFY COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'"
+        );
+        return '✅ Berhasil! Kolom status schedules diubah dari ENUM ke VARCHAR(20). Fitur liburkan jadwal sekarang berfungsi.';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
+// Fix: Menambahkan permission yang hilang ke database agar fitur admin berjalan
+Route::get('/setup-fix-permissions', function () {
+    try {
+        $permissionsToAdd = [
+            'edit schedules', 'delete schedules', 'create schedules', 'bulk_delete schedules',
+            'assign bookings', 'view users', 'create users', 'edit users', 'delete users',
+            'view_agreement users', 'view roles', 'create roles', 'edit roles', 'delete roles',
+            'view packages', 'create packages', 'edit packages', 'delete packages',
+            'view vouchers', 'create vouchers', 'edit vouchers', 'delete vouchers',
+        ];
+        $added = [];
+        foreach ($permissionsToAdd as $perm) {
+            $p = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+            if ($p->wasRecentlyCreated) $added[] = $perm;
+        }
+        // Assign all permissions to admin and super_admin
+        $allPermissions = \Spatie\Permission\Models\Permission::all();
+        \Spatie\Permission\Models\Role::findByName('admin')?->syncPermissions($allPermissions);
+        \Spatie\Permission\Models\Role::findByName('super_admin')?->syncPermissions($allPermissions);
+
+        // Clear permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return '✅ Berhasil! Permission ditambahkan: ' . (count($added) > 0 ? implode(', ', $added) : 'tidak ada yang baru') . '. Admin & super_admin mendapat semua permission.';
+    } catch (\Throwable $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
+
 Route::get('/setup-clear-cache', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('config:clear');
