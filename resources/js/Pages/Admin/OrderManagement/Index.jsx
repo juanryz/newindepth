@@ -110,16 +110,18 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const calendarOpenTime = clinicSettings.open_time || '08:00';
     const calendarCloseTime = clinicSettings.close_time || '22:00';
 
-    // Permission checks
+    // Permission checks — roles dapat berupa array of strings atau array of objects
     const hasPermission = (permissionName) => {
-        return auth.user.roles?.includes('super_admin') || auth.user.permissions?.includes(permissionName);
+        const roles = auth.user.roles || [];
+        const isSuperAdmin = roles.some(r => (typeof r === 'string' ? r : r?.name) === 'super_admin');
+        return isSuperAdmin || (auth.user.permissions?.includes(permissionName));
     };
 
 
 
     // ─── Schedule state ───
     const [isDisabling, setIsDisabling] = useState(false);
-    const { data: disableData, setData: setDisableData, post: postDisable, processing: disabling, reset: resetDisable } = useForm({
+    const { data: disableData, setData: setDisableData, post: postDisable, processing: disabling, reset: resetDisable, errors: disableErrors } = useForm({
         date_from: '',
         date_to: '',
         start_time: '08:00',
@@ -1736,12 +1738,25 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
             <Modal show={isDisabling} onClose={() => { setIsDisabling(false); resetDisable(); }}>
                 <div className="p-8 dark:bg-gray-900">
                     <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Liburkan Jadwal</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Ini akan menghapus semua slot jadwal yang <span className="text-rose-500 font-bold">belum dipesan</span> pada rentang waktu yang dipilih.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Ini akan meliburkan semua slot jadwal yang <span className="text-rose-500 font-bold">belum ada booking aktif</span> pada rentang waktu yang dipilih.</p>
+
+                    {/* Tampilkan error validasi jika ada */}
+                    {Object.keys(disableErrors).length > 0 && (
+                        <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-sm text-rose-700 dark:text-rose-300 font-bold space-y-1">
+                            {disableErrors.date_from && <p>• {disableErrors.date_from}</p>}
+                            {disableErrors.date_to && <p>• {disableErrors.date_to}</p>}
+                            {disableErrors.start_time && <p>• {disableErrors.start_time}</p>}
+                            {disableErrors.end_time && <p>• {disableErrors.end_time}</p>}
+                            {disableErrors.error && <p>• {disableErrors.error}</p>}
+                        </div>
+                    )}
 
                     <form onSubmit={(e) => {
                         e.preventDefault();
                         postDisable(route('admin.schedules.bulk-delete'), {
-                            onSuccess: () => { setIsDisabling(false); resetDisable(); }
+                            preserveScroll: true,
+                            onSuccess: () => { setIsDisabling(false); resetDisable(); },
+                            onError: () => { /* modal tetap terbuka saat error */ },
                         });
                     }}>
                         <div className="grid gap-4 mb-6">
