@@ -81,6 +81,7 @@ class DashboardController extends Controller
             }
 
             // Upcoming + overdue confirmed sessions (include past sessions that still need action)
+            $todayStr = now()->toDateString(); // Compatible with both SQLite and MySQL
             $therapistUpcomingSessions = (clone $baseBookingQuery)
                 ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
                 ->select('bookings.*')
@@ -90,7 +91,7 @@ class DashboardController extends Controller
                     // Show upcoming sessions AND past sessions within 30 days back that still need action
                     $q->where('schedules.date', '>=', now()->subDays(30)->toDateString());
                 })
-                ->orderByRaw("CASE WHEN schedules.date < CURDATE() THEN 0 ELSE 1 END ASC") // overdue first
+                ->orderByRaw("CASE WHEN schedules.date < ? THEN 0 ELSE 1 END ASC", [$todayStr]) // overdue first
                 ->orderBy('schedules.date', 'asc')
                 ->orderBy('schedules.start_time', 'asc')
                 ->take(10)
