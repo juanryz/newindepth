@@ -10,7 +10,7 @@
     <!-- ═══════════════════════════════════════════════════ -->
     <meta name="title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness">
     <meta name="description"
-        content="Klinik Hipnoterapi Semarang terpercaya dengan terapis bersertifikat nasional & internasional. Bantu atasi kecemasan, trauma, insomnia & kebiasaan buruk. Konsultasi gratis!">
+        content="Klinik Hipnoterapi Semarang terpercaya dengan terapis bersertifikat nasional & internasional. Bantu atasi kecemasan, trauma, insomnia & kebiasaan buruk. Konsultasi!">
     <meta name="keywords"
         content="klinik hipnoterapi semarang, hipnoterapi semarang, terapi hipnosis semarang, hipnoterapis semarang, hipnoterapi kecemasan semarang, hipnoterapi trauma semarang, hipnoterapi anak semarang, kesehatan mental semarang">
     <meta name="author" content="InDepth Mental Wellness">
@@ -34,7 +34,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness">
     <meta property="og:description"
-        content="Klinik Hipnoterapi Semarang terpercaya dengan terapis bersertifikat. Bantu atasi kecemasan, trauma, insomnia & kebiasaan buruk. Konsultasi gratis!">
+        content="Klinik Hipnoterapi Semarang terpercaya dengan terapis bersertifikat. Bantu atasi kecemasan, trauma, insomnia & kebiasaan buruk. Konsultasi!">
     <meta property="og:image" content="{{ asset('images/og-dark.jpg') }}">
     <meta property="og:image:width" content="1024">
     <meta property="og:image:height" content="998">
@@ -48,7 +48,7 @@
     <meta name="twitter:url" content="{{ url()->current() }}">
     <meta name="twitter:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness">
     <meta name="twitter:description"
-        content="Klinik Hipnoterapi Semarang terpercaya. Bantu atasi kecemasan, trauma & kebiasaan buruk. Konsultasi gratis!">
+        content="Klinik Hipnoterapi Semarang terpercaya. Bantu atasi kecemasan, trauma & kebiasaan buruk. Konsultasi!">
     <meta name="twitter:image" content="{{ asset('images/og-dark.jpg') }}">
     <meta name="twitter:image:alt" content="InDepth Mental Wellness — Klinik Hipnoterapi Semarang">
 
