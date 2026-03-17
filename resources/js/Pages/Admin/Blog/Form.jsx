@@ -174,29 +174,16 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [selectedIdeaTitle, setSelectedIdeaTitle] = useState('');
 
     const useIdea = (idea) => {
-        // Extract a proper short keyword from the idea
-        // Use idea.title as primary (unique per idea), idea.keyword as secondary
-        const extractKeyword = (title) => {
-            // Remove common prefixes like numbers, "Bagaimana", etc.
-            let kw = title
-                .replace(/^\d+\s*(alasan|cara|manfaat|tips|langkah|fakta|mitos)\s*/i, '$1 ')
-                .replace(/^(bagaimana|mengapa|apakah|apa itu|kenapa)\s*/i, '')
-                .replace(/[?!.:]/g, '')
-                .trim();
-            // Take first 5 meaningful words
-            const words = kw.split(/\s+/).filter(w => w.length > 2).slice(0, 5);
-            return words.join(' ').toLowerCase();
-        };
-
-        const newKeyword = extractKeyword(idea.title);
-        const secondaryKw = idea.keyword !== newKeyword ? idea.keyword : idea.description?.split('.')[0] || '';
+        // Use the AI-generated keyword directly (now unique per idea)
+        const mainKeyword = (idea.keyword || idea.title).toLowerCase().replace(/[?!.:]/g, '').trim();
+        const secondaryKw = idea.description ? idea.description.split('.')[0] : '';
 
         // Force reset first to trigger re-render
         setGenKeyword('');
         setGenSecondary('');
 
         setTimeout(() => {
-            setGenKeyword(newKeyword);
+            setGenKeyword(mainKeyword);
             setGenSecondary(secondaryKw);
 
             // Show selected confirmation
