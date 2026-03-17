@@ -15,14 +15,16 @@ function useDebounce(value, delay) {
 }
 
 const PROGRESS_STEPS = [
-    { icon: '🔍', label: 'Menganalisis keyword dan kompetisi...', duration: 3000 },
-    { icon: '📋', label: 'Membuat outline dan struktur artikel...', duration: 4000 },
-    { icon: '✍️', label: 'Menulis konten artikel (~2000 kata)...', duration: 15000 },
-    { icon: '🔗', label: 'Menambahkan internal & external link...', duration: 3000 },
-    { icon: '🖼️', label: 'Menyisipkan gambar ke dalam konten...', duration: 3000 },
-    { icon: '📊', label: 'Mengoptimasi SEO Score ke 90+...', duration: 5000 },
-    { icon: '🛡️', label: 'Memfilter kata terlarang...', duration: 2000 },
-    { icon: '✅', label: 'Finalisasi artikel...', duration: 2000 },
+    { icon: '🔍', label: 'Menganalisis keyword & kompetisi...', duration: 4000 },
+    { icon: '📋', label: 'Membuat outline & struktur H2/H3...', duration: 8000 },
+    { icon: '📝', label: 'Generate meta title & description...', duration: 3000 },
+    { icon: '✍️', label: 'Menulis konten lengkap (2000+ kata)...', duration: 40000 },
+    { icon: '🔗', label: 'Menambahkan 5 internal & 2 external link...', duration: 8000 },
+    { icon: '🖼️', label: 'Menyisipkan 3 gambar ke dalam konten...', duration: 5000 },
+    { icon: '📊', label: 'Mengoptimasi keyword density & SEO 90+...', duration: 8000 },
+    { icon: '🛡️', label: 'Memfilter kata terlarang...', duration: 3000 },
+    { icon: '❓', label: 'Membuat FAQ section...', duration: 5000 },
+    { icon: '✅', label: 'Finalisasi & review artikel...', duration: 3000 },
 ];
 
 export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
