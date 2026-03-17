@@ -17,7 +17,12 @@ const GROUP_LABELS = {
 export default function SeoSettings({ settings, rules }) {
     const { flash } = usePage().props;
     const [editedSettings, setEditedSettings] = useState({});
-    const [activeGroup, setActiveGroup] = useState(Object.keys(settings)[0] || 'title');
+
+    // Read ?group= param from URL to open correct tab
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const initialGroup = urlParams?.get('group') || Object.keys(settings)[0] || 'title';
+
+    const [activeGroup, setActiveGroup] = useState(initialGroup);
     const [saving, setSaving] = useState(false);
 
     const handleChange = (id, value) => {

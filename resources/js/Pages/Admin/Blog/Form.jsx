@@ -53,6 +53,7 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [showIdeas, setShowIdeas] = useState(false);
     const [ideas, setIdeas] = useState([]);
     const [ideasKeyword, setIdeasKeyword] = useState('hipnoterapi');
+    const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
     const [foundForbidden, setFoundForbidden] = useState([]);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [generatedImageUrl, setGeneratedImageUrl] = useState('');
@@ -113,7 +114,21 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const handleGenerate = async (type = 'full') => {
         const kw = type === 'ideas' ? ideasKeyword : genKeyword;
         if (!kw.trim()) { setGenError('Masukkan keyword utama terlebih dahulu.'); return; }
-        setIsGenerating(true); setGenError('');
+        setGenError('');
+
+        // Ideas uses separate loading state
+        if (type === 'ideas') {
+            setIsLoadingIdeas(true);
+            try {
+                const r = await axios.post(route('admin.blog.generate'), { primary_keyword: kw, secondary_keywords: '', tone: genTone, audience: genAudience, type: 'ideas' });
+                if (r.data.error) { setGenError(r.data.error); return; }
+                if (r.data.ideas) { setIdeas(r.data.ideas); setShowIdeas(true); }
+            } catch (err) { setGenError('Gagal mencari ide. ' + (err.response?.data?.message || err.message)); }
+            finally { setIsLoadingIdeas(false); }
+            return;
+        }
+
+        setIsGenerating(true);
         if (type === 'full') startProgressSteps();
         try {
             const r = await axios.post(route('admin.blog.generate'), { primary_keyword: kw, secondary_keywords: genSecondary, tone: genTone, audience: genAudience, type });
@@ -128,8 +143,6 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
             } else if (type === 'meta') {
                 if (r.data.seo_title) setData('meta_title', r.data.seo_title);
                 if (r.data.meta_description) setData('meta_description', r.data.meta_description);
-            } else if (type === 'ideas') {
-                if (r.data.ideas) { setIdeas(r.data.ideas); setShowIdeas(true); }
             }
         } catch (err) { setGenError('Gagal generate. ' + (err.response?.data?.message || err.message)); stopProgressSteps(false); }
         finally { setIsGenerating(false); }
@@ -148,7 +161,17 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
         finally { setIsGeneratingImage(false); }
     };
 
-    const useIdea = (idea) => { setGenKeyword(idea.keyword); setShowIdeas(false); setShowGenerator(true); };
+    const useIdea = (idea) => {
+        setGenKeyword(idea.keyword);
+        if (idea.title) setGenSecondary(idea.keyword);
+        setShowIdeas(false);
+        setShowGenerator(true);
+        // Scroll to keyword input
+        setTimeout(() => {
+            const el = document.querySelector('[placeholder="Contoh: hipnoterapi"]');
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
+        }, 100);
+    };
     const getRule = (key, fb) => seoRules?.[key]?.value ?? fb;
     const getWordCount = () => data.body ? data.body.replace(/<[^>]+>/g, '').split(/\s+/).filter(w => w.length > 0).length : 0;
 
@@ -203,26 +226,61 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                             {/* IDE ARTIKEL */}
                             <div className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-5 mb-6 border border-gray-200/50 dark:border-gray-700/50">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-2">💡 Cari Ide Artikel</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Belum punya ide? Masukkan topik dan AI akan menyarankan artikel yang relevan.</p>
                                 <div className="flex gap-3">
-                                    <TextInput className="flex-1 text-sm" value={ideasKeyword} onChange={(e) => setIdeasKeyword(e.target.value)} placeholder="Masukkan topik..." />
-                                    <button onClick={() => handleGenerate('ideas')} disabled={isGenerating} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20">
-                                        {isGenerating ? '⏳' : '💡 Cari Ide'}
+                                    <TextInput className="flex-1 text-sm" value={ideasKeyword} onChange={(e) => setIdeasKeyword(e.target.value)} placeholder="Masukkan topik, misal: hipnoterapi, kecemasan..." />
+                                    <button onClick={() => handleGenerate('ideas')} disabled={isLoadingIdeas} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20 min-w-[120px]">
+                                        {isLoadingIdeas ? '⏳ Mencari...' : '💡 Cari Ide'}
                                     </button>
                                 </div>
-                                {showIdeas && ideas.length > 0 && (
-                                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {ideas.map((idea, i) => (
-                                            <div key={i} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all group cursor-pointer" onClick={() => useIdea(idea)}>
-                                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 transition-colors line-clamp-2">{idea.title}</p>
-                                                <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">{idea.description}</p>
-                                                <div className="flex items-center gap-2 mt-3">
-                                                    <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded-md">{idea.keyword}</span>
-                                                    <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-md ${idea.volume === 'tinggi' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : idea.volume === 'sedang' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}>📊 {idea.volume}</span>
-                                                    <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 text-[9px] font-bold uppercase rounded-md">{idea.intent}</span>
-                                                </div>
-                                                <p className="text-[9px] text-indigo-500 font-bold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Klik untuk gunakan →</p>
+
+                                {/* IDEAS LOADING PROGRESS */}
+                                {isLoadingIdeas && (
+                                    <div className="mt-4 bg-amber-50 dark:bg-amber-950/20 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/30">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="flex gap-1">
+                                                <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></span>
+                                                <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+                                                <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
                                             </div>
-                                        ))}
+                                            <span className="text-sm font-bold text-amber-700 dark:text-amber-300">Sedang mencari ide artikel...</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                                                <span>🔍</span><span>Menganalisis topik "{ideasKeyword}"...</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-amber-600/60 dark:text-amber-400/60">
+                                                <span>📊</span><span>Mengevaluasi potensi traffic...</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-amber-600/40 dark:text-amber-400/40">
+                                                <span>💡</span><span>Menyusun rekomendasi artikel...</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 h-1.5 bg-amber-200/50 dark:bg-amber-800/30 rounded-full overflow-hidden">
+                                            <div className="h-full bg-amber-500 rounded-full animate-pulse" style={{ width: '70%', transition: 'width 3s' }}></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* IDEAS RESULTS */}
+                                {showIdeas && ideas.length > 0 && !isLoadingIdeas && (
+                                    <div className="mt-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3">✅ {ideas.length} Ide Artikel Ditemukan — Klik salah satu untuk digunakan</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {ideas.map((idea, i) => (
+                                                <button type="button" key={i} onClick={() => useIdea(idea)}
+                                                    className="text-left bg-white dark:bg-gray-900 p-4 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group cursor-pointer hover:shadow-lg hover:shadow-indigo-500/10 active:scale-[0.98]">
+                                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">{idea.title}</p>
+                                                    <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">{idea.description}</p>
+                                                    <div className="flex items-center gap-2 mt-3">
+                                                        <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded-md">{idea.keyword}</span>
+                                                        <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-md ${idea.volume === 'tinggi' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : idea.volume === 'sedang' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}>📊 {idea.volume}</span>
+                                                        <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 text-[9px] font-bold uppercase rounded-md">{idea.intent}</span>
+                                                    </div>
+                                                    <p className="text-[10px] text-indigo-500 font-bold mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">👉 Gunakan ide ini</p>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -406,7 +464,7 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                         {/* KATA TERLARANG */}
                         <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700/50 p-5">
                             <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><span className="text-lg">🚫</span><h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kata Terlarang</h4></div>
-                                <Link href="/admin/seo-settings" className="text-[9px] font-bold text-indigo-500 hover:text-indigo-700 uppercase tracking-widest">✏️ Edit</Link>
+                                <Link href="/admin/seo-settings?group=content" className="text-[9px] font-bold text-indigo-500 hover:text-indigo-700 uppercase tracking-widest">✏️ Edit</Link>
                             </div>
                             <div className="flex flex-wrap gap-1">
                                 {forbiddenWords.slice(0, 12).map((w, i) => <span key={i} className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md ${foundForbidden.includes(w) ? 'bg-red-100 dark:bg-red-900/40 text-red-600 ring-1 ring-red-300' : 'bg-gray-50 dark:bg-gray-900 text-gray-400'}`}>{w}</span>)}
