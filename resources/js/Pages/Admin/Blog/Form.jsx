@@ -52,7 +52,7 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [completedSteps, setCompletedSteps] = useState([]);
     const [showIdeas, setShowIdeas] = useState(false);
     const [ideas, setIdeas] = useState([]);
-    const [ideasKeyword, setIdeasKeyword] = useState('hipnoterapi');
+    const [ideasKeyword, setIdeasKeyword] = useState('');
     const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
     const [foundForbidden, setFoundForbidden] = useState([]);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -174,24 +174,42 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [selectedIdeaTitle, setSelectedIdeaTitle] = useState('');
 
     const useIdea = (idea) => {
-        // Force reset first to trigger re-render even with same value
+        // Extract a proper short keyword from the idea
+        // Use idea.title as primary (unique per idea), idea.keyword as secondary
+        const extractKeyword = (title) => {
+            // Remove common prefixes like numbers, "Bagaimana", etc.
+            let kw = title
+                .replace(/^\d+\s*(alasan|cara|manfaat|tips|langkah|fakta|mitos)\s*/i, '$1 ')
+                .replace(/^(bagaimana|mengapa|apakah|apa itu|kenapa)\s*/i, '')
+                .replace(/[?!.:]/g, '')
+                .trim();
+            // Take first 5 meaningful words
+            const words = kw.split(/\s+/).filter(w => w.length > 2).slice(0, 5);
+            return words.join(' ').toLowerCase();
+        };
+
+        const newKeyword = extractKeyword(idea.title);
+        const secondaryKw = idea.keyword !== newKeyword ? idea.keyword : idea.description?.split('.')[0] || '';
+
+        // Force reset first to trigger re-render
         setGenKeyword('');
+        setGenSecondary('');
+
         setTimeout(() => {
-            setGenKeyword(idea.keyword || idea.title);
-            if (idea.title) setGenSecondary(idea.keyword || '');
+            setGenKeyword(newKeyword);
+            setGenSecondary(secondaryKw);
 
             // Show selected confirmation
             setSelectedIdeaTitle(idea.title);
             setTimeout(() => setSelectedIdeaTitle(''), 4000);
 
-            // DON'T hide ideas, just scroll to keyword input
+            // Scroll to keyword input
             setShowGenerator(true);
             setTimeout(() => {
                 const el = document.querySelector('[placeholder="Contoh: hipnoterapi"]');
                 if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     el.focus();
-                    // Flash effect
                     el.style.borderColor = '#6366f1';
                     el.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.3)';
                     setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2000);

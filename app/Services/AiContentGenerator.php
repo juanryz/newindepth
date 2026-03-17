@@ -574,17 +574,24 @@ PROMPT;
         $keyword = $input['primary_keyword'] ?? '';
         $prompt = <<<PROMPT
 Kamu content strategist untuk klinik hipnoterapi InDepth (indepth.co.id).
-Berdasarkan keyword "{$keyword}", buatkan 8 ide artikel blog yang:
+Berdasarkan topik "{$keyword}", buatkan 8 ide artikel blog yang:
 - Relevan dengan hipnoterapi, kesehatan mental, wellness
 - Potensi traffic organik tinggi
 - Bervariasi intent: informational, transactional, commercial
 
+PENTING untuk field "keyword":
+- SETIAP ide HARUS punya keyword SEO yang BERBEDA dan UNIK (2-4 kata)
+- JANGAN gunakan "{$keyword}" sebagai keyword untuk semua ide
+- Contoh keyword yang BENAR: "hipnoterapi move on", "terapi trauma emosional", "cara sembuh dari kehilangan"
+- Contoh keyword yang SALAH: mengulang "{$keyword}" untuk semua ide
+
 Format JSON array:
-[{{"title":"judul 55-65 karakter","keyword":"keyword utama","volume":"tinggi/sedang/rendah","intent":"Informational/Transactional/Commercial","description":"1-2 kalimat"}}]
-Hanya output JSON array.
+[{{"title":"judul artikel 55-65 karakter","keyword":"keyword SEO unik 2-4 kata BERBEDA tiap ide","volume":"tinggi/sedang/rendah","intent":"Informational/Transactional/Commercial","description":"1-2 kalimat deskripsi artikel"}}]
+
+Hanya output JSON array valid. Tanpa penjelasan.
 PROMPT;
 
-        $response = $this->callOpenAI($prompt, 'Content strategist ahli SEO. Output hanya JSON array.', 2000, 0.8);
+        $response = $this->callOpenAI($prompt, 'Content strategist ahli SEO Indonesia. Output HANYA JSON array valid. Setiap ide HARUS punya keyword UNIK dan BERBEDA.', 2000, 0.8);
         if (isset($response['error']))
             return $response;
         $json = $this->parseJson($response['content']);
