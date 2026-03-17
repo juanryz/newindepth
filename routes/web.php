@@ -407,16 +407,34 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/setup-fix-permissions', function () {
         try {
             $permissionsToAdd = [
-                'edit schedules', 'delete schedules', 'create schedules', 'bulk_delete schedules',
-                'assign bookings', 'view users', 'create users', 'edit users', 'delete users',
-                'view_agreement users', 'view roles', 'create roles', 'edit roles', 'delete roles',
-                'view packages', 'create packages', 'edit packages', 'delete packages',
-                'view vouchers', 'create vouchers', 'edit vouchers', 'delete vouchers',
+                'edit schedules',
+                'delete schedules',
+                'create schedules',
+                'bulk_delete schedules',
+                'assign bookings',
+                'view users',
+                'create users',
+                'edit users',
+                'delete users',
+                'view_agreement users',
+                'view roles',
+                'create roles',
+                'edit roles',
+                'delete roles',
+                'view packages',
+                'create packages',
+                'edit packages',
+                'delete packages',
+                'view vouchers',
+                'create vouchers',
+                'edit vouchers',
+                'delete vouchers',
             ];
             $added = [];
             foreach ($permissionsToAdd as $perm) {
                 $p = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-                if ($p->wasRecentlyCreated) $added[] = $perm;
+                if ($p->wasRecentlyCreated)
+                    $added[] = $perm;
             }
             // Assign all permissions to admin and super_admin
             $allPermissions = \Spatie\Permission\Models\Permission::all();
@@ -623,6 +641,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('blog/analyze', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'analyze'])
                 ->middleware('permission:analyze blog_posts')
                 ->name('blog.analyze');
+            Route::post('blog/generate', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'generate'])
+                ->middleware('permission:create blog_posts')
+                ->name('blog.generate');
+
+            // SEO Settings
+            Route::get('seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'index'])
+                ->name('seo-settings.index');
+            Route::post('seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'update'])
+                ->name('seo-settings.update');
+            Route::post('seo-settings/reset', [\App\Http\Controllers\Admin\SeoSettingController::class, 'reset'])
+                ->name('seo-settings.reset');
+            Route::get('seo-settings/export', [\App\Http\Controllers\Admin\SeoSettingController::class, 'exportRules'])
+                ->name('seo-settings.export');
 
             // Finance
             Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])

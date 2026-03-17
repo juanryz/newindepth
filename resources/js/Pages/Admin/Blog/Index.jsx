@@ -26,11 +26,16 @@ export default function BlogIndex({ posts }) {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kelola Blog Artikel</h2>
                     {hasPermission('create blog_posts') && (
-                        <Link href="/admin/blog/create">
-                            <PrimaryButton className="!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !shadow-xl !shadow-gold-600/20 !uppercase !bg-gold-600 hover:!bg-gold-500 transition-all transform active:scale-95">
-                                Buat Artikel Baru
-                            </PrimaryButton>
-                        </Link>
+                        <div className="flex items-center gap-3">
+                            <Link href="/admin/seo-settings" className="px-4 py-3 text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700">
+                                ⚙️ SEO Settings
+                            </Link>
+                            <Link href="/admin/blog/create">
+                                <PrimaryButton className="!rounded-2xl !px-6 !py-3 !text-[10px] !tracking-widest !font-black !shadow-xl !shadow-gold-600/20 !uppercase !bg-gold-600 hover:!bg-gold-500 transition-all transform active:scale-95">
+                                    Buat Artikel Baru
+                                </PrimaryButton>
+                            </Link>
+                        </div>
                     )}
                 </div>
             }

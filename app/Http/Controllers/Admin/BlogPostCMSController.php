@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Models\SeoSetting;
+use App\Services\AiContentGenerator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
 
 class BlogPostCMSController extends Controller
 {
-    public function __construct(protected \App\Services\SeoContentService $seoService)
-    {
+    public function __construct(
+        protected \App\Services\SeoContentService $seoService,
+        protected AiContentGenerator $aiGenerator,
+    ) {
     }
 
     public function index()
@@ -25,7 +29,9 @@ class BlogPostCMSController extends Controller
 
     public function create()
     {
-        return Inertia::render('Admin/Blog/Form');
+        return Inertia::render('Admin/Blog/Form', [
+            'seoRules' => SeoSetting::getRules(),
+        ]);
     }
 
     public function store(Request $request)
@@ -69,7 +75,8 @@ class BlogPostCMSController extends Controller
     public function edit(BlogPost $post)
     {
         return Inertia::render('Admin/Blog/Form', [
-            'post' => $post
+            'post' => $post,
+            'seoRules' => SeoSetting::getRules(),
         ]);
     }
 
@@ -132,5 +139,29 @@ class BlogPostCMSController extends Controller
             'checks' => $analysis['checks'],
             'intent' => $intent
         ]);
+    }
+
+    /**
+     * AI Content Generation endpoint.
+     */
+    public function generate(Request $request)
+    {
+        $validated = $request->validate([
+            'primary_keyword' => 'required|string|max:255',
+            'secondary_keywords' => 'nullable|string|max:500',
+            'tone' => 'nullable|string|max:100',
+            'audience' => 'nullable|string|max:200',
+            'type' => 'nullable|string|in:full,meta',
+        ]);
+
+        $type = $validated['type'] ?? 'full';
+
+        if ($type === 'meta') {
+            $result = $this->aiGenerator->generateMeta($validated);
+        } else {
+            $result = $this->aiGenerator->generateArticle($validated);
+        }
+
+        return response()->json($result);
     }
 }

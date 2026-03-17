@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -18,7 +18,7 @@ function useDebounce(value, delay) {
     return debouncedValue;
 }
 
-export default function BlogForm({ post }) {
+export default function BlogForm({ post, seoRules }) {
     const isEditing = !!post;
 
     const { data, setData, post: formPost, processing, errors, transform } = useForm({
@@ -39,12 +39,22 @@ export default function BlogForm({ post }) {
     const [intent, setIntent] = useState(post?.search_intent || 'Detecting...');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+    // AI Generator state
+    const [showGenerator, setShowGenerator] = useState(false);
+    const [genKeyword, setGenKeyword] = useState('');
+    const [genSecondary, setGenSecondary] = useState('');
+    const [genTone, setGenTone] = useState('profesional dan informatif');
+    const [genAudience, setGenAudience] = useState('masyarakat umum Indonesia');
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [genProgress, setGenProgress] = useState('');
+    const [genError, setGenError] = useState('');
+
     const debouncedData = useDebounce({
         title: data.title,
         body: data.body,
         primary_keyword: data.primary_keyword,
         meta_description: data.meta_description
-    }, 1000);
+    }, 1500);
 
     useEffect(() => {
         const runAnalysis = async () => {
@@ -88,6 +98,60 @@ export default function BlogForm({ post }) {
         return 'text-red-500 bg-red-500';
     };
 
+    // AI Content Generation
+    const handleGenerate = async (type = 'full') => {
+        if (!genKeyword.trim()) {
+            setGenError('Masukkan keyword utama terlebih dahulu.');
+            return;
+        }
+
+        setIsGenerating(true);
+        setGenError('');
+        setGenProgress(type === 'full' ? 'Menggenerate artikel lengkap (~30-60 detik)...' : 'Menggenerate meta...');
+
+        try {
+            const response = await axios.post(route('admin.blog.generate'), {
+                primary_keyword: genKeyword,
+                secondary_keywords: genSecondary,
+                tone: genTone,
+                audience: genAudience,
+                type: type,
+            });
+
+            const result = response.data;
+
+            if (result.error) {
+                setGenError(result.error);
+                return;
+            }
+
+            if (type === 'full') {
+                if (result.h1 || result.seo_title) setData('title', result.h1 || result.seo_title);
+                if (result.meta_description) setData('meta_description', result.meta_description);
+                if (result.seo_title) setData('meta_title', result.seo_title);
+                if (result.body) setData('body', result.body);
+                if (result.primary_keyword) setData('primary_keyword', result.primary_keyword);
+                setGenProgress('✅ Artikel berhasil digenerate!');
+            } else {
+                if (result.seo_title) setData('meta_title', result.seo_title);
+                if (result.meta_description) setData('meta_description', result.meta_description);
+                setGenProgress('✅ Meta berhasil digenerate!');
+            }
+
+            setTimeout(() => setGenProgress(''), 3000);
+        } catch (err) {
+            setGenError('Gagal generate konten. ' + (err.response?.data?.message || err.message));
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    // SEO rules helper
+    const getRule = (key, fallback) => {
+        if (!seoRules || !seoRules[key]) return fallback;
+        return seoRules[key].value;
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -100,6 +164,23 @@ export default function BlogForm({ post }) {
                             {isEditing ? 'Edit Artikel' : 'Tulis Artikel Baru'}
                         </h2>
                     </div>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/admin/seo-settings"
+                            className="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                        >
+                            ⚙️ SEO Settings
+                        </Link>
+                        <button
+                            onClick={() => setShowGenerator(!showGenerator)}
+                            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border ${showGenerator
+                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50'
+                                    : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-transparent shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30'
+                                }`}
+                        >
+                            🤖 {showGenerator ? 'Tutup' : 'AI Generator'}
+                        </button>
+                    </div>
                 </div>
             }
         >
@@ -107,6 +188,142 @@ export default function BlogForm({ post }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+                    {/* AI GENERATOR PANEL */}
+                    {showGenerator && (
+                        <div className="mb-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 rounded-[2.5rem] border border-indigo-200/50 dark:border-indigo-800/30 shadow-2xl overflow-hidden">
+                            <div className="p-8 md:p-10">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-lg shadow-lg shadow-purple-500/30">
+                                        🤖
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">AI Content Generator</h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Generate artikel SEO-friendly otomatis berdasarkan keyword</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <InputLabel value="Keyword Utama *" className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2" />
+                                        <TextInput
+                                            className="w-full font-bold text-lg"
+                                            value={genKeyword}
+                                            onChange={(e) => setGenKeyword(e.target.value)}
+                                            placeholder="Contoh: hipnoterapi"
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Secondary / LSI Keywords" className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2" />
+                                        <TextInput
+                                            className="w-full text-sm"
+                                            value={genSecondary}
+                                            onChange={(e) => setGenSecondary(e.target.value)}
+                                            placeholder="terapi hipnosis, terapi pikiran bawah sadar, hipnoterapi trauma"
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Tone / Gaya Bahasa" className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2" />
+                                        <select
+                                            className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 dark:text-gray-300"
+                                            value={genTone}
+                                            onChange={(e) => setGenTone(e.target.value)}
+                                        >
+                                            <option value="profesional dan informatif">Profesional & Informatif</option>
+                                            <option value="hangat dan empatik">Hangat & Empatik</option>
+                                            <option value="akademis dan ilmiah">Akademis & Ilmiah</option>
+                                            <option value="santai dan conversational">Santai & Conversational</option>
+                                            <option value="persuasif dan motivasi">Persuasif & Motivasi</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Target Audience" className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2" />
+                                        <select
+                                            className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 dark:text-gray-300"
+                                            value={genAudience}
+                                            onChange={(e) => setGenAudience(e.target.value)}
+                                        >
+                                            <option value="masyarakat umum Indonesia">Masyarakat Umum</option>
+                                            <option value="profesional kesehatan">Profesional Kesehatan</option>
+                                            <option value="mahasiswa psikologi">Mahasiswa Psikologi</option>
+                                            <option value="orang tua">Orang Tua</option>
+                                            <option value="remaja dan dewasa muda">Remaja & Dewasa Muda</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* SEO Rules Summary */}
+                                {seoRules && (
+                                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-4 mb-6 border border-gray-200/50 dark:border-gray-700/50">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">📋 SEO Rules yang aktif</p>
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 text-center">
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('article_ideal_words', 2000)}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">kata min</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('h2_min_count', 5)}-{getRule('h2_max_count', 8)}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">heading H2</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('keyword_density_min', 1)}-{getRule('keyword_density_max', 1.5)}%</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">density</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('faq_min_questions', 4)}-{getRule('faq_ideal_questions', 5)}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">FAQ</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('internal_link_min', 3)}-{getRule('internal_link_ideal', 5)}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">int. link</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-gray-900 rounded-xl p-2 border border-gray-100 dark:border-gray-700">
+                                                <p className="text-lg font-black text-indigo-600">{getRule('image_min_count', 2)}-{getRule('image_ideal_count', 3)}</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase">gambar</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {genError && (
+                                    <div className="p-4 mb-4 text-sm text-red-800 dark:text-red-300 rounded-2xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50">
+                                        ❌ {genError}
+                                    </div>
+                                )}
+
+                                {genProgress && (
+                                    <div className="p-4 mb-4 text-sm text-indigo-800 dark:text-indigo-300 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800/50">
+                                        {isGenerating && (
+                                            <div className="flex gap-1 mb-2">
+                                                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
+                                                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                                                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                            </div>
+                                        )}
+                                        {genProgress}
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap gap-3">
+                                    <button
+                                        onClick={() => handleGenerate('full')}
+                                        disabled={isGenerating}
+                                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-purple-500/20 hover:shadow-2xl hover:shadow-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
+                                    >
+                                        {isGenerating ? '⏳ Generating...' : '🚀 Generate Artikel Lengkap'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleGenerate('meta')}
+                                        disabled={isGenerating}
+                                        className="px-6 py-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        🏷️ Generate Meta Only
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                         {/* MAIN EDITOR FORM */}
@@ -117,7 +334,17 @@ export default function BlogForm({ post }) {
                                     {/* TITLE & KEYWORD */}
                                     <div className="space-y-4">
                                         <div>
-                                            <InputLabel htmlFor="title" value="Judul Artikel" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                                            <div className="flex items-center justify-between mb-2">
+                                                <InputLabel htmlFor="title" value="Judul Artikel (H1)" className="text-[10px] font-black uppercase tracking-widest text-gray-400" />
+                                                <span className={`text-[10px] font-bold ${data.title.length >= (getRule('h1_min_length', 60)) && data.title.length <= (getRule('h1_max_length', 80))
+                                                        ? 'text-emerald-500'
+                                                        : data.title.length > (getRule('h1_max_length', 80))
+                                                            ? 'text-red-500'
+                                                            : 'text-gray-400'
+                                                    }`}>
+                                                    {data.title.length} / {getRule('h1_min_length', 60)}-{getRule('h1_max_length', 80)} karakter
+                                                </span>
+                                            </div>
                                             <input
                                                 id="title"
                                                 type="text"
@@ -174,7 +401,18 @@ export default function BlogForm({ post }) {
 
                                     {/* CONTENT - RICH TEXT */}
                                     <div>
-                                        <InputLabel htmlFor="body" value="Konten Artikel" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                                        <div className="flex items-center justify-between mb-2">
+                                            <InputLabel htmlFor="body" value="Konten Artikel" className="text-[10px] font-black uppercase tracking-widest text-gray-400" />
+                                            <span className={`text-[10px] font-bold ${(() => {
+                                                    const plain = data.body ? data.body.replace(/<[^>]+>/g, '') : '';
+                                                    const words = plain.split(/\s+/).filter(w => w.length > 0).length;
+                                                    const minWords = getRule('article_min_words', 1800);
+                                                    return words >= minWords ? 'text-emerald-500' : 'text-gray-400';
+                                                })()
+                                                }`}>
+                                                {data.body ? data.body.replace(/<[^>]+>/g, '').split(/\s+/).filter(w => w.length > 0).length : 0} / {getRule('article_min_words', 1800)}+ kata
+                                            </span>
+                                        </div>
                                         <div className="mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden pb-14">
                                             <ReactQuill
                                                 theme="snow"
@@ -220,6 +458,15 @@ export default function BlogForm({ post }) {
                                         <div className="space-y-4">
                                             <InputLabel value="Metadata" className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-2" />
                                             <div>
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-[10px] font-bold text-gray-400">SEO Title</span>
+                                                    <span className={`text-[10px] font-bold ${data.meta_title.length >= (getRule('seo_title_min_length', 55)) && data.meta_title.length <= (getRule('seo_title_max_length', 65))
+                                                            ? 'text-emerald-500'
+                                                            : 'text-gray-400'
+                                                        }`}>
+                                                        {data.meta_title.length}/{getRule('seo_title_min_length', 55)}-{getRule('seo_title_max_length', 65)}
+                                                    </span>
+                                                </div>
                                                 <TextInput
                                                     className="w-full text-xs font-bold"
                                                     value={data.meta_title}
@@ -228,6 +475,15 @@ export default function BlogForm({ post }) {
                                                 />
                                             </div>
                                             <div>
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-[10px] font-bold text-gray-400">Meta Description</span>
+                                                    <span className={`text-[10px] font-bold ${data.meta_description.length >= (getRule('meta_desc_min_length', 140)) && data.meta_description.length <= (getRule('meta_desc_max_length', 160))
+                                                            ? 'text-emerald-500'
+                                                            : 'text-gray-400'
+                                                        }`}>
+                                                        {data.meta_description.length}/{getRule('meta_desc_min_length', 140)}-{getRule('meta_desc_max_length', 160)}
+                                                    </span>
+                                                </div>
                                                 <textarea
                                                     className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-indigo-500/20 text-xs font-medium min-h-[100px]"
                                                     value={data.meta_description}
@@ -341,10 +597,13 @@ export default function BlogForm({ post }) {
                                         <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v2h-2zm0 4h2v7h-2z" /></svg>
                                     </div>
                                     <h5 className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-2">Pro-Tip</h5>
-                                    <p className="text-xs font-bold leading-relaxed mb-4">Pastikan keyword utama Anda muncul di 100 kata pertama artikel!</p>
-                                    <button type="button" className="text-[9px] font-black uppercase bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-all tracking-widest">
-                                        Lihat Strategi EEAT
-                                    </button>
+                                    <p className="text-xs font-bold leading-relaxed mb-4">Pastikan keyword utama Anda muncul di {getRule('intro_keyword_within_words', 50)} kata pertama artikel!</p>
+                                    <Link
+                                        href="/admin/seo-settings"
+                                        className="text-[9px] font-black uppercase bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-all tracking-widest"
+                                    >
+                                        Lihat SEO Settings →
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -355,4 +614,3 @@ export default function BlogForm({ post }) {
         </AuthenticatedLayout>
     );
 }
-
