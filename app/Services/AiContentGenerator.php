@@ -328,6 +328,8 @@ LARANGAN
 - JANGAN gunakan kata: {$forbiddenList}
 - JANGAN tulis kurang dari {$articleWords} kata
 - JANGAN skip section apapun dari outline
+- JANGAN mengarang/membuat-buat institusi, jurnal, atau studi ilmiah fiktif. Jika tidak ada data asli, gunakan pernyataan umum logis.
+- JANGAN memaksakan klaim tidak masuk akal (misal: hipnoterapi untuk benda mati, kucing/hewan, penyakit tulang patah, dll). Tulislah bahwa itu MITOS jika topiknya memaksa.
 
 OUTPUT: Tulis HANYA konten HTML mulai dari <p> paragraf pembuka. Tanpa komentar, tanpa penjelasan.
 Tone: {$tone}. Target audiens: {$audience}. LSI keywords: {$secondary}.
@@ -654,22 +656,37 @@ PROMPT;
 
     /**
      * Generate featured image using free image sources.
-     * Uses Unsplash for high-quality photos, with picsum as fallback.
+     * Uses Pollinations for high-quality customized generative AI photos.
      */
+
     public function generateFeaturedImage(string $keyword, string $style = 'profesional'): array
     {
-        // Map keyword to search terms for better image results
-        $searchTerms = $this->getImageSearchTerms($keyword);
+        // Map UI styles to descriptive image prompts
+        $stylePrompts = [
+            'profesional' => 'Professional photography, high quality, medical clinic setting but welcoming, bright clean lighting, ',
+            'hangat' => 'Warm and calming photography, soft lighting, comforting atmosphere, soothing colors, ',
+            'minimalis' => 'Minimalist elegant composition, simple, clean background, abstract shape, ',
+            'ilustrasi' => 'Modern digital illustration, vector art style, clean lines, beautiful colors, ',
+            'fotografi' => 'Premium artistic photography, highly detailed, realistic, cinematic lighting, ',
+        ];
+
+        $baseStyle = $stylePrompts[$style] ?? $stylePrompts['profesional'];
+        $englishConcept = $this->translateKeywordForImage($keyword);
+
+        // Full prompt for image generator
+        $fullPrompt = $baseStyle . $englishConcept . ', psychology, mental health or hypnotherapy concept, beautiful, high resolution, NO TEXT, NO WORDS.';
 
         try {
-            // Strategy 1: Try Unsplash Source (free, no API key needed)
-            $unsplashUrl = "https://source.unsplash.com/1600x900/?" . urlencode($searchTerms);
+            // Strategy 1: Pollinations.ai (Reliable FREE Text-to-Image Generation API)
+            $pollinationsUrl = "https://image.pollinations.ai/prompt/" . rawurlencode($fullPrompt) . "?width=1600&height=900&nologo=true&seed=" . time();
 
-            $response = Http::timeout(15)->withOptions([
-                'allow_redirects' => ['max' => 3, 'track_redirects' => true],
-            ])->get($unsplashUrl);
+            // Download the generated image to local storage
+            $response = Http::timeout(25)->withOptions([
+                'allow_redirects' => ['max' => 5]
+            ])->get($pollinationsUrl);
 
-            if ($response->successful() && strlen($response->body()) > 1000) {
+            // Valid images should be fairly large (e.g. at least 30KB)
+            if ($response->successful() && strlen($response->body()) > 30000) {
                 $filename = 'blog/featured-' . Str::slug($keyword) . '-' . uniqid() . '.jpg';
                 Storage::disk('public')->put($filename, $response->body());
 
@@ -677,43 +694,22 @@ PROMPT;
                     'success' => true,
                     'path' => $filename,
                     'url' => '/storage/' . $filename,
-                    'source' => 'unsplash',
+                    'source' => 'pollinations',
                 ];
             }
 
-            // Strategy 2: Picsum (always works, random high-quality photo)
-            $seed = Str::slug($keyword) . '-' . time();
-            $picsumUrl = "https://picsum.photos/seed/{$seed}/1600/900";
-
-            $response = Http::timeout(15)->withOptions([
-                'allow_redirects' => ['max' => 3],
-            ])->get($picsumUrl);
-
-            if ($response->successful() && strlen($response->body()) > 1000) {
-                $filename = 'blog/featured-' . Str::slug($keyword) . '-' . uniqid() . '.jpg';
-                Storage::disk('public')->put($filename, $response->body());
-
-                return [
-                    'success' => true,
-                    'path' => $filename,
-                    'url' => '/storage/' . $filename,
-                    'source' => 'picsum',
-                ];
-            }
-
-            // Strategy 3: Direct picsum URL (don't download, just use URL)
-            $directUrl = "https://picsum.photos/seed/{$seed}/1600/900";
+            // Strategy 2: Direct Pollinations URL if download fails for some reason
             return [
                 'success' => true,
                 'path' => '',
-                'url' => $directUrl,
-                'source' => 'picsum-direct',
+                'url' => $pollinationsUrl,
+                'source' => 'pollinations-direct',
             ];
 
         } catch (\Exception $e) {
-            Log::warning('Image generation fallback', ['error' => $e->getMessage()]);
+            Log::warning('Image generation failed', ['error' => $e->getMessage()]);
 
-            // Ultimate fallback: always return a working URL
+            // Fallback to random placeholder if API is down
             $fallbackSeed = Str::slug($keyword) . '-fallback';
             return [
                 'success' => true,
@@ -725,21 +721,22 @@ PROMPT;
     }
 
     /**
-     * Convert keyword to better search terms for image services.
+     * Map Indonesian keywords to descriptive English concepts for the image generator.
      */
-    private function getImageSearchTerms(string $keyword): string
+    private function translateKeywordForImage(string $keyword): string
     {
         $termMap = [
-            'hipnoterapi' => 'meditation therapy calm peaceful',
-            'terapi' => 'therapy mental health wellness',
-            'kecemasan' => 'calm peaceful meditation mindfulness',
-            'trauma' => 'healing therapy support recovery',
-            'stress' => 'relaxation calm nature peaceful',
-            'mental' => 'mental health wellness brain psychology',
-            'relaksasi' => 'relaxation spa calm nature',
-            'psikologi' => 'psychology therapy counseling',
-            'depresi' => 'hope light peaceful recovery',
-            'fobia' => 'courage confidence therapy',
+            'hipnoterapi' => 'person relaxing, peaceful mind, therapist helping patient',
+            'terapi' => 'therapy session, mental wellbeing, consultation',
+            'kecemasan' => 'finding calm amid chaos, peaceful mind, letting go of anxiety',
+            'trauma' => 'healing journey, mental recovery, breaking chains, light emerging',
+            'stress' => 'relaxing environment, nature, taking a deep breath, stress relief',
+            'mental' => 'mental health, psychology, brain health, positive mindset',
+            'relaksasi' => 'deep relaxation, spa-like calmness, zen mindful state',
+            'psikologi' => 'psychology, mental balance, human mind concept',
+            'depresi' => 'finding hope, sunshine breaking through clouds, emotional healing',
+            'fobia' => 'overcoming fear, building courage, stepping forward confidently',
+            'kucing' => 'pet therapy, relaxing cat, animal calming connection',
         ];
 
         $keyword_lower = mb_strtolower($keyword);
@@ -749,7 +746,7 @@ PROMPT;
             }
         }
 
-        return 'therapy wellness mental health calm';
+        return rtrim($keyword_lower, '?') . ' concept, mental health visual representation';
     }
 
     /**
