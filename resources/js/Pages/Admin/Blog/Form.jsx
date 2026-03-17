@@ -58,6 +58,11 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [generatedImageUrl, setGeneratedImageUrl] = useState('');
     const [imageStyle, setImageStyle] = useState('profesional');
+    const [editingForbidden, setEditingForbidden] = useState(false);
+    const [localForbiddenWords, setLocalForbiddenWords] = useState(forbiddenWords || []);
+    const [newForbiddenWord, setNewForbiddenWord] = useState('');
+    const [savingForbidden, setSavingForbidden] = useState(false);
+    const [forbiddenSaved, setForbiddenSaved] = useState(false);
     const stepTimers = useRef([]);
 
     const debouncedData = useDebounce({ title: data.title, body: data.body, primary_keyword: data.primary_keyword, meta_description: data.meta_description }, 1500);
@@ -76,10 +81,10 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     }, [debouncedData]);
 
     useEffect(() => {
-        if (!forbiddenWords.length) return;
+        if (!localForbiddenWords.length) return;
         const allText = (data.title + ' ' + data.body + ' ' + data.meta_description).toLowerCase();
-        setFoundForbidden(forbiddenWords.filter(w => allText.includes(w.toLowerCase())));
-    }, [data.title, data.body, data.meta_description, forbiddenWords]);
+        setFoundForbidden(localForbiddenWords.filter(w => allText.includes(w.toLowerCase())));
+    }, [data.title, data.body, data.meta_description, localForbiddenWords]);
 
     const startProgressSteps = () => {
         setCurrentStep(0); setCompletedSteps([]);
@@ -119,11 +124,16 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
         // Ideas uses separate loading state
         if (type === 'ideas') {
             setIsLoadingIdeas(true);
+            console.log('[AI Ideas] Searching for ideas with keyword:', kw);
             try {
                 const r = await axios.post(route('admin.blog.generate'), { primary_keyword: kw, secondary_keywords: '', tone: genTone, audience: genAudience, type: 'ideas' });
-                if (r.data.error) { setGenError(r.data.error); return; }
+                console.log('[AI Ideas] Response:', r.data);
+                if (r.data.error) { setGenError(r.data.error); setIsLoadingIdeas(false); return; }
                 if (r.data.ideas) { setIdeas(r.data.ideas); setShowIdeas(true); }
-            } catch (err) { setGenError('Gagal mencari ide. ' + (err.response?.data?.message || err.message)); }
+            } catch (err) {
+                console.error('[AI Ideas] Error:', err);
+                setGenError('Gagal mencari ide. ' + (err.response?.data?.message || err.message));
+            }
             finally { setIsLoadingIdeas(false); }
             return;
         }
@@ -174,6 +184,38 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     };
     const getRule = (key, fb) => seoRules?.[key]?.value ?? fb;
     const getWordCount = () => data.body ? data.body.replace(/<[^>]+>/g, '').split(/\s+/).filter(w => w.length > 0).length : 0;
+
+    const addForbiddenWord = () => {
+        const word = newForbiddenWord.trim().toLowerCase();
+        if (!word) return;
+        if (localForbiddenWords.some(w => w.toLowerCase() === word)) {
+            setNewForbiddenWord('');
+            return;
+        }
+        setLocalForbiddenWords(prev => [...prev, word]);
+        setNewForbiddenWord('');
+    };
+
+    const removeForbiddenWord = (wordToRemove) => {
+        setLocalForbiddenWords(prev => prev.filter(w => w !== wordToRemove));
+    };
+
+    const saveForbiddenWords = async () => {
+        setSavingForbidden(true);
+        setForbiddenSaved(false);
+        try {
+            const r = await axios.post(route('admin.blog.update-forbidden-words'), { words: localForbiddenWords });
+            if (r.data.success) {
+                setForbiddenSaved(true);
+                setTimeout(() => setForbiddenSaved(false), 3000);
+            }
+        } catch (err) { console.error('Gagal menyimpan kata terlarang', err); }
+        finally { setSavingForbidden(false); }
+    };
+
+    const handleForbiddenKeyDown = (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addForbiddenWord(); }
+    };
 
     return (
         <AuthenticatedLayout
@@ -229,10 +271,17 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Belum punya ide? Masukkan topik dan AI akan menyarankan artikel yang relevan.</p>
                                 <div className="flex gap-3">
                                     <TextInput className="flex-1 text-sm" value={ideasKeyword} onChange={(e) => setIdeasKeyword(e.target.value)} placeholder="Masukkan topik, misal: hipnoterapi, kecemasan..." />
-                                    <button onClick={() => handleGenerate('ideas')} disabled={isLoadingIdeas} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20 min-w-[120px]">
+                                    <button type="button" onClick={() => handleGenerate('ideas')} disabled={isLoadingIdeas} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20 min-w-[120px]">
                                         {isLoadingIdeas ? '⏳ Mencari...' : '💡 Cari Ide'}
                                     </button>
                                 </div>
+
+                                {/* ERROR IN IDEAS */}
+                                {genError && !isLoadingIdeas && (
+                                    <div className="mt-3 p-3 text-sm text-red-800 dark:text-red-300 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50">
+                                        ❌ {genError}
+                                    </div>
+                                )}
 
                                 {/* IDEAS LOADING PROGRESS */}
                                 {isLoadingIdeas && (
@@ -461,16 +510,75 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
 
                     {/* SIDEBAR */}
                     <div className="lg:col-span-4 space-y-6 sticky top-24">
-                        {/* KATA TERLARANG */}
+                        {/* KATA TERLARANG - INLINE TAG EDITOR */}
                         <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700/50 p-5">
-                            <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><span className="text-lg">🚫</span><h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kata Terlarang</h4></div>
-                                <Link href="/admin/seo-settings?group=content" className="text-[9px] font-bold text-indigo-500 hover:text-indigo-700 uppercase tracking-widest">✏️ Edit</Link>
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">🚫</span>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kata Terlarang</h4>
+                                    <span className="text-[9px] font-bold text-gray-300 dark:text-gray-600">({localForbiddenWords.length})</span>
+                                </div>
+                                <button type="button" onClick={() => setEditingForbidden(!editingForbidden)}
+                                    className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg transition-all ${editingForbidden ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/30'}`}>
+                                    {editingForbidden ? '✕ Tutup' : '✏️ Edit'}
+                                </button>
                             </div>
-                            <div className="flex flex-wrap gap-1">
-                                {forbiddenWords.slice(0, 12).map((w, i) => <span key={i} className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md ${foundForbidden.includes(w) ? 'bg-red-100 dark:bg-red-900/40 text-red-600 ring-1 ring-red-300' : 'bg-gray-50 dark:bg-gray-900 text-gray-400'}`}>{w}</span>)}
-                                {forbiddenWords.length > 12 && <span className="text-[8px] text-gray-400 font-bold self-center">+{forbiddenWords.length - 12} lainnya</span>}
+
+                            {/* TAG INPUT - EDIT MODE */}
+                            {editingForbidden && (
+                                <div className="mb-3 space-y-3">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            className="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium px-3 py-2 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 dark:text-gray-300"
+                                            value={newForbiddenWord}
+                                            onChange={(e) => setNewForbiddenWord(e.target.value)}
+                                            onKeyDown={handleForbiddenKeyDown}
+                                            placeholder="Ketik kata lalu tekan Enter..."
+                                        />
+                                        <button type="button" onClick={addForbiddenWord}
+                                            className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase rounded-xl transition-all shadow-sm">
+                                            + Tambah
+                                        </button>
+                                    </div>
+                                    <p className="text-[9px] text-gray-400 dark:text-gray-500">Tekan Enter atau klik Tambah. Klik ✕ pada kata untuk menghapus.</p>
+
+                                    {/* SAVE BUTTON */}
+                                    <button type="button" onClick={saveForbiddenWords} disabled={savingForbidden}
+                                        className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20">
+                                        {savingForbidden ? '⏳ Menyimpan...' : forbiddenSaved ? '✅ Tersimpan!' : '💾 Simpan Perubahan'}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* TAGS DISPLAY */}
+                            <div className="flex flex-wrap gap-1.5">
+                                {localForbiddenWords.map((w, i) => (
+                                    <span key={i} className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${foundForbidden.includes(w)
+                                        ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 ring-1 ring-red-300 dark:ring-red-700'
+                                        : 'bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400'
+                                        }`}>
+                                        {w}
+                                        {editingForbidden && (
+                                            <button type="button" onClick={() => removeForbiddenWord(w)}
+                                                className="ml-0.5 w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-200 dark:hover:bg-red-800 text-red-500 transition-all text-[10px] font-black">
+                                                ✕
+                                            </button>
+                                        )}
+                                    </span>
+                                ))}
                             </div>
-                            {foundForbidden.length === 0 && <p className="text-[10px] text-emerald-500 font-bold mt-2">✅ Tidak ada kata terlarang</p>}
+
+                            {/* STATUS */}
+                            {localForbiddenWords.length === 0 && (
+                                <p className="text-[10px] text-gray-400 mt-2 italic">Belum ada kata terlarang. Klik Edit untuk menambahkan.</p>
+                            )}
+                            {foundForbidden.length > 0 && (
+                                <p className="text-[10px] text-red-500 font-bold mt-2">⚠️ {foundForbidden.length} kata terlarang terdeteksi di konten!</p>
+                            )}
+                            {foundForbidden.length === 0 && localForbiddenWords.length > 0 && (
+                                <p className="text-[10px] text-emerald-500 font-bold mt-2">✅ Konten bersih dari kata terlarang</p>
+                            )}
                         </div>
 
                         {/* SEO SCORE */}

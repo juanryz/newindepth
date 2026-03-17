@@ -88,7 +88,7 @@
     "isDynamicEntry": true
   },
   "resources/js/Pages/Admin/Blog/Form.jsx": {
-    "file": "assets/Form-BQ5WcJxT.js",
+    "file": "assets/Form-DykPSUtl.js",
     "name": "Form",
     "src": "resources/js/Pages/Admin/Blog/Form.jsx",
     "isDynamicEntry": true,
@@ -105,9 +105,21 @@
     ]
   },
   "resources/js/Pages/Admin/Blog/Index.jsx": {
-    "file": "assets/Index-B62bA_Au.js",
+    "file": "assets/Index-Cb3LHFwk.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Blog/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_PrimaryButton-DsRkdqwY.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/Blog/SeoSettings.jsx": {
+    "file": "assets/SeoSettings-Beuh_ju3.js",
+    "name": "SeoSettings",
+    "src": "resources/js/Pages/Admin/Blog/SeoSettings.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_AuthenticatedLayout-DSi5ya3j.js",
@@ -1110,6 +1122,7 @@
     "dynamicImports": [
       "resources/js/Pages/Admin/Blog/Form.jsx",
       "resources/js/Pages/Admin/Blog/Index.jsx",
+      "resources/js/Pages/Admin/Blog/SeoSettings.jsx",
       "resources/js/Pages/Admin/Clinic/Bookings/Index.jsx",
       "resources/js/Pages/Admin/Clinic/Transactions/Expired.jsx",
       "resources/js/Pages/Admin/Clinic/Transactions/Index.jsx",

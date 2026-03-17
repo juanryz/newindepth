@@ -191,4 +191,40 @@ class BlogPostCMSController extends Controller
 
         return response()->json($result);
     }
+
+    /**
+     * Update forbidden words list from blog editor.
+     */
+    public function updateForbiddenWords(Request $request)
+    {
+        $validated = $request->validate([
+            'words' => 'required|array',
+            'words.*' => 'string|max:100',
+        ]);
+
+        $wordsString = implode(', ', array_map('trim', $validated['words']));
+
+        $setting = SeoSetting::where('key', 'forbidden_words')->first();
+        if ($setting) {
+            $setting->update(['value' => $wordsString]);
+        } else {
+            SeoSetting::create([
+                'key' => 'forbidden_words',
+                'label' => 'Kata-Kata Terlarang',
+                'description' => 'Kata-kata yang harus dihindari dalam artikel blog.',
+                'group' => 'content',
+                'type' => 'text',
+                'value' => $wordsString,
+                'default_value' => $wordsString,
+                'sort_order' => 92,
+            ]);
+        }
+
+        SeoSetting::clearCache();
+
+        return response()->json([
+            'success' => true,
+            'words' => array_map('trim', $validated['words']),
+        ]);
+    }
 }
