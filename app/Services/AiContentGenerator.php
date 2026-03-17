@@ -44,7 +44,13 @@ class AiContentGenerator
         $secondaryKeywords = $input['secondary_keywords'] ?? '';
         $tone = $input['tone'] ?? 'profesional dan informatif';
         $audience = $input['audience'] ?? 'masyarakat umum Indonesia';
-        $rules = SeoSetting::getRules();
+
+        try {
+            $rules = SeoSetting::getRules();
+        } catch (\Exception $e) {
+            $rules = [];
+            Log::warning('Could not load SEO rules', ['error' => $e->getMessage()]);
+        }
 
         try {
             // STEP 1: Generate outline
@@ -53,7 +59,11 @@ class AiContentGenerator
                 return $outline;
 
             // Fix meta if too short
-            $outline = $this->fixOutlineMeta($outline, $primaryKeyword, $rules);
+            try {
+                $outline = $this->fixOutlineMeta($outline, $primaryKeyword, $rules);
+            } catch (\Exception $e) {
+                Log::warning('fixOutlineMeta failed', ['error' => $e->getMessage()]);
+            }
 
             // STEP 2: Generate full article from outline
             $result = $this->generateFullArticle($primaryKeyword, $secondaryKeywords, $tone, $audience, $rules, $outline);
@@ -61,32 +71,53 @@ class AiContentGenerator
                 return $result;
 
             // STEP 3: Check word count and extend if needed
-            $wordCount = $this->countWords($result['body'] ?? '');
-            $targetWords = $rules['article_ideal_words']['value'] ?? 2000;
+            try {
+                $wordCount = $this->countWords($result['body'] ?? '');
+                $targetWords = $rules['article_ideal_words']['value'] ?? 2000;
 
-            Log::info("AI Article Generated", ['words' => $wordCount, 'target' => $targetWords]);
+                Log::info("AI Article Generated", ['words' => $wordCount, 'target' => $targetWords]);
 
-            if ($wordCount < ($targetWords * 0.85)) {
-                // Content too short, ask AI to extend
-                $extension = $this->extendArticle($primaryKeyword, $secondaryKeywords, $result['body'], $wordCount, $targetWords, $rules);
-                if (!isset($extension['error']) && !empty($extension['content'])) {
-                    $result['body'] .= $extension['content'];
-                    $newCount = $this->countWords($result['body']);
-                    Log::info("AI Article Extended", ['words_before' => $wordCount, 'words_after' => $newCount]);
+                if ($wordCount < ($targetWords * 0.85)) {
+                    $extension = $this->extendArticle($primaryKeyword, $secondaryKeywords, $result['body'], $wordCount, $targetWords, $rules);
+                    if (!isset($extension['error']) && !empty($extension['content'])) {
+                        $result['body'] .= $extension['content'];
+                    }
                 }
+            } catch (\Exception $e) {
+                Log::warning('Article extension failed', ['error' => $e->getMessage()]);
             }
 
-            // STEP 4: Post-processing
-            $result = $this->ensureLinks($result, $primaryKeyword, $rules);
-            $result = $this->ensureLists($result);
-            $result = $this->sanitizeForbiddenWords($result);
-            $result = $this->processContentImages($result, $primaryKeyword);
-            $result = $this->boostKeywordDensity($result, $primaryKeyword, $rules);
+            // STEP 4: Post-processing (each step is safe - won't crash if it fails)
+            try {
+                $result = $this->ensureLinks($result, $primaryKeyword, $rules);
+            } catch (\Exception $e) {
+                Log::warning('ensureLinks failed', ['error' => $e->getMessage()]);
+            }
+            try {
+                $result = $this->ensureLists($result);
+            } catch (\Exception $e) {
+                Log::warning('ensureLists failed', ['error' => $e->getMessage()]);
+            }
+            try {
+                $result = $this->sanitizeForbiddenWords($result);
+            } catch (\Exception $e) {
+                Log::warning('sanitizeForbiddenWords failed', ['error' => $e->getMessage()]);
+            }
+            try {
+                $result = $this->processContentImages($result, $primaryKeyword);
+            } catch (\Exception $e) {
+                Log::warning('processContentImages failed', ['error' => $e->getMessage()]);
+            }
+            try {
+                $result = $this->boostKeywordDensity($result, $primaryKeyword, $rules);
+            } catch (\Exception $e) {
+                Log::warning('boostKeywordDensity failed', ['error' => $e->getMessage()]);
+            }
 
             return $result;
         } catch (\Exception $e) {
-            Log::error('AI Content Generation Error', ['message' => $e->getMessage()]);
-            return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
+            Log::error('AI Content Generation Error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return ['error' => 'Terjadi kesalahan saat generate artikel: ' . $e->getMessage()];
         }
     }
 

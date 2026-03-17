@@ -129,7 +129,7 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                 const r = await axios.post(route('admin.blog.generate'), { primary_keyword: kw, secondary_keywords: '', tone: genTone, audience: genAudience, type: 'ideas' });
                 console.log('[AI Ideas] Response:', r.data);
                 if (r.data.error) { setGenError(r.data.error); setIsLoadingIdeas(false); return; }
-                if (r.data.ideas) { setIdeas(r.data.ideas); setShowIdeas(true); }
+                if (r.data.ideas) { setIdeas(r.data.ideas); setShowIdeas(true); setGenError(''); }
             } catch (err) {
                 console.error('[AI Ideas] Error:', err);
                 setGenError('Gagal mencari ide. ' + (err.response?.data?.message || err.message));

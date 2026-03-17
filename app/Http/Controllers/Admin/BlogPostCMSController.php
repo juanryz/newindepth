@@ -163,15 +163,28 @@ class BlogPostCMSController extends Controller
 
         $type = $validated['type'] ?? 'full';
 
-        if ($type === 'meta') {
-            $result = $this->aiGenerator->generateMeta($validated);
-        } elseif ($type === 'ideas') {
-            $result = $this->aiGenerator->generateIdeas($validated);
-        } else {
-            $result = $this->aiGenerator->generateArticle($validated);
-        }
+        try {
+            if ($type === 'meta') {
+                $result = $this->aiGenerator->generateMeta($validated);
+            } elseif ($type === 'ideas') {
+                $result = $this->aiGenerator->generateIdeas($validated);
+            } else {
+                $result = $this->aiGenerator->generateArticle($validated);
+            }
 
-        return response()->json($result);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            \Log::error('AI Generate Error', [
+                'type' => $type,
+                'keyword' => $validated['primary_keyword'],
+                'error' => $e->getMessage(),
+                'file' => $e->getFile() . ':' . $e->getLine(),
+            ]);
+
+            return response()->json([
+                'error' => 'Gagal generate: ' . $e->getMessage(),
+            ], 200); // Return 200 so frontend can read the error message
+        }
     }
 
     /**
