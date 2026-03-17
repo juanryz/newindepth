@@ -171,16 +171,33 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
         finally { setIsGeneratingImage(false); }
     };
 
+    const [selectedIdeaTitle, setSelectedIdeaTitle] = useState('');
+
     const useIdea = (idea) => {
-        setGenKeyword(idea.keyword);
-        if (idea.title) setGenSecondary(idea.keyword);
-        setShowIdeas(false);
-        setShowGenerator(true);
-        // Scroll to keyword input
+        // Force reset first to trigger re-render even with same value
+        setGenKeyword('');
         setTimeout(() => {
-            const el = document.querySelector('[placeholder="Contoh: hipnoterapi"]');
-            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
-        }, 100);
+            setGenKeyword(idea.keyword || idea.title);
+            if (idea.title) setGenSecondary(idea.keyword || '');
+
+            // Show selected confirmation
+            setSelectedIdeaTitle(idea.title);
+            setTimeout(() => setSelectedIdeaTitle(''), 4000);
+
+            // DON'T hide ideas, just scroll to keyword input
+            setShowGenerator(true);
+            setTimeout(() => {
+                const el = document.querySelector('[placeholder="Contoh: hipnoterapi"]');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.focus();
+                    // Flash effect
+                    el.style.borderColor = '#6366f1';
+                    el.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.3)';
+                    setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2000);
+                }
+            }, 100);
+        }, 50);
     };
     const getRule = (key, fb) => seoRules?.[key]?.value ?? fb;
     const getWordCount = () => data.body ? data.body.replace(/<[^>]+>/g, '').split(/\s+/).filter(w => w.length > 0).length : 0;
@@ -235,6 +252,20 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
             }
         >
             <Head title={isEditing ? 'Edit Artikel' : 'Tulis Artikel Baru'} />
+
+            {/* TOAST: Ide Terpilih */}
+            {selectedIdeaTitle && (
+                <div className="fixed top-20 right-6 z-[9999] animate-bounce-in max-w-sm">
+                    <div className="bg-indigo-600 text-white px-5 py-3 rounded-2xl shadow-2xl shadow-indigo-500/30 flex items-center gap-3">
+                        <span className="text-lg">✅</span>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Ide Terpilih</p>
+                            <p className="text-xs font-bold line-clamp-1">{selectedIdeaTitle}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="py-12"><div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                 {/* PERINGATAN KATA TERLARANG */}
@@ -316,19 +347,30 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                                     <div className="mt-4">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3">✅ {ideas.length} Ide Artikel Ditemukan — Klik salah satu untuk digunakan</p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {ideas.map((idea, i) => (
-                                                <button type="button" key={i} onClick={() => useIdea(idea)}
-                                                    className="text-left bg-white dark:bg-gray-900 p-4 rounded-2xl border-2 border-gray-100 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group cursor-pointer hover:shadow-lg hover:shadow-indigo-500/10 active:scale-[0.98]">
-                                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">{idea.title}</p>
-                                                    <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">{idea.description}</p>
-                                                    <div className="flex items-center gap-2 mt-3">
-                                                        <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded-md">{idea.keyword}</span>
-                                                        <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-md ${idea.volume === 'tinggi' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : idea.volume === 'sedang' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}>📊 {idea.volume}</span>
-                                                        <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 text-[9px] font-bold uppercase rounded-md">{idea.intent}</span>
-                                                    </div>
-                                                    <p className="text-[10px] text-indigo-500 font-bold mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">👉 Gunakan ide ini</p>
-                                                </button>
-                                            ))}
+                                            {ideas.map((idea, i) => {
+                                                const isSelected = selectedIdeaTitle === idea.title;
+                                                return (
+                                                    <button type="button" key={i} onClick={() => useIdea(idea)}
+                                                        className={`text-left p-4 rounded-2xl border-2 transition-all group cursor-pointer hover:shadow-lg active:scale-[0.98] ${isSelected
+                                                            ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-400 dark:border-indigo-500 shadow-lg shadow-indigo-500/10'
+                                                            : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-indigo-500/10'
+                                                            }`}>
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <p className={`text-sm font-bold line-clamp-2 transition-colors ${isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>{idea.title}</p>
+                                                            {isSelected && <span className="text-lg shrink-0">✅</span>}
+                                                        </div>
+                                                        <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">{idea.description}</p>
+                                                        <div className="flex items-center gap-2 mt-3 flex-wrap">
+                                                            <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded-md">{idea.keyword}</span>
+                                                            <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-md ${idea.volume === 'tinggi' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : idea.volume === 'sedang' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600' : 'bg-gray-50 dark:bg-gray-800 text-gray-500'}`}>📊 {idea.volume}</span>
+                                                            <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 text-[9px] font-bold uppercase rounded-md">{idea.intent}</span>
+                                                        </div>
+                                                        <p className={`text-[10px] font-bold mt-2 flex items-center gap-1 transition-transform ${isSelected ? 'text-emerald-500' : 'text-indigo-500 group-hover:translate-x-1'}`}>
+                                                            {isSelected ? '✅ Terpilih — keyword sudah diisi' : '👉 Gunakan ide ini'}
+                                                        </p>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -629,6 +671,6 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                     </div>
                 </div>
             </div></div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }
