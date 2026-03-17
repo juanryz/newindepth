@@ -154,38 +154,46 @@ ATURAN META (SANGAT PENTING - HITUNG KARAKTER DENGAN TELITI):
 PERHATIAN: Jika seo_title kurang dari {$titleMin} karakter TAMBAHKAN kata. Jika meta_description kurang dari {$metaMin} karakter TAMBAHKAN deskripsi.
 
 Format JSON:
-{{
+{
   "seo_title": "judul SEO {$titleMin}-{$titleMax} karakter TEPAT",
   "h1": "judul H1 60-80 karakter",
   "meta_description": "deskripsi {$metaMin}-{$metaMax} karakter TEPAT, keyword + CTA",
   "slug": "slug-3-5-kata",
   "sections": [
-    {{
+    {
       "h2": "Judul Section",
       "h3s": ["Sub 1", "Sub 2", "Sub 3"],
       "key_points": ["poin 1", "poin 2", "poin 3"],
       "word_target": 350
-    }}
+    }
   ],
   "internal_links": [
-    {{"anchor": "teks anchor", "url": "/blog/topik"}}
+    {"anchor": "teks anchor", "url": "/blog/topik"}
   ],
   "external_links": [
-    {{"anchor": "sumber terpercaya", "url": "https://sumber.com/halaman"}}
+    {"anchor": "sumber terpercaya", "url": "https://sumber.com/halaman"}
   ],
   "faq_questions": ["Pertanyaan 1?", "Pertanyaan 2?"]
-}}
+}
+
+PENTING - ANTI HALLUCINATION:
+Jika topik "{$keyword}" TIDAK MASUK AKAL secara medis/psikologis (seperti: hipnoterapi untuk hewan/kucing peliharaan, menyembuhkan penyakit fisik seperti kanker/patah tulang, dll), KAMU WAJIB MENOLAKNYA dengan membalas format JSON berikut saja:
+{"error": "Topik tidak valid atau tidak bisa disembuhkan secara ilmiah dengan hipnoterapi."}
 
 Hanya output JSON valid. Tanpa penjelasan.
 PROMPT;
 
-        $response = $this->callOpenAI($prompt, 'Kamu ahli SEO content strategist Indonesia. Output HANYA JSON valid tanpa penjelasan.', 3000, 0.7);
+        $response = $this->callOpenAI($prompt, 'Kamu ahli SEO content strategist Indonesia. Jaga integritas medis dan saintifik hipnoterapi. Output HANYA JSON valid tanpa penjelasan.', 3000, 0.7);
         if (isset($response['error']))
             return $response;
 
         $json = $this->parseJson($response['content']);
         if (!$json)
             return ['error' => 'Format outline tidak valid.'];
+
+        if (isset($json['error']))
+            return ['error' => $json['error']];
+
         return $json;
     }
 
@@ -616,18 +624,31 @@ PENTING untuk field "keyword":
 - Contoh keyword yang BENAR: "hipnoterapi move on", "terapi trauma emosional", "cara sembuh dari kehilangan"
 - Contoh keyword yang SALAH: mengulang "{$keyword}" untuk semua ide
 
-Format JSON array:
+Format JSON array (untuk ide valid):
 [{{"title":"judul artikel 55-65 karakter","keyword":"keyword SEO unik 2-4 kata BERBEDA tiap ide","volume":"tinggi/sedang/rendah","intent":"Informational/Transactional/Commercial","description":"1-2 kalimat deskripsi artikel"}}]
 
-Hanya output JSON array valid. Tanpa penjelasan.
+PENTING - ANTI HALLUCINATION:
+Jika topik "{$keyword}" TIDAK MASUK AKAL secara medis/psikologis (seperti: hipnoterapi untuk hewan/kucing peliharaan, benda mati, atau menyembuhkan penyakit fisik berat seperti patah tulang/kanker yang butuh dokter), KAMU WAJIB MENOLAKNYA.
+Jika topik DITOLAK, balas dengan format JSON object ini SAJA (bukan array):
+{{"error": "Topik tidak valid atau tidak didukung secara ilmiah untuk hipnoterapi."}}
+
+Hanya output JSON valid. Tanpa penjelasan tambahan.
 PROMPT;
 
-        $response = $this->callOpenAI($prompt, 'Content strategist ahli SEO Indonesia. Output HANYA JSON array valid. Setiap ide HARUS punya keyword UNIK dan BERBEDA.', 2000, 0.8);
+        $response = $this->callOpenAI($prompt, 'Content strategist ahli SEO Indonesia. Jaga integritas medis dan saintifik. Output HANYA JSON.', 2000, 0.8);
         if (isset($response['error']))
             return $response;
+
         $json = $this->parseJson($response['content']);
-        if ($json && is_array($json))
+        if (!$json)
+            return ['error' => 'Format respons tidak valid.'];
+
+        if (isset($json['error']))
+            return ['error' => $json['error']];
+
+        if (is_array($json))
             return ['ideas' => $json];
+
         return ['error' => 'Format respons tidak valid.'];
     }
 
