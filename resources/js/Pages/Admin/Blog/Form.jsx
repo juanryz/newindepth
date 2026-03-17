@@ -455,7 +455,15 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                                             <button type="button" onClick={handleGenerateImage} disabled={isGeneratingImage} className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-xl transition-all disabled:opacity-50">
                                                 {isGeneratingImage ? '⏳ Generating gambar...' : '🎨 Generate Gambar Utama'}
                                             </button>
-                                            {generatedImageUrl && <img src={generatedImageUrl} alt="Generated" className="mt-3 rounded-xl shadow-lg w-full" />}
+                                            {generatedImageUrl && (
+                                                <div className="mt-3">
+                                                    <p className="text-[10px] font-bold text-emerald-500 mb-2">✅ Gambar berhasil di-generate!</p>
+                                                    <img src={generatedImageUrl} alt={`Gambar untuk ${genKeyword || data.primary_keyword || 'artikel'}`}
+                                                        className="rounded-xl shadow-lg w-full"
+                                                        onError={(e) => { e.target.src = `https://picsum.photos/seed/${Date.now()}/800/450`; }}
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                         {/* UPLOAD MANUAL */}
                                         <div className="relative group p-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl hover:border-indigo-500/50 transition-all text-center">
