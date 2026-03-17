@@ -8,6 +8,479 @@ use Inertia\Inertia;
 // AI Chat Routes
 Route::post('/api/ai-chat', [App\Http\Controllers\AiChatController::class, 'chat'])->name('ai-chat');
 
+// Diagnostic & Setup Routes (Restricted to Super Admin)
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/setup-sync-slots', function () {
+        try {
+            $schedules = \App\Models\Schedule::withCount([
+                'bookings' => function ($query) {
+                    $query->where('status', 'confirmed');
+                }
+            ])->get();
+
+            $updated = 0;
+            foreach ($schedules as $schedule) {
+                /** @var \App\Models\Schedule $schedule */
+                $schedule->update([
+                    'booked_count' => $schedule->bookings_count,
+                    'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
+                ]);
+                $updated++;
+            }
+
+            return "✅ Synced $updated schedules with confirmed bookings count.";
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-notifications', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('make:notifications-table');
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            return '✅ Notifications table created and migrated!';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-schedules', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            return '✅ Schedules migration completed!';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-dummy', function () {
+        try {
+            $therapist = \App\Models\User::firstOrCreate(
+                ['email' => 'therapist@dummy.com'],
+                ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
+            );
+            if (!$therapist->hasRole('therapist')) {
+                $therapist->assignRole('therapist');
+            }
+
+            $patient = \App\Models\User::firstOrCreate(
+                ['email' => 'patient@dummy.com'],
+                ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
+            );
+            if (!$patient->hasRole('patient')) {
+                $patient->assignRole('patient');
+            }
+
+            $schedule = \App\Models\Schedule::where('therapist_id', $therapist->id)->first();
+            if (!$schedule) {
+                $schedule = \App\Models\Schedule::create([
+                    'therapist_id' => $therapist->id,
+                    'date' => '2026-05-01',
+                    'start_time' => '10:00',
+                    'end_time' => '11:00',
+                    'status' => 'available',
+                    'quota' => 1
+                ]);
+            }
+
+            $booking = \App\Models\Booking::where('schedule_id', $schedule->id)->first();
+            if (!$booking) {
+                \App\Models\Booking::create([
+                    'booking_code' => 'TEST-' . rand(1000, 9999),
+                    'schedule_id' => $schedule->id,
+                    'patient_id' => $patient->id,
+                    'status' => 'confirmed'
+                ]);
+            }
+
+            return '✅ Created dummy users and booking.';
+        } catch (\Throwable $e) {
+            return 'EXCEPTION: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-phpinfo', function () {
+        return phpinfo();
+    });
+
+    Route::get('/setup-log', function () {
+        $logFile = storage_path('logs/laravel.log');
+        if (!file_exists($logFile))
+            return 'No log file found.';
+
+        // Get last 100 lines
+        $content = '';
+        if (function_exists('shell_exec')) {
+            $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
+        }
+
+        if (!$content) {
+            $content = file_get_contents($logFile);
+            $content = substr($content, -15000); // Last 15KB
+        }
+
+        return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . htmlspecialchars($content) . '</pre>';
+    });
+
+    Route::get('/setup-db-fix', function () {
+        $output = [];
+        $schema = \Illuminate\Support\Facades\Schema::class;
+
+        // 1. Check and add missing columns to users table
+        $columns = [
+            'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL",
+            'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL",
+            'avatar' => "ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL",
+            'recommended_package' => "ALTER TABLE users ADD COLUMN recommended_package VARCHAR(50) NULL",
+            'ktp_photo' => "ALTER TABLE users ADD COLUMN ktp_photo VARCHAR(255) NULL",
+            'emergency_contact_name' => "ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(255) NULL",
+            'emergency_contact_phone' => "ALTER TABLE users ADD COLUMN emergency_contact_phone VARCHAR(255) NULL",
+            'emergency_contact_relation' => "ALTER TABLE users ADD COLUMN emergency_contact_relation VARCHAR(255) NULL",
+            'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
+            'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
+            'digital_signature' => "ALTER TABLE users ADD COLUMN digital_signature LONGTEXT NULL",
+            'agreement_data' => "ALTER TABLE users ADD COLUMN agreement_data TEXT NULL",
+            'referral_code' => "ALTER TABLE users ADD COLUMN referral_code VARCHAR(255) NULL UNIQUE",
+            'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
+            'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
+            'screening_answers' => "ALTER TABLE users ADD COLUMN screening_answers JSON NULL",
+            'age' => "ALTER TABLE users ADD COLUMN age INT NULL",
+            'gender' => "ALTER TABLE users ADD COLUMN gender VARCHAR(20) NULL",
+        ];
+
+        foreach ($columns as $col => $sql) {
+            if (!$schema::hasColumn('users', $col)) {
+                try {
+                    \Illuminate\Support\Facades\DB::statement($sql);
+                    $output[] = "✅ Added user column: $col";
+                } catch (\Throwable $e) {
+                    $output[] = "❌ Failed user column $col: " . $e->getMessage();
+                }
+            }
+        }
+
+        // 2. Ensure roles exist
+        $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient'];
+        foreach ($roles as $role) {
+            \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        }
+        $output[] = "✅ All roles ensured";
+
+        // 3. Transactions table (Required by others)
+        if (!$schema::hasTable('transactions')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE transactions (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    user_id BIGINT UNSIGNED NOT NULL,
+                    transactionable_type VARCHAR(255) NOT NULL,
+                    transactionable_id BIGINT UNSIGNED NOT NULL,
+                    amount DECIMAL(15,2) NOT NULL,
+                    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                    payment_method VARCHAR(50) NULL,
+                    payment_proof VARCHAR(255) NULL,
+                    payment_proof_uploaded_at TIMESTAMP NULL,
+                    validated_at TIMESTAMP NULL,
+                    validated_by BIGINT UNSIGNED NULL,
+                    admin_notes TEXT NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (validated_by) REFERENCES users(id) ON DELETE SET NULL
+                )");
+                $output[] = "✅ Created table: transactions";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed transactions: " . $e->getMessage();
+            }
+        }
+
+        // 4. Screening Results table
+        if (!$schema::hasTable('screening_results')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE screening_results (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    user_id BIGINT UNSIGNED NOT NULL,
+                    step_data JSON NOT NULL,
+                    chat_history JSON NULL,
+                    severity_label VARCHAR(50) NULL,
+                    recommended_package VARCHAR(50) NULL,
+                    ai_summary TEXT NULL,
+                    is_high_risk TINYINT(1) NOT NULL DEFAULT 0,
+                    completed_at TIMESTAMP NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )");
+                $output[] = "✅ Created table: screening_results";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed screening_results: " . $e->getMessage();
+            }
+        }
+
+        // 5. Schedules table
+        if (!$schema::hasTable('schedules')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE schedules (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    therapist_id BIGINT UNSIGNED NULL,
+                    date DATE NOT NULL,
+                    start_time TIME NOT NULL,
+                    end_time TIME NOT NULL,
+                    quota INT NOT NULL DEFAULT 1,
+                    booked_count INT NOT NULL DEFAULT 0,
+                    status VARCHAR(20) NOT NULL DEFAULT 'available',
+                    schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation',
+                    type VARCHAR(20) NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
+                )");
+                $output[] = "✅ Created table: schedules";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed schedules: " . $e->getMessage();
+            }
+        } else {
+            $schedCols = [
+                'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
+                'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation'",
+                'booked_count' => "ALTER TABLE schedules ADD COLUMN booked_count INT NOT NULL DEFAULT 0",
+                'type' => "ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NULL",
+            ];
+            foreach ($schedCols as $col => $sql) {
+                if (!$schema::hasColumn('schedules', $col)) {
+                    try {
+                        \Illuminate\Support\Facades\DB::statement($sql);
+                        $output[] = "✅ Added schedules.$col";
+                    } catch (\Throwable $e) {
+                        $output[] = "❌ Failed schedules.$col: " . $e->getMessage();
+                    }
+                }
+            }
+        }
+
+        // 6. Bookings table
+        if (!$schema::hasTable('bookings')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE bookings (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    booking_code VARCHAR(255) UNIQUE NOT NULL,
+                    patient_id BIGINT UNSIGNED NOT NULL,
+                    schedule_id BIGINT UNSIGNED NULL,
+                    therapist_id BIGINT UNSIGNED NULL,
+                    screening_answers JSON NULL,
+                    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                    notes TEXT NULL,
+                    recording_link VARCHAR(255) NULL,
+                    package_type VARCHAR(50) NULL,
+                    user_voucher_id BIGINT UNSIGNED NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL,
+                    FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
+                )");
+                $output[] = "✅ Created table: bookings";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed bookings: " . $e->getMessage();
+            }
+        } else {
+            $bookCols = [
+                'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
+                'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
+                'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
+                'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
+                'therapist_notes' => "ALTER TABLE bookings ADD COLUMN therapist_notes TEXT NULL",
+                'patient_visible_notes' => "ALTER TABLE bookings ADD COLUMN patient_visible_notes TEXT NULL",
+            ];
+            foreach ($bookCols as $col => $sql) {
+                if (!$schema::hasColumn('bookings', $col)) {
+                    try {
+                        \Illuminate\Support\Facades\DB::statement($sql);
+                        $output[] = "✅ Added bookings.$col";
+                    } catch (\Throwable $e) {
+                        $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
+                    }
+                }
+            }
+        }
+
+        // 7. Commissions table
+        if (!$schema::hasTable('commissions')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE commissions (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    affiliate_user_id BIGINT UNSIGNED NOT NULL,
+                    transaction_id BIGINT UNSIGNED NOT NULL,
+                    referred_user_id BIGINT UNSIGNED NOT NULL,
+                    transaction_amount DECIMAL(12,2) NOT NULL,
+                    commission_rate DECIMAL(5,2) NOT NULL,
+                    commission_amount DECIMAL(12,2) NOT NULL,
+                    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                    paid_at TIMESTAMP NULL,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL,
+                    FOREIGN KEY (affiliate_user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (referred_user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
+                )");
+                $output[] = "✅ Created table: commissions";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed commissions: " . $e->getMessage();
+            }
+        }
+
+        // 8. Courses & Course User tables
+        if (!$schema::hasTable('courses')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE courses (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE NOT NULL,
+                    description TEXT NOT NULL,
+                    thumbnail VARCHAR(255) NULL,
+                    price DECIMAL(12,2) DEFAULT 0,
+                    is_published TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP NULL,
+                    updated_at TIMESTAMP NULL
+                )");
+                $output[] = "✅ Created table: courses";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed courses: " . $e->getMessage();
+            }
+        }
+
+        if (!$schema::hasTable('course_user')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("CREATE TABLE course_user (
+                    user_id BIGINT UNSIGNED NOT NULL,
+                    course_id BIGINT UNSIGNED NOT NULL,
+                    transaction_id BIGINT UNSIGNED NULL,
+                    enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (user_id, course_id),
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+                    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
+                )");
+                $output[] = "✅ Created table: course_user";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed course_user: " . $e->getMessage();
+            }
+        }
+
+        return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
+    });
+
+    Route::get('/setup-super-admin', function () {
+        try {
+            \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+            $user = \App\Models\User::firstOrCreate(
+                ['email' => 'admin@indepth.co.id'],
+                ['name' => 'Super Admin', 'password' => bcrypt('Anakanak12')]
+            );
+            $user->assignRole('super_admin');
+            return '✅ Super Admin created: ' . $user->email;
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-migrate', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            return '✅ Migration completed! ' . \Illuminate\Support\Facades\Artisan::output();
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    // Fix: Mengubah ENUM status schedules untuk mendukung nilai 'off' (fitur liburkan jadwal)
+    Route::get('/setup-fix-schedule-off', function () {
+        try {
+            \Illuminate\Support\Facades\DB::statement(
+                "ALTER TABLE schedules MODIFY COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'"
+            );
+            return '✅ Berhasil! Kolom status schedules diubah dari ENUM ke VARCHAR(20). Fitur liburkan jadwal sekarang berfungsi.';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-fix-permissions', function () {
+        try {
+            $permissionsToAdd = [
+                'edit schedules', 'delete schedules', 'create schedules', 'bulk_delete schedules',
+                'assign bookings', 'view users', 'create users', 'edit users', 'delete users',
+                'view_agreement users', 'view roles', 'create roles', 'edit roles', 'delete roles',
+                'view packages', 'create packages', 'edit packages', 'delete packages',
+                'view vouchers', 'create vouchers', 'edit vouchers', 'delete vouchers',
+            ];
+            $added = [];
+            foreach ($permissionsToAdd as $perm) {
+                $p = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+                if ($p->wasRecentlyCreated) $added[] = $perm;
+            }
+            // Assign all permissions to admin and super_admin
+            $allPermissions = \Spatie\Permission\Models\Permission::all();
+            \Spatie\Permission\Models\Role::findByName('admin')?->syncPermissions($allPermissions);
+            \Spatie\Permission\Models\Role::findByName('super_admin')?->syncPermissions($allPermissions);
+
+            // Clear permission cache
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            return '✅ Berhasil! Permission ditambahkan: ' . (count($added) > 0 ? implode(', ', $added) : 'tidak ada yang baru') . '. Admin & super_admin mendapat semua permission.';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/setup-clear-cache', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            return '✅ All caches cleared!';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/login-therapist', function () {
+        $therapist = \App\Models\User::role('therapist')->first();
+        if ($therapist) {
+            \Illuminate\Support\Facades\Auth::login($therapist);
+            return redirect()->route('schedules.index');
+        }
+        return '❌ No therapist found.';
+    });
+
+    Route::get('/setup-permissions', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RoleSeeder']);
+            // Assign all permissions to existing admins
+            $superAdmins = \App\Models\User::role('super_admin')->get();
+            foreach ($superAdmins as $sa) {
+                $sa->syncPermissions(\Spatie\Permission\Models\Permission::all());
+            }
+            return '✅ Permissions and Roles Seeded successfully!';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
+    Route::get('/fix-schedules', function () {
+        try {
+            $t = \App\Models\User::role('therapist')->first();
+            if ($t) {
+                $affected = \App\Models\Schedule::whereNull('therapist_id')->update(['therapist_id' => $t->id]);
+                return '✅ Successfully assigned ' . $affected . ' null schedules to therapist: ' . $t->name;
+            }
+            return '❌ No therapist found.';
+        } catch (\Throwable $e) {
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -391,475 +864,5 @@ Route::get('/sitemap.xml', function () {
     return response($xml)->header('Content-Type', 'text/xml');
 });
 
-Route::get('/setup-sync-slots', function () {
-    try {
-        $schedules = \App\Models\Schedule::withCount([
-            'bookings' => function ($query) {
-                $query->where('status', 'confirmed');
-            }
-        ])->get();
-
-        $updated = 0;
-        foreach ($schedules as $schedule) {
-            /** @var \App\Models\Schedule $schedule */
-            $schedule->update([
-                'booked_count' => $schedule->bookings_count,
-                'status' => $schedule->bookings_count >= $schedule->quota ? 'full' : 'available'
-            ]);
-            $updated++;
-        }
-
-        return "✅ Synced $updated schedules with confirmed bookings count.";
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
 
 require __DIR__ . '/auth.php';
-
-Route::get('/setup-notifications', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('make:notifications-table');
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '✅ Notifications table created and migrated!';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/setup-schedules', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '✅ Schedules migration completed!';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/setup-dummy', function () {
-    try {
-        $therapist = \App\Models\User::firstOrCreate(
-            ['email' => 'therapist@dummy.com'],
-            ['name' => 'Dr. Dummy Therapist', 'password' => bcrypt('password'), 'phone' => '081234567890']
-        );
-        if (!$therapist->hasRole('therapist')) {
-            $therapist->assignRole('therapist');
-        }
-
-        $patient = \App\Models\User::firstOrCreate(
-            ['email' => 'patient@dummy.com'],
-            ['name' => 'John Patient', 'password' => bcrypt('password'), 'phone' => '081234567891']
-        );
-        if (!$patient->hasRole('patient')) {
-            $patient->assignRole('patient');
-        }
-
-        $schedule = \App\Models\Schedule::where('therapist_id', $therapist->id)->first();
-        if (!$schedule) {
-            $schedule = \App\Models\Schedule::create([
-                'therapist_id' => $therapist->id,
-                'date' => '2026-05-01',
-                'start_time' => '10:00',
-                'end_time' => '11:00',
-                'status' => 'available',
-                'quota' => 1
-            ]);
-        }
-
-        $booking = \App\Models\Booking::where('schedule_id', $schedule->id)->first();
-        if (!$booking) {
-            \App\Models\Booking::create([
-                'booking_code' => 'TEST-' . rand(1000, 9999),
-                'schedule_id' => $schedule->id,
-                'patient_id' => $patient->id,
-                'status' => 'confirmed'
-            ]);
-        }
-
-        return '✅ Created dummy users and booking.';
-    } catch (\Throwable $e) {
-        return 'EXCEPTION: ' . $e->getMessage();
-    }
-});
-
-Route::get('/setup-phpinfo', function () {
-    return phpinfo();
-});
-
-Route::get('/setup-log', function () {
-    $logFile = storage_path('logs/laravel.log');
-    if (!file_exists($logFile))
-        return 'No log file found.';
-
-    // Get last 100 lines
-    $content = '';
-    if (function_exists('shell_exec')) {
-        $content = shell_exec("tail -n 100 " . escapeshellarg($logFile));
-    }
-
-    if (!$content) {
-        $content = file_get_contents($logFile);
-        $content = substr($content, -15000); // Last 15KB
-    }
-
-    return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . htmlspecialchars($content) . '</pre>';
-});
-
-Route::get('/setup-db-fix', function () {
-    $output = [];
-    $schema = \Illuminate\Support\Facades\Schema::class;
-
-    // 1. Check and add missing columns to users table
-    $columns = [
-        'phone' => "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL",
-        'google_id' => "ALTER TABLE users ADD COLUMN google_id VARCHAR(255) NULL",
-        'avatar' => "ALTER TABLE users ADD COLUMN avatar VARCHAR(255) NULL",
-        'recommended_package' => "ALTER TABLE users ADD COLUMN recommended_package VARCHAR(50) NULL",
-        'ktp_photo' => "ALTER TABLE users ADD COLUMN ktp_photo VARCHAR(255) NULL",
-        'emergency_contact_name' => "ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(255) NULL",
-        'emergency_contact_phone' => "ALTER TABLE users ADD COLUMN emergency_contact_phone VARCHAR(255) NULL",
-        'emergency_contact_relation' => "ALTER TABLE users ADD COLUMN emergency_contact_relation VARCHAR(255) NULL",
-        'agreement_signed' => "ALTER TABLE users ADD COLUMN agreement_signed TINYINT(1) NOT NULL DEFAULT 0",
-        'agreement_signed_at' => "ALTER TABLE users ADD COLUMN agreement_signed_at TIMESTAMP NULL",
-        'digital_signature' => "ALTER TABLE users ADD COLUMN digital_signature LONGTEXT NULL",
-        'agreement_data' => "ALTER TABLE users ADD COLUMN agreement_data TEXT NULL",
-        'referral_code' => "ALTER TABLE users ADD COLUMN referral_code VARCHAR(255) NULL UNIQUE",
-        'affiliate_ref' => "ALTER TABLE users ADD COLUMN affiliate_ref VARCHAR(255) NULL",
-        'screening_completed_at' => "ALTER TABLE users ADD COLUMN screening_completed_at TIMESTAMP NULL",
-        'screening_answers' => "ALTER TABLE users ADD COLUMN screening_answers JSON NULL",
-        'age' => "ALTER TABLE users ADD COLUMN age INT NULL",
-        'gender' => "ALTER TABLE users ADD COLUMN gender VARCHAR(20) NULL",
-    ];
-
-    foreach ($columns as $col => $sql) {
-        if (!$schema::hasColumn('users', $col)) {
-            try {
-                \Illuminate\Support\Facades\DB::statement($sql);
-                $output[] = "✅ Added user column: $col";
-            } catch (\Throwable $e) {
-                $output[] = "❌ Failed user column $col: " . $e->getMessage();
-            }
-        }
-    }
-
-    // 2. Ensure roles exist
-    $roles = ['super_admin', 'admin', 'cs', 'therapist', 'patient'];
-    foreach ($roles as $role) {
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-    }
-    $output[] = "✅ All roles ensured";
-
-    // 3. Transactions table (Required by others)
-    if (!$schema::hasTable('transactions')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE transactions (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                user_id BIGINT UNSIGNED NOT NULL,
-                transactionable_type VARCHAR(255) NOT NULL,
-                transactionable_id BIGINT UNSIGNED NOT NULL,
-                amount DECIMAL(15,2) NOT NULL,
-                status VARCHAR(50) NOT NULL DEFAULT 'pending',
-                payment_method VARCHAR(50) NULL,
-                payment_proof VARCHAR(255) NULL,
-                payment_proof_uploaded_at TIMESTAMP NULL,
-                validated_at TIMESTAMP NULL,
-                validated_by BIGINT UNSIGNED NULL,
-                admin_notes TEXT NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (validated_by) REFERENCES users(id) ON DELETE SET NULL
-            )");
-            $output[] = "✅ Created table: transactions";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed transactions: " . $e->getMessage();
-        }
-    }
-
-    // 4. Screening Results table
-    if (!$schema::hasTable('screening_results')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE screening_results (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                user_id BIGINT UNSIGNED NOT NULL,
-                step_data JSON NOT NULL,
-                chat_history JSON NULL,
-                severity_label VARCHAR(50) NULL,
-                recommended_package VARCHAR(50) NULL,
-                ai_summary TEXT NULL,
-                is_high_risk TINYINT(1) NOT NULL DEFAULT 0,
-                completed_at TIMESTAMP NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            )");
-            $output[] = "✅ Created table: screening_results";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed screening_results: " . $e->getMessage();
-        }
-    }
-
-    // 5. Schedules table
-    if (!$schema::hasTable('schedules')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE schedules (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                therapist_id BIGINT UNSIGNED NULL,
-                date DATE NOT NULL,
-                start_time TIME NOT NULL,
-                end_time TIME NOT NULL,
-                quota INT NOT NULL DEFAULT 1,
-                booked_count INT NOT NULL DEFAULT 0,
-                status VARCHAR(20) NOT NULL DEFAULT 'available',
-                schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation',
-                type VARCHAR(20) NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
-            )");
-            $output[] = "✅ Created table: schedules";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed schedules: " . $e->getMessage();
-        }
-    } else {
-        $schedCols = [
-            'therapist_id' => "ALTER TABLE schedules ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
-            'schedule_type' => "ALTER TABLE schedules ADD COLUMN schedule_type VARCHAR(50) NOT NULL DEFAULT 'consultation'",
-            'booked_count' => "ALTER TABLE schedules ADD COLUMN booked_count INT NOT NULL DEFAULT 0",
-            'type' => "ALTER TABLE schedules ADD COLUMN type VARCHAR(20) NULL",
-        ];
-        foreach ($schedCols as $col => $sql) {
-            if (!$schema::hasColumn('schedules', $col)) {
-                try {
-                    \Illuminate\Support\Facades\DB::statement($sql);
-                    $output[] = "✅ Added schedules.$col";
-                } catch (\Throwable $e) {
-                    $output[] = "❌ Failed schedules.$col: " . $e->getMessage();
-                }
-            }
-        }
-    }
-
-    // 6. Bookings table
-    if (!$schema::hasTable('bookings')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE bookings (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                booking_code VARCHAR(255) UNIQUE NOT NULL,
-                patient_id BIGINT UNSIGNED NOT NULL,
-                schedule_id BIGINT UNSIGNED NULL,
-                therapist_id BIGINT UNSIGNED NULL,
-                screening_answers JSON NULL,
-                status VARCHAR(50) NOT NULL DEFAULT 'pending',
-                notes TEXT NULL,
-                recording_link VARCHAR(255) NULL,
-                package_type VARCHAR(50) NULL,
-                user_voucher_id BIGINT UNSIGNED NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL,
-                FOREIGN KEY (therapist_id) REFERENCES users(id) ON DELETE SET NULL
-            )");
-            $output[] = "✅ Created table: bookings";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed bookings: " . $e->getMessage();
-        }
-    } else {
-        $bookCols = [
-            'package_type' => "ALTER TABLE bookings ADD COLUMN package_type VARCHAR(50) NULL",
-            'therapist_id' => "ALTER TABLE bookings ADD COLUMN therapist_id BIGINT UNSIGNED NULL",
-            'recording_link' => "ALTER TABLE bookings ADD COLUMN recording_link VARCHAR(255) NULL",
-            'user_voucher_id' => "ALTER TABLE bookings ADD COLUMN user_voucher_id BIGINT UNSIGNED NULL",
-            'therapist_notes' => "ALTER TABLE bookings ADD COLUMN therapist_notes TEXT NULL",
-            'patient_visible_notes' => "ALTER TABLE bookings ADD COLUMN patient_visible_notes TEXT NULL",
-        ];
-        foreach ($bookCols as $col => $sql) {
-            if (!$schema::hasColumn('bookings', $col)) {
-                try {
-                    \Illuminate\Support\Facades\DB::statement($sql);
-                    $output[] = "✅ Added bookings.$col";
-                } catch (\Throwable $e) {
-                    $output[] = "❌ Failed bookings.$col: " . $e->getMessage();
-                }
-            }
-        }
-    }
-
-    // 7. Commissions table
-    if (!$schema::hasTable('commissions')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE commissions (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                affiliate_user_id BIGINT UNSIGNED NOT NULL,
-                transaction_id BIGINT UNSIGNED NOT NULL,
-                referred_user_id BIGINT UNSIGNED NOT NULL,
-                transaction_amount DECIMAL(12,2) NOT NULL,
-                commission_rate DECIMAL(5,2) NOT NULL,
-                commission_amount DECIMAL(12,2) NOT NULL,
-                status VARCHAR(50) NOT NULL DEFAULT 'pending',
-                paid_at TIMESTAMP NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                FOREIGN KEY (affiliate_user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (referred_user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
-            )");
-            $output[] = "✅ Created table: commissions";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed commissions: " . $e->getMessage();
-        }
-    }
-
-    // 8. Courses & Course User tables
-    if (!$schema::hasTable('courses')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE courses (
-                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                slug VARCHAR(255) UNIQUE NOT NULL,
-                description TEXT NOT NULL,
-                thumbnail VARCHAR(255) NULL,
-                price DECIMAL(12,2) DEFAULT 0,
-                is_published TINYINT(1) DEFAULT 0,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL
-            )");
-            $output[] = "✅ Created table: courses";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed courses: " . $e->getMessage();
-        }
-    }
-
-    if (!$schema::hasTable('course_user')) {
-        try {
-            \Illuminate\Support\Facades\DB::statement("CREATE TABLE course_user (
-                user_id BIGINT UNSIGNED NOT NULL,
-                course_id BIGINT UNSIGNED NOT NULL,
-                transaction_id BIGINT UNSIGNED NULL,
-                enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (user_id, course_id),
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-                FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
-            )");
-            $output[] = "✅ Created table: course_user";
-        } catch (\Throwable $e) {
-            $output[] = "❌ Failed course_user: " . $e->getMessage();
-        }
-    }
-
-    return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
-});
-
-Route::get('/setup-super-admin', function () {
-    try {
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-        $user = \App\Models\User::firstOrCreate(
-            ['email' => 'admin@indepth.co.id'],
-            ['name' => 'Super Admin', 'password' => bcrypt('Anakanak12')]
-        );
-        $user->assignRole('super_admin');
-        return '✅ Super Admin created: ' . $user->email;
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/setup-migrate', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '✅ Migration completed! ' . \Illuminate\Support\Facades\Artisan::output();
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-// Fix: Mengubah ENUM status schedules untuk mendukung nilai 'off' (fitur liburkan jadwal)
-Route::get('/setup-fix-schedule-off', function () {
-    try {
-        \Illuminate\Support\Facades\DB::statement(
-            "ALTER TABLE schedules MODIFY COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'"
-        );
-        return '✅ Berhasil! Kolom status schedules diubah dari ENUM ke VARCHAR(20). Fitur liburkan jadwal sekarang berfungsi.';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-// Fix: Menambahkan permission yang hilang ke database agar fitur admin berjalan
-Route::get('/setup-fix-permissions', function () {
-    try {
-        $permissionsToAdd = [
-            'edit schedules', 'delete schedules', 'create schedules', 'bulk_delete schedules',
-            'assign bookings', 'view users', 'create users', 'edit users', 'delete users',
-            'view_agreement users', 'view roles', 'create roles', 'edit roles', 'delete roles',
-            'view packages', 'create packages', 'edit packages', 'delete packages',
-            'view vouchers', 'create vouchers', 'edit vouchers', 'delete vouchers',
-        ];
-        $added = [];
-        foreach ($permissionsToAdd as $perm) {
-            $p = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
-            if ($p->wasRecentlyCreated) $added[] = $perm;
-        }
-        // Assign all permissions to admin and super_admin
-        $allPermissions = \Spatie\Permission\Models\Permission::all();
-        \Spatie\Permission\Models\Role::findByName('admin')?->syncPermissions($allPermissions);
-        \Spatie\Permission\Models\Role::findByName('super_admin')?->syncPermissions($allPermissions);
-
-        // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        return '✅ Berhasil! Permission ditambahkan: ' . (count($added) > 0 ? implode(', ', $added) : 'tidak ada yang baru') . '. Admin & super_admin mendapat semua permission.';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/setup-clear-cache', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('config:clear');
-        \Illuminate\Support\Facades\Artisan::call('cache:clear');
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        \Illuminate\Support\Facades\Artisan::call('route:clear');
-        return '✅ All caches cleared!';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/login-therapist', function () {
-    $therapist = \App\Models\User::role('therapist')->first();
-    if ($therapist) {
-        \Illuminate\Support\Facades\Auth::login($therapist);
-        return redirect()->route('schedules.index');
-    }
-    return '❌ No therapist found.';
-});
-
-Route::get('/setup-permissions', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RoleSeeder']);
-        // Assign all permissions to existing admins
-        $superAdmins = \App\Models\User::role('super_admin')->get();
-        foreach ($superAdmins as $sa) {
-            $sa->syncPermissions(\Spatie\Permission\Models\Permission::all());
-        }
-        return '✅ Permissions and Roles Seeded successfully!';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
-
-Route::get('/fix-schedules', function () {
-    try {
-        $t = \App\Models\User::role('therapist')->first();
-        if ($t) {
-            $affected = \App\Models\Schedule::whereNull('therapist_id')->update(['therapist_id' => $t->id]);
-            return '✅ Successfully assigned ' . $affected . ' null schedules to therapist: ' . $t->name;
-        }
-        return '❌ No therapist found.';
-    } catch (\Throwable $e) {
-        return '❌ Error: ' . $e->getMessage();
-    }
-});
