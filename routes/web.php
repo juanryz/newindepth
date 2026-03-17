@@ -644,6 +644,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('blog/generate', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'generate'])
                 ->middleware('permission:create blog_posts')
                 ->name('blog.generate');
+            Route::post('blog/generate-image', [\App\Http\Controllers\Admin\BlogPostCMSController::class, 'generateImage'])
+                ->middleware('permission:create blog_posts')
+                ->name('blog.generate-image');
 
             // SEO Settings
             Route::get('seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'index'])

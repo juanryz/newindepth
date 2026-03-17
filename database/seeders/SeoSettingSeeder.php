@@ -532,6 +532,19 @@ class SeoSettingSeeder extends Seeder
                 'unit' => null,
                 'sort_order' => 91,
             ],
+
+            // ── Kata Terlarang ─────────────────────────────────
+            [
+                'key' => 'forbidden_words',
+                'label' => 'Kata-Kata Terlarang',
+                'description' => 'Kata-kata yang harus dihindari dalam artikel blog. Pisahkan dengan koma. Contoh: menyembuhkan, obat ajaib, pasti sembuh',
+                'group' => 'content',
+                'type' => 'text',
+                'value' => 'menyembuhkan, obat ajaib, pasti sembuh, dijamin sembuh, 100% sembuh, tanpa efek samping, terbukti klinis, satu-satunya cara, pengganti obat, rahasia, trik curang, cara instan, cuma Anda yang tahu, viral, bikin kaya, gratis selamanya, dijamin sukses, tidak perlu usaha, menurut AI, chatGPT bilang, berdasarkan model bahasa, bunuh diri, gila, stress berat',
+                'default_value' => 'menyembuhkan, obat ajaib, pasti sembuh, dijamin sembuh, 100% sembuh, tanpa efek samping, terbukti klinis, satu-satunya cara, pengganti obat, rahasia, trik curang, cara instan, cuma Anda yang tahu, viral, bikin kaya, gratis selamanya, dijamin sukses, tidak perlu usaha, menurut AI, chatGPT bilang, berdasarkan model bahasa, bunuh diri, gila, stress berat',
+                'unit' => null,
+                'sort_order' => 92,
+            ],
         ];
 
         foreach ($settings as $setting) {

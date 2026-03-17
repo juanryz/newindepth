@@ -5,39 +5,13 @@ namespace App\Services;
 use App\Models\SeoSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AiContentGenerator
 {
     private string $apiKey;
     private string $model;
-
-    // Kata terlarang — harus dihindari dalam output AI
-    private const KATA_TERLARANG = [
-        'menyembuhkan',
-        'obat ajaib',
-        'pasti sembuh',
-        'dijamin sembuh',
-        '100% sembuh',
-        'tanpa efek samping',
-        'terbukti klinis',
-        'satu-satunya cara',
-        'pengganti obat',
-        'rahasia',
-        'trik curang',
-        'cara instan',
-        'cuma Anda yang tahu',
-        'viral',
-        'bikin kaya',
-        'gratis selamanya',
-        'dijamin sukses',
-        'tidak perlu usaha',
-        'menurut AI',
-        'chatGPT bilang',
-        'berdasarkan model bahasa',
-        'bunuh diri',
-        'gila',
-        'stress berat',
-    ];
 
     public function __construct()
     {
@@ -46,8 +20,19 @@ class AiContentGenerator
     }
 
     /**
-     * Generate a full SEO-optimized article from keywords.
-     * Optimized for SEO Score 90+.
+     * Get forbidden words from database.
+     */
+    private function getForbiddenWords(): array
+    {
+        $rules = SeoSetting::getRules();
+        $raw = $rules['forbidden_words']['value'] ?? '';
+        if (empty($raw))
+            return [];
+        return array_map('trim', explode(',', $raw));
+    }
+
+    /**
+     * Generate a full SEO-optimized article.
      */
     public function generateArticle(array $input): array
     {
@@ -66,14 +51,8 @@ class AiContentGenerator
             ])->timeout(180)->post('https://api.openai.com/v1/chat/completions', [
                         'model' => $this->model,
                         'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => $this->getSystemPrompt()
-                            ],
-                            [
-                                'role' => 'user',
-                                'content' => $prompt
-                            ]
+                            ['role' => 'system', 'content' => $this->getSystemPrompt()],
+                            ['role' => 'user', 'content' => $prompt]
                         ],
                         'temperature' => 0.7,
                         'max_tokens' => 8000,
@@ -83,6 +62,7 @@ class AiContentGenerator
                 $content = $response->json('choices.0.message.content', '');
                 $result = $this->parseGeneratedContent($content, $primaryKeyword);
                 $result = $this->sanitizeForbiddenWords($result);
+                $result = $this->processContentImages($result, $primaryKeyword);
                 return $result;
             }
 
@@ -95,7 +75,7 @@ class AiContentGenerator
     }
 
     /**
-     * Generate only meta fields (title, description, slug) from content.
+     * Generate only meta fields.
      */
     public function generateMeta(array $input): array
     {
@@ -110,19 +90,13 @@ class AiContentGenerator
 
         $prompt = <<<PROMPT
 Berdasarkan judul "{$title}" dan keyword utama "{$keyword}", buatkan:
-
 1. SEO TITLE: {$titleMin}-{$titleMax} karakter, keyword di awal
 2. META DESCRIPTION: {$metaMin}-{$metaMax} karakter, mengandung keyword 1 kali
-3. SLUG: 3-5 kata, hanya keyword utama, tanpa kata tambahan
+3. SLUG: 3-5 kata, hanya keyword utama
 
 Format output JSON:
-{
-  "seo_title": "...",
-  "meta_description": "...",
-  "slug": "..."
-}
-
-Hanya output JSON, tanpa penjelasan tambahan.
+{"seo_title": "...", "meta_description": "...", "slug": "..."}
+Hanya output JSON, tanpa penjelasan.
 PROMPT;
 
         try {
@@ -144,16 +118,13 @@ PROMPT;
                 $json = json_decode($content, true);
                 if ($json)
                     return $json;
-
                 if (preg_match('/```(?:json)?\s*(\{.*?\})\s*```/s', $content, $matches)) {
                     $json = json_decode($matches[1], true);
                     if ($json)
                         return $json;
                 }
-
                 return ['error' => 'Format respons AI tidak valid.'];
             }
-
             return ['error' => 'Gagal menghubungi AI. Status: ' . $response->status()];
         } catch (\Exception $e) {
             return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
@@ -161,7 +132,7 @@ PROMPT;
     }
 
     /**
-     * Generate article ideas/suggestions based on keyword.
+     * Generate article ideas based on keyword.
      */
     public function generateIdeas(array $input): array
     {
@@ -177,24 +148,15 @@ Berdasarkan keyword "{$keyword}", buatkan 8 ide artikel blog yang:
 - Bervariasi dari informational, transactional, dan commercial intent
 
 Untuk setiap ide, berikan:
-1. Judul artikel yang SEO-friendly (55-65 karakter)
+1. Judul artikel SEO-friendly (55-65 karakter)
 2. Target keyword utama
 3. Estimasi search volume (rendah/sedang/tinggi)
 4. Search intent (Informational/Transactional/Commercial/Navigational)
 5. Deskripsi singkat (1-2 kalimat)
 
 Format output JSON array:
-[
-  {{
-    "title": "...",
-    "keyword": "...",
-    "volume": "tinggi",
-    "intent": "Informational",
-    "description": "..."
-  }}
-]
-
-Hanya output JSON array valid, tanpa penjelasan tambahan.
+[{"title":"...","keyword":"...","volume":"tinggi","intent":"Informational","description":"..."}]
+Hanya output JSON array valid.
 PROMPT;
 
         try {
@@ -204,7 +166,7 @@ PROMPT;
             ])->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
                         'model' => $this->model,
                         'messages' => [
-                            ['role' => 'system', 'content' => 'Kamu adalah content strategist ahli SEO untuk klinik hipnoterapi. Output hanya JSON array valid.'],
+                            ['role' => 'system', 'content' => 'Kamu adalah content strategist ahli SEO. Output hanya JSON array valid.'],
                             ['role' => 'user', 'content' => $prompt]
                         ],
                         'temperature' => 0.8,
@@ -213,22 +175,16 @@ PROMPT;
 
             if ($response->successful()) {
                 $content = $response->json('choices.0.message.content', '');
-
-                // Try direct JSON parse
                 $json = json_decode($content, true);
                 if ($json && is_array($json))
                     return ['ideas' => $json];
-
-                // Try extracting from markdown code block
                 if (preg_match('/```(?:json)?\s*(\[.*?\])\s*```/s', $content, $matches)) {
                     $json = json_decode($matches[1], true);
                     if ($json && is_array($json))
                         return ['ideas' => $json];
                 }
-
                 return ['error' => 'Format respons AI tidak valid.'];
             }
-
             return ['error' => 'Gagal menghubungi AI. Status: ' . $response->status()];
         } catch (\Exception $e) {
             return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
@@ -236,30 +192,93 @@ PROMPT;
     }
 
     /**
-     * System prompt for SEO content writer.
+     * Generate featured image using DALL-E API.
+     */
+    public function generateFeaturedImage(string $keyword, string $style = 'profesional'): array
+    {
+        $styleMap = [
+            'profesional' => 'A professional, clean, modern',
+            'hangat' => 'A warm, inviting, calming',
+            'minimalis' => 'A minimalist, elegant, simple',
+            'ilustrasi' => 'A digital illustration style',
+            'fotografi' => 'A high-quality photography style',
+        ];
+
+        $styleDesc = $styleMap[$style] ?? $styleMap['profesional'];
+
+        $prompt = "{$styleDesc} hero image for a blog article about \"{$keyword}\" on a mental wellness and hypnotherapy clinic website. "
+            . "The image should be calming, professional, and suitable for a healthcare website. "
+            . "Use soft, soothing colors like blues, greens, and warm tones. "
+            . "No text or watermarks. High resolution, landscape orientation. "
+            . "The mood should convey trust, healing, and professional care.";
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(60)->post('https://api.openai.com/v1/images/generations', [
+                        'model' => 'dall-e-3',
+                        'prompt' => $prompt,
+                        'n' => 1,
+                        'size' => '1792x1024',
+                        'quality' => 'standard',
+                    ]);
+
+            if ($response->successful()) {
+                $imageUrl = $response->json('data.0.url');
+
+                if ($imageUrl) {
+                    // Download and save to storage
+                    $imageContent = Http::timeout(30)->get($imageUrl)->body();
+                    $filename = 'blog/ai-' . Str::slug($keyword) . '-' . uniqid() . '.png';
+                    Storage::disk('public')->put($filename, $imageContent);
+
+                    return [
+                        'success' => true,
+                        'path' => $filename,
+                        'url' => '/storage/' . $filename,
+                    ];
+                }
+
+                return ['error' => 'URL gambar tidak ditemukan dalam respons.'];
+            }
+
+            $errorBody = $response->json();
+            Log::error('DALL-E API Error', ['status' => $response->status(), 'body' => $errorBody]);
+            return ['error' => 'Gagal mengenerate gambar. ' . ($errorBody['error']['message'] ?? 'Status: ' . $response->status())];
+        } catch (\Exception $e) {
+            Log::error('DALL-E Image Generation Error', ['message' => $e->getMessage()]);
+            return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * System prompt for content writer.
      */
     private function getSystemPrompt(): string
     {
-        $forbiddenList = implode(', ', self::KATA_TERLARANG);
+        $forbiddenWords = $this->getForbiddenWords();
+        $forbiddenList = implode(', ', $forbiddenWords);
 
         return <<<SYSTEM
-Kamu adalah ahli SEO content writer Indonesia yang berpengalaman tinggi dengan standar Rank Math Pro, on-page SEO modern, dan AI Search Optimization (AEO).
+Kamu adalah ahli SEO content writer Indonesia berpengalaman tinggi dengan standar Rank Math Pro, on-page SEO modern, dan AI Search Optimization (AEO).
 
 ATURAN WAJIB:
-1. Tulis artikel dalam Bahasa Indonesia yang berkualitas tinggi dan SEO-friendly
+1. Tulis artikel dalam Bahasa Indonesia berkualitas tinggi dan SEO-friendly
 2. Artikel HARUS mencapai SEO Score minimal 90/100
-3. JANGAN gunakan kata-kata terlarang berikut: {$forbiddenList}
-4. Gunakan bahasa yang profesional, empatik, dan berbasis evidence
-5. Masukkan tag <img> dengan src placeholder (https://images.unsplash.com/photo-hipnoterapi?w=800) dan alt text yang mengandung keyword
-6. Buat internal link menggunakan <a href="/blog/topik-terkait"> dan external link menggunakan <a href="https://sumber-terpercaya.com" target="_blank" rel="noopener">
-7. Setiap paragraf HARUS 2-4 kalimat
-8. Setiap kalimat HARUS 12-20 kata
-9. Gunakan HANYA tag HTML (h2, h3, p, ul, ol, li, strong, em, a, img). JANGAN gunakan Markdown.
+3. JANGAN gunakan kata-kata terlarang: {$forbiddenList}
+4. Gunakan bahasa profesional, empatik, dan berbasis evidence
+5. JANGAN masukkan tag <img> - gunakan marker [GAMBAR: deskripsi alt text] sebagai penanda posisi gambar
+6. Buat internal link: <a href="/blog/topik-terkait">anchor text</a>
+7. Buat external link: <a href="https://sumber-terpercaya.com" target="_blank" rel="noopener">anchor text</a>
+8. Setiap paragraf HARUS 2-4 kalimat
+9. Setiap kalimat HARUS 12-20 kata
+10. Gunakan HANYA tag HTML (h2, h3, p, ul, ol, li, strong, em, a). JANGAN gunakan Markdown.
 SYSTEM;
     }
 
     /**
-     * Build a comprehensive prompt using dynamic SEO rules.
+     * Build comprehensive prompt with dynamic SEO rules.
      */
     private function buildPrompt(string $keyword, string $secondaryKw, string $tone, string $audience, array $rules): string
     {
@@ -270,17 +289,16 @@ SYSTEM;
         $h3Max = $rules['h3_max_count']['value'] ?? 6;
         $kwDensityMin = $rules['keyword_density_min']['value'] ?? 1.0;
         $kwDensityMax = $rules['keyword_density_max']['value'] ?? 1.5;
-        $kwMinOccurrences = $rules['keyword_min_occurrences']['value'] ?? 20;
-        $kwMaxOccurrences = $rules['keyword_max_occurrences']['value'] ?? 30;
+        $kwMinOcc = $rules['keyword_min_occurrences']['value'] ?? 20;
+        $kwMaxOcc = $rules['keyword_max_occurrences']['value'] ?? 30;
         $introMinWords = $rules['intro_min_words']['value'] ?? 80;
         $introMaxWords = $rules['intro_max_words']['value'] ?? 120;
         $introKwWithin = $rules['intro_keyword_within_words']['value'] ?? 50;
         $faqMin = $rules['faq_min_questions']['value'] ?? 4;
         $faqIdeal = $rules['faq_ideal_questions']['value'] ?? 5;
-        $internalLinkMin = $rules['internal_link_min']['value'] ?? 3;
-        $internalLinkIdeal = $rules['internal_link_ideal']['value'] ?? 5;
-        $externalLinkMin = $rules['external_link_min']['value'] ?? 1;
-        $imageMin = $rules['image_min_count']['value'] ?? 2;
+        $intLinkMin = $rules['internal_link_min']['value'] ?? 3;
+        $intLinkIdeal = $rules['internal_link_ideal']['value'] ?? 5;
+        $extLinkMin = $rules['external_link_min']['value'] ?? 1;
         $imageIdeal = $rules['image_ideal_count']['value'] ?? 3;
         $bulletMin = $rules['min_bullet_sections']['value'] ?? 2;
         $titleMin = $rules['seo_title_min_length']['value'] ?? 55;
@@ -293,7 +311,9 @@ SYSTEM;
         $lsiMax = $rules['lsi_keyword_max']['value'] ?? 10;
         $ctaText = $rules['default_cta_text']['value'] ?? 'Hubungi kami untuk informasi lebih lanjut.';
 
-        $secondaryKwText = $secondaryKw ? "Secondary Keywords / LSI: {$secondaryKw}" : "Buat {$lsiMin}-{$lsiMax} variasi LSI keyword sendiri.";
+        $secondaryKwText = $secondaryKw
+            ? "Secondary Keywords / LSI: {$secondaryKw}"
+            : "Buat {$lsiMin}-{$lsiMax} variasi LSI keyword sendiri.";
 
         return <<<PROMPT
 Buatkan artikel SEO tentang "{$keyword}" dengan target SEO Score 90+.
@@ -302,67 +322,64 @@ TARGET AUDIENCE: {$audience}
 TONE: {$tone}
 {$secondaryKwText}
 
-== ATURAN SEO WAJIB (SEMUA HARUS DIPENUHI UNTUK SCORE 90+) ==
+== ATURAN SEO WAJIB (SEMUA HARUS DIPENUHI) ==
 
-1. SEO TITLE (baris pertama dengan prefix "SEO_TITLE:"):
-   - TEPAT {$titleMin}-{$titleMax} karakter (HITUNG DENGAN TELITI!)
-   - Keyword "{$keyword}" HARUS di awal judul
+1. SEO TITLE (prefix "SEO_TITLE:"):
+   - TEPAT {$titleMin}-{$titleMax} karakter
+   - Keyword "{$keyword}" di awal judul
 
-2. H1 (baris kedua dengan prefix "H1:"):
+2. H1 (prefix "H1:"):
    - TEPAT {$h1Min}-{$h1Max} karakter
    - Mengandung keyword "{$keyword}"
 
-3. META DESCRIPTION (baris ketiga dengan prefix "META_DESC:"):
+3. META DESCRIPTION (prefix "META_DESC:"):
    - TEPAT {$metaMin}-{$metaMax} karakter
    - Keyword muncul 1 kali, mengandung CTA
 
-4. SLUG (baris keempat dengan prefix "SLUG:"):
+4. SLUG (prefix "SLUG:"):
    - 3-5 kata, hanya keyword utama
 
 5. KONTEN ARTIKEL (setelah "---CONTENT---"):
-   - Panjang MINIMAL {$articleWords} kata (WAJIB!)
+   - Panjang MINIMAL {$articleWords} kata
    - Paragraf pembuka: {$introMinWords}-{$introMaxWords} kata
-   - Keyword "{$keyword}" HARUS muncul di {$introKwWithin} kata pertama
-   - TEPAT {$h2Min}-{$h2Max} heading H2 (gunakan tag <h2>)
-   - TEPAT {$h3Min}-{$h3Max} heading H3 (gunakan tag <h3>)
-   - Keyword density: {$kwDensityMin}%-{$kwDensityMax}% ({$kwMinOccurrences}-{$kwMaxOccurrences} kali muncul)
-   - Minimal {$bulletMin} section menggunakan <ul> atau <ol>
-   - Setiap paragraf HARUS 2-4 kalimat dalam tag <p>
-   - Setiap kalimat HARUS 12-20 kata
+   - Keyword "{$keyword}" di {$introKwWithin} kata pertama
+   - {$h2Min}-{$h2Max} heading H2
+   - {$h3Min}-{$h3Max} heading H3
+   - Keyword density: {$kwDensityMin}%-{$kwDensityMax}% ({$kwMinOcc}-{$kwMaxOcc} kali)
+   - Minimal {$bulletMin} section <ul> atau <ol>
 
-6. GAMBAR (WAJIB ADA {$imageIdeal} GAMBAR):
-   - Masukkan {$imageIdeal} tag <img> di posisi yang relevan dalam artikel
-   - Format: <img src="https://images.unsplash.com/photo-hipnoterapi-[nomor]?w=800&h=450&fit=crop" alt="[deskripsi dengan keyword {$keyword}]" width="800" height="450" loading="lazy" />
-   - SETIAP gambar WAJIB punya alt text yang mengandung keyword
-   - Letakkan gambar setelah paragraf pembuka, di tengah, dan sebelum kesimpulan
+6. GAMBAR (WAJIB {$imageIdeal} penanda gambar):
+   - Gunakan marker [GAMBAR: deskripsi gambar tentang {$keyword}] di {$imageIdeal} posisi strategis
+   - Letakkan setelah paragraf pembuka, di tengah artikel, dan sebelum kesimpulan
+   - Deskripsi HARUS detail dan mengandung keyword
 
 7. LINK (WAJIB):
-   - {$internalLinkIdeal} internal link: <a href="/blog/topik-terkait-{$keyword}">anchor text</a>
-   - {$externalLinkMin}+ external link: <a href="https://sumber-terpercaya.com" target="_blank" rel="noopener">anchor text</a>
+   - {$intLinkIdeal} internal link: <a href="/blog/topik-terkait">anchor text</a>
+   - {$extLinkMin}+ external link: <a href="https://sumber.com" target="_blank" rel="noopener">anchor</a>
 
 8. FAQ SECTION (WAJIB):
-   - TEPAT {$faqIdeal} pertanyaan tentang {$keyword}
-   - Format: <h2>Pertanyaan Umum tentang [Topik]</h2> lalu <h3>pertanyaan?</h3><p>jawaban</p>
+   - {$faqIdeal} pertanyaan tentang {$keyword}
+   - Format: <h2>Pertanyaan Umum</h2> lalu <h3>pertanyaan?</h3><p>jawaban</p>
 
-9. KESIMPULAN (WAJIB):
+9. KESIMPULAN:
    - H2 untuk kesimpulan
-   - Keyword muncul di paragraf terakhir
-   - Sertakan CTA: "{$ctaText}"
+   - Keyword di paragraf terakhir
+   - CTA: "{$ctaText}"
 
-== FORMAT OUTPUT WAJIB ==
+== FORMAT OUTPUT ==
 SEO_TITLE: [judul seo]
 H1: [judul artikel]
 META_DESC: [meta description]
 SLUG: [slug]
 ---CONTENT---
-[konten HTML artikel lengkap]
+[konten HTML lengkap]
 
-PENTING: Gunakan HANYA tag HTML (h2, h3, p, ul, ol, li, strong, em, a, img). JANGAN gunakan Markdown. Output HARUS siap dimasukkan ke rich text editor.
+Gunakan HANYA tag HTML. JANGAN gunakan Markdown.
 PROMPT;
     }
 
     /**
-     * Parse the AI-generated content into structured parts.
+     * Parse generated content.
      */
     private function parseGeneratedContent(string $content, string $keyword): array
     {
@@ -375,18 +392,14 @@ PROMPT;
             'primary_keyword' => $keyword,
         ];
 
-        if (preg_match('/SEO_TITLE:\s*(.+)/i', $content, $m)) {
+        if (preg_match('/SEO_TITLE:\s*(.+)/i', $content, $m))
             $result['seo_title'] = trim($m[1]);
-        }
-        if (preg_match('/^H1:\s*(.+)/mi', $content, $m)) {
+        if (preg_match('/^H1:\s*(.+)/mi', $content, $m))
             $result['h1'] = trim($m[1]);
-        }
-        if (preg_match('/META_DESC:\s*(.+)/i', $content, $m)) {
+        if (preg_match('/META_DESC:\s*(.+)/i', $content, $m))
             $result['meta_description'] = trim($m[1]);
-        }
-        if (preg_match('/SLUG:\s*(.+)/i', $content, $m)) {
+        if (preg_match('/SLUG:\s*(.+)/i', $content, $m))
             $result['slug'] = trim($m[1]);
-        }
 
         if (preg_match('/---CONTENT---\s*(.+)/s', $content, $m)) {
             $result['body'] = trim($m[1]);
@@ -399,10 +412,7 @@ PROMPT;
                     $bodyLines[] = $line;
                 } elseif (preg_match('/^(SEO_TITLE|H1|META_DESC|SLUG):/i', $line)) {
                     continue;
-                } elseif (trim($line) === '') {
-                    if (!empty($bodyLines) || $bodyStart)
-                        $bodyLines[] = $line;
-                } else {
+                } elseif (trim($line) !== '' || !empty($bodyLines)) {
                     $bodyStart = true;
                     $bodyLines[] = $line;
                 }
@@ -418,13 +428,48 @@ PROMPT;
     }
 
     /**
-     * Remove or replace forbidden words from generated content.
+     * Process image markers [GAMBAR: desc] and replace with real images.
+     * Uses Pexels API or falls back to Lorem Picsum.
+     */
+    private function processContentImages(array $result, string $keyword): array
+    {
+        if (empty($result['body']))
+            return $result;
+
+        $counter = 0;
+        $result['body'] = preg_replace_callback(
+            '/\[GAMBAR:\s*(.+?)\]/',
+            function ($matches) use ($keyword, &$counter) {
+                $counter++;
+                $altText = trim($matches[1]);
+                // Use picsum.photos with deterministic seed for consistent, working images
+                $seed = Str::slug($keyword) . '-' . $counter;
+                $imgUrl = "https://picsum.photos/seed/{$seed}/800/450";
+
+                return '<figure style="margin: 24px 0; text-align: center;">'
+                    . '<img src="' . $imgUrl . '" alt="' . htmlspecialchars($altText) . '" '
+                    . 'width="800" height="450" loading="lazy" '
+                    . 'style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />'
+                    . '<figcaption style="font-size: 0.85em; color: #6b7280; margin-top: 8px; font-style: italic;">'
+                    . htmlspecialchars($altText)
+                    . '</figcaption>'
+                    . '</figure>';
+            },
+            $result['body']
+        );
+
+        return $result;
+    }
+
+    /**
+     * Sanitize forbidden words from output.
      */
     private function sanitizeForbiddenWords(array $result): array
     {
+        $forbiddenWords = $this->getForbiddenWords();
         foreach (['body', 'seo_title', 'h1', 'meta_description'] as $field) {
             if (!empty($result[$field])) {
-                foreach (self::KATA_TERLARANG as $word) {
+                foreach ($forbiddenWords as $word) {
                     $result[$field] = str_ireplace($word, '[dihapus]', $result[$field]);
                 }
             }

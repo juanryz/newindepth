@@ -12,58 +12,35 @@ use Illuminate\Support\Str;
 
 class BlogPostCMSController extends Controller
 {
-    // Daftar kata terlarang yang tidak boleh muncul di artikel
-    private const KATA_TERLARANG = [
-        // Klaim medis berlebihan
-        'menyembuhkan',
-        'obat ajaib',
-        'pasti sembuh',
-        'dijamin sembuh',
-        '100% sembuh',
-        'tanpa efek samping',
-        'terbukti klinis',
-        'satu-satunya cara',
-        'pengganti obat',
-        // Kata clickbait / spam
-        'rahasia',
-        'trik curang',
-        'cara instan',
-        'cuma Anda yang tahu',
-        'viral',
-        'bikin kaya',
-        'gratis selamanya',
-        'dijamin sukses',
-        'tidak perlu usaha',
-        // Plagiarisme / AI flag
-        'menurut AI',
-        'chatGPT bilang',
-        'berdasarkan model bahasa',
-        // Kata sensitif
-        'bunuh diri',
-        'gila',
-        'stress berat',
-    ];
-
     public function __construct(
         protected \App\Services\SeoContentService $seoService,
         protected AiContentGenerator $aiGenerator,
     ) {
     }
 
+    /**
+     * Get forbidden words from database.
+     */
+    private function getForbiddenWords(): array
+    {
+        $rules = SeoSetting::getRules();
+        $raw = $rules['forbidden_words']['value'] ?? '';
+        if (empty($raw))
+            return [];
+        return array_map('trim', explode(',', $raw));
+    }
+
     public function index()
     {
         $posts = BlogPost::orderBy('created_at', 'desc')->paginate(15);
-
-        return Inertia::render('Admin/Blog/Index', [
-            'posts' => $posts
-        ]);
+        return Inertia::render('Admin/Blog/Index', ['posts' => $posts]);
     }
 
     public function create()
     {
         return Inertia::render('Admin/Blog/Form', [
             'seoRules' => SeoSetting::getRules(),
-            'forbiddenWords' => self::KATA_TERLARANG,
+            'forbiddenWords' => $this->getForbiddenWords(),
         ]);
     }
 
@@ -90,22 +67,19 @@ class BlogPostCMSController extends Controller
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
         }
 
-        // Run SEO Analysis
         $analysis = $this->seoService->analyze($validated);
         $validated['seo_score'] = $analysis['score'];
         $validated['seo_analysis'] = $analysis['checks'];
         $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
-        // Handle scheduling
         if (!empty($validated['scheduled_at']) && !$validated['is_published']) {
-            $validated['scheduled_at'] = $validated['scheduled_at'];
+            // keep scheduled_at
         } elseif ($validated['is_published']) {
             $validated['published_at'] = now();
             $validated['scheduled_at'] = null;
         }
 
         BlogPost::create($validated);
-
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dibuat.');
     }
 
@@ -114,7 +88,7 @@ class BlogPostCMSController extends Controller
         return Inertia::render('Admin/Blog/Form', [
             'post' => $post,
             'seoRules' => SeoSetting::getRules(),
-            'forbiddenWords' => self::KATA_TERLARANG,
+            'forbiddenWords' => $this->getForbiddenWords(),
         ]);
     }
 
@@ -142,15 +116,13 @@ class BlogPostCMSController extends Controller
             unset($validated['featured_image']);
         }
 
-        // Run SEO Analysis
         $analysis = $this->seoService->analyze($validated);
         $validated['seo_score'] = $analysis['score'];
         $validated['seo_analysis'] = $analysis['checks'];
         $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
-        // Handle scheduling
         if (!empty($validated['scheduled_at']) && !$validated['is_published']) {
-            // Keep scheduled_at
+            // keep
         } elseif ($validated['is_published'] && !$post->is_published) {
             $validated['published_at'] = now();
             $validated['scheduled_at'] = null;
@@ -159,7 +131,6 @@ class BlogPostCMSController extends Controller
         }
 
         $post->update($validated);
-
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil diperbarui.');
     }
 
@@ -169,14 +140,10 @@ class BlogPostCMSController extends Controller
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dihapus.');
     }
 
-    /**
-     * Real-time SEO analysis endpoint.
-     */
     public function analyze(Request $request)
     {
         $analysis = $this->seoService->analyze($request->all());
         $intent = $this->seoService->predictIntent($request->primary_keyword ?? '');
-
         return response()->json([
             'score' => $analysis['score'],
             'checks' => $analysis['checks'],
@@ -184,9 +151,6 @@ class BlogPostCMSController extends Controller
         ]);
     }
 
-    /**
-     * AI Content Generation endpoint.
-     */
     public function generate(Request $request)
     {
         $validated = $request->validate([
@@ -206,6 +170,24 @@ class BlogPostCMSController extends Controller
         } else {
             $result = $this->aiGenerator->generateArticle($validated);
         }
+
+        return response()->json($result);
+    }
+
+    /**
+     * Generate featured image using DALL-E.
+     */
+    public function generateImage(Request $request)
+    {
+        $validated = $request->validate([
+            'keyword' => 'required|string|max:255',
+            'style' => 'nullable|string|max:100',
+        ]);
+
+        $result = $this->aiGenerator->generateFeaturedImage(
+            $validated['keyword'],
+            $validated['style'] ?? 'profesional'
+        );
 
         return response()->json($result);
     }
