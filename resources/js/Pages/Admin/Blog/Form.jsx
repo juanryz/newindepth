@@ -154,7 +154,11 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                 if (r.data.seo_title) setData('meta_title', r.data.seo_title);
                 if (r.data.meta_description) setData('meta_description', r.data.meta_description);
             }
-        } catch (err) { setGenError('Gagal generate. ' + (err.response?.data?.message || err.message)); stopProgressSteps(false); }
+        } catch (err) {
+            const errMsg = err.response?.data?.error || err.response?.data?.message || `Status ${err.response?.status || '?'}: ${err.message}`;
+            setGenError('Gagal generate: ' + errMsg);
+            stopProgressSteps(false);
+        }
         finally { setIsGenerating(false); }
     };
 

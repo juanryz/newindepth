@@ -153,6 +153,10 @@ class BlogPostCMSController extends Controller
 
     public function generate(Request $request)
     {
+        // Extend limits for AI generation (multiple API calls can take 2-3 minutes)
+        set_time_limit(300);
+        ini_set('memory_limit', '512M');
+
         $validated = $request->validate([
             'primary_keyword' => 'required|string|max:255',
             'secondary_keywords' => 'nullable|string|max:500',
@@ -173,7 +177,7 @@ class BlogPostCMSController extends Controller
             }
 
             return response()->json($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('AI Generate Error', [
                 'type' => $type,
                 'keyword' => $validated['primary_keyword'],
@@ -183,7 +187,7 @@ class BlogPostCMSController extends Controller
 
             return response()->json([
                 'error' => 'Gagal generate: ' . $e->getMessage(),
-            ], 200); // Return 200 so frontend can read the error message
+            ], 200);
         }
     }
 
