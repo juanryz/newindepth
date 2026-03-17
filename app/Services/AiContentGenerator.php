@@ -420,7 +420,7 @@ PROMPT;
             $linkIdx = 0;
 
             // Insert links into paragraphs
-            preg_match_all('/<\/p>/', $body, $pMatches, \PREG_OFFSET_MATCH);
+            preg_match_all('/<\/p>/', $body, $pMatches, PREG_OFFSET_CAPTURE);
             $offsets = array_column($pMatches[0], 1);
             $step = max(1, intval(count($offsets) / ($toAdd + 1)));
 
@@ -431,7 +431,7 @@ PROMPT;
                     $linkHtml = ' Baca juga: <a href="' . $link['url'] . '">' . $link['anchor'] . '</a>.';
                     $body = substr_replace($body, $linkHtml, $insertPos, 0);
                     // Recalculate offsets
-                    preg_match_all('/<\/p>/', $body, $pMatches, \PREG_OFFSET_MATCH);
+                    preg_match_all('/<\/p>/', $body, $pMatches, PREG_OFFSET_CAPTURE);
                     $offsets = array_column($pMatches[0], 1);
                 }
             }
@@ -446,7 +446,7 @@ PROMPT;
             $toAdd = $extLinkMin - $extCount;
 
             // Find a good paragraph to insert
-            preg_match_all('/<\/p>/', $body, $pMatches, \PREG_OFFSET_MATCH);
+            preg_match_all('/<\/p>/', $body, $pMatches, PREG_OFFSET_CAPTURE);
             $offsets = array_column($pMatches[0], 1);
             $midPoint = intval(count($offsets) / 2);
 
@@ -456,7 +456,7 @@ PROMPT;
                 if ($pos) {
                     $linkHtml = ' Menurut <a href="' . $link['url'] . '" target="_blank" rel="noopener">' . $link['anchor'] . '</a>, pendekatan ini telah terbukti efektif.';
                     $body = substr_replace($body, $linkHtml, $pos, 0);
-                    preg_match_all('/<\/p>/', $body, $pMatches, \PREG_OFFSET_MATCH);
+                    preg_match_all('/<\/p>/', $body, $pMatches, PREG_OFFSET_CAPTURE);
                     $offsets = array_column($pMatches[0], 1);
                 }
             }
@@ -546,7 +546,7 @@ PROMPT;
                     "<p>Banyak studi menunjukkan bahwa <strong>{$keyword}</strong> memberikan dampak positif yang signifikan bagi kesejahteraan emosional.</p>",
                 ];
 
-                preg_match_all('/<\/h2>/', $body, $h2Matches, \PREG_OFFSET_MATCH);
+                preg_match_all('/<\/h2>/', $body, $h2Matches, PREG_OFFSET_CAPTURE);
                 $h2Offsets = array_column($h2Matches[0] ?? [], 1);
 
                 for ($i = 0; $i < min($remaining, count($sentences)); $i++) {
@@ -554,7 +554,7 @@ PROMPT;
                         $insertAfter = $h2Offsets[$i + 1] + 5; // after </h2>
                         $body = substr_replace($body, $sentences[$i], $insertAfter, 0);
                         // Recalculate
-                        preg_match_all('/<\/h2>/', $body, $h2Matches, \PREG_OFFSET_MATCH);
+                        preg_match_all('/<\/h2>/', $body, $h2Matches, PREG_OFFSET_CAPTURE);
                         $h2Offsets = array_column($h2Matches[0] ?? [], 1);
                     }
                 }
