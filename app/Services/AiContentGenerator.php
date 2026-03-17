@@ -261,9 +261,9 @@ Internal Links: {$internalLinksJson}
 External Links: {$externalLinksJson}
 FAQ: {$faqJson}
 
-═══════════════════════════════════════
+=======================================
 ATURAN #1 - JUMLAH KATA (PALING PENTING!)
-═══════════════════════════════════════
+=======================================
 - Artikel WAJIB MINIMAL {$articleWords} kata. TIDAK BOLEH KURANG.
 - Ada {$sectionCount} section. Setiap section tulis MINIMAL {$wordsPerSection} kata.
 - Paragraf pembuka: 100-150 kata.
@@ -272,51 +272,51 @@ ATURAN #1 - JUMLAH KATA (PALING PENTING!)
 - JANGAN tulis ringkas. Tulis DETAIL dan MENDALAM.
 - TOTAL MINIMUM: {$articleWords} KATA. INI TIDAK BISA DITAWAR.
 
-═══════════════════════════════════════
+=======================================
 ATURAN #2 - KEYWORD "{$keyword}"
-═══════════════════════════════════════
+=======================================
 - Keyword WAJIB muncul {$kwMinOcc}-{$kwMaxOcc} kali di seluruh artikel
 - WAJIB muncul di: 50 kata pertama, setiap section H2, setiap 200 kata, paragraf terakhir
 - Sebarkan NATURAL, jangan menumpuk
 
-═══════════════════════════════════════
+=======================================
 ATURAN #3 - FORMAT HTML
-═══════════════════════════════════════
+=======================================
 - HANYA gunakan tag HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <a>
 - JANGAN gunakan Markdown (# ## ** dll)
 - Paragraf: 2-4 kalimat, 12-20 kata per kalimat
 - WAJIB minimal 2 section <ul> atau <ol> dengan 3-5 <li> masing-masing
 
-═══════════════════════════════════════
+=======================================
 ATURAN #4 - GAMBAR ({$imageIdeal} WAJIB)
-═══════════════════════════════════════
+=======================================
 - Sisipkan {$imageIdeal} marker: [GAMBAR: deskripsi detail tentang {$keyword}]
 - Posisi: setelah intro, di tengah artikel, sebelum kesimpulan
 
-═══════════════════════════════════════
+=======================================
 ATURAN #5 - LINK
-═══════════════════════════════════════
+=======================================
 - {$intLinkIdeal} INTERNAL LINK: <a href="/blog/topik">anchor text</a>
 - Gunakan link dari outline, sebarkan merata
 - {$extLinkIdeal} EXTERNAL LINK: <a href="https://sumber.com" target="_blank" rel="noopener">nama sumber</a>
 - Sumber: WHO, jurnal psikologi, universitas, organisasi kesehatan
 
-═══════════════════════════════════════
+=======================================
 ATURAN #6 - FAQ
-═══════════════════════════════════════
+=======================================
 - <h2>Pertanyaan Umum tentang {$keyword}</h2>
 - Setiap FAQ: <h3>pertanyaan?</h3><p>jawaban 60-100 kata</p>
 
-═══════════════════════════════════════
+=======================================
 ATURAN #7 - KESIMPULAN
-═══════════════════════════════════════
+=======================================
 - <h2>Kesimpulan</h2>
 - 150-200 kata, keyword di paragraf terakhir
 - CTA: {$ctaText}
 
-═══════════════════════════════════════
+=======================================
 LARANGAN
-═══════════════════════════════════════
+=======================================
 - JANGAN gunakan kata: {$forbiddenList}
 - JANGAN tulis kurang dari {$articleWords} kata
 - JANGAN skip section apapun dari outline
@@ -736,18 +736,31 @@ PROMPT;
      */
     private function callOpenAI(string $prompt, string $system, int $maxTokens = 4000, float $temp = 0.7): array
     {
+        // Sanitize inputs - remove problematic characters
+        $prompt = $this->sanitizeForJson($prompt);
+        $system = $this->sanitizeForJson($system);
+
+        $payload = [
+            'model' => $this->model,
+            'messages' => [
+                ['role' => 'system', 'content' => $system],
+                ['role' => 'user', 'content' => $prompt],
+            ],
+            'temperature' => $temp,
+            'max_tokens' => $maxTokens,
+        ];
+
+        // Explicitly encode JSON to catch encoding errors
+        $jsonBody = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($jsonBody === false) {
+            Log::error('JSON Encode Error', ['error' => json_last_error_msg()]);
+            return ['error' => 'Gagal memproses request: ' . json_last_error_msg()];
+        }
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
-            'Content-Type' => 'application/json',
-        ])->timeout(300)->post('https://api.openai.com/v1/chat/completions', [
-                    'model' => $this->model,
-                    'messages' => [
-                        ['role' => 'system', 'content' => $system],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                    'temperature' => $temp,
-                    'max_tokens' => $maxTokens,
-                ]);
+        ])->timeout(300)->withBody($jsonBody, 'application/json')
+            ->post('https://api.openai.com/v1/chat/completions');
 
         if ($response->successful()) {
             $content = $response->json('choices.0.message.content', '');
@@ -767,6 +780,22 @@ PROMPT;
         $errorMsg = $response->json('error.message', 'Unknown error');
         Log::error('OpenAI API Error', ['status' => $response->status(), 'error' => $errorMsg]);
         return ['error' => 'Gagal menghubungi AI: ' . $errorMsg];
+    }
+
+    /**
+     * Sanitize a string for safe JSON encoding.
+     */
+    private function sanitizeForJson(string $text): string
+    {
+        // Remove null bytes
+        $text = str_replace("\0", '', $text);
+        // Remove other control characters (except newline, tab, carriage return)
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+        // Replace special Unicode box-drawing characters with simple alternatives
+        $text = str_replace(['═', '║', '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬'], ['=', '|', '+', '+', '+', '+', '+', '+', '+', '+', '+'], $text);
+        // Ensure valid UTF-8
+        $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+        return $text;
     }
 
     private function getSystemPrompt(): string
