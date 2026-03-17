@@ -666,7 +666,7 @@ PROMPT;
             'profesional' => 'Professional photography, high quality, medical clinic setting but welcoming, bright clean lighting, ',
             'hangat' => 'Warm and calming photography, soft lighting, comforting atmosphere, soothing colors, ',
             'minimalis' => 'Minimalist elegant composition, simple, clean background, abstract shape, ',
-            'ilustrasi' => 'Modern digital illustration, vector art style, clean lines, beautiful colors, ',
+            'ilustrasi' => 'Modern digital illustration, flat vector art style, clean lines, beautiful colors, ',
             'fotografi' => 'Premium artistic photography, highly detailed, realistic, cinematic lighting, ',
         ];
 
@@ -674,50 +674,84 @@ PROMPT;
         $englishConcept = $this->translateKeywordForImage($keyword);
 
         // Full prompt for image generator
-        $fullPrompt = $baseStyle . $englishConcept . ', psychology, mental health or hypnotherapy concept, beautiful, high resolution, NO TEXT, NO WORDS.';
+        $fullPrompt = "Create a wide non-text image: " . $baseStyle . $englishConcept . ', psychology, mental health or hypnotherapy concept. There must be absolutely NO TEXT, NO LETTERS, AND NO WORDS in the image.';
 
         try {
-            // Strategy 1: Pollinations.ai (Reliable FREE Text-to-Image Generation API)
-            $pollinationsUrl = "https://image.pollinations.ai/prompt/" . rawurlencode($fullPrompt) . "?width=1600&height=900&nologo=true&seed=" . time();
+            // Call DALL-E 3 Image Generation API
+            $dalleResponse = $this->callDalle($fullPrompt);
 
-            // Download the generated image to local storage
-            $response = Http::timeout(25)->withOptions([
-                'allow_redirects' => ['max' => 5]
-            ])->get($pollinationsUrl);
+            if (isset($dalleResponse['error'])) {
+                Log::warning('DALL-E generation failed', ['error' => $dalleResponse['error']]);
+                return [
+                    'success' => false,
+                    'error' => 'Gagal generate gambar: ' . $dalleResponse['error'] // Returns direct OpenAI error so frontend displays it
+                ];
+            }
 
-            // Valid images should be fairly large (e.g. at least 30KB)
-            if ($response->successful() && strlen($response->body()) > 30000) {
+            $imageUrl = $dalleResponse['url'];
+
+            // Download the DALL-E image to local storage
+            $imageResponse = Http::timeout(60)->get($imageUrl);
+
+            if ($imageResponse->successful() && strlen($imageResponse->body()) > 10000) {
                 $filename = 'blog/featured-' . Str::slug($keyword) . '-' . uniqid() . '.jpg';
-                Storage::disk('public')->put($filename, $response->body());
+                Storage::disk('public')->put($filename, $imageResponse->body());
 
                 return [
                     'success' => true,
                     'path' => $filename,
                     'url' => '/storage/' . $filename,
-                    'source' => 'pollinations',
+                    'source' => 'dall-e-3',
                 ];
             }
 
-            // Strategy 2: Direct Pollinations URL if download fails for some reason
             return [
-                'success' => true,
-                'path' => '',
-                'url' => $pollinationsUrl,
-                'source' => 'pollinations-direct',
+                'success' => false,
+                'error' => 'Gagal mengunduh gambar hasil dari OpenAI.'
             ];
 
         } catch (\Exception $e) {
-            Log::warning('Image generation failed', ['error' => $e->getMessage()]);
+            Log::error('Image generation Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-            // Fallback to random placeholder if API is down
-            $fallbackSeed = Str::slug($keyword) . '-fallback';
             return [
-                'success' => true,
-                'path' => '',
-                'url' => "https://picsum.photos/seed/{$fallbackSeed}/1600/900",
-                'source' => 'fallback',
+                'success' => false,
+                'error' => 'Terjadi kesalahan sistem saat menghubungi server gambar AI.'
             ];
         }
+    }
+
+    /**
+     * Call DALL-E 3 Image Generation API.
+     */
+    private function callDalle(string $prompt): array
+    {
+        $payload = [
+            'model' => 'dall-e-3',
+            'prompt' => $prompt,
+            'n' => 1,
+            'size' => '1024x1024',
+        ];
+
+        $jsonBody = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->timeout(60)->withBody($jsonBody, 'application/json')
+            ->post('https://api.openai.com/v1/images/generations');
+
+        if ($response->successful()) {
+            $url = $response->json('data.0.url');
+            if ($url) {
+                return ['url' => $url];
+            }
+            return ['error' => 'URL gambar tidak ditemukan dalam respons OpenAI.'];
+        }
+
+        $errorMsg = $response->json('error.message', 'Unknown error (' . $response->status() . ')');
+        return ['error' => $errorMsg];
     }
 
     /**
