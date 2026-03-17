@@ -11,6 +11,34 @@ class AiContentGenerator
     private string $apiKey;
     private string $model;
 
+    // Kata terlarang — harus dihindari dalam output AI
+    private const KATA_TERLARANG = [
+        'menyembuhkan',
+        'obat ajaib',
+        'pasti sembuh',
+        'dijamin sembuh',
+        '100% sembuh',
+        'tanpa efek samping',
+        'terbukti klinis',
+        'satu-satunya cara',
+        'pengganti obat',
+        'rahasia',
+        'trik curang',
+        'cara instan',
+        'cuma Anda yang tahu',
+        'viral',
+        'bikin kaya',
+        'gratis selamanya',
+        'dijamin sukses',
+        'tidak perlu usaha',
+        'menurut AI',
+        'chatGPT bilang',
+        'berdasarkan model bahasa',
+        'bunuh diri',
+        'gila',
+        'stress berat',
+    ];
+
     public function __construct()
     {
         $this->apiKey = config('services.openai.key', env('OPENAI_API_KEY', ''));
@@ -19,6 +47,7 @@ class AiContentGenerator
 
     /**
      * Generate a full SEO-optimized article from keywords.
+     * Optimized for SEO Score 90+.
      */
     public function generateArticle(array $input): array
     {
@@ -27,21 +56,19 @@ class AiContentGenerator
         $tone = $input['tone'] ?? 'profesional dan informatif';
         $audience = $input['audience'] ?? 'masyarakat umum Indonesia';
 
-        // Fetch dynamic SEO rules from database
         $rules = SeoSetting::getRules();
-
         $prompt = $this->buildPrompt($primaryKeyword, $secondaryKeywords, $tone, $audience, $rules);
 
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->timeout(120)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(180)->post('https://api.openai.com/v1/chat/completions', [
                         'model' => $this->model,
                         'messages' => [
                             [
                                 'role' => 'system',
-                                'content' => 'Kamu adalah ahli SEO content writer Indonesia yang berpengalaman dengan standar Rank Math Pro, on-page SEO modern, dan AI Search Optimization (AEO). Tulis artikel dalam Bahasa Indonesia yang berkualitas tinggi dan SEO-friendly.'
+                                'content' => $this->getSystemPrompt()
                             ],
                             [
                                 'role' => 'user',
@@ -49,12 +76,14 @@ class AiContentGenerator
                             ]
                         ],
                         'temperature' => 0.7,
-                        'max_tokens' => 4000,
+                        'max_tokens' => 8000,
                     ]);
 
             if ($response->successful()) {
                 $content = $response->json('choices.0.message.content', '');
-                return $this->parseGeneratedContent($content, $primaryKeyword);
+                $result = $this->parseGeneratedContent($content, $primaryKeyword);
+                $result = $this->sanitizeForbiddenWords($result);
+                return $result;
             }
 
             Log::error('OpenAI API Error', ['status' => $response->status(), 'body' => $response->body()]);
@@ -72,7 +101,6 @@ class AiContentGenerator
     {
         $title = $input['title'] ?? '';
         $keyword = $input['primary_keyword'] ?? '';
-        $body = $input['body'] ?? '';
         $rules = SeoSetting::getRules();
 
         $titleMin = $rules['seo_title_min_length']['value'] ?? 55;
@@ -117,7 +145,6 @@ PROMPT;
                 if ($json)
                     return $json;
 
-                // Try to extract JSON from markdown code block
                 if (preg_match('/```(?:json)?\s*(\{.*?\})\s*```/s', $content, $matches)) {
                     $json = json_decode($matches[1], true);
                     if ($json)
@@ -131,6 +158,104 @@ PROMPT;
         } catch (\Exception $e) {
             return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
         }
+    }
+
+    /**
+     * Generate article ideas/suggestions based on keyword.
+     */
+    public function generateIdeas(array $input): array
+    {
+        $keyword = $input['primary_keyword'] ?? '';
+
+        $prompt = <<<PROMPT
+Kamu adalah content strategist ahli SEO Indonesia untuk website klinik hipnoterapi InDepth (indepth.co.id).
+
+Berdasarkan keyword "{$keyword}", buatkan 8 ide artikel blog yang:
+- Relevan dengan topik hipnoterapi, kesehatan mental, dan wellness
+- Memiliki potensi traffic organik tinggi
+- Cocok untuk website klinik hipnoterapi profesional
+- Bervariasi dari informational, transactional, dan commercial intent
+
+Untuk setiap ide, berikan:
+1. Judul artikel yang SEO-friendly (55-65 karakter)
+2. Target keyword utama
+3. Estimasi search volume (rendah/sedang/tinggi)
+4. Search intent (Informational/Transactional/Commercial/Navigational)
+5. Deskripsi singkat (1-2 kalimat)
+
+Format output JSON array:
+[
+  {{
+    "title": "...",
+    "keyword": "...",
+    "volume": "tinggi",
+    "intent": "Informational",
+    "description": "..."
+  }}
+]
+
+Hanya output JSON array valid, tanpa penjelasan tambahan.
+PROMPT;
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->post('https://api.openai.com/v1/chat/completions', [
+                        'model' => $this->model,
+                        'messages' => [
+                            ['role' => 'system', 'content' => 'Kamu adalah content strategist ahli SEO untuk klinik hipnoterapi. Output hanya JSON array valid.'],
+                            ['role' => 'user', 'content' => $prompt]
+                        ],
+                        'temperature' => 0.8,
+                        'max_tokens' => 2000,
+                    ]);
+
+            if ($response->successful()) {
+                $content = $response->json('choices.0.message.content', '');
+
+                // Try direct JSON parse
+                $json = json_decode($content, true);
+                if ($json && is_array($json))
+                    return ['ideas' => $json];
+
+                // Try extracting from markdown code block
+                if (preg_match('/```(?:json)?\s*(\[.*?\])\s*```/s', $content, $matches)) {
+                    $json = json_decode($matches[1], true);
+                    if ($json && is_array($json))
+                        return ['ideas' => $json];
+                }
+
+                return ['error' => 'Format respons AI tidak valid.'];
+            }
+
+            return ['error' => 'Gagal menghubungi AI. Status: ' . $response->status()];
+        } catch (\Exception $e) {
+            return ['error' => 'Terjadi kesalahan: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * System prompt for SEO content writer.
+     */
+    private function getSystemPrompt(): string
+    {
+        $forbiddenList = implode(', ', self::KATA_TERLARANG);
+
+        return <<<SYSTEM
+Kamu adalah ahli SEO content writer Indonesia yang berpengalaman tinggi dengan standar Rank Math Pro, on-page SEO modern, dan AI Search Optimization (AEO).
+
+ATURAN WAJIB:
+1. Tulis artikel dalam Bahasa Indonesia yang berkualitas tinggi dan SEO-friendly
+2. Artikel HARUS mencapai SEO Score minimal 90/100
+3. JANGAN gunakan kata-kata terlarang berikut: {$forbiddenList}
+4. Gunakan bahasa yang profesional, empatik, dan berbasis evidence
+5. Masukkan tag <img> dengan src placeholder (https://images.unsplash.com/photo-hipnoterapi?w=800) dan alt text yang mengandung keyword
+6. Buat internal link menggunakan <a href="/blog/topik-terkait"> dan external link menggunakan <a href="https://sumber-terpercaya.com" target="_blank" rel="noopener">
+7. Setiap paragraf HARUS 2-4 kalimat
+8. Setiap kalimat HARUS 12-20 kata
+9. Gunakan HANYA tag HTML (h2, h3, p, ul, ol, li, strong, em, a, img). JANGAN gunakan Markdown.
+SYSTEM;
     }
 
     /**
@@ -153,14 +278,11 @@ PROMPT;
         $faqMin = $rules['faq_min_questions']['value'] ?? 4;
         $faqIdeal = $rules['faq_ideal_questions']['value'] ?? 5;
         $internalLinkMin = $rules['internal_link_min']['value'] ?? 3;
+        $internalLinkIdeal = $rules['internal_link_ideal']['value'] ?? 5;
         $externalLinkMin = $rules['external_link_min']['value'] ?? 1;
         $imageMin = $rules['image_min_count']['value'] ?? 2;
+        $imageIdeal = $rules['image_ideal_count']['value'] ?? 3;
         $bulletMin = $rules['min_bullet_sections']['value'] ?? 2;
-        $sentenceMinWords = $rules['sentence_min_words']['value'] ?? 12;
-        $sentenceMaxWords = $rules['sentence_max_words']['value'] ?? 20;
-        $paraMinSentences = $rules['paragraph_min_sentences']['value'] ?? 2;
-        $paraMaxSentences = $rules['paragraph_max_sentences']['value'] ?? 4;
-        $ctaText = $rules['default_cta_text']['value'] ?? 'Hubungi kami untuk informasi lebih lanjut.';
         $titleMin = $rules['seo_title_min_length']['value'] ?? 55;
         $titleMax = $rules['seo_title_max_length']['value'] ?? 65;
         $metaMin = $rules['meta_desc_min_length']['value'] ?? 140;
@@ -169,65 +291,73 @@ PROMPT;
         $h1Max = $rules['h1_max_length']['value'] ?? 80;
         $lsiMin = $rules['lsi_keyword_min']['value'] ?? 5;
         $lsiMax = $rules['lsi_keyword_max']['value'] ?? 10;
+        $ctaText = $rules['default_cta_text']['value'] ?? 'Hubungi kami untuk informasi lebih lanjut.';
 
         $secondaryKwText = $secondaryKw ? "Secondary Keywords / LSI: {$secondaryKw}" : "Buat {$lsiMin}-{$lsiMax} variasi LSI keyword sendiri.";
 
         return <<<PROMPT
-Buatkan artikel SEO tentang "{$keyword}" dengan aturan berikut:
+Buatkan artikel SEO tentang "{$keyword}" dengan target SEO Score 90+.
 
 TARGET AUDIENCE: {$audience}
 TONE: {$tone}
+{$secondaryKwText}
 
-== STRUKTUR SEO WAJIB ==
+== ATURAN SEO WAJIB (SEMUA HARUS DIPENUHI UNTUK SCORE 90+) ==
 
 1. SEO TITLE (baris pertama dengan prefix "SEO_TITLE:"):
-   - Panjang {$titleMin}-{$titleMax} karakter
-   - Keyword "{$keyword}" di awal judul
+   - TEPAT {$titleMin}-{$titleMax} karakter (HITUNG DENGAN TELITI!)
+   - Keyword "{$keyword}" HARUS di awal judul
 
 2. H1 (baris kedua dengan prefix "H1:"):
-   - Panjang {$h1Min}-{$h1Max} karakter
-   - Mengandung keyword
+   - TEPAT {$h1Min}-{$h1Max} karakter
+   - Mengandung keyword "{$keyword}"
 
 3. META DESCRIPTION (baris ketiga dengan prefix "META_DESC:"):
-   - Panjang {$metaMin}-{$metaMax} karakter
-   - Keyword muncul 1 kali
+   - TEPAT {$metaMin}-{$metaMax} karakter
+   - Keyword muncul 1 kali, mengandung CTA
 
 4. SLUG (baris keempat dengan prefix "SLUG:"):
    - 3-5 kata, hanya keyword utama
 
 5. KONTEN ARTIKEL (setelah "---CONTENT---"):
-   - Panjang minimal {$articleWords} kata
+   - Panjang MINIMAL {$articleWords} kata (WAJIB!)
    - Paragraf pembuka: {$introMinWords}-{$introMaxWords} kata
-   - Keyword muncul di {$introKwWithin} kata pertama
-   - {$h2Min}-{$h2Max} heading H2
-   - {$h3Min}-{$h3Max} heading H3
-   - Keyword density: {$kwDensityMin}%-{$kwDensityMax}% ({$kwMinOccurrences}-{$kwMaxOccurrences} kali)
-   - {$secondaryKwText}
-   - Minimal {$bulletMin} section menggunakan list/bullet
-   - Setiap paragraf: {$paraMinSentences}-{$paraMaxSentences} kalimat
-   - Setiap kalimat: {$sentenceMinWords}-{$sentenceMaxWords} kata
-   - Tandai lokasi gambar dengan [IMAGE: deskripsi alt text]
-   - Minimal {$imageMin} posisi gambar
-   - {$internalLinkMin}+ internal link (gunakan format [INTERNAL_LINK: anchor text | topik])
-   - {$externalLinkMin}+ external link (gunakan format [EXTERNAL_LINK: anchor text | URL/sumber])
+   - Keyword "{$keyword}" HARUS muncul di {$introKwWithin} kata pertama
+   - TEPAT {$h2Min}-{$h2Max} heading H2 (gunakan tag <h2>)
+   - TEPAT {$h3Min}-{$h3Max} heading H3 (gunakan tag <h3>)
+   - Keyword density: {$kwDensityMin}%-{$kwDensityMax}% ({$kwMinOccurrences}-{$kwMaxOccurrences} kali muncul)
+   - Minimal {$bulletMin} section menggunakan <ul> atau <ol>
+   - Setiap paragraf HARUS 2-4 kalimat dalam tag <p>
+   - Setiap kalimat HARUS 12-20 kata
 
-6. FAQ SECTION (dalam konten):
-   - {$faqMin}-{$faqIdeal} pertanyaan
-   - Format HTML yang benar (h2 untuk judul FAQ, lalu h3 untuk setiap pertanyaan)
+6. GAMBAR (WAJIB ADA {$imageIdeal} GAMBAR):
+   - Masukkan {$imageIdeal} tag <img> di posisi yang relevan dalam artikel
+   - Format: <img src="https://images.unsplash.com/photo-hipnoterapi-[nomor]?w=800&h=450&fit=crop" alt="[deskripsi dengan keyword {$keyword}]" width="800" height="450" loading="lazy" />
+   - SETIAP gambar WAJIB punya alt text yang mengandung keyword
+   - Letakkan gambar setelah paragraf pembuka, di tengah, dan sebelum kesimpulan
 
-7. KESIMPULAN:
-   - Keyword wajib muncul di paragraf penutup
+7. LINK (WAJIB):
+   - {$internalLinkIdeal} internal link: <a href="/blog/topik-terkait-{$keyword}">anchor text</a>
+   - {$externalLinkMin}+ external link: <a href="https://sumber-terpercaya.com" target="_blank" rel="noopener">anchor text</a>
+
+8. FAQ SECTION (WAJIB):
+   - TEPAT {$faqIdeal} pertanyaan tentang {$keyword}
+   - Format: <h2>Pertanyaan Umum tentang [Topik]</h2> lalu <h3>pertanyaan?</h3><p>jawaban</p>
+
+9. KESIMPULAN (WAJIB):
+   - H2 untuk kesimpulan
+   - Keyword muncul di paragraf terakhir
    - Sertakan CTA: "{$ctaText}"
 
-== FORMAT OUTPUT ==
+== FORMAT OUTPUT WAJIB ==
 SEO_TITLE: [judul seo]
 H1: [judul artikel]
 META_DESC: [meta description]
 SLUG: [slug]
 ---CONTENT---
-[konten HTML artikel lengkap dengan h2, h3, p, ul, ol, dll]
+[konten HTML artikel lengkap]
 
-Gunakan tag HTML untuk struktur (h2, h3, p, ul, ol, strong, em). Jangan gunakan Markdown.
+PENTING: Gunakan HANYA tag HTML (h2, h3, p, ul, ol, li, strong, em, a, img). JANGAN gunakan Markdown. Output HARUS siap dimasukkan ke rich text editor.
 PROMPT;
     }
 
@@ -245,7 +375,6 @@ PROMPT;
             'primary_keyword' => $keyword,
         ];
 
-        // Extract metadata lines
         if (preg_match('/SEO_TITLE:\s*(.+)/i', $content, $m)) {
             $result['seo_title'] = trim($m[1]);
         }
@@ -259,11 +388,9 @@ PROMPT;
             $result['slug'] = trim($m[1]);
         }
 
-        // Extract body after ---CONTENT---
         if (preg_match('/---CONTENT---\s*(.+)/s', $content, $m)) {
             $result['body'] = trim($m[1]);
         } else {
-            // Fallback: everything after the metadata lines
             $lines = explode("\n", $content);
             $bodyStart = false;
             $bodyLines = [];
@@ -283,11 +410,25 @@ PROMPT;
             $result['body'] = trim(implode("\n", $bodyLines));
         }
 
-        // Use H1 as title if no separate title
         if (empty($result['seo_title']) && !empty($result['h1'])) {
             $result['seo_title'] = $result['h1'];
         }
 
+        return $result;
+    }
+
+    /**
+     * Remove or replace forbidden words from generated content.
+     */
+    private function sanitizeForbiddenWords(array $result): array
+    {
+        foreach (['body', 'seo_title', 'h1', 'meta_description'] as $field) {
+            if (!empty($result[$field])) {
+                foreach (self::KATA_TERLARANG as $word) {
+                    $result[$field] = str_ireplace($word, '[dihapus]', $result[$field]);
+                }
+            }
+        }
         return $result;
     }
 }

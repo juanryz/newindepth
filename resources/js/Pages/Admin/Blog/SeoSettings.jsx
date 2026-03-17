@@ -109,14 +109,17 @@ export default function SeoSettings({ settings, rules }) {
             header={
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <Link href="/admin/blog" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                            &larr; Blog
-                        </Link>
                         <h2 className="font-black text-xl text-gray-800 dark:text-white uppercase tracking-tight">
                             Pengaturan SEO
                         </h2>
                     </div>
                     <div className="flex items-center gap-3">
+                        <Link
+                            href={route('admin.blog.index')}
+                            className="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-white dark:bg-gray-900 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all border border-indigo-200 dark:border-indigo-800/50 mr-2"
+                        >
+                            &larr; Kembali ke Blog
+                        </Link>
                         <a
                             href={route('admin.seo-settings.export')}
                             target="_blank"
@@ -159,16 +162,16 @@ export default function SeoSettings({ settings, rules }) {
                                             key={key}
                                             onClick={() => setActiveGroup(key)}
                                             className={`w-full text-left px-4 py-3 rounded-2xl mb-1 transition-all group ${activeGroup === key
-                                                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50'
-                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-900/50 border border-transparent'
+                                                ? 'bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50'
+                                                : 'hover:bg-gray-50 dark:hover:bg-gray-900/50 border border-transparent'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span className="text-lg">{info.icon}</span>
                                                 <div className="min-w-0">
                                                     <p className={`text-xs font-black truncate ${activeGroup === key
-                                                            ? 'text-indigo-700 dark:text-indigo-300'
-                                                            : 'text-gray-700 dark:text-gray-300'
+                                                        ? 'text-indigo-700 dark:text-indigo-300'
+                                                        : 'text-gray-700 dark:text-gray-300'
                                                         }`}>{info.label}</p>
                                                     <p className="text-[10px] text-gray-400 truncate">{count} pengaturan</p>
                                                 </div>

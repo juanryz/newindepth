@@ -12,6 +12,38 @@ use Illuminate\Support\Str;
 
 class BlogPostCMSController extends Controller
 {
+    // Daftar kata terlarang yang tidak boleh muncul di artikel
+    private const KATA_TERLARANG = [
+        // Klaim medis berlebihan
+        'menyembuhkan',
+        'obat ajaib',
+        'pasti sembuh',
+        'dijamin sembuh',
+        '100% sembuh',
+        'tanpa efek samping',
+        'terbukti klinis',
+        'satu-satunya cara',
+        'pengganti obat',
+        // Kata clickbait / spam
+        'rahasia',
+        'trik curang',
+        'cara instan',
+        'cuma Anda yang tahu',
+        'viral',
+        'bikin kaya',
+        'gratis selamanya',
+        'dijamin sukses',
+        'tidak perlu usaha',
+        // Plagiarisme / AI flag
+        'menurut AI',
+        'chatGPT bilang',
+        'berdasarkan model bahasa',
+        // Kata sensitif
+        'bunuh diri',
+        'gila',
+        'stress berat',
+    ];
+
     public function __construct(
         protected \App\Services\SeoContentService $seoService,
         protected AiContentGenerator $aiGenerator,
@@ -31,6 +63,7 @@ class BlogPostCMSController extends Controller
     {
         return Inertia::render('Admin/Blog/Form', [
             'seoRules' => SeoSetting::getRules(),
+            'forbiddenWords' => self::KATA_TERLARANG,
         ]);
     }
 
@@ -46,6 +79,7 @@ class BlogPostCMSController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'is_published' => 'nullable',
+            'scheduled_at' => 'nullable|date|after:now',
         ]);
 
         $validated['is_published'] = $request->boolean('is_published');
@@ -62,9 +96,12 @@ class BlogPostCMSController extends Controller
         $validated['seo_analysis'] = $analysis['checks'];
         $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
-        // Properly set published_at if it's published for the first time
-        if ($validated['is_published']) {
+        // Handle scheduling
+        if (!empty($validated['scheduled_at']) && !$validated['is_published']) {
+            $validated['scheduled_at'] = $validated['scheduled_at'];
+        } elseif ($validated['is_published']) {
             $validated['published_at'] = now();
+            $validated['scheduled_at'] = null;
         }
 
         BlogPost::create($validated);
@@ -77,6 +114,7 @@ class BlogPostCMSController extends Controller
         return Inertia::render('Admin/Blog/Form', [
             'post' => $post,
             'seoRules' => SeoSetting::getRules(),
+            'forbiddenWords' => self::KATA_TERLARANG,
         ]);
     }
 
@@ -93,6 +131,7 @@ class BlogPostCMSController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'is_published' => 'nullable',
+            'scheduled_at' => 'nullable|date',
         ]);
 
         $validated['is_published'] = $request->boolean('is_published');
@@ -109,9 +148,13 @@ class BlogPostCMSController extends Controller
         $validated['seo_analysis'] = $analysis['checks'];
         $validated['search_intent'] = $this->seoService->predictIntent($validated['primary_keyword'] ?? '');
 
-        if ($validated['is_published'] && !$post->is_published) {
+        // Handle scheduling
+        if (!empty($validated['scheduled_at']) && !$validated['is_published']) {
+            // Keep scheduled_at
+        } elseif ($validated['is_published'] && !$post->is_published) {
             $validated['published_at'] = now();
-        } else if (!$validated['is_published']) {
+            $validated['scheduled_at'] = null;
+        } elseif (!$validated['is_published']) {
             $validated['published_at'] = null;
         }
 
@@ -127,7 +170,7 @@ class BlogPostCMSController extends Controller
     }
 
     /**
-     * Real-time SEO analysis endpoint for the editor.
+     * Real-time SEO analysis endpoint.
      */
     public function analyze(Request $request)
     {
@@ -151,13 +194,15 @@ class BlogPostCMSController extends Controller
             'secondary_keywords' => 'nullable|string|max:500',
             'tone' => 'nullable|string|max:100',
             'audience' => 'nullable|string|max:200',
-            'type' => 'nullable|string|in:full,meta',
+            'type' => 'nullable|string|in:full,meta,ideas',
         ]);
 
         $type = $validated['type'] ?? 'full';
 
         if ($type === 'meta') {
             $result = $this->aiGenerator->generateMeta($validated);
+        } elseif ($type === 'ideas') {
+            $result = $this->aiGenerator->generateIdeas($validated);
         } else {
             $result = $this->aiGenerator->generateArticle($validated);
         }
