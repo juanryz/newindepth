@@ -34,7 +34,8 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
         primary_keyword: post?.primary_keyword || '', secondary_keywords: post?.secondary_keywords || '',
         meta_title: post?.meta_title || '', meta_description: post?.meta_description || '',
         meta_keywords: post?.meta_keywords || '', is_published: post?.is_published || false,
-        featured_image: null, scheduled_at: post?.scheduled_at ? post.scheduled_at.slice(0, 16) : '',
+        featured_image: null, featured_image_path: post?.featured_image || '',
+        scheduled_at: post?.scheduled_at ? post.scheduled_at.slice(0, 16) : '',
     });
 
     const [seoAnalysis, setSeoAnalysis] = useState(post?.seo_analysis || null);
@@ -56,7 +57,7 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
     const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
     const [foundForbidden, setFoundForbidden] = useState([]);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-    const [generatedImageUrl, setGeneratedImageUrl] = useState('');
+    const [generatedImageUrl, setGeneratedImageUrl] = useState(post?.featured_image ? `/storage/${post.featured_image}` : '');
     const [imageStyle, setImageStyle] = useState('profesional');
     const [editingForbidden, setEditingForbidden] = useState(false);
     const [localForbiddenWords, setLocalForbiddenWords] = useState(forbiddenWords || []);
@@ -144,11 +145,21 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
             const r = await axios.post(route('admin.blog.generate'), { primary_keyword: kw, secondary_keywords: genSecondary, tone: genTone, audience: genAudience, type });
             if (r.data.error) { setGenError(r.data.error); stopProgressSteps(false); return; }
             if (type === 'full') {
-                if (r.data.h1 || r.data.seo_title) setData('title', r.data.h1 || r.data.seo_title);
+                // Auto Title Case for H1
+                const toTitleCase = (str) => str.replace(/\b\w+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+                if (r.data.h1 || r.data.seo_title) setData('title', toTitleCase(r.data.h1 || r.data.seo_title));
                 if (r.data.meta_description) setData('meta_description', r.data.meta_description);
                 if (r.data.seo_title) setData('meta_title', r.data.seo_title);
-                if (r.data.body) setData('body', r.data.body);
+                if (r.data.body) {
+                    setData('body', r.data.body);
+                    // Auto-generate excerpt from first 2 sentences of body
+                    const plainText = String(r.data.body).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    const sentences = plainText.match(/[^.!?]+[.!?]+/g) || [];
+                    const excerpt = sentences.slice(0, 2).join(' ').trim().substring(0, 250);
+                    if (excerpt) setData('excerpt', excerpt);
+                }
                 if (r.data.primary_keyword) setData('primary_keyword', r.data.primary_keyword);
+                if (r.data.secondary_keywords) setData('secondary_keywords', r.data.secondary_keywords);
                 stopProgressSteps(true);
             } else if (type === 'meta') {
                 if (r.data.seo_title) setData('meta_title', r.data.seo_title);
@@ -449,6 +460,9 @@ export default function BlogForm({ post, seoRules, forbiddenWords = [] }) {
                                 <button onClick={() => handleGenerate('meta')} disabled={isGenerating} className="px-6 py-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-2xl border-2 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 transition-all disabled:opacity-50">
                                     🏷️ Generate Meta Saja
                                 </button>
+                                <Link href={route('admin.ai-training.index')} className="px-6 py-3 bg-white dark:bg-gray-800 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-2xl border-2 border-amber-200 dark:border-amber-800 hover:bg-amber-50 transition-all flex items-center gap-2">
+                                    🧠 Training AI
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AiTrainingInstruction;
 use App\Models\SeoSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -853,7 +854,16 @@ PROMPT;
     private function getSystemPrompt(): string
     {
         $forbiddenList = implode(', ', $this->getForbiddenWords());
-        return <<<SYSTEM
+
+        // Get user's custom AI training instructions
+        $trainingPrompt = '';
+        try {
+            $trainingPrompt = AiTrainingInstruction::buildPrompt();
+        } catch (\Exception $e) {
+            Log::warning('Failed to load AI training instructions', ['error' => $e->getMessage()]);
+        }
+
+        $base = <<<SYSTEM
 Kamu adalah ahli SEO content writer Indonesia #1. Standar: Rank Math Pro, AEO, on-page SEO modern.
 
 ATURAN MUTLAK YANG TIDAK BISA DILANGGAR:
@@ -867,7 +877,10 @@ ATURAN MUTLAK YANG TIDAK BISA DILANGGAR:
 8. Sertakan minimal 2 bullet/numbered list di artikel.
 9. Tulis SEMUA section dari outline. JANGAN skip apapun.
 10. Tulis MENDALAM dan DETAIL, bukan ringkas.
+11. Judul H1 HARUS menggunakan Title Case (huruf besar di awal setiap kata penting).
 SYSTEM;
+
+        return $base . $trainingPrompt;
     }
 
     private function parseJson(string $content): ?array

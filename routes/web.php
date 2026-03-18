@@ -651,6 +651,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('permission:create blog_posts')
                 ->name('blog.update-forbidden-words');
 
+            // AI Training Instructions
+            Route::get('ai-training', [\App\Http\Controllers\Admin\AiTrainingController::class, 'index'])
+                ->middleware('permission:create blog_posts')
+                ->name('ai-training.index');
+            Route::post('ai-training', [\App\Http\Controllers\Admin\AiTrainingController::class, 'store'])
+                ->middleware('permission:create blog_posts')
+                ->name('ai-training.store');
+            Route::put('ai-training/{instruction}', [\App\Http\Controllers\Admin\AiTrainingController::class, 'update'])
+                ->middleware('permission:create blog_posts')
+                ->name('ai-training.update');
+            Route::delete('ai-training/{instruction}', [\App\Http\Controllers\Admin\AiTrainingController::class, 'destroy'])
+                ->middleware('permission:create blog_posts')
+                ->name('ai-training.destroy');
+
             // SEO Settings
             Route::get('seo-settings', [\App\Http\Controllers\Admin\SeoSettingController::class, 'index'])
                 ->name('seo-settings.index');

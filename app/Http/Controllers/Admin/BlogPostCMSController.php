@@ -51,6 +51,7 @@ class BlogPostCMSController extends Controller
             'excerpt' => 'nullable|string',
             'body' => 'required|string',
             'featured_image' => 'nullable|image|max:2048',
+            'featured_image_path' => 'nullable|string|max:500',
             'primary_keyword' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -63,8 +64,19 @@ class BlogPostCMSController extends Controller
         $validated['author_id'] = auth()->id();
         $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
 
+        // Handle image: uploaded file takes priority, then AI-generated path
         if ($request->hasFile('featured_image')) {
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
+        } elseif (!empty($validated['featured_image_path'])) {
+            $validated['featured_image'] = $validated['featured_image_path'];
+        }
+        unset($validated['featured_image_path']);
+
+        // Auto-generate excerpt from body if empty
+        if (empty($validated['excerpt']) && !empty($validated['body'])) {
+            $plainText = strip_tags($validated['body']);
+            $plainText = preg_replace('/\s+/', ' ', trim($plainText));
+            $validated['excerpt'] = Str::limit($plainText, 250);
         }
 
         $analysis = $this->seoService->analyze($validated);
@@ -99,6 +111,7 @@ class BlogPostCMSController extends Controller
             'excerpt' => 'nullable|string',
             'body' => 'required|string',
             'featured_image' => 'nullable|image|max:2048',
+            'featured_image_path' => 'nullable|string|max:500',
             'primary_keyword' => 'nullable|string|max:255',
             'secondary_keywords' => 'nullable|array',
             'meta_title' => 'nullable|string|max:255',
@@ -110,10 +123,21 @@ class BlogPostCMSController extends Controller
 
         $validated['is_published'] = $request->boolean('is_published');
 
+        // Handle image: uploaded file takes priority, then AI-generated path
         if ($request->hasFile('featured_image')) {
             $validated['featured_image'] = $request->file('featured_image')->store('blog', 'public');
+        } elseif (!empty($validated['featured_image_path'])) {
+            $validated['featured_image'] = $validated['featured_image_path'];
         } else {
             unset($validated['featured_image']);
+        }
+        unset($validated['featured_image_path']);
+
+        // Auto-generate excerpt from body if empty
+        if (empty($validated['excerpt']) && !empty($validated['body'])) {
+            $plainText = strip_tags($validated['body']);
+            $plainText = preg_replace('/\s+/', ' ', trim($plainText));
+            $validated['excerpt'] = Str::limit($plainText, 250);
         }
 
         $analysis = $this->seoService->analyze($validated);

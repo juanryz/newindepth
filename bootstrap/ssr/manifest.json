@@ -87,8 +87,19 @@
     "src": "resources/js/Components/VisionMissionSection.jsx",
     "isDynamicEntry": true
   },
+  "resources/js/Pages/Admin/Blog/AiTraining.jsx": {
+    "file": "assets/AiTraining-CEUUwIId.js",
+    "name": "AiTraining",
+    "src": "resources/js/Pages/Admin/Blog/AiTraining.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
   "resources/js/Pages/Admin/Blog/Form.jsx": {
-    "file": "assets/Form-DykPSUtl.js",
+    "file": "assets/Form-D5aqWZPC.js",
     "name": "Form",
     "src": "resources/js/Pages/Admin/Blog/Form.jsx",
     "isDynamicEntry": true,
@@ -1120,6 +1131,7 @@
     "src": "resources/js/ssr.jsx",
     "isEntry": true,
     "dynamicImports": [
+      "resources/js/Pages/Admin/Blog/AiTraining.jsx",
       "resources/js/Pages/Admin/Blog/Form.jsx",
       "resources/js/Pages/Admin/Blog/Index.jsx",
       "resources/js/Pages/Admin/Blog/SeoSettings.jsx",
