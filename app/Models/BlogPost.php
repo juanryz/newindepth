@@ -15,12 +15,26 @@ class BlogPost extends Model
         'seo_analysis' => 'json',
         'ai_outline' => 'json',
         'ai_metadata' => 'json',
-        'secondary_keywords' => 'array',
     ];
 
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Safe accessor for secondary_keywords - handles both string and JSON formats.
+     */
+    public function getSecondaryKeywordsAttribute($value)
+    {
+        if (is_null($value) || $value === '')
+            return '';
+        // Try JSON decode first
+        $decoded = json_decode($value, true);
+        if (is_array($decoded))
+            return implode(', ', $decoded);
+        // Already a plain string
+        return $value;
     }
 
     /**
