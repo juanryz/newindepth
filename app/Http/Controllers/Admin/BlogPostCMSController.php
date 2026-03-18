@@ -32,7 +32,7 @@ class BlogPostCMSController extends Controller
 
     public function index()
     {
-        $posts = BlogPost::orderBy('created_at', 'desc')->paginate(15);
+        $posts = BlogPost::with('author')->orderBy('created_at', 'desc')->paginate(15);
         return Inertia::render('Admin/Blog/Index', ['posts' => $posts]);
     }
 
