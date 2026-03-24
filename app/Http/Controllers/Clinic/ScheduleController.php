@@ -342,6 +342,7 @@ class ScheduleController extends Controller
             'new_start_time' => 'required_with:new_date|nullable|date_format:H:i',
             'new_end_time' => 'required_with:new_date|nullable|date_format:H:i|after:new_start_time',
             'reschedule_reason' => 'required|string|max:500',
+            'completion_outcome' => 'nullable|string|in:Normal,No-Show (Pasien),No-Show (Praktisi)',
         ]);
 
         if ($request->new_schedule_id) {
@@ -374,24 +375,31 @@ class ScheduleController extends Controller
         // Increment new schedule booked_count
         $newSchedule->increment('booked_count');
 
-        $booking->update([
+        $newStatus = (function () use ($booking, $newSchedule, $isAdmin) {
+            if (in_array($booking->status, ['in_progress', 'confirmed', 'no_show', 'completed'])) {
+                if ($isAdmin && $newSchedule->date < now('Asia/Jakarta')->toDateString()) {
+                    return 'completed';
+                }
+                return 'confirmed';
+            }
+            return $booking->status;
+        })();
+
+        $updateData = [
             'schedule_id' => $newSchedule->id,
             'original_schedule_id' => $booking->original_schedule_id ?? $oldScheduleId,
             'reschedule_reason' => $request->reschedule_reason,
             'rescheduled_by' => $request->user()->id,
             'rescheduled_at' => now(),
-            'status' => (function () use ($booking, $newSchedule, $isAdmin) {
-                if (in_array($booking->status, ['in_progress', 'confirmed', 'no_show', 'completed'])) {
-                    // Admin rescheduling to a past date → mark completed automatically
-                    if ($isAdmin && $newSchedule->date < now('Asia/Jakarta')->toDateString()) {
-                        return 'completed';
-                    }
-                    return 'confirmed';
-                }
-                return $booking->status;
-            })(),
+            'status' => $newStatus,
             'started_at' => null,
-        ]);
+        ];
+
+        if ($isAdmin && $request->filled('completion_outcome')) {
+            $updateData['completion_outcome'] = $request->completion_outcome;
+        }
+
+        $booking->update($updateData);
 
         // Notify patient
         if ($booking->patient) {

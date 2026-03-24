@@ -140,6 +140,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
         new_start_time: '',
         new_end_time: '',
         reschedule_reason: '',
+        completion_outcome: '',
     });
 
     const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
@@ -1161,6 +1162,23 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                             </div>
                         )}
 
+                        {isAdmin && selectedRescheduleBooking?.completion_outcome?.startsWith('No-Show') && (
+                            <div>
+                                <InputLabel value="Status Kehadiran Sesi Ini" />
+                                <select
+                                    className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
+                                    value={rescheduleData.completion_outcome}
+                                    onChange={(e) => setRescheduleData('completion_outcome', e.target.value)}
+                                    required
+                                >
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="Normal">Hadir / Selesai Normal</option>
+                                    <option value="No-Show (Pasien)">No-Show (Pasien)</option>
+                                    <option value="No-Show (Praktisi)">No-Show (Praktisi)</option>
+                                </select>
+                            </div>
+                        )}
+
                         <div>
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan" />
                             <textarea
@@ -1179,8 +1197,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                         <SecondaryButton onClick={closeRescheduleModal} disabled={rescheduling} className="rounded-2xl">Batal</SecondaryButton>
                         <button
                             type="submit"
-                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))}
-                            className={`inline-flex items-center px-6 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-amber-700 transition-all ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))) && 'opacity-25'}`}
+                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time)) || (isAdmin && selectedRescheduleBooking?.completion_outcome?.startsWith('No-Show') && !rescheduleData.completion_outcome)}
+                            className={`inline-flex items-center px-6 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-amber-700 transition-all ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time)) || (isAdmin && selectedRescheduleBooking?.completion_outcome?.startsWith('No-Show') && !rescheduleData.completion_outcome)) && 'opacity-25'}`}
                         >
                             Konfirmasi Jadwal Baru
                         </button>
