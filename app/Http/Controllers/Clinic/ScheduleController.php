@@ -377,7 +377,7 @@ class ScheduleController extends Controller
             'rescheduled_by' => $request->user()->id,
             'rescheduled_at' => now(),
             'status' => (function () use ($booking, $newSchedule, $isAdmin) {
-                if (in_array($booking->status, ['in_progress', 'confirmed', 'no_show'])) {
+                if (in_array($booking->status, ['in_progress', 'confirmed', 'no_show', 'completed'])) {
                     // Admin rescheduling to a past date → mark completed automatically
                     if ($isAdmin && $newSchedule->date < now('Asia/Jakarta')->toDateString()) {
                         return 'completed';

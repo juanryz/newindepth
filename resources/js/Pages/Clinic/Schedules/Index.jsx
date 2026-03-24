@@ -136,6 +136,9 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
         new_schedule_id: '',
+        new_date: '',
+        new_start_time: '',
+        new_end_time: '',
         reschedule_reason: '',
     });
 
@@ -737,6 +740,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                                     <button onClick={() => openNoShowModal(booking)} className="flex-1 text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">Tidak Hadir</button>
                                                                 </div>
                                                             )}
+                                                            {isNoShow && isAdmin && (
+                                                                <button onClick={() => openRescheduleModal(booking)} className="w-full text-[10px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 py-2.5 rounded-2xl uppercase">
+                                                                    Koreksi Jadwal (No-Show)
+                                                                </button>
+                                                            )}
                                                             {/* {isPast && booking.status === 'confirmed' && (
                                                                 <button onClick={() => openNoShowModal(booking)} className="w-full text-[10px] font-black text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 py-2.5 rounded-2xl uppercase">
                                                                     Isi Alasan Tidak Hadir
@@ -1118,13 +1126,12 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
 
                     <div className="space-y-6">
                         <div>
-                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Baru" />
+                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Tersedia" />
                             <select
                                 id="new_schedule_id"
                                 className="mt-1 block w-full border-gray-200 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-bold"
                                 value={rescheduleData.new_schedule_id}
-                                onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
-                                required
+                                onChange={(e) => setRescheduleData(prev => ({ ...prev, new_schedule_id: e.target.value, new_date: '', new_start_time: '', new_end_time: '' }))}
                             >
                                 <option value="">-- Pilih Slot Tersedia --</option>
                                 {availableSchedules
@@ -1136,6 +1143,23 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     ))}
                             </select>
                         </div>
+
+                        {isAdmin && !rescheduleData.new_schedule_id && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                    <InputLabel value="Atau Input Tanggal Manual" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                                    <TextInput type="date" className="w-full" value={rescheduleData.new_date} onChange={e => setRescheduleData('new_date', e.target.value)} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Jam Mulai" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                                    <TextInput type="time" className="w-full" value={rescheduleData.new_start_time} onChange={e => setRescheduleData('new_start_time', e.target.value)} />
+                                </div>
+                                <div>
+                                    <InputLabel value="Jam Selesai" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                                    <TextInput type="time" className="w-full" value={rescheduleData.new_end_time} onChange={e => setRescheduleData('new_end_time', e.target.value)} />
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan" />
@@ -1155,8 +1179,8 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                         <SecondaryButton onClick={closeRescheduleModal} disabled={rescheduling} className="rounded-2xl">Batal</SecondaryButton>
                         <button
                             type="submit"
-                            disabled={rescheduling || !rescheduleData.new_schedule_id}
-                            className={`inline-flex items-center px-6 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-amber-700 transition-all ${(rescheduling || !rescheduleData.new_schedule_id) && 'opacity-25'}`}
+                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))}
+                            className={`inline-flex items-center px-6 py-3 bg-amber-600 border border-transparent rounded-2xl font-black text-xs text-white uppercase tracking-widest hover:bg-amber-700 transition-all ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))) && 'opacity-25'}`}
                         >
                             Konfirmasi Jadwal Baru
                         </button>
