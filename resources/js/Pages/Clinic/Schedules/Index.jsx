@@ -14,9 +14,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 
 
-export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [], serverNow, clinicSettings = {} }) {
+export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [], serverNow, clinicSettings = {}, isAdmin = false }) {
     const { auth, flash, errors: pageErrors } = usePage().props;
-    const isAdmin = auth.user?.roles?.some(r => ['admin', 'super_admin'].includes(r)) ?? false;
 
     // ── Clinic settings (dynamic from DB, not hardcoded) ──
     const calendarOpenTime = clinicSettings.open_time || '08:00:00';

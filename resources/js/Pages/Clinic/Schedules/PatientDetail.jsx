@@ -29,6 +29,7 @@ export default function PatientDetail({ patient, profileProgress, availableSched
         new_start_time: '',
         new_end_time: '',
         reschedule_reason: '',
+        completion_outcome: '',
     });
 
     // Form for No-Show
@@ -1048,6 +1049,23 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                             </div>
                         )}
 
+                        {isAdmin && selectedRescheduleBooking?.completion_outcome?.includes('No-Show') && (
+                            <div>
+                                <InputLabel value="Status Kehadiran Sesi Ini" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                                <select
+                                    className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
+                                    value={rescheduleData.completion_outcome}
+                                    onChange={(e) => setRescheduleData('completion_outcome', e.target.value)}
+                                    required
+                                >
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="Normal">Hadir / Selesai Normal</option>
+                                    <option value="No-Show (Pasien)">No-Show (Pasien)</option>
+                                    <option value="No-Show (Praktisi)">No-Show (Praktisi)</option>
+                                </select>
+                            </div>
+                        )}
+
                         <div>
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan (Akan Muncul di Dashboard Pasien)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
                             <textarea
@@ -1066,8 +1084,8 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                         <SecondaryButton onClick={() => setSelectedRescheduleBooking(null)} disabled={rescheduling} className="rounded-2xl px-6">Batal</SecondaryButton>
                         <button
                             type="submit"
-                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))}
-                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))) && 'opacity-25'}`}
+                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time)) || (isAdmin && selectedRescheduleBooking?.completion_outcome?.includes('No-Show') && !rescheduleData.completion_outcome)}
+                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time)) || (isAdmin && selectedRescheduleBooking?.completion_outcome?.includes('No-Show') && !rescheduleData.completion_outcome)) && 'opacity-25'}`}
                         >
                             Simpan Jadwal Baru
                         </button>

@@ -164,6 +164,7 @@ class ScheduleController extends Controller
             'mySchedules' => $mySchedules,
             'serverNow' => now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
             'clinicSettings' => $clinicSettings,
+            'isAdmin' => $isAdmin,
         ]);
     }
 

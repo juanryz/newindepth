@@ -706,6 +706,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/clinic/bookings/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class, 'rescheduleSession'])
                 ->middleware('permission:edit bookings')
                 ->name('bookings.reschedule');
+            Route::post('/clinic/bookings/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])
+                ->middleware('permission:edit bookings')
+                ->name('bookings.no-show');
             Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])
                 ->middleware('permission:create bookings')
                 ->name('bookings.store');
