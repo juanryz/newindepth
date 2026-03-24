@@ -318,8 +318,13 @@ class ScheduleController extends Controller
             abort(403);
         }
 
-        // Allow rescheduling for confirmed/in_progress, or for pending states if it's admin
+        $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
+
+        // Admin can also reschedule no_show bookings (for data correction)
         $allowedStatuses = ['confirmed', 'in_progress', 'pending_validation', 'pending_payment'];
+        if ($isAdmin) {
+            $allowedStatuses[] = 'no_show';
+        }
         if (!in_array($booking->status, $allowedStatuses)) {
             return redirect()->back()->withErrors(['error' => 'Status sesi ini tidak dapat dijadwal ulang (hanya bisa dikonfirmasi atau menunggu).']);
         }
@@ -334,7 +339,7 @@ class ScheduleController extends Controller
 
         if ($request->new_schedule_id) {
             $newSchedule = Schedule::findOrFail($request->new_schedule_id);
-            if ($newSchedule->status !== 'available' || $newSchedule->booked_count >= $newSchedule->quota) {
+            if (!$isAdmin && ($newSchedule->status !== 'available' || $newSchedule->booked_count >= $newSchedule->quota)) {
                 return redirect()->back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);
             }
         } else {
@@ -368,7 +373,16 @@ class ScheduleController extends Controller
             'reschedule_reason' => $request->reschedule_reason,
             'rescheduled_by' => $request->user()->id,
             'rescheduled_at' => now(),
-            'status' => in_array($booking->status, ['in_progress', 'confirmed']) ? 'confirmed' : $booking->status, // Keep original status if pending
+            'status' => (function () use ($booking, $newSchedule, $isAdmin) {
+                if (in_array($booking->status, ['in_progress', 'confirmed', 'no_show'])) {
+                    // Admin rescheduling to a past date → mark completed automatically
+                    if ($isAdmin && $newSchedule->date < now('Asia/Jakarta')->toDateString()) {
+                        return 'completed';
+                    }
+                    return 'confirmed';
+                }
+                return $booking->status;
+            })(),
             'started_at' => null,
         ]);
 
