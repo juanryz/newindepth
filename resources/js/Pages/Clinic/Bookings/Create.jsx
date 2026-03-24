@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage, useForm, Link } from '@inertiajs/react';
+
 import PrimaryButton from '@/Components/PrimaryButton';
 import TimeSlotPicker from '@/Components/Clinic/TimeSlotPicker';
 import ScreeningFormRenderer from '@/Components/Clinic/ScreeningFormRenderer';
@@ -20,7 +21,8 @@ const POLICIES = {
 };
 
 export default function BookingCreate({ schedules, packageOptions, screeningResult, activeBooking }) {
-    const { errors: pageErrors } = usePage().props;
+    const { errors: pageErrors, auth } = usePage().props;
+    const isAdmin = auth?.user?.roles?.some(r => ['super_admin', 'admin'].includes(r.name ?? r));
 
     const [step, setStep] = useState(1);
 
@@ -243,7 +245,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                     <h3 className="text-lg font-black uppercase tracking-tighter">3. Pilih Waktu Konsultasi</h3>
                                 </div>
                                 <div className="p-6">
-                                    <TimeSlotPicker schedules={schedules} selectedScheduleId={data.schedule_id} onSelect={(id) => setData('schedule_id', id)} activeBooking={activeBooking} />
+                                    <TimeSlotPicker schedules={schedules} selectedScheduleId={data.schedule_id} onSelect={(id) => setData('schedule_id', id)} activeBooking={activeBooking} allowPast={isAdmin} />
                                     {errors.schedule_id && <p className="text-xs font-bold text-red-600 mt-4 uppercase tracking-widest">{errors.schedule_id}</p>}
                                 </div>
 

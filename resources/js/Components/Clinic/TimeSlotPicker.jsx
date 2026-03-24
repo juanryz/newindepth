@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onSelect, activeBooking }) {
+export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onSelect, activeBooking, allowPast = false }) {
     if (schedules.length === 0) {
         return (
             <div className="p-4 bg-gray-50/50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700/50 rounded-xl text-gray-500 dark:text-gray-400 text-sm italic text-center">
@@ -86,7 +86,7 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                 const isSelected = selectedScheduleId === slot.id;
                                 const count = slot.bookings_count ?? 0;
 
-                                // Buffer: 1 hour prevention (Jakarta Time)
+                                // Time check (Jakarta Time)
                                 const now = new Date();
                                 const formatter = new Intl.DateTimeFormat('en-US', {
                                     timeZone: 'Asia/Jakarta',
@@ -101,14 +101,13 @@ export default function TimeSlotPicker({ schedules = [], selectedScheduleId, onS
                                 }, {});
 
                                 const idnNow = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second));
-                                const bufferTime = new Date(idnNow.getTime() + 60 * 60 * 1000);
 
-                                const [sh, sm, ss] = slot.start_time.split(':');
                                 const sd = new Date(slot.date);
-                                const slotStart = new Date(Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate(), sh, sm, ss));
+                                const [eh, em, es] = slot.end_time.split(':');
+                                const slotEnd = new Date(Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate(), eh, em, es));
 
                                 const isFull = slot.status === 'full' || count >= slot.quota;
-                                const isPast = slotStart < bufferTime;
+                                const isPast = !allowPast && idnNow > slotEnd;
                                 const isDisabled = isFull || isPast || hasActiveBooking;
 
                                 return (
