@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
+    // Statuses that occupy a schedule slot (count toward booked_count)
+    const SLOT_OCCUPYING_STATUSES = ['confirmed', 'completed', 'no_show', 'in_progress'];
+
+    // All valid statuses
+    const STATUSES = ['draft', 'pending_screening', 'pending_payment', 'pending_validation', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show', 'rescheduled'];
+
     protected $fillable = [
         'booking_code',
         'patient_id',

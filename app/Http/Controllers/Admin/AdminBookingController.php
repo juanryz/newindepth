@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,7 +29,7 @@ class AdminBookingController extends Controller
             ->select('id', 'name')
             ->get();
 
-        $availableSchedules = \App\Models\Schedule::with('therapist')
+        $availableSchedules = Schedule::with('therapist')
             ->where('date', '>=', now()->toDateString())
             ->where('status', 'available')
             ->whereColumn('booked_count', '<', 'quota')
@@ -36,10 +37,18 @@ class AdminBookingController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        // All schedules (past + future) for booking correction feature
+        $allSchedules = Schedule::with('therapist:id,name')
+            ->orderBy('date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->get(['id', 'date', 'start_time', 'end_time', 'therapist_id', 'quota', 'booked_count', 'status']);
+
         return Inertia::render('Admin/Clinic/Bookings/Index', [
             'bookings' => $bookings,
             'therapists' => $therapists,
             'availableSchedules' => $availableSchedules,
+            'allSchedules' => $allSchedules,
+            'bookingStatuses' => Booking::STATUSES,
         ]);
     }
 
@@ -143,6 +152,46 @@ class AdminBookingController extends Controller
         return back()->with('success', 'Booking berhasil dibatalkan dan slot kembali tersedia.');
     }
 
+    public function fixBooking(Request $request, Booking $booking)
+    {
+        $validStatuses = implode(',', Booking::STATUSES);
+        $request->validate([
+            'schedule_id' => 'required|exists:schedules,id',
+            'status'      => "required|in:{$validStatuses}",
+        ]);
+
+        $oldSchedule = $booking->schedule;
+        $newSchedule = Schedule::findOrFail($request->schedule_id);
+
+        $occupiesSlot = in_array($booking->status, Booking::SLOT_OCCUPYING_STATUSES);
+
+        // Release slot from old schedule
+        if ($oldSchedule && $occupiesSlot) {
+            $oldSchedule->decrement('booked_count');
+            if ($oldSchedule->status === 'full' && $oldSchedule->booked_count < $oldSchedule->quota) {
+                $oldSchedule->update(['status' => 'available']);
+            }
+        }
+
+        // Occupy slot on new schedule
+        $newOccupiesSlot = in_array($request->status, Booking::SLOT_OCCUPYING_STATUSES);
+        if ($newOccupiesSlot) {
+            $newSchedule->increment('booked_count');
+            if ($newSchedule->booked_count >= $newSchedule->quota) {
+                $newSchedule->update(['status' => 'full']);
+            }
+        }
+
+        $booking->update([
+            'schedule_id'          => $newSchedule->id,
+            'original_schedule_id' => $booking->original_schedule_id ?? $newSchedule->id,
+            'therapist_id'         => $newSchedule->therapist_id ?? $booking->therapist_id,
+            'status'               => $request->status,
+        ]);
+
+        return back()->with('success', 'Booking berhasil dikoreksi.');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -151,7 +200,7 @@ class AdminBookingController extends Controller
             'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
         ]);
 
-        $schedule = \App\Models\Schedule::findOrFail($request->schedule_id);
+        $schedule = Schedule::findOrFail($request->schedule_id);
 
         if ($schedule->status === 'full' || $schedule->booked_count >= $schedule->quota) {
             return back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);

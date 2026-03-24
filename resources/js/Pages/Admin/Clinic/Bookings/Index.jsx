@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, useForm, Link } from '@inertiajs/react';
+import { Head, router, useForm, Link, usePage } from '@inertiajs/react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputLabel from '@/Components/InputLabel';
 
-export default function AdminBookingsIndex({ bookings, therapists, availableSchedules = [] }) {
+export default function AdminBookingsIndex({ bookings, therapists, availableSchedules = [], allSchedules = [], bookingStatuses = [] }) {
     const { data, setData, patch, processing } = useForm({
         therapist_id: '',
     });
@@ -20,6 +20,7 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
     const [editingBooking, setEditingBooking] = useState(null);
     const [reschedulingBooking, setReschedulingBooking] = useState(null);
     const [noShowBooking, setNoShowBooking] = useState(null);
+    const [fixingBooking, setFixingBooking] = useState(null);
 
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
         new_schedule_id: '',
@@ -29,6 +30,11 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
     const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({
         no_show_party: 'therapist', // Default to therapist for admin since they are often fixing therapist absences
         no_show_reason: '',
+    });
+
+    const { data: fixData, setData: setFixData, patch: patchFix, processing: fixing, reset: resetFix } = useForm({
+        schedule_id: '',
+        status: 'completed',
     });
 
     const handleAssign = (bookingId) => {
@@ -53,6 +59,16 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
             onSuccess: () => {
                 setNoShowBooking(null);
                 resetNoShow();
+            }
+        });
+    };
+
+    const handleFix = (e) => {
+        e.preventDefault();
+        patchFix(route('admin.bookings.fix', fixingBooking.id), {
+            onSuccess: () => {
+                setFixingBooking(null);
+                resetFix();
             }
         });
     };
@@ -275,6 +291,18 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
                                                                         </button>
                                                                     </>
                                                                 )}
+                                                                {['no_show', 'cancelled'].includes(booking.status) && hasPermission('edit bookings') && (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setFixingBooking(booking);
+                                                                            setFixData('schedule_id', booking.schedule_id || '');
+                                                                            setFixData('status', 'completed');
+                                                                        }}
+                                                                        className="px-2 py-2 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20"
+                                                                    >
+                                                                        Koreksi
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     )}
@@ -391,6 +419,65 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
                             className="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 disabled:opacity-25 transition"
                         >
                             Tandai No-Show
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+            {/* Modal Koreksi Booking */}
+            <Modal show={fixingBooking !== null} onClose={() => { setFixingBooking(null); resetFix(); }}>
+                <form onSubmit={handleFix} className="p-6">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Koreksi Booking</h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        Pasien: <strong>{fixingBooking?.patient?.name}</strong>
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                        Jadwal tercatat: {fixingBooking?.schedule?.date} pukul {fixingBooking?.schedule?.start_time?.substring(0, 5)} &mdash; Status: <span className="font-bold text-rose-500">{fixingBooking?.status}</span>
+                    </p>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="fix_schedule_id" value="Pilih Jadwal yang Benar" />
+                        <select
+                            id="fix_schedule_id"
+                            className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                            value={fixData.schedule_id}
+                            onChange={(e) => setFixData('schedule_id', e.target.value)}
+                            required
+                        >
+                            <option value="">-- Pilih Jadwal --</option>
+                            {allSchedules.map(s => (
+                                <option key={s.id} value={s.id}>
+                                    {new Date(s.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    {' '}&mdash; {s.start_time?.substring(0, 5)}-{s.end_time?.substring(0, 5)}
+                                    {' '}&mdash; {s.therapist?.name ?? 'Tanpa Terapis'}
+                                    {s.id === fixingBooking?.schedule_id ? ' (jadwal saat ini)' : ''}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="fix_status" value="Set Status Booking" />
+                        <select
+                            id="fix_status"
+                            className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                            value={fixData.status}
+                            onChange={(e) => setFixData('status', e.target.value)}
+                            required
+                        >
+                            {bookingStatuses.map(s => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <SecondaryButton onClick={() => { setFixingBooking(null); resetFix(); }}>Batal</SecondaryButton>
+                        <button
+                            type="submit"
+                            disabled={fixing || !fixData.schedule_id}
+                            className="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-25 transition"
+                        >
+                            {fixing ? 'Menyimpan...' : 'Simpan Koreksi'}
                         </button>
                     </div>
                 </form>

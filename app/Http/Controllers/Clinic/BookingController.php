@@ -180,6 +180,7 @@ class BookingController extends Controller
             'packageOptions' => $packageOptions,
             'screeningResult' => $screeningResult,
             'activeBooking' => $activeBooking,
+            'isAdmin' => $user->hasAnyRole(['admin', 'super_admin']),
         ]);
     }
 

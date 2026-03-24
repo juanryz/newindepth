@@ -20,9 +20,8 @@ const POLICIES = {
     }
 };
 
-export default function BookingCreate({ schedules, packageOptions, screeningResult, activeBooking }) {
-    const { errors: pageErrors, auth } = usePage().props;
-    const isAdmin = auth?.user?.roles?.some(r => ['super_admin', 'admin'].includes(r.name ?? r));
+export default function BookingCreate({ schedules, packageOptions, screeningResult, activeBooking, isAdmin = false }) {
+    const { errors: pageErrors } = usePage().props;
 
     const [step, setStep] = useState(1);
 

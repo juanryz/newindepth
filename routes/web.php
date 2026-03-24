@@ -700,6 +700,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/clinic/bookings/{booking}/cancel', [\App\Http\Controllers\Admin\AdminBookingController::class, 'cancel'])
                 ->middleware('permission:cancel bookings')
                 ->name('bookings.cancel');
+            Route::patch('/clinic/bookings/{booking}/fix', [\App\Http\Controllers\Admin\AdminBookingController::class, 'fixBooking'])
+                ->middleware('permission:edit bookings')
+                ->name('bookings.fix');
             Route::post('/clinic/bookings', [\App\Http\Controllers\Admin\AdminBookingController::class, 'store'])
                 ->middleware('permission:create bookings')
                 ->name('bookings.store');
