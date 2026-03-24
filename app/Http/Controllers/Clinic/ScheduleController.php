@@ -323,10 +323,10 @@ class ScheduleController extends Controller
 
         $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
 
-        // Admin can also reschedule no_show bookings (for data correction)
+        // Admin can also reschedule completed no-show bookings (for data correction)
         $allowedStatuses = ['confirmed', 'in_progress', 'pending_validation', 'pending_payment'];
         if ($isAdmin) {
-            $allowedStatuses[] = 'no_show';
+            $allowedStatuses[] = 'completed';
         }
         if (!in_array($booking->status, $allowedStatuses)) {
             return redirect()->back()->withErrors(['error' => 'Status sesi ini tidak dapat dijadwal ulang (hanya bisa dikonfirmasi atau menunggu).']);
