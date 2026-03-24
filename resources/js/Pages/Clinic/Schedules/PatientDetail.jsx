@@ -766,14 +766,16 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusColor(booking.status)}`}>
                                                                                 {booking.status === 'completed' ? 'TERLESAIKAN' : booking.status === 'in_progress' ? 'SEDANG BERJALAN' : 'AKAN DATANG'}
                                                                             </span>
-                                                                            {(['confirmed', ...(isAdmin ? ['no_show'] : [])].includes(booking.status)) && (booking.therapist_id === auth.user.id || auth.user.roles.some(r => ['admin', 'super_admin'].includes(r))) && (
+                                                                            {(booking.status === 'confirmed' || (isAdmin && booking.status === 'no_show')) && (booking.therapist_id === auth.user.id || isAdmin) && (
                                                                                 <div className="flex gap-2">
-                                                                                    <button
-                                                                                        onClick={() => handleStartSession(booking.id)}
-                                                                                        className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-700 transition-all hover:bg-indigo-700 shadow-md shadow-indigo-200"
-                                                                                    >
-                                                                                        Mulai Sesi
-                                                                                    </button>
+                                                                                    {booking.status !== 'no_show' && (
+                                                                                        <button
+                                                                                            onClick={() => handleStartSession(booking.id)}
+                                                                                            className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-700 transition-all hover:bg-indigo-700 shadow-md shadow-indigo-200"
+                                                                                        >
+                                                                                            Mulai Sesi
+                                                                                        </button>
+                                                                                    )}
                                                                                     <button
                                                                                         onClick={() => setSelectedRescheduleBooking(booking)}
                                                                                         className="px-3 py-1 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-100 dark:border-amber-900/30 transition-all hover:bg-amber-100"
