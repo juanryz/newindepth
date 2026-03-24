@@ -50,7 +50,11 @@ class ScheduleController extends Controller
             // Optional: you might want to limit this, but for now let's allow finding any available slot
         }
 
-        $availableSchedules = $schedulesQuery->where('date', '>=', now()->toDateString())
+        if (!$isAdmin) {
+            $schedulesQuery->where('date', '>=', now()->toDateString());
+        }
+
+        $availableSchedules = $schedulesQuery
             ->where('status', 'available')
             ->whereColumn('booked_count', '<', 'quota')
             ->orderBy('date')
