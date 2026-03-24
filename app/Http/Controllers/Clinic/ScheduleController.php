@@ -180,6 +180,8 @@ class ScheduleController extends Controller
             'courses',
         ]);
 
+        $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
+
         $availableSchedules = Schedule::where('date', '>=', now()->toDateString())
             ->where('status', 'available')
             ->whereColumn('booked_count', '<', 'quota')
@@ -192,6 +194,7 @@ class ScheduleController extends Controller
             'profileProgress' => $user->getProfileCompletionStats(),
             'availableSchedules' => $availableSchedules,
             'fromBookingId' => $request->query('from_booking_id'),
+            'isAdmin' => $isAdmin,
         ]);
     }
 

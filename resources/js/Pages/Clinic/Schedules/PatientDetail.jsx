@@ -13,7 +13,7 @@ import {
     ExternalLink, BookOpen, MessageSquare, Clipboard, Video, ChevronDown
 } from 'lucide-react';
 
-export default function PatientDetail({ patient, profileProgress, availableSchedules, fromBookingId }) {
+export default function PatientDetail({ patient, profileProgress, availableSchedules, fromBookingId, isAdmin = false }) {
     const [activeTab, setActiveTab] = useState('summary');
     const { auth, flash, errors } = usePage().props;
 
@@ -25,6 +25,9 @@ export default function PatientDetail({ patient, profileProgress, availableSched
     // Form for Rescheduling
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({
         new_schedule_id: '',
+        new_date: '',
+        new_start_time: '',
+        new_end_time: '',
         reschedule_reason: '',
     });
 
@@ -763,7 +766,7 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusColor(booking.status)}`}>
                                                                                 {booking.status === 'completed' ? 'TERLESAIKAN' : booking.status === 'in_progress' ? 'SEDANG BERJALAN' : 'AKAN DATANG'}
                                                                             </span>
-                                                                            {booking.status === 'confirmed' && (booking.therapist_id === auth.user.id || auth.user.roles.some(r => ['admin', 'super_admin'].includes(r))) && (
+                                                                            {(['confirmed', ...(isAdmin ? ['no_show'] : [])].includes(booking.status)) && (booking.therapist_id === auth.user.id || auth.user.roles.some(r => ['admin', 'super_admin'].includes(r))) && (
                                                                                 <div className="flex gap-2">
                                                                                     <button
                                                                                         onClick={() => handleStartSession(booking.id)}
@@ -1008,15 +1011,14 @@ export default function PatientDetail({ patient, profileProgress, availableSched
 
                     <div className="space-y-6">
                         <div>
-                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Baru" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                            <InputLabel htmlFor="new_schedule_id" value="Pilih Slot Tersedia" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
                             <select
                                 id="new_schedule_id"
                                 className="mt-1 block w-full bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-4 text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-gray-200"
                                 value={rescheduleData.new_schedule_id}
-                                onChange={(e) => setRescheduleData('new_schedule_id', e.target.value)}
-                                required
+                                onChange={(e) => setRescheduleData(prev => ({ ...prev, new_schedule_id: e.target.value, new_date: '', new_start_time: '', new_end_time: '' }))}
                             >
-                                <option value="">-- Pilih Slot Tersedia --</option>
+                                <option value="">-- Input Tanggal & Jam Manual --</option>
                                 {availableSchedules
                                     ?.filter(s => s.id !== selectedRescheduleBooking?.schedule_id)
                                     .map(s => (
@@ -1026,6 +1028,23 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                     ))}
                             </select>
                         </div>
+
+                        {!rescheduleData.new_schedule_id && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="sm:col-span-2">
+                                    <InputLabel value="Tanggal" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                                    <TextInput type="date" className="w-full" value={rescheduleData.new_date} onChange={e => setRescheduleData('new_date', e.target.value)} required />
+                                </div>
+                                <div>
+                                    <InputLabel value="Jam Mulai" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                                    <TextInput type="time" className="w-full" value={rescheduleData.new_start_time} onChange={e => setRescheduleData('new_start_time', e.target.value)} required />
+                                </div>
+                                <div>
+                                    <InputLabel value="Jam Selesai" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
+                                    <TextInput type="time" className="w-full" value={rescheduleData.new_end_time} onChange={e => setRescheduleData('new_end_time', e.target.value)} required />
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <InputLabel htmlFor="reschedule_reason" value="Alasan Perubahan (Akan Muncul di Dashboard Pasien)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2" />
@@ -1045,8 +1064,8 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                         <SecondaryButton onClick={() => setSelectedRescheduleBooking(null)} disabled={rescheduling} className="rounded-2xl px-6">Batal</SecondaryButton>
                         <button
                             type="submit"
-                            disabled={rescheduling || !rescheduleData.new_schedule_id}
-                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 ${(rescheduling || !rescheduleData.new_schedule_id) && 'opacity-25'}`}
+                            disabled={rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))}
+                            className={`inline-flex items-center px-8 py-3 bg-indigo-600 border border-transparent rounded-2xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 ${(rescheduling || (!rescheduleData.new_schedule_id && (!rescheduleData.new_date || !rescheduleData.new_start_time || !rescheduleData.new_end_time))) && 'opacity-25'}`}
                         >
                             Simpan Jadwal Baru
                         </button>

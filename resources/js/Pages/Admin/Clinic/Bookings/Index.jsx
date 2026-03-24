@@ -291,7 +291,7 @@ export default function AdminBookingsIndex({ bookings, therapists, availableSche
                                                                         </button>
                                                                     </>
                                                                 )}
-                                                                {['no_show', 'cancelled'].includes(booking.status) && hasPermission('edit bookings') && (
+                                                                {['no_show', 'cancelled', 'completed'].includes(booking.status) && hasPermission('edit bookings') && (
                                                                     <button
                                                                         onClick={() => {
                                                                             setFixingBooking(booking);
