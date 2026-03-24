@@ -645,8 +645,8 @@ function PatientDetail({ patient, profileProgress, availableSchedules, fromBooki
                             ] }),
                             /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
                               /* @__PURE__ */ jsx("span", { className: `px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusColor(booking.status)}`, children: booking.status === "completed" ? "TERLESAIKAN" : booking.status === "in_progress" ? "SEDANG BERJALAN" : "AKAN DATANG" }),
-                              ["confirmed", ...isAdmin ? ["no_show"] : []].includes(booking.status) && (booking.therapist_id === auth.user.id || auth.user.roles.some((r) => ["admin", "super_admin"].includes(r))) && /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
-                                /* @__PURE__ */ jsx(
+                              (booking.status === "confirmed" || isAdmin && booking.status === "no_show") && (booking.therapist_id === auth.user.id || isAdmin) && /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+                                booking.status !== "no_show" && /* @__PURE__ */ jsx(
                                   "button",
                                   {
                                     onClick: () => handleStartSession(booking.id),
