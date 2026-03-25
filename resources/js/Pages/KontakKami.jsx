@@ -412,7 +412,7 @@ export default function KontakKami({ auth }) {
                                     </svg>
                                 </div>
                                 <SectionLabel>Email</SectionLabel>
-                                <a href="mailto:admin@indepth.co.id" className="text-xl font-black text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">
+                                <a href="mailto:admin@indepth.co.id" className="block text-xl font-black text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors">
                                     admin@indepth.co.id
                                 </a>
                                 <p className="mt-3 text-sm text-gray-500 dark:text-gray-500 font-medium">
