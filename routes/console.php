@@ -12,3 +12,4 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('sessions:auto-close')->everyMinute();
 Schedule::command('bookings:cleanup-pending')->hourly();
 Schedule::command('bookings:send-reminders')->everyTenMinutes();
+Schedule::command('users:send-profile-reminders')->daily();

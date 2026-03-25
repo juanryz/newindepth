@@ -401,6 +401,20 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/Admin/Users/CreateOffline.jsx": {
+    "file": "assets/CreateOffline-C-XTfXlR.js",
+    "name": "CreateOffline",
+    "src": "resources/js/Pages/Admin/Users/CreateOffline.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_InputError-2JjWc6nJ.js",
+      "_InputLabel-CnBOqvzp.js",
+      "_TextInput-DcEnl-Ka.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
   "resources/js/Pages/Admin/Users/ErrorBoundary.jsx": {
     "file": "assets/ErrorBoundary-veTPa1Ma.js",
     "name": "ErrorBoundary",
@@ -422,7 +436,7 @@
     ]
   },
   "resources/js/Pages/Admin/Users/Index.jsx": {
-    "file": "assets/Index-DLkC50q0.js",
+    "file": "assets/Index-C6nh7UbU.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Users/Index.jsx",
     "isDynamicEntry": true,
@@ -1156,6 +1170,7 @@
       "resources/js/Pages/Admin/Schedules/Show.jsx",
       "resources/js/Pages/Admin/Settings/Index.jsx",
       "resources/js/Pages/Admin/Users/Agreement.jsx",
+      "resources/js/Pages/Admin/Users/CreateOffline.jsx",
       "resources/js/Pages/Admin/Users/ErrorBoundary.jsx",
       "resources/js/Pages/Admin/Users/Form.jsx",
       "resources/js/Pages/Admin/Users/Index.jsx",

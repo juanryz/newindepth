@@ -772,6 +772,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])
                 ->middleware('permission:create users')
                 ->name('users.store');
+            Route::get('users/create-offline', [\App\Http\Controllers\Admin\UserController::class, 'createOffline'])
+                ->middleware('permission:create users')
+                ->name('users.create-offline');
+            Route::post('users/store-offline', [\App\Http\Controllers\Admin\UserController::class, 'storeOffline'])
+                ->middleware('permission:create users')
+                ->name('users.store-offline');
             Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])
                 ->middleware('permission:view users')
                 ->name('users.show');

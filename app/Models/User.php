@@ -113,6 +113,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'agreement_data',
         'affiliate_agreement_signed_at',
         'affiliate_signature',
+        'profile_reminder_sent_at',
     ];
 
     /**
@@ -140,6 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'screening_completed_at' => 'datetime',
             'agreement_signed_at' => 'datetime',
             'affiliate_agreement_signed_at' => 'datetime',
+            'profile_reminder_sent_at' => 'datetime',
         ];
     }
 

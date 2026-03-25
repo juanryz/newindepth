@@ -32,9 +32,16 @@ class SocialiteController extends Controller
                 ->first();
 
             if ($user) {
-                // Update google_id if it was null
+                // Update google_id and mark email as verified (Google has verified it)
+                $updates = [];
                 if (!$user->google_id) {
-                    $user->update(['google_id' => $googleUser->getId()]);
+                    $updates['google_id'] = $googleUser->getId();
+                }
+                if (!$user->email_verified_at) {
+                    $updates['email_verified_at'] = now();
+                }
+                if (!empty($updates)) {
+                    $user->update($updates);
                 }
             } else {
                 // Register a new user

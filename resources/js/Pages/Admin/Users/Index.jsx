@@ -16,11 +16,61 @@ import {
     ShieldAlert,
     CheckCircle,
     UserCircle,
-    Key
+    Key,
+    AlertCircle
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
+
+function ProfileCompletionBadge({ completion }) {
+    if (!completion) return <span className="text-[10px] text-gray-400">—</span>;
+
+    const { percentage, is_complete, fields } = completion;
+
+    const missingFields = Object.values(fields || {})
+        .filter(f => !f.filled)
+        .map(f => f.label);
+
+    const colorClass = is_complete
+        ? 'text-emerald-600 dark:text-emerald-400'
+        : percentage >= 60
+            ? 'text-amber-600 dark:text-amber-400'
+            : 'text-rose-600 dark:text-rose-400';
+
+    const barColor = is_complete
+        ? 'bg-emerald-500'
+        : percentage >= 60
+            ? 'bg-amber-500'
+            : 'bg-rose-500';
+
+    return (
+        <div className="flex flex-col items-center gap-1.5 group relative">
+            <span className={`text-sm font-black tabular-nums ${colorClass}`}>
+                {percentage}%
+            </span>
+            <div className="w-20 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                <div
+                    className={`h-full rounded-full transition-all ${barColor}`}
+                    style={{ width: `${percentage}%` }}
+                />
+            </div>
+            {!is_complete && missingFields.length > 0 && (
+                <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 w-48 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded-xl p-3 shadow-xl pointer-events-none left-1/2 -translate-x-1/2">
+                    <p className="font-black uppercase tracking-widest mb-2 text-gray-300">Belum diisi:</p>
+                    <ul className="space-y-0.5">
+                        {missingFields.map((label, i) => (
+                            <li key={i} className="flex items-center gap-1.5">
+                                <AlertCircle className="w-3 h-3 text-rose-400 flex-shrink-0" />
+                                {label}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function UsersIndex({ users, roles, permissions, filters }) {
     const { auth, flash } = usePage().props;
@@ -96,13 +146,22 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                     </div>
                     <div className="flex gap-3">
                         {activeTab === 'users' && hasPermission('create users') ? (
-                            <Link
-                                href={route('admin.users.create')}
-                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
-                            >
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                Tambah Pengguna
-                            </Link>
+                            <>
+                                <Link
+                                    href={route('admin.users.create-offline')}
+                                    className="inline-flex items-center px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                                >
+                                    <UserPlus className="w-4 h-4 mr-2" />
+                                    Tambah User Offline
+                                </Link>
+                                <Link
+                                    href={route('admin.users.create')}
+                                    className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                                >
+                                    <UserPlus className="w-4 h-4 mr-2" />
+                                    Tambah Pengguna
+                                </Link>
+                            </>
                         ) : activeTab === 'roles' && hasPermission('create roles') ? (
                             <Link
                                 href={route('admin.roles.create')}
@@ -229,6 +288,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
                                                             <th className="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Informasi Pengguna</th>
                                                             <th className="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Hak Akses (Role)</th>
+                                                            <th className="px-8 py-6 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Kelengkapan Profil</th>
                                                             <th className="px-8 py-6 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Verifikasi</th>
                                                             <th className="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Tindakan</th>
                                                         </tr>
@@ -269,6 +329,9 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                         })}
                                                                         {user.roles.length === 0 && <span className="text-[10px] text-gray-400 italic font-medium px-2 py-1">Belum ada role</span>}
                                                                     </div>
+                                                                </td>
+                                                                <td className="px-8 py-6 text-center">
+                                                                    <ProfileCompletionBadge completion={user.profile_completion} />
                                                                 </td>
                                                                 <td className="px-8 py-6 text-center">
                                                                     {user.email_verified_at ? (

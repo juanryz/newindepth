@@ -3,13 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ScreeningResult;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    private const PACKAGE_OPTIONS = [
+        ['value' => 'hipnoterapi', 'label' => 'Hipnoterapi'],
+        ['value' => 'vip',         'label' => 'VIP'],
+        ['value' => 'upgrade',     'label' => 'Upgrade'],
+    ];
+
+    private const GENDER_OPTIONS = [
+        ['value' => 'male',   'label' => 'Laki-laki'],
+        ['value' => 'female', 'label' => 'Perempuan'],
+        ['value' => 'other',  'label' => 'Lainnya'],
+    ];
+
+    private const SEVERITY_OPTIONS = [
+        'Ringan', 'Sedang', 'Berat Akut', 'Berat Kronis', 'High Risk',
+    ];
+
     public function index(Request $request)
     {
         $query = User::with('roles');
@@ -198,5 +216,87 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Agreement', [
             'userModel' => $user
         ]);
+    }
+
+    public function createOffline()
+    {
+        $roles = Role::all();
+
+        return Inertia::render('Admin/Users/CreateOffline', [
+            'roles'           => $roles,
+            'severityOptions' => self::SEVERITY_OPTIONS,
+            'packageOptions'  => self::PACKAGE_OPTIONS,
+            'genderOptions'   => self::GENDER_OPTIONS,
+        ]);
+    }
+
+    public function storeOffline(Request $request)
+    {
+        $genderValues   = array_column(self::GENDER_OPTIONS, 'value');
+        $packageValues  = array_column(self::PACKAGE_OPTIONS, 'value');
+        $severityValues = self::SEVERITY_OPTIONS;
+
+        $request->validate([
+            'disclaimer_confirmed'        => 'required|accepted',
+            'name'                        => 'required|string|max:255',
+            'email'                       => 'required|string|email|max:255|unique:users',
+            'password'                    => 'required|string|min:8|confirmed',
+            'phone'                       => 'nullable|string|max:20',
+            'age'                         => 'nullable|integer|min:1|max:120',
+            'gender'                      => ['nullable', Rule::in($genderValues)],
+            'emergency_contact_name'      => 'nullable|string|max:255',
+            'emergency_contact_phone'     => 'nullable|string|max:20',
+            'emergency_contact_relation'  => 'nullable|string|max:255',
+            'roles'                       => 'array',
+            'screening_type'              => 'required|in:online,manual',
+            'severity_label'              => ['nullable', 'required_if:screening_type,manual', Rule::in($severityValues)],
+            'recommended_package'         => ['nullable', 'required_if:screening_type,manual', Rule::in($packageValues)],
+            'admin_notes'                 => 'nullable|string',
+            'is_high_risk'                => 'nullable|boolean',
+        ], [
+            'disclaimer_confirmed.accepted'   => 'Anda harus menyetujui disclaimer sebelum mendaftarkan pasien.',
+            'severity_label.required_if'      => 'Tingkat keparahan wajib diisi untuk skrining manual.',
+            'severity_label.in'               => 'Tingkat keparahan tidak valid.',
+            'recommended_package.required_if' => 'Rekomendasi paket wajib dipilih untuk skrining manual.',
+            'recommended_package.in'          => 'Rekomendasi paket tidak valid.',
+            'gender.in'                       => 'Jenis kelamin tidak valid.',
+        ]);
+
+        $user = User::create([
+            'name'                        => $request->name,
+            'email'                       => $request->email,
+            'password'                    => bcrypt($request->password),
+            'phone'                        => $request->phone,
+            'age'                         => $request->age,
+            'gender'                      => $request->gender,
+            'emergency_contact_name'      => $request->emergency_contact_name,
+            'emergency_contact_phone'     => $request->emergency_contact_phone,
+            'emergency_contact_relation'  => $request->emergency_contact_relation,
+        ]);
+
+        $user->markEmailAsVerified();
+
+        if ($request->filled('roles')) {
+            $user->syncRoles($request->roles);
+        }
+
+        if ($request->screening_type === 'manual') {
+            ScreeningResult::create([
+                'user_id'             => $user->id,
+                'severity_label'      => $request->severity_label,
+                'recommended_package' => $request->recommended_package,
+                'admin_notes'         => $request->admin_notes,
+                'is_high_risk'        => $request->boolean('is_high_risk'),
+                'completed_at'        => now(),
+            ]);
+
+            $user->update([
+                'recommended_package'    => $request->recommended_package,
+                'screening_completed_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('admin.users.show', $user->id)
+            ->with('success', 'Pasien offline berhasil didaftarkan.');
     }
 }
