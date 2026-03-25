@@ -62,9 +62,14 @@ function FileUploadField({ label, hint, onChange, preview, onClear, error, accep
 
 // ─── Formatted schedule label ─────────────────────────────────────────────────
 function scheduleLabel(s) {
-    const dateStr = new Date(s.date + 'T00:00:00').toLocaleDateString('id-ID', {
-        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
-    });
+    // s.date may be a full ISO string ("2026-03-26T00:00:00.000000Z") or plain "2026-03-26"
+    // Slice to YYYY-MM-DD then use noon to avoid DST/timezone boundary issues
+    const ymd = (s.date ?? '').slice(0, 10);
+    const dateStr = ymd
+        ? new Date(ymd + 'T12:00:00').toLocaleDateString('id-ID', {
+              weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+          })
+        : '—';
     const avail = s.quota - (s.confirmed_count ?? 0);
     return `${dateStr} · ${s.start_time?.slice(0, 5)}–${s.end_time?.slice(0, 5)} · ${s.therapist?.name ?? '—'} (${avail} slot)`;
 }

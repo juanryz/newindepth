@@ -18,10 +18,13 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    // Nilai valid untuk users.recommended_package & screening_results.recommended_package
+    // Harus sinkron dengan ScreeningController::runDecisionEngine() dan BookingController
     private const PACKAGE_OPTIONS = [
+        ['value' => 'reguler',     'label' => 'Reguler'],
         ['value' => 'hipnoterapi', 'label' => 'Hipnoterapi'],
+        ['value' => 'premium',     'label' => 'Premium'],
         ['value' => 'vip',         'label' => 'VIP'],
-        ['value' => 'upgrade',     'label' => 'Upgrade'],
     ];
 
     private const GENDER_OPTIONS = [
@@ -240,7 +243,7 @@ class UserController extends Controller
             ->filter(fn($s) => $s->confirmed_count < $s->quota)
             ->values();
 
-        $bookingPackages = Package::where('is_active', true)
+        $bookingPackages = Package::orderBy('base_price')
             ->get()
             ->map(fn($p) => [
                 'slug'  => $p->slug,
@@ -263,7 +266,7 @@ class UserController extends Controller
         $genderValues        = array_column(self::GENDER_OPTIONS, 'value');
         $packageValues       = array_column(self::PACKAGE_OPTIONS, 'value');
         $severityValues      = self::SEVERITY_OPTIONS;
-        $bookingPackageSlugs = Package::where('is_active', true)->pluck('slug')->toArray();
+        $bookingPackageSlugs = Package::pluck('slug')->toArray();
 
         $request->validate([
             'disclaimer_confirmed'        => 'required|accepted',
