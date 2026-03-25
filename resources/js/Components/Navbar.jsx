@@ -12,6 +12,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
         try {
             return [
                 { name: 'Home', href: '/', key: 'home' },
+                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
                 { name: 'Pelatihan', href: '/courses', key: 'courses' }
@@ -19,6 +20,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
         } catch (e) {
             return [
                 { name: 'Home', href: '/', key: 'home' },
+                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
                 { name: 'Pelatihan', href: '/courses', key: 'courses' }

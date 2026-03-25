@@ -34,12 +34,16 @@
     "file": "assets/Modal-BSrLMD0w.js",
     "name": "Modal"
   },
-  "_Navbar-OeYKUZUf.js": {
-    "file": "assets/Navbar-OeYKUZUf.js",
+  "_Navbar-C8TIrVzV.js": {
+    "file": "assets/Navbar-C8TIrVzV.js",
     "name": "Navbar",
     "imports": [
       "_ThemeToggle-SHr-61ed.js"
     ]
+  },
+  "_PageLoader-Fgf54pWN.js": {
+    "file": "assets/PageLoader-Fgf54pWN.js",
+    "name": "PageLoader"
   },
   "_PrimaryButton-DsRkdqwY.js": {
     "file": "assets/PrimaryButton-DsRkdqwY.js",
@@ -583,24 +587,24 @@
     ]
   },
   "resources/js/Pages/Blog/Index.jsx": {
-    "file": "assets/Index-BkLDKbB-.js",
+    "file": "assets/Index-SRMpUk_J.js",
     "name": "Index",
     "src": "resources/js/Pages/Blog/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Blog/Show.jsx": {
-    "file": "assets/Show-BWMA6WZs.js",
+    "file": "assets/Show-CInLeZRp.js",
     "name": "Show",
     "src": "resources/js/Pages/Blog/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_ThemeToggle-SHr-61ed.js"
     ]
@@ -777,74 +781,138 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/Layanan.jsx": {
+    "file": "assets/Layanan-alwNPBQv.js",
+    "name": "Layanan",
+    "src": "resources/js/Pages/Layanan.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Navbar-C8TIrVzV.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
+      "_ThemeToggle-SHr-61ed.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/Footer.jsx",
+      "resources/js/Components/DisclaimerSection.jsx"
+    ]
+  },
+  "resources/js/Pages/LayananPremium.jsx": {
+    "file": "assets/LayananPremium-cn2sVe5a.js",
+    "name": "LayananPremium",
+    "src": "resources/js/Pages/LayananPremium.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Navbar-C8TIrVzV.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
+      "_ThemeToggle-SHr-61ed.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/Footer.jsx",
+      "resources/js/Components/DisclaimerSection.jsx"
+    ]
+  },
+  "resources/js/Pages/LayananReguler.jsx": {
+    "file": "assets/LayananReguler-BYcKA_oZ.js",
+    "name": "LayananReguler",
+    "src": "resources/js/Pages/LayananReguler.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Navbar-C8TIrVzV.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
+      "_ThemeToggle-SHr-61ed.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/Footer.jsx",
+      "resources/js/Components/DisclaimerSection.jsx"
+    ]
+  },
+  "resources/js/Pages/LayananVip.jsx": {
+    "file": "assets/LayananVip-DggV52G4.js",
+    "name": "LayananVip",
+    "src": "resources/js/Pages/LayananVip.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Navbar-C8TIrVzV.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
+      "_ThemeToggle-SHr-61ed.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/Footer.jsx",
+      "resources/js/Components/DisclaimerSection.jsx"
+    ]
+  },
   "resources/js/Pages/Legal/Disclaimer.jsx": {
-    "file": "assets/Disclaimer-BzfVEsni.js",
+    "file": "assets/Disclaimer-CIcUrSsw.js",
     "name": "Disclaimer",
     "src": "resources/js/Pages/Legal/Disclaimer.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Legal/Privacy.jsx": {
-    "file": "assets/Privacy-BFiFhjXZ.js",
+    "file": "assets/Privacy-Dt6CsO-T.js",
     "name": "Privacy",
     "src": "resources/js/Pages/Legal/Privacy.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Legal/Terms.jsx": {
-    "file": "assets/Terms-B94_Ye8J.js",
+    "file": "assets/Terms-BgB6gkJt.js",
     "name": "Terms",
     "src": "resources/js/Pages/Legal/Terms.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Lms/Courses/Index.jsx": {
-    "file": "assets/Index-_n1rkIl2.js",
+    "file": "assets/Index-B0Y3bXPU.js",
     "name": "Index",
     "src": "resources/js/Pages/Lms/Courses/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "_ErrorBoundary-DBZzD0st.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Lms/Courses/Payment.jsx": {
-    "file": "assets/Payment-BS6NEn0Q.js",
+    "file": "assets/Payment-BeERjjx3.js",
     "name": "Payment",
     "src": "resources/js/Pages/Lms/Courses/Payment.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Lms/Courses/Show.jsx": {
-    "file": "assets/Show-8xjtxy72.js",
+    "file": "assets/Show-C7kqHyOP.js",
     "name": "Show",
     "src": "resources/js/Pages/Lms/Courses/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_ErrorBoundary-DBZzD0st.js",
       "_LiquidBackground-DsMP_cZ6.js",
@@ -861,48 +929,48 @@
     ]
   },
   "resources/js/Pages/Methods/IndepthSolution.jsx": {
-    "file": "assets/IndepthSolution-BuSdwzZ8.js",
+    "file": "assets/IndepthSolution-DZZa0bYy.js",
     "name": "IndepthSolution",
     "src": "resources/js/Pages/Methods/IndepthSolution.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Methods/IndepthTrance.jsx": {
-    "file": "assets/IndepthTrance-DjN0-rv6.js",
+    "file": "assets/IndepthTrance-jFhq_fEk.js",
     "name": "IndepthTrance",
     "src": "resources/js/Pages/Methods/IndepthTrance.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Methods/Index.jsx": {
-    "file": "assets/Index-DzMnPOvj.js",
+    "file": "assets/Index-TTokLPbn.js",
     "name": "Index",
     "src": "resources/js/Pages/Methods/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Methods/SupremeTrance.jsx": {
-    "file": "assets/SupremeTrance-DBXPaBoR.js",
+    "file": "assets/SupremeTrance-ZEvMKU8p.js",
     "name": "SupremeTrance",
     "src": "resources/js/Pages/Methods/SupremeTrance.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_LiquidBackground-DsMP_cZ6.js",
       "_ThemeToggle-SHr-61ed.js"
@@ -1030,23 +1098,23 @@
     ]
   },
   "resources/js/Pages/Screening/PublicScreening.jsx": {
-    "file": "assets/PublicScreening-9YgEwvId.js",
+    "file": "assets/PublicScreening--3ICgFk8.js",
     "name": "PublicScreening",
     "src": "resources/js/Pages/Screening/PublicScreening.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "_shared-BWLPB1vs.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Testimonials/Index.jsx": {
-    "file": "assets/Index-6tAAGBrH.js",
+    "file": "assets/Index-DvB6PZpf.js",
     "name": "Index",
     "src": "resources/js/Pages/Testimonials/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
@@ -1102,35 +1170,36 @@
     ]
   },
   "resources/js/Pages/Therapists/Index.jsx": {
-    "file": "assets/Index-DznVJOaW.js",
+    "file": "assets/Index-D25bFNIe.js",
     "name": "Index",
     "src": "resources/js/Pages/Therapists/Index.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Therapists/Show.jsx": {
-    "file": "assets/Show-2zY67Svm.js",
+    "file": "assets/Show-BRG7JsUX.js",
     "name": "Show",
     "src": "resources/js/Pages/Therapists/Show.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "resources/js/Components/Footer.jsx",
       "_ThemeToggle-SHr-61ed.js"
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-Du3GQmBQ.js",
+    "file": "assets/Welcome-DQAwR_dQ.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_Navbar-OeYKUZUf.js",
+      "_Navbar-C8TIrVzV.js",
       "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
       "_ThemeToggle-SHr-61ed.js"
     ],
     "dynamicImports": [
@@ -1201,6 +1270,10 @@
       "resources/js/Pages/Clinic/Screening.jsx",
       "resources/js/Pages/Clinic/Vouchers/Index.jsx",
       "resources/js/Pages/Dashboard.jsx",
+      "resources/js/Pages/Layanan.jsx",
+      "resources/js/Pages/LayananPremium.jsx",
+      "resources/js/Pages/LayananReguler.jsx",
+      "resources/js/Pages/LayananVip.jsx",
       "resources/js/Pages/Legal/Disclaimer.jsx",
       "resources/js/Pages/Legal/Privacy.jsx",
       "resources/js/Pages/Legal/Terms.jsx",

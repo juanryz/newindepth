@@ -511,6 +511,30 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/layanan', function () {
+    return Inertia::render('Layanan', [
+        'packages' => \App\Models\Package::where('is_active', true)->get(),
+    ]);
+})->name('layanan');
+
+Route::get('/layanan/reguler', function () {
+    return Inertia::render('LayananReguler', [
+        'packages' => \App\Models\Package::where('is_active', true)->get(),
+    ]);
+})->name('layanan.reguler');
+
+Route::get('/layanan/premium', function () {
+    return Inertia::render('LayananPremium', [
+        'packages' => \App\Models\Package::where('is_active', true)->get(),
+    ]);
+})->name('layanan.premium');
+
+Route::get('/layanan/vip', function () {
+    return Inertia::render('LayananVip', [
+        'packages' => \App\Models\Package::where('is_active', true)->get(),
+    ]);
+})->name('layanan.vip');
+
 Route::get('/disclaimer', function () {
     return Inertia::render('Legal/Disclaimer');
 })->name('disclaimer');

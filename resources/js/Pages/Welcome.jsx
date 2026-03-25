@@ -109,7 +109,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     >
                         Klinik Hipnoterapi <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600 filter drop-shadow-sm">
-                            Premium Semarang
+                            Semarang
                         </span>
                     </motion.h1>
 
@@ -120,7 +120,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         className="mb-8"
                     >
                         <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">
-                            Sesi Privat. Pendek. Berdampak Nyata.
+                            Anda terganggu dengan pikiran, emosi, atau perilaku yang terus berulang dan semakin berat?
                         </p>
                     </motion.div>
 
@@ -130,7 +130,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         transition={{ duration: 0.6, delay: 0.3 }}
                         className="max-w-3xl text-lg md:text-xl text-gray-600 dark:text-gray-300 mx-auto mb-10 leading-relaxed font-medium"
                     >
-                        Sebagian orang mencari terapi. Sebagian lainnya memilih <span className="text-gold-600 dark:text-gold-400 font-bold">perubahan yang terarah.</span> InDepth Mental Wellness menghadirkan pengalaman hipnoterapi privat dengan pendekatan eksklusif, sistem profesional, dan evaluasi hasil yang jelas dalam satu sesi terstruktur.
+                        INDEPTH Klinik Hipnoterapi Semarang membantu Anda menanganinya. Kami menggunakan hipnosis dan trance untuk mengakses dan menata ulang program bawah sadar secara terarah dalam satu sesi.
                     </motion.p>
 
                     <motion.div
@@ -145,7 +145,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         </a>
                         <a href="https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-sm shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:shadow-[0_8px_25px_rgba(34,197,94,0.4)] hover:-translate-y-1 hover:from-green-400 hover:to-green-500 transition-all duration-300 border border-green-400/40">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            Konsultasi
+                            Konsultasi via WhatsApp
                         </a>
                     </motion.div>
                 </div>
@@ -157,10 +157,10 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     <div className="text-center mb-16">
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">InDepth Mental Wellness</h2>
                         <p className="mt-2 text-3xl leading-8 font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl uppercase italic">
-                            Anda Datang Dengan Tujuan yang Jelas
+                            Masalah yang Anda Alami
                         </p>
                         <p className="mt-6 max-w-3xl text-xl text-gray-600 dark:text-gray-400 mx-auto font-medium leading-relaxed">
-                            Setiap sesi dirancang untuk menghasilkan perubahan yang dapat diuji — bukan sekadar pengalaman. Kami menangani kondisi yang menghambat fungsi hidup optimal Anda.
+                            Banyak klien datang saat mengalami kondisi seperti:
                         </p>
                     </div>
 
@@ -178,11 +178,10 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Gangguan Pikiran & Emosi</h3>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Pikiran & Emosi</h3>
                             <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Pikiran sangat terganggu</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Emosi berulang yang melelahkan</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Hidup terasa hampa</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Pikiran terus berjalan dan sulit berhenti seperti overthinking dan kecemasan berulang</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Emosi mudah meledak, tegang, atau tertekan dalam aktivitas sehari-hari</li>
                             </ul>
                         </motion.div>
 
@@ -199,11 +198,10 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Trauma & Kebiasaan</h3>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Kebiasaan & Fokus</h3>
                             <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Trauma yang terus aktif</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Kebiasaan buruk menahun</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Limiting Beliefs</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Kebiasaan buruk yang berulang terus-menerus dan mengganggu aktivitas</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Sulit fokus, mudah terdistraksi, dan ragu saat mengambil keputusan</li>
                             </ul>
                         </motion.div>
 
@@ -220,13 +218,12 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             <div className="relative w-16 h-16 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center justify-center mb-8 text-gold-500 shadow-inner border border-white/80 dark:border-gray-700/80">
                                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Respons Somatik (Tubuh)</h3>
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 tracking-tight uppercase">Keluhan Fisik & Psikologis</h3>
                             <ul className="text-gray-600 dark:text-gray-400 space-y-2 font-medium">
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Fungsi organ terganggu (Psikosomatis)</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Ketegangan fisik kronis</li>
-                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Regulasi Neuro-Somatik</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Keluhan fisik yang berakar dari faktor psikologis</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div> Pola pikiran dan perilaku buruk yang semakin mengganggu aktivitas</li>
                             </ul>
-                            <p className="mt-4 text-xs font-black text-gold-600 uppercase tracking-widest italic">Langsung bekerja pada sumbernya.</p>
+                            <p className="mt-4 text-xs font-black text-gold-600 uppercase tracking-widest italic">Kondisi seperti ini memerlukan penanganan yang terarah.</p>
                         </motion.div>
                     </div>
                 </div>
@@ -238,7 +235,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         <Link href="/metode" className="group inline-block">
                             <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase group-hover:text-gold-500 transition-colors">Metodologi Kami</h2>
                             <h3 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
-                                Metode Eksklusif InDepth
+                                Metodologi INDEPTH
                             </h3>
                             <div className="mt-2 w-24 h-1 bg-gold-500 mx-auto rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                         </Link>
@@ -252,9 +249,9 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Trance State</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Regulasi Neuro-Somatik</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Protokol terstruktur untuk stabilisasi biologis dan komunikasi langsung dengan kecerdasan tubuh.</p>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">INDEPTH TRANCE</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Akses Bawah Sadar</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Mengakses program bawah sadar melalui kondisi trance yang terarah.</p>
                                 <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
@@ -268,9 +265,9 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">Supreme Trance State</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Integrasi Kesadaran</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Metode untuk integrasi kesadaran tingkat lanjut dan penguatan struktur keyakinan.</p>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">SUPREME TRANCE</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Kondisi Sadar Penuh</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Mengakses dan mengarahkan sistem bawah sadar dalam kondisi sadar penuh.</p>
                                 <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
@@ -284,9 +281,9 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth Solution</h4>
-                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Eksplorasi Internal</p>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Memfasilitasi sistem tubuh Anda menemukan arah penyelesaian terbaiknya sendiri.</p>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">INDEPTH SOLUTION</h4>
+                                <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Kecerdasan Tubuh</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Mengeksplorasi kecerdasan tubuh untuk memahami sistem internal dan menyusun solusi yang spesifik.</p>
                                 <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
                                     Pelajari Detail <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </div>
@@ -296,18 +293,18 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                     <div className="mt-24 w-full relative z-10">
                         <div className="max-w-4xl mx-auto text-center">
-                            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 relative z-10">Mengapa Klien Memilih InDepth?</h3>
+                            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 relative z-10">Keunggulan INDEPTH</h3>
                             <p className="text-xl text-gray-600 dark:text-gray-300 font-light mb-12">
-                                Banyak layanan hipnoterapi berfokus pada sugesti belaka. <strong className="text-gold-600 dark:text-gold-400 font-bold">InDepth berfokus pada sistem.</strong>
+                                Setiap sesi dirancang terarah untuk menuntaskan hasil yang dapat dievaluasi.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                             {[
-                                { title: 'Diferensiasi', desc: 'Aktivasi Internal' },
-                                { title: 'Metodologi', desc: 'Terstruktur & Dapat Diuji' },
-                                { title: 'Penerapan', desc: 'Sesuai Kategori Layanan' },
-                                { title: 'Pengembangan', desc: 'Sistem Klinik Terpadu' }
+                                { title: 'Privasi', desc: 'Setiap sesi terjaga kerahasiaannya' },
+                                { title: 'Dokumentasi', desc: 'Tersedia untuk evaluasi hasil' },
+                                { title: 'Fokus', desc: 'Langsung pada inti kondisi' },
+                                { title: 'Metode Original', desc: 'Berbasis sistem terstruktur' }
                             ].map((item, i) => (
                                 <div key={i} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 hover:-translate-y-1 transition-transform shadow-lg text-center md:text-left">
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-medium">{item.title}</p>
@@ -317,11 +314,11 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         </div>
 
                         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-xl font-bold text-gray-900 dark:text-white">
-                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Pendekatan Presisi</span>
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Privasi Terjaga</span>
                             <span className="hidden md:block w-2 h-2 rounded-full bg-gold-500/50"></span>
-                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Proses Terstruktur</span>
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Satu Sesi Tuntas</span>
                             <span className="hidden md:block w-2 h-2 rounded-full bg-gold-500/50"></span>
-                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Solusi Mendalam</span>
+                            <span className="flex items-center gap-2"><svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Hasil Dievaluasi</span>
                         </div>
                     </div>
                 </div>
@@ -336,13 +333,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Struktur Layanan</h2>
                         <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                            Pilih Program Transformasi Anda
+                            Layanan INDEPTH
                         </p>
 
                         <div className="mt-8 flex flex-col items-center gap-3">
                             <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
                                 <span className="text-xl">🎉</span>
-                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Promo 3 Bulan Pertama: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%</span></span>
+                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Program Khusus: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}% hingga 21 Mei 2026</span></span>
                             </div>
                         </div>
                     </div>
@@ -359,7 +356,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-200 dark:border-gray-700 pb-6 mt-2 relative z-10">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">REGULER</h3>
-                                <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Stabilisasi Mental & Emosi</p>
+                                <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Stabilisasi Mental dan Emosi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {regulerPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
@@ -382,13 +379,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
-                                <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Dari kondisi terganggu menuju stabil.</p>
+                                <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Untuk kondisi yang Anda alami sehari-hari.</p>
                             </div>
 
                             <div className="mb-6 flex-grow">
                                 <p className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Fokus pada:</p>
                                 <ul className="space-y-2 mb-6">
-                                    {['fobia', 'kecemasan', 'konflik internal', 'kebiasaan merugikan', 'tekanan emosional'].map((item, i) => (
+                                    {['kecemasan berulang', 'overthinking', 'emosi sulit stabil', 'kebiasaan buruk yang mengganggu'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-600 dark:text-gray-300 text-sm">
                                             <span className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></span>
                                             {item}
@@ -398,7 +395,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 <p className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Hasil yang dicari:</p>
                                 <ul className="space-y-2">
-                                    {['pikiran lebih jernih', 'respons emosional stabil', 'kontrol diri meningkat'].map((item, i) => (
+                                    {['pikiran lebih tenang', 'emosi lebih stabil', 'kebiasaan terganti'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-800 dark:text-gray-200 text-sm font-medium">
                                             <svg className="w-4 h-4 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                             {item}
@@ -427,7 +424,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-200 dark:border-gray-700 pb-6 mt-2 relative z-10">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">PREMIUM</h3>
-                                <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Optimalisasi Diri</p>
+                                <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Optimalisasi Potensi dan Performa</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {premiumPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
@@ -450,13 +447,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
-                                <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Untuk individu yang ingin meningkat, bukan sekadar pulih.</p>
+                                <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Untuk Anda yang ingin meningkat, bukan sekadar pulih.</p>
                             </div>
 
                             <div className="mb-6 flex-grow relative z-10">
                                 <p className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Fokus pada:</p>
                                 <ul className="space-y-2 mb-6">
-                                    {['kepercayaan diri tingkat tinggi', 'performa profesional', 'fokus dan keputusan', 'penguatan mental internal'].map((item, i) => (
+                                    {['meningkatkan fokus', 'memperkuat kontrol diri', 'mengembangkan kapasitas mental', 'performa profesional'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-600 dark:text-gray-300 text-sm">
                                             <span className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></span>
                                             {item}
@@ -466,7 +463,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 <p className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Hasil yang dicari:</p>
                                 <ul className="space-y-2">
-                                    {['kapasitas diri meningkat', 'energi mental terarah', 'performa lebih konsisten'].map((item, i) => (
+                                    {['fokus lebih terarah', 'kontrol diri lebih kuat', 'kapasitas mental berkembang'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-800 dark:text-gray-200 text-sm font-medium">
                                             <svg className="w-4 h-4 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                             {item}
@@ -491,7 +488,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-700 pb-6 relative z-10">
                                 <h3 className="text-2xl font-bold text-white mb-2">VIP</h3>
-                                <p className="text-gold-400 font-semibold mb-4 text-sm">Penanganan Kompleks & Berat</p>
+                                <p className="text-gold-400 font-semibold mb-4 text-sm">Psikosomatis, Medis Kronis, dan Halusinasi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {vipPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">
@@ -514,24 +511,24 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 </div>
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
-                                <p className="text-gray-300 mt-4 font-light text-sm italic">Pendekatan lanjutan untuk kondisi dengan kompleksitas tinggi.</p>
+                                <p className="text-gray-300 mt-4 font-light text-sm italic">Untuk kondisi yang memerlukan pendekatan terfokus.</p>
                             </div>
 
                             <div className="mb-6 flex-grow relative z-10">
                                 <p className="font-bold text-white mb-3 text-sm">Termasuk:</p>
                                 <ul className="space-y-2 mb-4">
-                                    {['gangguan mental berat', 'halusinasi', 'trauma berlapis', 'psikosomatis', 'kondisi fisik kronis'].map((item, i) => (
+                                    {['keluhan psikosomatis yang muncul berulang', 'kondisi medis kronis yang berkaitan dengan faktor psikologis', 'halusinasi atau pengalaman internal yang mengganggu'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
                                             <span className="w-1.5 h-1.5 rounded-full bg-gold-400 mt-1.5 shrink-0"></span>
                                             {item}
                                         </li>
                                     ))}
                                 </ul>
-                                <p className="text-gold-400 text-xs italic mb-6">Menggunakan metode eksklusif InDepth Solution.</p>
+                                <p className="text-gold-400 text-xs italic mb-6">Pendekatan menggunakan hipnosis dan trance untuk menata ulang sistem bawah sadar secara terarah dalam satu sesi.</p>
 
                                 <p className="font-bold text-white mb-3 text-sm">Hasil yang dicari:</p>
                                 <ul className="space-y-2">
-                                    {['stabilitas internal meningkat', 'respons tubuh lebih adaptif', 'arah pemulihan lebih jelas'].map((item, i) => (
+                                    {['kondisi lebih stabil', 'aktivitas kembali berjalan normal', 'pola yang mengganggu dituntaskan'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-2 text-gray-200 text-sm font-medium">
                                             <svg className="w-4 h-4 text-gold-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                             {item}
@@ -555,8 +552,8 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                         {/* Proses Layanan */}
                         <div className="relative">
-                            <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Alur Profesional</h2>
-                            <h3 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10 tracking-tight">Proses Layanan Kami</h3>
+                            <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Alur Penanganan</h2>
+                            <h3 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10 tracking-tight">Alur Penanganan</h3>
 
                             <div className="space-y-8 relative">
                                 {/* Vertical progress line */}
@@ -564,22 +561,27 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                                 {[
                                     {
-                                        title: 'Screening Awal',
+                                        title: 'Konsultasi via WhatsApp',
+                                        desc: 'Hubungi kami melalui WhatsApp untuk memulai proses penanganan.',
+                                        icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                                    },
+                                    {
+                                        title: 'Screening Mental',
                                         desc: 'Sistem menganalisa kebutuhan Anda melalui pre-assessment komprehensif.',
                                         icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
                                     },
                                     {
-                                        title: 'Penentuan Kategori',
-                                        desc: 'Pemilihan program (Reguler, Premium, VIP) yang paling relevan dengan Anda.',
+                                        title: 'Login Sistem',
+                                        desc: 'Daftarkan diri Anda ke dalam sistem klinik INDEPTH.',
                                         icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
                                     },
                                     {
-                                        title: 'Sesi Privat',
-                                        desc: 'Proses transformasi mendalam maksimal 2 jam dengan ahli kami.',
+                                        title: 'Booking Jadwal',
+                                        desc: 'Pilih program (Reguler, Premium, VIP) dan tentukan jadwal sesi.',
                                         icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     },
                                     {
-                                        title: 'Evaluasi Hasil',
+                                        title: 'Pembayaran',
                                         desc: 'Setiap sesi diakhiri dengan pengukuran dampak yang terukur dan nyata.',
                                         icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     }
@@ -610,15 +612,15 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         <div className="bg-white/40 dark:bg-gray-800/20 backdrop-blur-xl p-10 md:p-12 rounded-[3.5rem] border border-white/60 dark:border-gray-700/50 shadow-2xl relative overflow-hidden group hover:shadow-gold-500/10 transition-all duration-700 mt-8 md:mt-24">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-400/10 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-125 duration-700 pointer-events-none"></div>
 
-                            <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Target Klien</h2>
+                            <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Siapa yang Cocok</h2>
                             <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-10 tracking-tight">Siapa yang Cocok Datang?</h3>
 
                             <ul className="space-y-6 relative z-10">
                                 {[
-                                    { text: 'Profesional dengan tekanan tinggi', icon: '💼' },
-                                    { text: 'Individu yang menginginkan perubahan cepat', icon: '⚡' },
-                                    { text: 'Klien yang menghargai privasi & struktur', icon: '🔒' },
-                                    { text: 'Individu yang siap menjalani proses serius', icon: '🤝' }
+                                    { text: 'Individu dengan pikiran yang terus-menerus mengganggu', icon: '🧠' },
+                                    { text: 'Mereka yang ingin menyelesaikan kondisi dalam satu sesi terarah', icon: '🎯' },
+                                    { text: 'Klien yang menghargai privasi dan proses yang terstruktur', icon: '🔒' },
+                                    { text: 'Individu dengan keluhan fisik yang berakar dari faktor psikologis', icon: '💆' }
                                 ].map((item, idx) => (
                                     <li key={idx} className="flex items-center gap-5 p-5 bg-white/60 dark:bg-gray-800/40 backdrop-blur-md rounded-[2rem] border border-white/50 dark:border-gray-700/50 shadow-sm hover:shadow-lg hover:-translate-x-1 transition-all duration-300">
                                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-500/10 to-gold-600/5 flex items-center justify-center text-2xl shrink-0 border border-gold-500/10 group-hover:bg-gold-500/20 transition-colors">
@@ -638,13 +640,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
             <div className="py-20 relative z-10 bg-white/30 dark:bg-gray-900/20 backdrop-blur-lg border-y border-white/50 dark:border-gray-800/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Kisah Nyata</h2>
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Testimoni</h2>
                         <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                            Apa Kata Klien Kami
+                            Testimoni
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {/* Testimonial 1 */}
                         <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative group overflow-hidden">
                             <div className="absolute top-0 right-0 w-24 h-24 bg-gold-400/5 rounded-bl-full pointer-events-none"></div>
@@ -655,13 +657,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             </div>
                             <div className="relative">
                                 <svg className="absolute -top-4 -left-4 w-10 h-10 text-gold-500/10" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V15M14.017 21H7.01701V15L7.01701 14C7.01701 11.2386 9.25559 9 12.017 9V11C10.3599 11 9.01701 12.3431 9.01701 14V15H12.017C13.1216 15 14.017 15.8954 14.017 17V21H14.017Z" /></svg>
-                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Setelah bertahun-tahun mengalami serangan panik, metode Supreme Trance InDepth benar-benar memberikan kendali penuh pada pikiran saya. Saya kembali produktif dalam 2 sesi."</p>
+                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Saya mengalami overthinking setiap malam sampai sulit tidur. Pikiran terus berjalan dan sulit berhenti. Dalam satu sesi Reguler, kondisi tersebut dituntaskan dan tidur kembali normal."</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">A</div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Andi S.</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Pengusaha</p>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">A.S.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Klien Reguler</p>
                                 </div>
                             </div>
                         </div>
@@ -676,13 +678,13 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             </div>
                             <div className="relative">
                                 <svg className="absolute -top-4 -left-4 w-10 h-10 text-gold-500/10" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V15M14.017 21H7.01701V15L7.01701 14C7.01701 11.2386 9.25559 9 12.017 9V11C10.3599 11 9.01701 12.3431 9.01701 14V15H12.017C13.1216 15 14.017 15.8954 14.017 17V21H14.017Z" /></svg>
-                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Paket Premium membantu saya merobohkan mental block dalam hal finansial. Pendekatan NLP-nya luar biasa praktis dan terstruktur. Terima kasih InDepth!"</p>
+                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Saya memiliki kebiasaan menunda pekerjaan setiap hari. Setiap mulai kerja, fokus langsung hilang. Setelah sesi Reguler, pola tersebut dituntaskan dan pekerjaan selesai tepat waktu."</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">M</div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">Maya P.</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Eksekutif Muda</p>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">M.P.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Klien Reguler</p>
                                 </div>
                             </div>
                         </div>
@@ -697,13 +699,34 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                             </div>
                             <div className="relative">
                                 <svg className="absolute -top-4 -left-4 w-10 h-10 text-gold-500/10" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V15M14.017 21H7.01701V15L7.01701 14C7.01701 11.2386 9.25559 9 12.017 9V11C10.3599 11 9.01701 12.3431 9.01701 14V15H12.017C13.1216 15 14.017 15.8954 14.017 17V21H14.017Z" /></svg>
-                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Saya ambil Paket VIP untuk kasus trauma masa kecil yang kompleks. Pendampingannya sangat eksklusif. Saya menemukan hidup baru di sini."</p>
+                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Saya mengalami nyeri dada saat stres yang muncul berulang. Pemeriksaan medis sudah dilakukan dan kondisi ini terus muncul. Setelah sesi VIP, pola tersebut dituntaskan dan aktivitas kembali berjalan normal."</p>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">D</div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">dr. Dimas</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Tenaga Medis</p>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">D.R.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Klien VIP</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Testimonial 4 */}
+                        <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative group overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-gold-400/5 rounded-bl-full pointer-events-none"></div>
+                            <div className="flex text-gold-500 mb-6">
+                                {[...Array(5)].map((_, i) => (
+                                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                ))}
+                            </div>
+                            <div className="relative">
+                                <svg className="absolute -top-4 -left-4 w-10 h-10 text-gold-500/10" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V15M14.017 21H7.01701V15L7.01701 14C7.01701 11.2386 9.25559 9 12.017 9V11C10.3599 11 9.01701 12.3431 9.01701 14V15H12.017C13.1216 15 14.017 15.8954 14.017 17V21H14.017Z" /></svg>
+                                <p className="text-gray-700 dark:text-gray-300 italic mb-8 text-lg leading-relaxed relative z-10">"Saya mengalami halusinasi yang muncul pada situasi tertentu dan mengganggu aktivitas. Setelah sesi VIP, pola tersebut dituntaskan dan kondisi menjadi stabil."</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-400 to-yellow-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">H</div>
+                                <div>
+                                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">H.W.</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">Klien VIP</p>
                                 </div>
                             </div>
                         </div>
@@ -774,6 +797,47 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                 <VisionMissionSection />
             </Suspense>
 
+            {/* FAQ Section */}
+            <div className="py-24 relative z-10 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase">Pertanyaan Umum</h2>
+                        <p className="mt-2 text-3xl leading-8 font-black tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                            FAQ Hipnoterapi Semarang
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        {[
+                            {
+                                q: 'Apa itu hipnoterapi di INDEPTH?',
+                                a: 'Hipnoterapi di INDEPTH menggunakan hipnosis dan trance untuk mengakses serta menata ulang program bawah sadar secara terarah.'
+                            },
+                            {
+                                q: 'Apakah cukup satu sesi?',
+                                a: 'Pendekatan difokuskan pada hasil yang dituntaskan dalam satu sesi.'
+                            },
+                            {
+                                q: 'Bagaimana prosesnya?',
+                                a: 'Proses berlangsung dalam kondisi sadar dengan hipnosis dan trance secara terarah.'
+                            },
+                            {
+                                q: 'Apakah cocok untuk kondisi berat seperti psikosomatis atau halusinasi?',
+                                a: 'Tersedia layanan VIP untuk kondisi tersebut dengan pendekatan terfokus.'
+                            },
+                            {
+                                q: 'Bagaimana cara mulai?',
+                                a: 'Mulai melalui konsultasi WhatsApp untuk screening dan penjadwalan.'
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 shadow-sm">
+                                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{item.q}</h3>
+                                <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{item.a}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             {/* CTA Section (Refined Glass Variant) */}
             <div className="relative mt-20 z-10">
                 <div className="relative max-w-5xl mx-auto py-24 px-4 sm:px-6 lg:px-8 text-center rounded-[3rem] border border-gold-500/20 dark:border-gray-800 bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl shadow-xl overflow-hidden my-12">
@@ -782,15 +846,15 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     <div className="absolute -top-[50%] -left-[10%] w-[120%] h-[100%] bg-gradient-to-b from-gold-500/5 to-transparent blur-2xl transform -rotate-6 pointer-events-none"></div>
 
                     <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 text-gray-900 dark:text-white relative z-10">
-                        Siap Melangkah Maju?
+                        Tuntaskan dalam Satu Sesi
                     </h2>
                     <p className="text-xl opacity-90 mb-10 text-gray-600 dark:text-gray-300 mx-auto max-w-2xl font-light relative z-10">
-                        Bergabunglah dengan ratusan klien sukses lainnya. Proses perubahan dimulai dari satu keputusan kecil hari ini.
+                        Kami menawarkan solusi untuk menuntaskannya melalui pemrograman bawah sadar secara terarah dalam satu sesi.
                     </p>
-                    <Link href="/register" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
-                        Jadwalkan Konsultasi
+                    <a href="https://wa.me/6282220800034?text=Halo%20INDEPTH%2C%20saya%20ingin%20konsultasi" target="_blank" rel="noopener noreferrer" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
+                        Konsultasi via WhatsApp sekarang
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </Link>
+                    </a>
                 </div>
             </div >
 
