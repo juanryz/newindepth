@@ -168,7 +168,7 @@ export default function LayananReguler({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi Reguler Semarang — Mengatasi Overthinking, Kecemasan, dan Kebiasaan Buruk | INDEPTH" />
+            <Head title="Hipnoterapi Reguler Semarang — Mengatasi Overthinking, Kecemasan, dan Kebiasaan Buruk | InDepth" />
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 
@@ -211,9 +211,9 @@ export default function LayananReguler({ auth, packages = [] }) {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div {...fadeUp(0)}>
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Tentang Layanan</h2>
-                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight">Layanan Reguler INDEPTH Klinik</h3>
+                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight">Layanan Reguler InDepth Klinik</h3>
                         <div className="space-y-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-                            <p>INDEPTH Klinik Hipnoterapi Semarang menyediakan layanan Reguler untuk membantu Anda menuntaskan masalah pikiran, emosi, dan perilaku.</p>
+                            <p>InDepth Klinik Hipnoterapi Semarang menyediakan layanan Reguler untuk membantu Anda menuntaskan masalah pikiran, emosi, dan perilaku.</p>
                             <p>Pendekatan menggunakan hipnosis dan trance untuk memprogram ulang bawah sadar secara terarah dalam satu sesi.</p>
                         </div>
                     </motion.div>
@@ -292,10 +292,10 @@ export default function LayananReguler({ auth, packages = [] }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
                         <motion.div {...fadeUp(0)}>
                             <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Metode</h2>
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8">Pendekatan INDEPTH</h3>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8">Pendekatan InDepth</h3>
                             <div className="space-y-4">
                                 {[
-                                    'Pendekatan INDEPTH mengakses bawah sadar Anda.',
+                                    'Pendekatan InDepth mengakses bawah sadar Anda.',
                                     'Memprogram ulang program bawah sadar menjadi lebih tepat dan terarah.',
                                     'Mengintegrasikan perubahan ke seluruh sistem tubuh Anda.',
                                     'Menuntaskan hasil dan mengevaluasinya langsung dalam satu sesi.',

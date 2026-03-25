@@ -10,7 +10,7 @@ export default function MethodsIndex({ auth }) {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="Metodologi INDEPTH — Akses Unconscious, Kecerdasan Tubuh, dan Pemrograman Ulang Sistem Internal" />
+            <Head title="Metodologi InDepth — Akses Unconscious, Kecerdasan Tubuh, dan Pemrograman Ulang Sistem Internal" />
 
             {/* Premium Liquid Background */}
             <LiquidBackground />
@@ -25,17 +25,17 @@ export default function MethodsIndex({ auth }) {
                         Metode Eksklusif
                     </span>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight mb-8">
-                        Metodologi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">INDEPTH</span>
+                        Metodologi <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">InDepth</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-200 font-medium leading-relaxed mb-4">
                         Akses Unconscious, Kecerdasan Tubuh, dan Pemrograman Ulang Sistem Internal
                     </p>
                     <p className="text-lg text-gray-600 dark:text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
-                        INDEPTH Klinik menggunakan pendekatan hipnosis dan trance untuk mengakses unconscious, yaitu lapisan terdalam dari sistem bawah sadar manusia.
+                        InDepth Klinik menggunakan pendekatan hipnosis dan trance untuk mengakses unconscious, yaitu lapisan terdalam dari sistem bawah sadar manusia.
                     </p>
                 </div>
 
-                {/* Pendekatan INDEPTH */}
+                {/* Pendekatan InDepth */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -45,11 +45,11 @@ export default function MethodsIndex({ auth }) {
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-gold-500/5 via-transparent to-transparent"></div>
                     <div className="relative z-10 max-w-3xl mx-auto">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">Pendekatan INDEPTH Klinik Hipnoterapi Semarang</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">Pendekatan InDepth Klinik Hipnoterapi Semarang</h2>
                         <div className="space-y-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                            <p>INDEPTH Klinik menggunakan pendekatan hipnosis dan trance untuk mengakses <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>, yaitu lapisan terdalam dari sistem bawah sadar manusia.</p>
+                            <p>InDepth Klinik menggunakan pendekatan hipnosis dan trance untuk mengakses <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>, yaitu lapisan terdalam dari sistem bawah sadar manusia.</p>
                             <p>Pada lapisan ini terdapat kecerdasan tubuh yang mengelola seluruh fungsi organ, respons fisik, dan pola internal yang berjalan secara otomatis.</p>
-                            <p>Pendekatan INDEPTH difokuskan pada akses langsung ke sistem ini untuk memprogram ulang pola yang berjalan dan mengarahkan perubahan hingga ke level fisik.</p>
+                            <p>Pendekatan InDepth difokuskan pada akses langsung ke sistem ini untuk memprogram ulang pola yang berjalan dan mengarahkan perubahan hingga ke level fisik.</p>
                         </div>
                     </div>
                 </motion.div>
@@ -67,19 +67,19 @@ export default function MethodsIndex({ auth }) {
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
                             Eksklusif
                         </div>
-                        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-4">Metode Eksklusif INDEPTH</h2>
+                        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-4">Metode Eksklusif InDepth</h2>
                         <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                            Seluruh metode yang digunakan dalam INDEPTH Klinik dikembangkan secara khusus oleh tim INDEPTH Mental Wellness. Metode ini dirancang sebagai sistem terintegrasi dan digunakan secara konsisten dalam:
+                            Seluruh metode yang digunakan dalam InDepth Klinik dikembangkan secara khusus oleh tim InDepth Mental Wellness. Metode ini dirancang sebagai sistem terintegrasi dan digunakan secara konsisten dalam:
                         </p>
                         <ul className="space-y-3 mb-6">
-                            {['INDEPTH Klinik', 'INDEPTH Academy'].map((item, i) => (
+                            {['InDepth Klinik', 'InDepth Academy'].map((item, i) => (
                                 <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
                                     <div className="w-2 h-2 rounded-full bg-gold-500 shrink-0"></div>
                                     {item}
                                 </li>
                             ))}
                         </ul>
-                        <p className="text-sm text-gold-600 dark:text-gold-400 font-bold italic">Pendekatan ini digunakan secara eksklusif dalam sistem INDEPTH.</p>
+                        <p className="text-sm text-gold-600 dark:text-gold-400 font-bold italic">Pendekatan ini digunakan secara eksklusif dalam sistem InDepth.</p>
                     </motion.div>
 
                     <motion.div
@@ -95,7 +95,7 @@ export default function MethodsIndex({ auth }) {
                         </div>
                         <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-4">Perbedaan dengan Hipnosis Umum</h2>
                         <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                            Hipnosis umum bekerja pada level bawah sadar yang berkaitan dengan gelombang pikiran seperti alpha dan theta. Pendekatan INDEPTH bekerja lebih dalam, yaitu pada level <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>.
+                            Hipnosis umum bekerja pada level bawah sadar yang berkaitan dengan gelombang pikiran seperti alpha dan theta. Pendekatan InDepth bekerja lebih dalam, yaitu pada level <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>.
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-widest mb-3">Pada level ini:</p>
                         <ul className="space-y-3 mb-4">
@@ -116,7 +116,7 @@ export default function MethodsIndex({ auth }) {
 
                 {/* Methods Stack */}
                 <div className="space-y-24 mb-32">
-                    {/* Method 1: INDEPTH TRANCE */}
+                    {/* Method 1: InDepth TRANCE */}
                     <motion.div
                         id="indepth-trance"
                         initial={{ opacity: 0, x: -50 }}
@@ -130,11 +130,11 @@ export default function MethodsIndex({ auth }) {
                                 <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
                                 Pilar Pertama
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">INDEPTH TRANCE</h2>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">InDepth TRANCE</h2>
                             <p className="text-xl text-gold-600 dark:text-gold-400 font-medium mb-6">Akses ke Unconscious dan Kecerdasan Tubuh</p>
 
                             <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                                INDEPTH TRANCE adalah kondisi untuk berkomunikasi langsung dengan unconscious, termasuk kecerdasan tubuh (somatic mind).
+                                InDepth TRANCE adalah kondisi untuk berkomunikasi langsung dengan unconscious, termasuk kecerdasan tubuh (somatic mind).
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -186,7 +186,7 @@ export default function MethodsIndex({ auth }) {
                                     href={route('methods.indepth-trance')}
                                     className="inline-flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold hover:gap-4 transition-all"
                                 >
-                                    Baca selengkapnya tentang INDEPTH TRANCE <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                    Baca selengkapnya tentang InDepth TRANCE <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </Link>
                             </div>
                         </div>
@@ -194,7 +194,7 @@ export default function MethodsIndex({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/20 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.15)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gold-500/20 blur-[100px] rounded-full group-hover:bg-gold-500/30 transition-colors duration-700"></div>
-                                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" alt="INDEPTH TRANCE" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
+                                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop" alt="InDepth TRANCE" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                     </motion.div>
@@ -277,7 +277,7 @@ export default function MethodsIndex({ auth }) {
                         </div>
                     </motion.div>
 
-                    {/* Method 3: INDEPTH SOLUTION */}
+                    {/* Method 3: InDepth SOLUTION */}
                     <motion.div
                         id="indepth-solution"
                         initial={{ opacity: 0, y: 50 }}
@@ -291,14 +291,14 @@ export default function MethodsIndex({ auth }) {
                                 <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
                                 Pilar Ketiga
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">INDEPTH SOLUTION</h2>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">InDepth SOLUTION</h2>
                             <p className="text-xl text-gold-600 dark:text-gold-400 font-medium mb-6">Komunikasi dengan Kesadaran Tubuh</p>
 
                             <p className="text-gray-600 dark:text-gray-300 mb-2 leading-relaxed">
-                                INDEPTH SOLUTION adalah metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious.
+                                InDepth SOLUTION adalah metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious.
                             </p>
                             <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                                Metode ini dilakukan dalam kondisi INDEPTH TRANCE.
+                                Metode ini dilakukan dalam kondisi InDepth TRANCE.
                             </p>
 
                             <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-[32px] backdrop-saturate-[180%] rounded-[2.5rem] p-6 border border-white/40 dark:border-white/10 shadow-[inner_0_1px_1px_rgba(255,255,255,0.15)] mb-8">
@@ -349,7 +349,7 @@ export default function MethodsIndex({ auth }) {
                                     href={route('methods.indepth-solution')}
                                     className="inline-flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold hover:gap-4 transition-all"
                                 >
-                                    Baca selengkapnya tentang INDEPTH SOLUTION <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                    Baca selengkapnya tentang InDepth SOLUTION <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </Link>
                             </div>
                         </div>
@@ -357,7 +357,7 @@ export default function MethodsIndex({ auth }) {
                             <div className="relative aspect-square lg:aspect-[4/3] rounded-[3rem] bg-gradient-to-tr from-gold-500/20 to-transparent border border-gold-500/30 overflow-hidden flex items-center justify-center group-hover:shadow-[0_20px_60px_rgba(208,170,33,0.2)] transition-all duration-700">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/connected.png')] opacity-15"></div>
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-gold-400/20 dark:bg-gold-500/20 blur-[120px] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
-                                <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800&auto=format&fit=crop" alt="INDEPTH SOLUTION" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
+                                <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800&auto=format&fit=crop" alt="InDepth SOLUTION" className="relative z-10 w-full h-full object-cover rounded-[3rem] transform group-hover:scale-105 transition-transform duration-700 shadow-2xl" />
                             </div>
                         </div>
                     </motion.div>
@@ -373,12 +373,12 @@ export default function MethodsIndex({ auth }) {
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-gold-500/5 via-transparent to-transparent"></div>
                     <div className="relative z-10">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10 text-center">Alur Proses Metodologi INDEPTH</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-10 text-center">Alur Proses Metodologi InDepth</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                             {[
-                                'Akses unconscious melalui INDEPTH TRANCE',
+                                'Akses unconscious melalui InDepth TRANCE',
                                 'Identifikasi pola internal',
-                                'Penggalian solusi melalui INDEPTH SOLUTION',
+                                'Penggalian solusi melalui InDepth SOLUTION',
                                 'Pemrograman ulang sistem bawah sadar',
                                 'Integrasi ke sistem tubuh',
                                 'Evaluasi dalam sesi',
@@ -403,8 +403,8 @@ export default function MethodsIndex({ auth }) {
                     className="mb-24"
                 >
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Sertifikasi Praktisi INDEPTH Klinik</h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-400">Seluruh hipnoterapis di INDEPTH Klinik menjalani sertifikasi berjenjang melalui INDEPTH Academy.</p>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Sertifikasi Praktisi InDepth Klinik</h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-400">Seluruh hipnoterapis di InDepth Klinik menjalani sertifikasi berjenjang melalui InDepth Academy.</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
@@ -417,7 +417,7 @@ export default function MethodsIndex({ auth }) {
                                 textColor: 'text-blue-600 dark:text-blue-400',
                             },
                             {
-                                level: 'Junior Hypnotherapist',
+                                level: 'Hipnoterapi Junior',
                                 items: ['Program lanjutan 6 hari', 'Minimal 20 sesi praktik'],
                                 note: 'Menangani layanan Reguler dan Premium dengan cakupan lebih luas.',
                                 color: 'border-gold-500/30 bg-gold-500/5',
@@ -425,7 +425,7 @@ export default function MethodsIndex({ auth }) {
                                 textColor: 'text-gold-600 dark:text-gold-400',
                             },
                             {
-                                level: 'Senior Hypnotherapist',
+                                level: 'Hipnoterapi Senior',
                                 items: ['Program lanjutan 6 hari', 'Minimal 20 sesi praktik'],
                                 note: 'Menangani seluruh layanan termasuk VIP.',
                                 color: 'border-purple-500/30 bg-purple-500/5',
@@ -434,7 +434,7 @@ export default function MethodsIndex({ auth }) {
                             },
                             {
                                 level: 'Spesialis',
-                                items: ['Level tertinggi dalam sertifikasi INDEPTH'],
+                                items: ['Level tertinggi dalam sertifikasi InDepth'],
                                 note: 'Menangani seluruh jenis kasus dengan pendekatan mendalam.',
                                 color: 'border-red-500/30 bg-red-500/5',
                                 dotColor: 'bg-red-500',
@@ -461,9 +461,9 @@ export default function MethodsIndex({ auth }) {
                     <div className="mt-8 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 shadow-lg max-w-2xl mx-auto">
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Penegasan</p>
                         <ul className="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>Reguler & Premium → Praktisi dan Junior Hypnotherapist</li>
-                            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>VIP → Senior Hypnotherapist dan Spesialis</li>
-                            <li className="flex items-start gap-2 text-gold-600 dark:text-gold-400"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>Senior Hypnotherapist dan Spesialis memiliki cakupan penuh untuk seluruh layanan.</li>
+                            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>Reguler & Premium → Praktisi dan Hipnoterapi Junior</li>
+                            <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>VIP → Hipnoterapi Senior dan Spesialis</li>
+                            <li className="flex items-start gap-2 text-gold-600 dark:text-gold-400"><div className="w-1.5 h-1.5 rounded-full bg-gold-500 mt-1.5 shrink-0"></div>Hipnoterapi Senior dan Spesialis memiliki cakupan penuh untuk seluruh layanan.</li>
                         </ul>
                     </div>
                 </motion.div>
@@ -477,15 +477,15 @@ export default function MethodsIndex({ auth }) {
                     className="mb-24 max-w-3xl mx-auto"
                 >
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">FAQ Metodologi INDEPTH</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">FAQ Metodologi InDepth</h2>
                     </div>
                     <div className="space-y-4">
                         {[
                             { q: 'Apa itu trance?', a: 'Trance adalah kondisi fokus terarah untuk mengakses bawah sadar.' },
                             { q: 'Apakah tetap sadar selama proses?', a: 'Klien tetap dapat memberikan respons selama proses berlangsung.' },
                             { q: 'Apa itu unconscious?', a: 'Unconscious adalah lapisan terdalam dari sistem bawah sadar yang mengelola fungsi tubuh.' },
-                            { q: 'Apa itu INDEPTH SOLUTION?', a: 'Metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious.' },
-                            { q: 'Apakah metode ini sama dengan hipnosis biasa?', a: 'Pendekatan INDEPTH bekerja pada level yang lebih dalam dibanding hipnosis umum.' },
+                            { q: 'Apa itu InDepth SOLUTION?', a: 'Metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious.' },
+                            { q: 'Apakah metode ini sama dengan hipnosis biasa?', a: 'Pendekatan InDepth bekerja pada level yang lebih dalam dibanding hipnosis umum.' },
                         ].map((item, i) => (
                             <div key={i} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 shadow-lg hover:shadow-xl transition-all duration-300">
                                 <p className="font-black text-gray-900 dark:text-white mb-2 flex items-start gap-3">
@@ -505,11 +505,11 @@ export default function MethodsIndex({ auth }) {
 
                     <div className="relative p-12 md:p-20 text-center max-w-4xl mx-auto">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6">
-                            Metodologi INDEPTH
+                            Metodologi InDepth
                         </h2>
                         <div className="space-y-3 text-lg text-gray-400 font-light mb-10 max-w-2xl mx-auto">
-                            <p>Metodologi INDEPTH dirancang untuk mengakses sistem terdalam dalam diri manusia dan mengarahkan perubahan secara spesifik.</p>
-                            <p>Seluruh metode dikembangkan oleh tim INDEPTH Mental Wellness dan digunakan secara terintegrasi dalam sistem INDEPTH.</p>
+                            <p>Metodologi InDepth dirancang untuk mengakses sistem terdalam dalam diri manusia dan mengarahkan perubahan secara spesifik.</p>
+                            <p>Seluruh metode dikembangkan oleh tim InDepth Mental Wellness dan digunakan secara terintegrasi dalam sistem InDepth.</p>
                             <p>Proses dilakukan melalui pemrograman ulang bawah sadar dan integrasi ke sistem tubuh dalam satu sesi.</p>
                         </div>
                         <a href="https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi" target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-8 py-4 rounded-full font-bold text-gray-900 bg-gradient-to-r from-gold-400 to-yellow-400 hover:from-gold-300 hover:to-yellow-300 shadow-[0_0_20px_rgba(208,170,33,0.3)] hover:shadow-[0_0_30px_rgba(208,170,33,0.5)] hover:-translate-y-1 transition-all duration-300 ring-2 ring-gold-500/50 ring-offset-2 ring-offset-black">

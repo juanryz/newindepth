@@ -882,6 +882,15 @@ Route::get('/testimoni', function () {
     return Inertia::render('Testimonials/Index');
 })->name('testimonials.index');
 
+// Public Tentang Kami Route
+Route::get('/tentangkami', function () {
+    return Inertia::render('TentangKami');
+})->name('tentangkami');
+
+Route::get('/kontak', function () {
+    return Inertia::render('KontakKami');
+})->name('kontak');
+
 // Public Methods Route
 Route::get('/metode', function () {
     return Inertia::render('Methods/Index');

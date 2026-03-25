@@ -289,7 +289,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                                         </div>
                                                         <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-800/30 rounded-2xl">
                                                             <p className="text-[9px] font-black text-indigo-600 uppercase mb-1">Sistem Booking</p>
-                                                            <p className="text-xs font-black text-indigo-700 dark:text-indigo-400">INDEPTH CLOUD v3</p>
+                                                            <p className="text-xs font-black text-indigo-700 dark:text-indigo-400">InDepth CLOUD v3</p>
                                                         </div>
                                                     </div>
                                                 </div>

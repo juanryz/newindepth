@@ -137,7 +137,7 @@ export default function LayananVip({ auth, packages = [] }) {
 
     const faqItems = [
         { q: 'Siapa yang cocok menggunakan layanan VIP?', a: 'Layanan ini digunakan untuk kondisi yang melibatkan tubuh secara langsung dan berlangsung berulang dalam intensitas tinggi.' },
-        { q: 'Apa itu INDEPTH SOLUTION?', a: 'Metode untuk mengakses kesadaran tubuh dan menemukan solusi yang sesuai dengan kondisi personal.' },
+        { q: 'Apa itu InDepth SOLUTION?', a: 'Metode untuk mengakses kesadaran tubuh dan menemukan solusi yang sesuai dengan kondisi personal.' },
         { q: 'Apakah kondisi yang sudah lama bisa ditangani?', a: 'Pendekatan difokuskan pada kondisi yang berlangsung dalam jangka panjang dan berulang.' },
         { q: 'Bagaimana cara mulai?', a: 'Mulai melalui konsultasi WhatsApp untuk proses screening dan penjadwalan.' },
     ];
@@ -145,7 +145,7 @@ export default function LayananVip({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi VIP Semarang — Psikosomatis, Medis Kronis, Halusinasi | INDEPTH" />
+            <Head title="Hipnoterapi VIP Semarang — Psikosomatis, Medis Kronis, Halusinasi | InDepth" />
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 
@@ -189,9 +189,9 @@ export default function LayananVip({ auth, packages = [] }) {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div {...fadeUp(0)}>
                         <h2 className="text-base font-semibold text-gold-400 tracking-wide uppercase mb-2">Tentang Layanan</h2>
-                        <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">Layanan VIP INDEPTH Klinik</h3>
+                        <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">Layanan VIP InDepth Klinik</h3>
                         <div className="space-y-4 text-lg text-gray-300 leading-relaxed font-medium">
-                            <p>INDEPTH Klinik Hipnoterapi Semarang menyediakan layanan VIP untuk kondisi yang berkaitan dengan tubuh, sistem internal, dan pengalaman persepsi yang mengganggu aktivitas harian.</p>
+                            <p>InDepth Klinik Hipnoterapi Semarang menyediakan layanan VIP untuk kondisi yang berkaitan dengan tubuh, sistem internal, dan pengalaman persepsi yang mengganggu aktivitas harian.</p>
                             <p>Layanan ini digunakan saat kondisi sudah berada pada tingkat berat, berulang, dan berlangsung dalam durasi panjang.</p>
                             <p>Pendekatan menggunakan hipnosis dan trance untuk mengakses serta memprogram ulang sistem bawah sadar secara terarah dalam satu sesi.</p>
                         </div>
@@ -225,8 +225,8 @@ export default function LayananVip({ auth, packages = [] }) {
                         </motion.div>
 
                         <motion.div {...fadeUp(0.1)} className="bg-gradient-to-br from-red-900/20 to-black/40 border border-red-500/20 rounded-[2.5rem] p-8 shadow-xl backdrop-blur-xl">
-                            <h4 className="font-black text-white text-xl mb-6">Metode Utama — INDEPTH SOLUTION</h4>
-                            <p className="text-gray-300 font-medium mb-6">INDEPTH menggunakan metode INDEPTH SOLUTION. Metode ini membawa Anda masuk ke komunikasi dengan kesadaran tubuh hingga level seluler.</p>
+                            <h4 className="font-black text-white text-xl mb-6">Metode Utama — InDepth SOLUTION</h4>
+                            <p className="text-gray-300 font-medium mb-6">InDepth menggunakan metode InDepth SOLUTION. Metode ini membawa Anda masuk ke komunikasi dengan kesadaran tubuh hingga level seluler.</p>
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3">Mekanisme</p>
@@ -475,7 +475,7 @@ export default function LayananVip({ auth, packages = [] }) {
                                 Setiap tubuh memiliki pola dan arah solusi yang spesifik.
                             </p>
                             <p className="text-lg text-gray-300 mb-10 leading-relaxed">
-                                INDEPTH membantu Anda mengakses dan menjalankannya melalui pemrograman bawah sadar secara terarah.
+                                InDepth membantu Anda mengakses dan menjalankannya melalui pemrograman bawah sadar secara terarah.
                             </p>
                             <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
                                 className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-base shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:shadow-[0_8px_25px_rgba(34,197,94,0.4)] hover:-translate-y-1 transition-all duration-300 border border-green-400/40">

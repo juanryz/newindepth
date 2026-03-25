@@ -8,7 +8,7 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function IndepthTrance({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="INDEPTH TRANCE — Akses Unconscious dan Kecerdasan Tubuh" />
+            <Head title="InDepth TRANCE — Akses Unconscious dan Kecerdasan Tubuh" />
 
             <LiquidBackground />
             <Navbar auth={auth} active="methods" />
@@ -23,7 +23,7 @@ export default function IndepthTrance({ auth }) {
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold mb-6"
                         >
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
-                            Pilar Pertama Sistem Metodologis INDEPTH
+                            Pilar Pertama Sistem Metodologis InDepth
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
@@ -31,7 +31,7 @@ export default function IndepthTrance({ auth }) {
                             transition={{ delay: 0.1 }}
                             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6"
                         >
-                            INDEPTH <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">TRANCE</span>
+                            InDepth <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">TRANCE</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -59,13 +59,13 @@ export default function IndepthTrance({ auth }) {
                         >
                             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-6 relative z-10">
-                                <strong>INDEPTH TRANCE</strong> adalah kondisi untuk berkomunikasi langsung dengan unconscious, termasuk kecerdasan tubuh yang mengelola fungsi organ, respons fisik, dan pola internal yang berjalan secara otomatis.
+                                <strong>InDepth TRANCE</strong> adalah kondisi untuk berkomunikasi langsung dengan unconscious, termasuk kecerdasan tubuh yang mengelola fungsi organ, respons fisik, dan pola internal yang berjalan secara otomatis.
                             </p>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 relative z-10">
-                                Melalui kondisi ini, sistem tubuh dapat diakses dan diarahkan secara langsung — berbeda dengan hipnosis umum yang bekerja pada level gelombang pikiran seperti alpha dan theta. INDEPTH TRANCE bekerja pada level <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>.
+                                Melalui kondisi ini, sistem tubuh dapat diakses dan diarahkan secara langsung — berbeda dengan hipnosis umum yang bekerja pada level gelombang pikiran seperti alpha dan theta. InDepth TRANCE bekerja pada level <strong className="text-gold-600 dark:text-gold-400">unconscious</strong>.
                             </p>
                             <p className="text-lg text-gold-600 dark:text-gold-400 leading-relaxed relative z-10 font-bold italic">
-                                Pendekatan ini menjadi fondasi utama dalam metodologi INDEPTH.
+                                Pendekatan ini menjadi fondasi utama dalam metodologi InDepth.
                             </p>
                         </motion.div>
 
@@ -73,12 +73,12 @@ export default function IndepthTrance({ auth }) {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                             <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[2.5rem] p-8">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Posisi Dalam Hierarki Metode</h3>
-                                <p className="text-gray-600 dark:text-gray-400 mb-6 font-medium">Sistem INDEPTH bekerja dalam tiga lapisan:</p>
+                                <p className="text-gray-600 dark:text-gray-400 mb-6 font-medium">Sistem InDepth bekerja dalam tiga lapisan:</p>
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-4 bg-gold-500/20 border border-gold-500/30 p-5 rounded-3xl shadow-lg ring-1 ring-gold-500/20">
                                         <div className="w-10 h-10 rounded-full bg-gold-500 flex items-center justify-center text-white font-black shrink-0 shadow-xl">1</div>
                                         <div>
-                                            <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-tight">INDEPTH TRANCE</h4>
+                                            <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-tight">InDepth TRANCE</h4>
                                             <p className="text-sm font-bold text-gold-700 dark:text-gold-400">→ Akses ke unconscious dan kecerdasan tubuh</p>
                                         </div>
                                     </div>
@@ -92,7 +92,7 @@ export default function IndepthTrance({ auth }) {
                                     <div className="flex items-center gap-4 bg-white/20 dark:bg-black/20 border border-white/10 dark:border-white/5 p-4 rounded-2xl opacity-60">
                                         <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold shrink-0">3</div>
                                         <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white">INDEPTH SOLUTION</h4>
+                                            <h4 className="font-bold text-gray-900 dark:text-white">InDepth SOLUTION</h4>
                                             <p className="text-sm text-gray-500">→ Komunikasi dengan kecerdasan tubuh</p>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@ export default function IndepthTrance({ auth }) {
                             <div className="bg-gradient-to-br from-gray-950 to-gray-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl flex items-center border border-white/10">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-bl-full pointer-events-none"></div>
                                 <p className="text-xl md:text-2xl font-bold relative z-10 italic leading-snug text-gold-100">
-                                    "INDEPTH TRANCE adalah pintu masuk utama ke sistem metodologi INDEPTH Klinik."
+                                    "InDepth TRANCE adalah pintu masuk utama ke sistem metodologi InDepth Klinik."
                                 </p>
                             </div>
                         </div>
@@ -176,8 +176,8 @@ export default function IndepthTrance({ auth }) {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                             <div className="flex flex-col md:flex-row gap-12 items-center relative z-10">
                                 <div className="flex-1">
-                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Fungsi Utama INDEPTH TRANCE</h3>
-                                    <p className="text-xl font-bold text-gold-600 dark:text-gold-400 mb-6">INDEPTH TRANCE digunakan untuk:</p>
+                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Fungsi Utama InDepth TRANCE</h3>
+                                    <p className="text-xl font-bold text-gold-600 dark:text-gold-400 mb-6">InDepth TRANCE digunakan untuk:</p>
                                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {[
                                             "Mengakses unconscious secara langsung",
@@ -214,7 +214,7 @@ export default function IndepthTrance({ auth }) {
                                     },
                                     {
                                         title: "Dasar Metode Lanjutan",
-                                        items: ["fondasi sebelum INDEPTH SOLUTION", "fondasi sebelum SUPREME TRANCE", "digunakan di seluruh sesi Reguler"]
+                                        items: ["fondasi sebelum InDepth SOLUTION", "fondasi sebelum SUPREME TRANCE", "digunakan di seluruh sesi Reguler"]
                                     }
                                 ].map((group, i) => (
                                     <div key={i} className="p-8 bg-white/40 dark:bg-gray-900/60 rounded-[2.5rem] border border-white/40 dark:border-white/10 shadow-xl overflow-hidden group hover:bg-white transition-colors duration-500">
@@ -240,14 +240,14 @@ export default function IndepthTrance({ auth }) {
                         >
                             <div className="relative z-10 flex flex-col lg:flex-row gap-16 items-center">
                                 <div className="flex-1">
-                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Peran Dalam Metodologi INDEPTH</h3>
+                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Peran Dalam Metodologi InDepth</h3>
                                     <p className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-                                        INDEPTH TRANCE digunakan sebagai <strong className="text-gold-600 font-black">fondasi dalam seluruh metode INDEPTH</strong>. Seluruh proses di INDEPTH Klinik dimulai dari kondisi ini:
+                                        InDepth TRANCE digunakan sebagai <strong className="text-gold-600 font-black">fondasi dalam seluruh metode InDepth</strong>. Seluruh proses di InDepth Klinik dimulai dari kondisi ini:
                                     </p>
                                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                                         {[
                                             "digunakan dalam layanan Reguler",
-                                            "dasar untuk INDEPTH SOLUTION",
+                                            "dasar untuk InDepth SOLUTION",
                                             "dasar untuk SUPREME TRANCE",
                                             "dapat digunakan pada kondisi psikosomatis"
                                         ].map((text, i) => (
@@ -258,7 +258,7 @@ export default function IndepthTrance({ auth }) {
                                         ))}
                                     </ul>
                                     <p className="text-gray-600 dark:text-gray-400 italic font-medium leading-relaxed">
-                                        INDEPTH TRANCE menjadi <strong className="text-gold-600 dark:text-gold-400 font-black tracking-widest uppercase">pintu masuk</strong> ke proses INDEPTH SOLUTION dan kondisi lanjutan lainnya.
+                                        InDepth TRANCE menjadi <strong className="text-gold-600 dark:text-gold-400 font-black tracking-widest uppercase">pintu masuk</strong> ke proses InDepth SOLUTION dan kondisi lanjutan lainnya.
                                     </p>
                                 </div>
                                 <div className="w-full lg:w-2/5 flex flex-col gap-6">
@@ -266,7 +266,7 @@ export default function IndepthTrance({ auth }) {
                                         <h4 className="text-4xl font-black mb-4 tracking-tighter text-gold-500 drop-shadow-[0_0_20px_rgba(208,170,33,0.3)]">FONDASI</h4>
                                         <div className="flex items-center justify-center gap-2 mb-4">
                                             <span className="h-1 w-8 bg-gold-500/30 rounded-full"></span>
-                                            <p className="font-black text-white uppercase text-[10px] tracking-[0.3em] opacity-80">Metodologi INDEPTH</p>
+                                            <p className="font-black text-white uppercase text-[10px] tracking-[0.3em] opacity-80">Metodologi InDepth</p>
                                             <span className="h-1 w-8 bg-gold-500/30 rounded-full"></span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 mt-8">
@@ -294,18 +294,18 @@ export default function IndepthTrance({ auth }) {
                                 <div className="absolute inset-0 bg-gold-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <h3 className="text-2xl font-black mb-4 text-gold-500 uppercase tracking-tighter">Layanan VIP</h3>
                                 <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                                    Digunakan sebagai fondasi sebelum <Link href="/metode/indepth-solution" className="text-gold-400 hover:text-gold-300 underline decoration-2 underline-offset-4 font-black">INDEPTH SOLUTION</Link> untuk mengakses sistem tubuh dan kondisi psikosomatis.
+                                    Digunakan sebagai fondasi sebelum <Link href="/metode/indepth-solution" className="text-gold-400 hover:text-gold-300 underline decoration-2 underline-offset-4 font-black">InDepth SOLUTION</Link> untuk mengakses sistem tubuh dan kondisi psikosomatis.
                                 </p>
                             </div>
                         </div>
 
                         {/* FAQ */}
                         <div className="py-12">
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">FAQ INDEPTH TRANCE</h3>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">FAQ InDepth TRANCE</h3>
                             <div className="space-y-4">
                                 {[
-                                    { q: "Apa itu INDEPTH TRANCE?", a: "INDEPTH TRANCE adalah kondisi untuk mengakses unconscious dan berkomunikasi dengan kecerdasan tubuh." },
-                                    { q: "Apakah INDEPTH TRANCE sama dengan hipnosis biasa?", a: "INDEPTH TRANCE bekerja pada level unconscious yang lebih dalam dibanding hipnosis umum." },
+                                    { q: "Apa itu InDepth TRANCE?", a: "InDepth TRANCE adalah kondisi untuk mengakses unconscious dan berkomunikasi dengan kecerdasan tubuh." },
+                                    { q: "Apakah InDepth TRANCE sama dengan hipnosis biasa?", a: "InDepth TRANCE bekerja pada level unconscious yang lebih dalam dibanding hipnosis umum." },
                                     { q: "Apakah klien tetap sadar selama proses?", a: "Kesadaran bersifat dinamis. Klien tetap dapat memberikan respons selama proses berlangsung." },
                                     { q: "Apakah klien bisa berbicara?", a: "Sebagian klien dapat memberikan respons verbal. Sebagian menggunakan respons motorik." },
                                     { q: "Apa yang diakses dalam kondisi ini?", a: "Yang diakses adalah sistem unconscious dan kecerdasan tubuh yang mengelola fungsi organ dan pola internal." },
@@ -328,7 +328,7 @@ export default function IndepthTrance({ auth }) {
                                 ))}
                             </div>
                             <p className="text-xl md:text-2xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto font-medium leading-relaxed px-4">
-                                "INDEPTH TRANCE adalah akses langsung ke sistem terdalam manusia. Ini adalah fondasi seluruh metodologi INDEPTH."
+                                "InDepth TRANCE adalah akses langsung ke sistem terdalam manusia. Ini adalah fondasi seluruh metodologi InDepth."
                             </p>
                         </div>
 

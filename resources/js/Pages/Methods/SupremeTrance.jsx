@@ -23,7 +23,7 @@ export default function SupremeTrance({ auth }) {
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold mb-6"
                         >
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
-                            Pilar Kedua Sistem Metodologis INDEPTH
+                            Pilar Kedua Sistem Metodologis InDepth
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
@@ -59,7 +59,7 @@ export default function SupremeTrance({ auth }) {
                         >
                             <div className="absolute top-0 left-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl -ml-32 -mt-32"></div>
                             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-6 relative z-10 font-bold">
-                                SUPREME TRANCE adalah kondisi lanjutan dari INDEPTH TRANCE.
+                                SUPREME TRANCE adalah kondisi lanjutan dari InDepth TRANCE.
                             </p>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 relative z-10">
                                 Dalam kondisi ini, Anda mengakses <strong>unconscious</strong> sambil tetap sadar sepenuhnya dan mengendalikan proses secara langsung. Kondisi ini memungkinkan akses ke sistem terdalam tanpa kehilangan kesadaran.
@@ -73,12 +73,12 @@ export default function SupremeTrance({ auth }) {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                             <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[2.5rem] p-8">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Posisi Dalam Hierarki Metode</h3>
-                                <p className="text-gray-600 dark:text-gray-400 mb-6 font-medium">Sistem INDEPTH bekerja secara berlapis:</p>
+                                <p className="text-gray-600 dark:text-gray-400 mb-6 font-medium">Sistem InDepth bekerja secara berlapis:</p>
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-4 bg-white/20 dark:bg-black/20 border border-white/10 dark:border-white/5 p-4 rounded-2xl opacity-60">
                                         <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold shrink-0">1</div>
                                         <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white">INDEPTH TRANCE</h4>
+                                            <h4 className="font-bold text-gray-900 dark:text-white">InDepth TRANCE</h4>
                                             <p className="text-sm text-gray-500">→ Akses ke unconscious dan kecerdasan tubuh</p>
                                         </div>
                                     </div>
@@ -92,7 +92,7 @@ export default function SupremeTrance({ auth }) {
                                     <div className="flex items-center gap-4 bg-white/20 dark:bg-black/20 border border-white/10 dark:border-white/5 p-4 rounded-2xl opacity-60">
                                         <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold shrink-0">3</div>
                                         <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white">INDEPTH SOLUTION</h4>
+                                            <h4 className="font-bold text-gray-900 dark:text-white">InDepth SOLUTION</h4>
                                             <p className="text-sm text-gray-500">→ Komunikasi dengan kecerdasan tubuh</p>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@ export default function SupremeTrance({ auth }) {
                             <div className="bg-gradient-to-br from-gray-900 to-black rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl flex items-center border border-white/10">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-bl-full pointer-events-none"></div>
                                 <p className="text-xl md:text-2xl font-bold relative z-10 italic leading-snug text-gold-100">
-                                    "SUPREME TRANCE hanya dapat dibangun di atas fondasi INDEPTH TRANCE yang stabil."
+                                    "SUPREME TRANCE hanya dapat dibangun di atas fondasi InDepth TRANCE yang stabil."
                                 </p>
                             </div>
                         </div>
@@ -118,8 +118,8 @@ export default function SupremeTrance({ auth }) {
                                     },
                                     {
                                         num: "2⃣",
-                                        title: "Perbedaan dengan INDEPTH TRANCE",
-                                        points: ["INDEPTH TRANCE: kondisi setengah sadar, dipandu terapis, fokus akses unconscious", "SUPREME TRANCE: kondisi sadar penuh, diarahkan klien, fokus kontrol dan penggunaan unconscious"]
+                                        title: "Perbedaan dengan InDepth TRANCE",
+                                        points: ["InDepth TRANCE: kondisi setengah sadar, dipandu terapis, fokus akses unconscious", "SUPREME TRANCE: kondisi sadar penuh, diarahkan klien, fokus kontrol dan penggunaan unconscious"]
                                     },
                                     {
                                         num: "3⃣",
@@ -267,7 +267,7 @@ export default function SupremeTrance({ auth }) {
                             <div className="bg-gray-900 rounded-[3rem] p-8 md:p-12 border border-white/10 shadow-3xl">
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
                                     {[
-                                        { title: "Stabilisasi", desc: "Masuk ke INDEPTH TRANCE sebagai fondasi" },
+                                        { title: "Stabilisasi", desc: "Masuk ke InDepth TRANCE sebagai fondasi" },
                                         { title: "Aktivasi", desc: "Transisi ke SUPREME TRANCE dalam kondisi sadar" },
                                         { title: "Penetapan", desc: "Menentukan dan menetapkan kondisi optimal" },
                                         { title: "Pembuatan Trigger", desc: "Membuat trigger untuk aktivasi mandiri" }
@@ -280,17 +280,17 @@ export default function SupremeTrance({ auth }) {
                                     ))}
                                 </div>
                                 <p className="mt-12 text-center text-gray-400 text-lg italic max-w-2xl mx-auto">
-                                    "Fondasi INDEPTH TRANCE tetap aktif, ditingkatkan oleh kendali sadar penuh."
+                                    "Fondasi InDepth TRANCE tetap aktif, ditingkatkan oleh kendali sadar penuh."
                                 </p>
                             </div>
                         </div>
 
                         {/* Perbedaan Tabel */}
                         <div className="py-12">
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-12 text-center uppercase tracking-tighter">Perbedaan Dengan INDEPTH TRANCE</h3>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-12 text-center uppercase tracking-tighter">Perbedaan Dengan InDepth TRANCE</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="p-8 bg-white/60 dark:bg-gray-900/40 rounded-[2.5rem] border border-gray-200 dark:border-white/10">
-                                    <h4 className="text-2xl font-black mb-6 text-gray-900 dark:text-white uppercase">INDEPTH TRANCE</h4>
+                                    <h4 className="text-2xl font-black mb-6 text-gray-900 dark:text-white uppercase">InDepth TRANCE</h4>
                                     <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold">
                                         <li className="flex gap-3 items-center"><div className="w-2 h-2 rounded-full bg-gray-400"></div> Kondisi setengah sadar</li>
                                         <li className="flex gap-3 items-center"><div className="w-2 h-2 rounded-full bg-gray-400"></div> Proses dipandu terapis</li>
@@ -327,7 +327,7 @@ export default function SupremeTrance({ auth }) {
                                 {[
                                     { q: "Apa itu SUPREME TRANCE?", a: "SUPREME TRANCE adalah kondisi sadar penuh dengan akses langsung ke unconscious." },
                                     { q: "Apakah tetap sadar selama proses?", a: "Klien berada dalam kondisi sadar penuh selama seluruh proses berlangsung." },
-                                    { q: "Apa perbedaannya dengan INDEPTH TRANCE?", a: "INDEPTH TRANCE digunakan untuk akses unconscious dalam kondisi setengah sadar. SUPREME TRANCE digunakan untuk mengarahkan unconscious dalam kondisi sadar penuh." },
+                                    { q: "Apa perbedaannya dengan InDepth TRANCE?", a: "InDepth TRANCE digunakan untuk akses unconscious dalam kondisi setengah sadar. SUPREME TRANCE digunakan untuk mengarahkan unconscious dalam kondisi sadar penuh." },
                                     { q: "Apa itu trigger potensi?", a: "Trigger adalah kombinasi gerakan dan kata internal yang digunakan untuk mengaktifkan kondisi optimal secara mandiri." },
                                     { q: "Apakah kondisi ini bisa digunakan sendiri?", a: "Kondisi ini memungkinkan penggunaan secara mandiri dalam aktivitas sehari-hari setelah proses sesi." },
                                     { q: "Untuk siapa SUPREME TRANCE digunakan?", a: "Digunakan untuk individu yang ingin mengembangkan performa, kapasitas internal, dan kontrol kondisi mental secara terarah." },

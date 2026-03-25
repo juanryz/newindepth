@@ -124,7 +124,7 @@ export default function LayananPremium({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi Premium Semarang — Optimalisasi Performa dan Pengembangan Diri | INDEPTH" />
+            <Head title="Hipnoterapi Premium Semarang — Optimalisasi Performa dan Pengembangan Diri | InDepth" />
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 
@@ -167,9 +167,9 @@ export default function LayananPremium({ auth, packages = [] }) {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div {...fadeUp(0)}>
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Tentang Layanan</h2>
-                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight">Layanan Premium INDEPTH Klinik</h3>
+                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight">Layanan Premium InDepth Klinik</h3>
                         <div className="space-y-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-                            <p>INDEPTH Klinik Hipnoterapi Semarang menyediakan layanan Premium untuk membantu Anda mengembangkan potensi diri melalui hipnosis dan trance.</p>
+                            <p>InDepth Klinik Hipnoterapi Semarang menyediakan layanan Premium untuk membantu Anda mengembangkan potensi diri melalui hipnosis dan trance.</p>
                             <p>Pendekatan difokuskan pada pemrograman ulang bawah sadar untuk mendukung performa dan kapasitas maksimal internal dalam satu sesi.</p>
                         </div>
                     </motion.div>
@@ -208,7 +208,7 @@ export default function LayananPremium({ auth, packages = [] }) {
                                 <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2rem] p-6 shadow-lg">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Mekanisme Peningkatan Potensi</p>
                                     {[
-                                        'Pendekatan INDEPTH mengakses bawah sadar Anda.',
+                                        'Pendekatan InDepth mengakses bawah sadar Anda.',
                                         'Memprogram ulang sistem internal untuk mencapai performa maksimal.',
                                         'Mengintegrasikan kondisi optimal ke seluruh sistem tubuh Anda.',
                                     ].map((item, i) => (
@@ -454,7 +454,7 @@ export default function LayananPremium({ auth, packages = [] }) {
                                 Potensi dalam diri Anda dapat diarahkan hingga mencapai kondisi optimal.
                             </p>
                             <p className="text-lg text-gray-600 dark:text-gray-300 mb-10 leading-relaxed">
-                                INDEPTH membantu Anda memprogramnya secara terarah dalam satu sesi.
+                                InDepth membantu Anda memprogramnya secara terarah dalam satu sesi.
                             </p>
                             <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
                                 className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-base shadow-[0_4px_15px_rgba(34,197,94,0.3)] hover:shadow-[0_8px_25px_rgba(34,197,94,0.4)] hover:-translate-y-1 transition-all duration-300 border border-green-400/40">

@@ -8,7 +8,7 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function IndepthSolution({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="INDEPTH SOLUTION — Menggali Solusi dari Kecerdasan Tubuh" />
+            <Head title="InDepth SOLUTION — Menggali Solusi dari Kecerdasan Tubuh" />
 
             <LiquidBackground />
             <Navbar auth={auth} active="methods" />
@@ -23,7 +23,7 @@ export default function IndepthSolution({ auth }) {
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold mb-6"
                         >
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
-                            Pilar Ketiga Sistem Metodologis INDEPTH
+                            Pilar Ketiga Sistem Metodologis InDepth
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
@@ -31,7 +31,7 @@ export default function IndepthSolution({ auth }) {
                             transition={{ delay: 0.1 }}
                             className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6"
                         >
-                            INDEPTH <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">SOLUTION</span>
+                            InDepth <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">SOLUTION</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -60,7 +60,7 @@ export default function IndepthSolution({ auth }) {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
                             <div className="relative z-10">
                                 <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-8 font-medium">
-                                    <strong>INDEPTH SOLUTION</strong> adalah metode yang digunakan dalam kondisi INDEPTH TRANCE untuk berkomunikasi langsung dengan kecerdasan tubuh. Pada kondisi ini, tubuh memberikan data dan arah solusi berdasarkan sistem internal masing-masing individu.
+                                    <strong>InDepth SOLUTION</strong> adalah metode yang digunakan dalam kondisi InDepth TRANCE untuk berkomunikasi langsung dengan kecerdasan tubuh. Pada kondisi ini, tubuh memberikan data dan arah solusi berdasarkan sistem internal masing-masing individu.
                                 </p>
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
                                     {[
@@ -93,7 +93,7 @@ export default function IndepthSolution({ auth }) {
                                 >
                                     <div className="text-sm font-black text-white bg-gray-500 px-4 py-2 rounded-full uppercase tracking-widest shrink-0">Reguler & VIP</div>
                                     <p className="text-lg font-bold text-gray-700 dark:text-gray-200 text-center md:text-left">
-                                        INDEPTH TRANCE <span className="text-gold-500 mx-2">→</span> INDEPTH SOLUTION
+                                        InDepth TRANCE <span className="text-gold-500 mx-2">→</span> InDepth SOLUTION
                                     </p>
                                 </motion.div>
                                 <motion.div
@@ -102,7 +102,7 @@ export default function IndepthSolution({ auth }) {
                                 >
                                     <div className="text-sm font-black text-white bg-gold-600 px-4 py-2 rounded-full uppercase tracking-widest shrink-0">Premium</div>
                                     <p className="text-lg font-bold text-gray-700 dark:text-gray-200 text-center md:text-left">
-                                        INDEPTH TRANCE <span className="text-gold-500 mx-2">→</span> SUPREME TRANCE <span className="text-gold-500 mx-2">→</span> INDEPTH SOLUTION
+                                        InDepth TRANCE <span className="text-gold-500 mx-2">→</span> SUPREME TRANCE <span className="text-gold-500 mx-2">→</span> InDepth SOLUTION
                                     </p>
                                 </motion.div>
                                 <p className="text-center text-gray-500 dark:text-gray-400 italic font-medium pt-4">
@@ -140,7 +140,7 @@ export default function IndepthSolution({ auth }) {
                             <h3 className="text-3xl md:text-4xl font-black mb-12 tracking-tighter uppercase relative z-10">Proses yang Terjadi</h3>
                             <div className="space-y-4 relative z-10">
                                 {[
-                                    "Klien berada dalam kondisi INDEPTH TRANCE",
+                                    "Klien berada dalam kondisi InDepth TRANCE",
                                     "Pertanyaan terarah disampaikan kepada kecerdasan tubuh",
                                     "Tubuh memberikan respons melalui kata atau gerakan",
                                     "Data diintegrasikan ke organ dan sistem terkait",
@@ -199,7 +199,7 @@ export default function IndepthSolution({ auth }) {
 
                         {/* Nilai Utama */}
                         <div className="py-12 border-t border-gray-100 dark:border-gray-900">
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">Nilai Utama INDEPTH SOLUTION</h3>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">Nilai Utama InDepth SOLUTION</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="p-10 bg-white/40 dark:bg-black/20 rounded-[3rem] border border-gray-100 dark:border-white/5">
                                     <h4 className="text-xl font-black mb-8 text-gray-400 uppercase tracking-widest">Pendekatan Konvensional</h4>
@@ -210,7 +210,7 @@ export default function IndepthSolution({ auth }) {
                                     </ul>
                                 </div>
                                 <div className="p-10 bg-white/80 dark:bg-gray-900/40 rounded-[3rem] border border-gold-500/30 shadow-2xl ring-1 ring-gold-500/20">
-                                    <h4 className="text-xl font-black mb-8 text-gold-600 uppercase tracking-widest">INDEPTH SOLUTION</h4>
+                                    <h4 className="text-xl font-black mb-8 text-gold-600 uppercase tracking-widest">InDepth SOLUTION</h4>
                                     <ul className="space-y-6 text-gray-900 dark:text-white font-black text-lg">
                                         <li className="flex gap-4"><span className="text-gold-500">✓</span> Solusi dari kecerdasan tubuh</li>
                                         <li className="flex gap-4"><span className="text-gold-500">✓</span> Spesifik untuk kondisi personal</li>
@@ -224,7 +224,7 @@ export default function IndepthSolution({ auth }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-12">
                             <div className="space-y-8">
                                 <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter underline decoration-gold-500 decoration-4 underline-offset-8">Peran Dalam Metodologi</h3>
-                                <p className="text-gray-600 dark:text-gray-300 font-medium">INDEPTH SOLUTION digunakan pada layanan VIP untuk kondisi seperti:</p>
+                                <p className="text-gray-600 dark:text-gray-300 font-medium">InDepth SOLUTION digunakan pada layanan VIP untuk kondisi seperti:</p>
                                 <ul className="space-y-4">
                                     {["Psikosomatis", "Gangguan fungsi tubuh", "Kondisi medis kronis", "Halusinasi", "Kondisi yang melibatkan sistem tubuh secara langsung"].map((text, idx) => (
                                         <li key={idx} className="flex items-center gap-4 text-gray-700 dark:text-gray-300 font-bold text-lg">
@@ -256,7 +256,7 @@ export default function IndepthSolution({ auth }) {
                         {/* Full System Summary */}
                         <div className="bg-gradient-to-br from-gray-900 to-black rounded-[4rem] p-12 md:p-20 text-center text-white border border-white/10 shadow-3xl relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
-                            <h3 className="text-3xl font-black mb-10 tracking-tighter uppercase">Sistem Integratif INDEPTH</h3>
+                            <h3 className="text-3xl font-black mb-10 tracking-tighter uppercase">Sistem Integratif InDepth</h3>
                             <div className="flex flex-col md:flex-row gap-8 items-center justify-center mb-12">
                                 <div className="text-xl font-bold">Akses Unconscious</div>
                                 <div className="text-gold-500 text-3xl">→</div>
@@ -265,9 +265,9 @@ export default function IndepthSolution({ auth }) {
                                 <div className="text-xl font-bold">Integrasi ke Tubuh</div>
                             </div>
                             <div className="max-w-3xl mx-auto space-y-6 text-gray-400 font-medium text-lg leading-relaxed">
-                                <p>INDEPTH TRANCE membuka akses ke unconscious.</p>
+                                <p>InDepth TRANCE membuka akses ke unconscious.</p>
                                 <p>SUPREME TRANCE mengaktifkan kendali sadar atas unconscious.</p>
-                                <p className="text-white font-black text-2xl tracking-tight">INDEPTH SOLUTION menggali dan mengintegrasikan solusi dari kecerdasan tubuh.</p>
+                                <p className="text-white font-black text-2xl tracking-tight">InDepth SOLUTION menggali dan mengintegrasikan solusi dari kecerdasan tubuh.</p>
                                 <div className="pt-8 flex flex-col md:flex-row gap-4 justify-center">
                                     <span className="bg-white/10 px-6 py-2 rounded-full text-sm font-black uppercase tracking-[0.2em]">Spesifik</span>
                                     <span className="bg-white px-6 py-2 rounded-full text-sm font-black text-black uppercase tracking-[0.2em]">Personal</span>
@@ -277,12 +277,12 @@ export default function IndepthSolution({ auth }) {
 
                         {/* FAQ */}
                         <div className="py-12">
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">FAQ INDEPTH SOLUTION</h3>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white text-center mb-12 uppercase tracking-tighter">FAQ InDepth SOLUTION</h3>
                             <div className="space-y-4">
                                 {[
-                                    { q: "Apa itu INDEPTH SOLUTION?", a: "INDEPTH SOLUTION adalah metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious." },
+                                    { q: "Apa itu InDepth SOLUTION?", a: "InDepth SOLUTION adalah metode untuk menggali solusi langsung dari kecerdasan tubuh melalui unconscious." },
                                     { q: "Apakah solusi berasal dari pikiran?", a: "Solusi berasal dari sistem tubuh melalui unconscious, bukan dari analisis pikiran sadar." },
-                                    { q: "Bagaimana jawaban tubuh muncul?", a: "Jawaban muncul melalui kata atau gerakan sebagai respons tubuh selama kondisi INDEPTH TRANCE." },
+                                    { q: "Bagaimana jawaban tubuh muncul?", a: "Jawaban muncul melalui kata atau gerakan sebagai respons tubuh selama kondisi InDepth TRANCE." },
                                     { q: "Apakah semua orang mendapatkan jawaban?", a: "Respons tubuh muncul sesuai kondisi dan proses yang berjalan dalam sesi." },
                                     { q: "Apa yang terjadi setelah solusi ditemukan?", a: "Solusi diintegrasikan ke sistem tubuh sebagai perintah internal yang berjalan secara otomatis." },
                                     { q: "Apakah metode ini untuk semua kondisi?", a: "Digunakan untuk kondisi yang melibatkan tubuh dan sistem internal secara mendalam, khususnya pada layanan VIP." },
@@ -307,7 +307,7 @@ export default function IndepthSolution({ auth }) {
                                 ))}
                             </div>
                             <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed italic border-t border-gray-100 dark:border-gray-900 pt-10">
-                                "INDEPTH SOLUTION memberikan akses langsung ke arah solusi dari dalam tubuh Anda."
+                                "InDepth SOLUTION memberikan akses langsung ke arah solusi dari dalam tubuh Anda."
                             </p>
                         </div>
 

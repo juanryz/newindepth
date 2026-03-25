@@ -130,7 +130,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         transition={{ duration: 0.6, delay: 0.3 }}
                         className="max-w-3xl text-lg md:text-xl text-gray-600 dark:text-gray-300 mx-auto mb-10 leading-relaxed font-medium"
                     >
-                        INDEPTH Klinik Hipnoterapi Semarang membantu Anda menanganinya. Kami menggunakan hipnosis dan trance untuk mengakses dan menata ulang program bawah sadar secara terarah dalam satu sesi.
+                        InDepth Klinik Hipnoterapi Semarang membantu Anda menanganinya. Kami menggunakan hipnosis dan trance untuk mengakses dan menata ulang program bawah sadar secara terarah dalam satu sesi.
                     </motion.p>
 
                     <motion.div
@@ -235,7 +235,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                         <Link href="/metode" className="group inline-block">
                             <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase group-hover:text-gold-500 transition-colors">Metodologi Kami</h2>
                             <h3 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
-                                Metodologi INDEPTH
+                                Metodologi InDepth
                             </h3>
                             <div className="mt-2 w-24 h-1 bg-gold-500 mx-auto rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                         </Link>
@@ -249,7 +249,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">INDEPTH TRANCE</h4>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth TRANCE</h4>
                                 <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Akses Bawah Sadar</p>
                                 <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Mengakses program bawah sadar melalui kondisi trance yang terarah.</p>
                                 <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
@@ -281,7 +281,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                 <div className="w-14 h-14 bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl flex items-center justify-center mb-6 shrink-0 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
                                     <svg className="w-7 h-7 text-gold-600 dark:text-gold-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                 </div>
-                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">INDEPTH SOLUTION</h4>
+                                <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">InDepth SOLUTION</h4>
                                 <p className="font-bold text-gold-600 dark:text-gold-400 mb-3 text-sm tracking-wide uppercase">Kecerdasan Tubuh</p>
                                 <p className="text-gray-600 dark:text-gray-300 font-medium text-sm leading-relaxed mt-auto">Mengeksplorasi kecerdasan tubuh untuk memahami sistem internal dan menyusun solusi yang spesifik.</p>
                                 <div className="mt-6 flex items-center gap-2 text-gold-600 dark:text-gold-400 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
@@ -293,7 +293,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                     <div className="mt-24 w-full relative z-10">
                         <div className="max-w-4xl mx-auto text-center">
-                            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 relative z-10">Keunggulan INDEPTH</h3>
+                            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 relative z-10">Keunggulan InDepth</h3>
                             <p className="text-xl text-gray-600 dark:text-gray-300 font-light mb-12">
                                 Setiap sesi dirancang terarah untuk menuntaskan hasil yang dapat dievaluasi.
                             </p>
@@ -333,7 +333,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
 
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase font-inter">Struktur Layanan</h2>
                         <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                            Layanan INDEPTH
+                            Layanan InDepth
                         </p>
 
                         <div className="mt-8 flex flex-col items-center gap-3">
@@ -572,7 +572,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                                     },
                                     {
                                         title: 'Login Sistem',
-                                        desc: 'Daftarkan diri Anda ke dalam sistem klinik INDEPTH.',
+                                        desc: 'Daftarkan diri Anda ke dalam sistem klinik InDepth.',
                                         icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
                                     },
                                     {
@@ -809,8 +809,8 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     <div className="space-y-4">
                         {[
                             {
-                                q: 'Apa itu hipnoterapi di INDEPTH?',
-                                a: 'Hipnoterapi di INDEPTH menggunakan hipnosis dan trance untuk mengakses serta menata ulang program bawah sadar secara terarah.'
+                                q: 'Apa itu hipnoterapi di InDepth?',
+                                a: 'Hipnoterapi di InDepth menggunakan hipnosis dan trance untuk mengakses serta menata ulang program bawah sadar secara terarah.'
                             },
                             {
                                 q: 'Apakah cukup satu sesi?',
@@ -851,7 +851,7 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     <p className="text-xl opacity-90 mb-10 text-gray-600 dark:text-gray-300 mx-auto max-w-2xl font-light relative z-10">
                         Kami menawarkan solusi untuk menuntaskannya melalui pemrograman bawah sadar secara terarah dalam satu sesi.
                     </p>
-                    <a href="https://wa.me/6282220800034?text=Halo%20INDEPTH%2C%20saya%20ingin%20konsultasi" target="_blank" rel="noopener noreferrer" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
+                    <a href="https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi" target="_blank" rel="noopener noreferrer" className="relative z-10 px-10 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-lg shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group">
                         Konsultasi via WhatsApp sekarang
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
@@ -930,6 +930,86 @@ export default function Welcome({ auth, articles = [], courses = [], packages = 
                     </div>
                 )
             }
+
+            {/* Tentang Kami Section */}
+            <div className="py-24 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[3rem] overflow-hidden shadow-xl">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                            {/* Left: Text Content */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="p-12 lg:p-16 flex flex-col justify-center"
+                            >
+                                <span className="inline-block mb-4 text-xs font-black uppercase tracking-[0.25em] text-gold-600 dark:text-gold-400">Tentang Kami</span>
+                                <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-6 leading-tight">
+                                    PT InDepth<br />Mental Wellness
+                                </h2>
+                                <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed mb-6">
+                                    Badan usaha yang bergerak dalam layanan hipnoterapi dan pengembangan sistem mental manusia — berbasis pendekatan unconscious dan kecerdasan tubuh untuk menangani kondisi pikiran, perilaku, serta sistem internal secara terarah.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                                    {[
+                                        'InDepth Clinic',
+                                        'InDepth Academy',
+                                        'Satu Sesi Terarah',
+                                    ].map((item) => (
+                                        <span key={item} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 text-xs font-bold text-gold-700 dark:text-gold-400">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                                            {item}
+                                        </span>
+                                    ))}
+                                </div>
+                                <Link
+                                    href="/tentangkami"
+                                    className="inline-flex items-center gap-2 px-8 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-sm shadow-[0_8px_30px_rgba(208,170,33,0.25)] hover:shadow-[0_12px_40px_rgba(208,170,33,0.4)] transition-all duration-300 group w-fit"
+                                >
+                                    Pelajari Lebih Lanjut
+                                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </Link>
+                            </motion.div>
+
+                            {/* Right: Stats / Highlights */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: 0.15 }}
+                                className="bg-gradient-to-br from-gold-500/10 to-gold-600/5 dark:from-gold-900/20 dark:to-gray-900/20 p-12 lg:p-16 flex flex-col justify-center gap-8 border-t lg:border-t-0 lg:border-l border-white/60 dark:border-gray-700/50"
+                            >
+                                {[
+                                    { label: 'Pengalaman Praktik', value: '20+', sub: 'Tahun' },
+                                    { label: 'Metodologi', value: '3', sub: 'Sistem Terintegrasi' },
+                                    { label: 'Unit Layanan', value: '2', sub: 'Clinic & Academy' },
+                                ].map((stat, i) => (
+                                    <div key={i} className="flex items-center gap-6">
+                                        <div className="text-4xl font-black text-gold-600 dark:text-gold-400 leading-none tabular-nums">
+                                            {stat.value}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-white">{stat.label}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">{stat.sub}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div className="mt-4 pt-8 border-t border-white/50 dark:border-gray-700/50">
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-3">Metodologi</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['InDepth TRANCE', 'SUPREME TRANCE', 'InDepth SOLUTION'].map((m) => (
+                                            <span key={m} className="px-3 py-1.5 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl text-[10px] font-black tracking-widest text-gray-700 dark:text-gray-300 border border-white/80 dark:border-gray-700/50">
+                                                {m}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <Suspense fallback={<div className="h-32 flex items-center justify-center">Loading...</div>}>
                 <DisclaimerSection />

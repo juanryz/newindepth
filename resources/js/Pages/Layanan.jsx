@@ -118,8 +118,8 @@ export default function Layanan({ auth, packages = [] }) {
 
     const faqItems = [
         {
-            q: 'Apa itu hipnoterapi di INDEPTH?',
-            a: 'Hipnoterapi di INDEPTH menggunakan hipnosis dan trance untuk mengakses serta memprogram ulang program bawah sadar secara terarah.',
+            q: 'Apa itu hipnoterapi di InDepth?',
+            a: 'Hipnoterapi di InDepth menggunakan hipnosis dan trance untuk mengakses serta memprogram ulang program bawah sadar secara terarah.',
         },
         {
             q: 'Apa perbedaan Reguler, Premium, dan VIP?',
@@ -138,7 +138,7 @@ export default function Layanan({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Layanan Hipnoterapi Semarang | INDEPTH Klinik" />
+            <Head title="Layanan Hipnoterapi Semarang | InDepth Klinik" />
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 
@@ -153,7 +153,7 @@ export default function Layanan({ auth, packages = [] }) {
                     >
                         <span className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
-                            INDEPTH Klinik Hipnoterapi Semarang
+                            InDepth Klinik Hipnoterapi Semarang
                         </span>
                     </motion.div>
 
@@ -166,7 +166,7 @@ export default function Layanan({ auth, packages = [] }) {
                         Layanan Hipnoterapi{' '}
                         <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-500 via-yellow-400 to-gold-600 filter drop-shadow-sm">
-                            Semarang INDEPTH Klinik
+                            Semarang InDepth Klinik
                         </span>
                     </motion.h1>
 
@@ -176,7 +176,7 @@ export default function Layanan({ auth, packages = [] }) {
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="max-w-3xl text-lg md:text-xl text-gray-600 dark:text-gray-300 mx-auto mb-4 leading-relaxed font-medium"
                     >
-                        INDEPTH Klinik Hipnoterapi Semarang menyediakan layanan berbasis hipnosis dan trance untuk memprogram ulang program bawah sadar secara terarah.
+                        InDepth Klinik Hipnoterapi Semarang menyediakan layanan berbasis hipnosis dan trance untuk memprogram ulang program bawah sadar secara terarah.
                     </motion.p>
 
                     <motion.p
@@ -651,10 +651,10 @@ export default function Layanan({ auth, packages = [] }) {
                     <motion.div {...fadeUp(0)}>
                         <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[3rem] p-12 shadow-2xl">
                             <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-sm font-bold uppercase tracking-widest">
-                                INDEPTH Klinik
+                                InDepth Klinik
                             </div>
                             <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-                                INDEPTH membantu Anda menuntaskan kondisi melalui pemrograman ulang bawah sadar secara terarah dalam satu sesi.
+                                InDepth membantu Anda menuntaskan kondisi melalui pemrograman ulang bawah sadar secara terarah dalam satu sesi.
                             </p>
                             <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
                                 Mulai dengan konsultasi gratis via WhatsApp sekarang.

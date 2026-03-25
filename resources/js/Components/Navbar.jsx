@@ -12,16 +12,16 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
         try {
             return [
                 { name: 'Home', href: '/', key: 'home' },
-                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
+                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
                 { name: 'Pelatihan', href: '/courses', key: 'courses' }
             ];
         } catch (e) {
             return [
                 { name: 'Home', href: '/', key: 'home' },
-                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
+                { name: 'Layanan', href: '/layanan', key: 'layanan' },
                 { name: 'Artikel', href: '/blog', key: 'blog' },
                 { name: 'Pelatihan', href: '/courses', key: 'courses' }
             ];
@@ -70,12 +70,15 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                                         {item.name}
                                     </Link>
                                 ))}
-                                <button
-                                    onClick={() => setIsChatOpen(true)}
-                                    className="px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10"
+                                <Link
+                                    href="/kontak"
+                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${active === 'kontak'
+                                        ? 'bg-white dark:bg-gray-800 text-gold-600 dark:text-gold-400 shadow-sm'
+                                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10'
+                                        }`}
                                 >
                                     Kontak Kami
-                                </button>
+                                </Link>
                             </div>
                         )}
 
@@ -156,12 +159,19 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                         ))}
 
                         {/* Contact Us */}
-                        <button
-                            onClick={() => { setIsMobileMenuOpen(false); setIsChatOpen(true); }}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-200"
+                        <Link
+                            href="/kontak"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 ${active === 'kontak'
+                                ? 'bg-gold-500/10 text-gold-600 dark:text-gold-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+                                }`}
                         >
+                            {active === 'kontak' && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-gold-500 flex-shrink-0" />
+                            )}
                             Kontak Kami
-                        </button>
+                        </Link>
 
                         {/* Divider */}
                         <div className="my-3 border-t border-gray-200/60 dark:border-gray-700/40"></div>

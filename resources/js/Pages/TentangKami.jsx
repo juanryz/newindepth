@@ -1,0 +1,323 @@
+import { Head, Link } from '@inertiajs/react';
+import React, { Suspense, lazy } from 'react';
+import { motion } from 'framer-motion';
+import Navbar from '@/Components/Navbar';
+import LiquidBackground from '@/Components/LiquidBackground';
+import PageLoader from '@/Components/PageLoader';
+
+const Footer = lazy(() => import('@/Components/Footer'));
+
+const fadeUp = (delay = 0) => ({
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.6, delay },
+});
+
+const SectionLabel = ({ children }) => (
+    <span className="inline-block mb-3 text-xs font-black uppercase tracking-[0.25em] text-gold-600 dark:text-gold-400">
+        {children}
+    </span>
+);
+
+const Card = ({ children, className = '' }) => (
+    <div className={`bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] shadow-xl ${className}`}>
+        {children}
+    </div>
+);
+
+export default function TentangKami({ auth }) {
+    return (
+        <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
+            <PageLoader />
+            <Head title="Tentang Kami | PT InDepth Mental Wellness" />
+            <LiquidBackground />
+            <Navbar auth={auth} active="tentangkami" />
+
+            {/* ── HERO ── */}
+            <section className="relative z-10 pt-40 pb-24 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto text-center">
+                    <motion.div {...fadeUp(0)}>
+                        <SectionLabel>Tentang Kami</SectionLabel>
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-gray-900 dark:text-white mb-6 leading-[1.1]">
+                            PT InDepth<br />
+                            <span className="text-gold-500">Mental Wellness</span>
+                        </h1>
+                        <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-light leading-relaxed max-w-2xl mx-auto mb-4">
+                            Sistem layanan hipnoterapi dan pengembangan potensi mental berbasis pemrograman bawah sadar dan kecerdasan tubuh.
+                        </p>
+                        <p className="text-base text-gray-500 dark:text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">
+                            Dikembangkan sebagai pendekatan terarah untuk membantu penanganan kondisi serta optimalisasi kapasitas manusia secara spesifik.
+                        </p>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* ── TENTANG PERUSAHAAN ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)}>
+                        <Card className="p-10 lg:p-14">
+                            <SectionLabel>Tentang Perusahaan</SectionLabel>
+                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-6">PT InDepth Mental Wellness</h2>
+                            <div className="space-y-4 text-gray-600 dark:text-gray-400 font-medium leading-relaxed text-base sm:text-lg max-w-3xl">
+                                <p>
+                                    PT InDepth Mental Wellness merupakan badan usaha yang bergerak dalam layanan hipnoterapi dan pengembangan sistem mental manusia.
+                                </p>
+                                <p>
+                                    Perusahaan ini mengembangkan pendekatan berbasis unconscious dan kecerdasan tubuh untuk menangani kondisi pikiran, perilaku, serta sistem internal secara terarah.
+                                </p>
+                                <p>
+                                    Seluruh sistem dikembangkan dan dijalankan secara terintegrasi dalam lingkungan InDepth.
+                                </p>
+                            </div>
+                        </Card>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* ── STRUKTUR USAHA ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)} className="text-center mb-12">
+                        <SectionLabel>Struktur Usaha</SectionLabel>
+                        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+                            PT InDepth Mental Wellness mengelola dua unit utama
+                        </h2>
+                    </motion.div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                            {
+                                title: 'InDepth Clinic',
+                                desc: 'Layanan hipnoterapi untuk penanganan kondisi pikiran, perilaku, psikosomatis, dan sistem tubuh melalui pendekatan satu sesi terarah.',
+                                icon: (
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                ),
+                            },
+                            {
+                                title: 'InDepth Academy',
+                                desc: 'Pusat pengembangan dan sertifikasi hipnoterapis berbasis metodologi InDepth. Menghasilkan praktisi dengan standar kompetensi yang terstruktur dan terukur.',
+                                icon: (
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                                ),
+                            },
+                        ].map((unit, i) => (
+                            <motion.div key={i} {...fadeUp(i * 0.1)}>
+                                <Card className="p-8 h-full">
+                                    <div className="w-12 h-12 rounded-2xl bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-6">
+                                        {unit.icon}
+                                    </div>
+                                    <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3">{unit.title}</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{unit.desc}</p>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── PENDEKATAN & METODOLOGI ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)} className="text-center mb-12">
+                        <SectionLabel>Pendekatan dan Metodologi</SectionLabel>
+                        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            Metodologi Berbasis Unconscious
+                        </h2>
+                    </motion.div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        {/* Metodologi Cards */}
+                        <motion.div {...fadeUp(0)} className="space-y-4">
+                            {['InDepth TRANCE', 'SUPREME TRANCE', 'InDepth SOLUTION'].map((m, i) => (
+                                <Card key={i} className="p-6 flex items-center gap-5">
+                                    <div className="w-10 h-10 rounded-2xl bg-gold-500 flex items-center justify-center text-white font-black text-sm shrink-0">
+                                        {i + 1}
+                                    </div>
+                                    <span className="font-black tracking-widest text-gray-900 dark:text-white text-sm uppercase">{m}</span>
+                                </Card>
+                            ))}
+                        </motion.div>
+                        {/* Fokus Pendekatan */}
+                        <motion.div {...fadeUp(0.1)}>
+                            <Card className="p-8">
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-5">Pendekatan Difokuskan Pada</p>
+                                <ul className="space-y-4">
+                                    {[
+                                        'Akses ke unconscious',
+                                        'Komunikasi dengan kecerdasan tubuh',
+                                        'Pemrograman ulang sistem internal',
+                                        'Integrasi perubahan ke level fisik',
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-3">
+                                            <span className="mt-1 w-2 h-2 rounded-full bg-gold-500 shrink-0"></span>
+                                            <span className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className="mt-6 text-sm text-gray-500 dark:text-gray-500 font-medium leading-relaxed">
+                                    Metode ini dikembangkan secara khusus dan digunakan secara terintegrasi dalam sistem InDepth.
+                                </p>
+                            </Card>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── SISTEM LAYANAN ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)} className="text-center mb-12">
+                        <SectionLabel>Sistem Layanan</SectionLabel>
+                        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+                            Pendekatan Satu Sesi Terarah
+                        </h2>
+                    </motion.div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        {[
+                            { step: '01', label: 'Akses ke sistem bawah sadar' },
+                            { step: '02', label: 'Identifikasi pola internal' },
+                            { step: '03', label: 'Pemrograman ulang sistem' },
+                            { step: '04', label: 'Integrasi ke tubuh' },
+                            { step: '05', label: 'Evaluasi dalam sesi' },
+                        ].map((item, i) => (
+                            <motion.div key={i} {...fadeUp(i * 0.08)}>
+                                <Card className="p-6 text-center h-full flex flex-col items-center gap-3">
+                                    <div className="text-2xl font-black text-gold-500 dark:text-gold-400">{item.step}</div>
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-snug">{item.label}</p>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </div>
+                    <motion.p {...fadeUp(0.3)} className="mt-8 text-center text-sm text-gray-500 dark:text-gray-500 font-medium max-w-2xl mx-auto">
+                        Pendekatan ini dirancang untuk memberikan proses yang spesifik sesuai kondisi personal.
+                    </motion.p>
+                </div>
+            </section>
+
+            {/* ── KEUNGGULAN ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)} className="text-center mb-12">
+                        <SectionLabel>Keunggulan Sistem InDepth</SectionLabel>
+                        <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+                            Mengapa InDepth?
+                        </h2>
+                    </motion.div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                            'Metodologi dikembangkan secara internal',
+                            'Pendekatan berbasis unconscious dan kecerdasan tubuh',
+                            'Sistem terintegrasi antara layanan dan pelatihan',
+                            'Sertifikasi praktisi berjenjang',
+                            'Privasi dan dokumentasi sesi terjaga',
+                            'Proses terarah dalam satu sesi',
+                        ].map((item, i) => (
+                            <motion.div key={i} {...fadeUp(i * 0.07)}>
+                                <Card className="p-6 flex items-start gap-4 h-full">
+                                    <div className="w-8 h-8 rounded-xl bg-gold-500/10 dark:bg-gold-900/30 border border-gold-300/40 dark:border-gold-700/40 flex items-center justify-center shrink-0">
+                                        <svg className="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                                    </div>
+                                    <p className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed text-sm">{item}</p>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── KREDIBILITAS ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div {...fadeUp(0)}>
+                        <Card className="p-10 lg:p-14 text-center">
+                            <SectionLabel>Kredibilitas</SectionLabel>
+                            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 font-medium leading-relaxed max-w-3xl mx-auto">
+                                PT InDepth Mental Wellness merupakan badan hukum resmi yang telah memiliki izin operasional. Seluruh layanan dijalankan oleh tim profesional InDepth Mental Wellness yang didukung oleh standar kompetensi tinggi dengan pengalaman praktik selama lebih dari dua dekade.
+                            </p>
+                        </Card>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* ── VISI & MISI ── */}
+            <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Visi */}
+                        <motion.div {...fadeUp(0)}>
+                            <Card className="p-10 h-full">
+                                <div className="w-12 h-12 rounded-2xl bg-gold-500 flex items-center justify-center text-white mb-6">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                </div>
+                                <SectionLabel>Visi</SectionLabel>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white leading-relaxed">
+                                    Menjadi penyedia layanan kesehatan utama dan pusat pengembangan diri melalui optimalisasi potensi mental manusia dari Indonesia untuk dunia.
+                                </p>
+                            </Card>
+                        </motion.div>
+                        {/* Misi */}
+                        <motion.div {...fadeUp(0.1)}>
+                            <Card className="p-10 h-full">
+                                <div className="w-12 h-12 rounded-2xl bg-gold-500 flex items-center justify-center text-white mb-6">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                                </div>
+                                <SectionLabel>Misi</SectionLabel>
+                                <ol className="space-y-4">
+                                    {[
+                                        'Merangkum, mengembangkan, menyempurnakan, dan menciptakan ilmu hipnotis dan teknik-teknik hipnoterapi baru untuk meningkatkan kualitas hidup manusia secara akademis etis.',
+                                        'Mencetak pakar hipnotis dan hipnoterapi yang kompeten, profesional, dan terstandarisasi tinggi dan menciptakan Standar Hipnoterapis Indonesia.',
+                                        'Mengoptimalkan potensi mental client untuk menyelesaikan masalah kesehatan fisik maupun mental dan memicu pengembangan diri.',
+                                    ].map((misi, i) => (
+                                        <li key={i} className="flex items-start gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-gold-100 dark:bg-gold-900/30 text-gold-600 dark:text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                                            <p className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed text-sm">{misi}</p>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </Card>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── PENUTUP / CTA ── */}
+            <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-5xl mx-auto">
+                    <motion.div {...fadeUp(0)}>
+                        <div className="relative rounded-[3rem] border border-gold-500/20 dark:border-gray-800 bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl shadow-xl overflow-hidden py-20 px-8 text-center">
+                            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent"></div>
+                            <div className="absolute -top-[50%] -left-[10%] w-[120%] h-[100%] bg-gradient-to-b from-gold-500/5 to-transparent blur-2xl transform -rotate-6 pointer-events-none"></div>
+                            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-6 relative z-10">
+                                Mulai Perjalanan Anda Bersama InDepth
+                            </h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 font-light leading-relaxed max-w-2xl mx-auto mb-10 relative z-10">
+                                PT InDepth Mental Wellness menghadirkan sistem layanan dan pengembangan mental berbasis metodologi yang terstruktur, terarah, dan spesifik — difokuskan pada akses ke sistem terdalam dalam diri manusia.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+                                <a
+                                    href="https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-8 py-4 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-full text-sm shadow-[0_8px_30px_rgba(208,170,33,0.3)] hover:shadow-[0_15px_40px_rgba(208,170,33,0.5)] transition-all duration-300 inline-flex items-center gap-2 group"
+                                >
+                                    Konsultasi via WhatsApp
+                                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </a>
+                                <Link
+                                    href="/layanan"
+                                    className="px-8 py-4 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-full text-sm border border-white/80 dark:border-gray-700 transition-all duration-300 inline-flex items-center gap-2"
+                                >
+                                    Lihat Layanan Kami
+                                </Link>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            <Suspense fallback={<div className="h-32 flex items-center justify-center">Loading...</div>}>
+                <Footer />
+            </Suspense>
+        </div>
+    );
+}
