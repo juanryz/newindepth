@@ -844,6 +844,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Notifications
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+
+    // Internal AI - Employee Chat
+    Route::get('/internal-ai', [\App\Http\Controllers\InternalAiChatController::class, 'index'])->name('internal-ai.index');
+    Route::get('/internal-ai/{internalAiAgent}', [\App\Http\Controllers\InternalAiChatController::class, 'show'])->name('internal-ai.show');
+    Route::post('/internal-ai/{internalAiAgent}/chat', [\App\Http\Controllers\InternalAiChatController::class, 'chat'])->name('internal-ai.chat');
+
+    // Internal AI - Admin Management
+    Route::prefix('admin')->name('admin.')->middleware('role:admin|super_admin')->group(function () {
+        Route::get('internal-ai', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'index'])->name('internal-ai.index');
+        Route::post('internal-ai', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'store'])->name('internal-ai.store');
+        Route::put('internal-ai/{internalAiAgent}', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'update'])->name('internal-ai.update');
+        Route::delete('internal-ai/{internalAiAgent}', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'destroy'])->name('internal-ai.destroy');
+        Route::get('internal-ai/{internalAiAgent}/train', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'train'])->name('internal-ai.train');
+        Route::post('internal-ai/{internalAiAgent}/instructions', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'storeInstruction'])->name('internal-ai.instructions.store');
+        Route::put('internal-ai/{internalAiAgent}/instructions/{instruction}', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'updateInstruction'])->name('internal-ai.instructions.update');
+        Route::delete('internal-ai/{internalAiAgent}/instructions/{instruction}', [\App\Http\Controllers\Admin\InternalAiAgentController::class, 'destroyInstruction'])->name('internal-ai.instructions.destroy');
+    });
 });
 
 

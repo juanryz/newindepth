@@ -765,7 +765,28 @@ export default function Dashboard() {
                                             color="bg-slate-100 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300"
                                         />
                                     )}
+                                    {isAdmin && (
+                                        <QuickCard
+                                            href={route('admin.internal-ai.index')}
+                                            title="AI Internal"
+                                            description="Kelola & training agent AI khusus karyawan Indepth"
+                                            iconPath="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                            color="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400"
+                                        />
+                                    )}
                                 </div>
+                            </section>
+
+                            {/* AI Internal shortcut for all staff */}
+                            <section className="mt-2">
+                                <SectionLabel>AI Internal Karyawan</SectionLabel>
+                                <QuickCard
+                                    href={route('internal-ai.index')}
+                                    title="Tanya AI Internal"
+                                    description="Ajukan pertanyaan ke asisten AI yang ditraining khusus oleh tim Indepth"
+                                    iconPath="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                                    color="bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400"
+                                />
                             </section>
                         </div>
                     )}

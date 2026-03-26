@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:/Users/ryano/.config/herd/bin/php.bat\" artisan:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

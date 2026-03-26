@@ -235,6 +235,28 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/Admin/InternalAi/Index.jsx": {
+    "file": "assets/Index-CS2U_FHi.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Admin/InternalAi/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/InternalAi/Train.jsx": {
+    "file": "assets/Train-DXGx8xlE.js",
+    "name": "Train",
+    "src": "resources/js/Pages/Admin/InternalAi/Train.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
   "resources/js/Pages/Admin/Lessons/Form.jsx": {
     "file": "assets/Form-DdU5MsPr.js",
     "name": "Form",
@@ -770,7 +792,7 @@
     ]
   },
   "resources/js/Pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-CBeb1Q31.js",
+    "file": "assets/Dashboard-2TLYpNfA.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.jsx",
     "isDynamicEntry": true,
@@ -781,8 +803,30 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/InternalAi/Chat.jsx": {
+    "file": "assets/Chat-Dhc17Xcx.js",
+    "name": "Chat",
+    "src": "resources/js/Pages/InternalAi/Chat.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/InternalAi/Index.jsx": {
+    "file": "assets/Index-BO5G3FrQ.js",
+    "name": "Index",
+    "src": "resources/js/Pages/InternalAi/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DSi5ya3j.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
   "resources/js/Pages/KontakKami.jsx": {
-    "file": "assets/KontakKami-DoC65ZAU.js",
+    "file": "assets/KontakKami-Cet23EHw.js",
     "name": "KontakKami",
     "src": "resources/js/Pages/KontakKami.jsx",
     "isDynamicEntry": true,
@@ -1255,6 +1299,8 @@
       "resources/js/Pages/Admin/Courses/Index.jsx",
       "resources/js/Pages/Admin/Expenses/Index.jsx",
       "resources/js/Pages/Admin/Finance/Index.jsx",
+      "resources/js/Pages/Admin/InternalAi/Index.jsx",
+      "resources/js/Pages/Admin/InternalAi/Train.jsx",
       "resources/js/Pages/Admin/Lessons/Form.jsx",
       "resources/js/Pages/Admin/Lessons/Index.jsx",
       "resources/js/Pages/Admin/OrderManagement/Index.jsx",
@@ -1300,6 +1346,8 @@
       "resources/js/Pages/Clinic/Screening.jsx",
       "resources/js/Pages/Clinic/Vouchers/Index.jsx",
       "resources/js/Pages/Dashboard.jsx",
+      "resources/js/Pages/InternalAi/Chat.jsx",
+      "resources/js/Pages/InternalAi/Index.jsx",
       "resources/js/Pages/KontakKami.jsx",
       "resources/js/Pages/Layanan.jsx",
       "resources/js/Pages/LayananPremium.jsx",
