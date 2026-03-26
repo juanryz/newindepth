@@ -15,7 +15,7 @@ function getColor(value) {
     return COLOR_MAP[value] || COLOR_MAP.indigo;
 }
 
-export default function InternalAiIndexPage({ agents }) {
+export default function InternalAiIndexPage({ agents, isAdmin }) {
     return (
         <AuthenticatedLayout
             header={<h2 className="text-2xl font-black text-gray-900 dark:text-white">🤖 AI Internal Indepth</h2>}
@@ -25,17 +25,38 @@ export default function InternalAiIndexPage({ agents }) {
             <div className="py-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Header */}
-                <div className="mb-8">
+                <div className="flex items-center justify-between mb-8">
                     <p className="text-gray-500 dark:text-gray-400 font-medium">
                         Pilih asisten AI yang ingin kamu ajak bicara. Setiap agent terlatih untuk area tertentu.
                     </p>
+                    {isAdmin && (
+                        <Link
+                            href={route('admin.internal-ai.index')}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 whitespace-nowrap ml-4"
+                        >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
+                            Kelola Agent
+                        </Link>
+                    )}
                 </div>
 
                 {agents.length === 0 ? (
                     <div className="text-center py-24 bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] rounded-3xl">
                         <div className="text-6xl mb-4">🤖</div>
                         <h3 className="text-lg font-black text-gray-600 dark:text-gray-300 mb-2">Belum Ada Agent Tersedia</h3>
-                        <p className="text-sm text-gray-400">Hubungi admin untuk mengaktifkan agent AI internal.</p>
+                        {isAdmin ? (
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-400 mb-5">Buat agent AI pertama Anda dan training sesuai kebutuhan.</p>
+                                <Link
+                                    href={route('admin.internal-ai.index')}
+                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20"
+                                >
+                                    + Buat Agent Pertama
+                                </Link>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-400">Hubungi admin untuk mengaktifkan agent AI internal.</p>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

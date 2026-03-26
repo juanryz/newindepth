@@ -16,8 +16,11 @@ class InternalAiChatController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'description', 'avatar_color']);
 
+        $isAdmin = auth()->user()->hasAnyRole(['admin', 'super_admin', 'cs']);
+
         return Inertia::render('InternalAi/Index', [
-            'agents' => $agents,
+            'agents'  => $agents,
+            'isAdmin' => $isAdmin,
         ]);
     }
 

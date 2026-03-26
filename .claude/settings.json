@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(\"C:/Users/ryano/.config/herd/bin/php.bat\" artisan:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(find /d/Herd/newindepth -name *ai_training* -o -name *AiTraining*)"
     ]
   }
 }
