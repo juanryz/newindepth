@@ -339,7 +339,7 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                         <div className="mt-8 flex flex-col items-center gap-3">
                             <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
                                 <span className="text-xl">🎉</span>
-                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Program Khusus: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}% hingga 21 Mei 2026</span></span>
+                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Program Khusus: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%{(() => { const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean); const latest = dates.length > 0 ? dates.sort().pop() : null; return latest ? ` hingga ${formatDate(latest)}` : ''; })()}</span></span>
                             </div>
                         </div>
                     </div>

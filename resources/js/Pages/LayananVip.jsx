@@ -25,9 +25,9 @@ const CheckIcon = ({ gold = false }) => (
 
 export default function LayananVip({ auth, packages = [] }) {
     const vipPkg = packages.find((p) => p.slug === 'vip') || {
-        base_price: 8000000,
-        current_price: 4000000,
-        discount_percentage: 50,
+        base_price: 0,
+        current_price: 0,
+        discount_percentage: 0,
         discount_ends_at: null,
     };
 
@@ -35,6 +35,15 @@ export default function LayananVip({ auth, packages = [] }) {
         new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })
             .format(price)
             .replace('IDR', 'Rp');
+
+    const formatDate = (dateString) => {
+        if (!dateString) return null;
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    };
 
     const levelKondisi = [
         {
@@ -376,9 +385,11 @@ export default function LayananVip({ auth, packages = [] }) {
                                     <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
                                         {formatPrice(vipPkg.current_price || vipPkg.base_price)}
                                     </p>
-                                    <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
-                                        Diskon 50% hingga 21 Mei 2026
-                                    </span>
+                                    {vipPkg.discount_percentage > 0 && vipPkg.discount_ends_at && (
+                                        <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
+                                            Diskon {vipPkg.discount_percentage}% hingga {formatDate(vipPkg.discount_ends_at)}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                             <div className="mt-8 pt-6 border-t border-gray-700 text-xs text-gray-500 font-medium">

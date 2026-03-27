@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
+import FakeBookingToast from '@/Components/FakeBookingToast';
 
 /**
  * PublicLayout — layout untuk halaman publik (bisa diakses tamu & user login).
@@ -27,6 +28,9 @@ export default function PublicLayout({ children, title }) {
             <main className="relative z-10 pt-16">
                 {children}
             </main>
+
+            {/* Fake Booking Notification Toast */}
+            <FakeBookingToast />
         </div>
     );
 }

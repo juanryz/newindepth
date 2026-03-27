@@ -233,7 +233,12 @@ export default function Layanan({ auth, packages = [] }) {
                                     <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">
                                         Program Khusus:{' '}
                                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">
-                                            Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}% hingga 21 Mei 2026
+                                            Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%
+                                            {(() => {
+                                                const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean);
+                                                const latest = dates.length > 0 ? dates.sort().pop() : null;
+                                                return latest ? ` hingga ${formatDate(latest)}` : '';
+                                            })()}
                                         </span>
                                     </span>
                                 </div>
@@ -262,22 +267,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {regulerPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
-                                            {formatPrice(regulerPkg.base_price || 2000000)}
+                                            {formatPrice(regulerPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
-                                        {regulerPkg.current_price ? formatPrice(regulerPkg.current_price) : 'Rp 2.000.000'}
+                                        {formatPrice(regulerPkg.current_price)}
                                     </span>
                                 </div>
                                 <p className="text-gray-500 text-sm">/ sesi · ±2 jam</p>
-                                {regulerPkg.discount_ends_at && (
+                                {regulerPkg.discount_percentage > 0 && regulerPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d {formatDate(regulerPkg.discount_ends_at)}
-                                    </span>
-                                )}
-                                {!regulerPkg.discount_ends_at && (
-                                    <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ Diskon 50% hingga 21 Mei 2026
+                                        ⏳ Diskon {regulerPkg.discount_percentage}% s/d {formatDate(regulerPkg.discount_ends_at)}
                                     </span>
                                 )}
                             </div>
@@ -352,22 +352,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {premiumPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
-                                            {formatPrice(premiumPkg.base_price || 3000000)}
+                                            {formatPrice(premiumPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">
-                                        {premiumPkg.current_price ? formatPrice(premiumPkg.current_price) : 'Rp 3.000.000'}
+                                        {formatPrice(premiumPkg.current_price)}
                                     </span>
                                 </div>
                                 <p className="text-gray-500 text-sm">/ sesi · ±2 jam</p>
-                                {premiumPkg.discount_ends_at && (
+                                {premiumPkg.discount_percentage > 0 && premiumPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d {formatDate(premiumPkg.discount_ends_at)}
-                                    </span>
-                                )}
-                                {!premiumPkg.discount_ends_at && (
-                                    <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ Diskon 50% hingga 21 Mei 2026
+                                        ⏳ Diskon {premiumPkg.discount_percentage}% s/d {formatDate(premiumPkg.discount_ends_at)}
                                     </span>
                                 )}
                             </div>
@@ -438,22 +433,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <div className="flex flex-col gap-0.5 mb-1">
                                     {vipPkg.discount_percentage > 0 && (
                                         <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">
-                                            {formatPrice(vipPkg.base_price || 8000000)}
+                                            {formatPrice(vipPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
-                                        {vipPkg.current_price ? formatPrice(vipPkg.current_price) : 'Rp 8.000.000'}
+                                        {formatPrice(vipPkg.current_price)}
                                     </span>
                                 </div>
                                 <p className="text-gray-400 text-sm">/ sesi · ±2 jam</p>
-                                {vipPkg.discount_ends_at && (
+                                {vipPkg.discount_percentage > 0 && vipPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ s/d {formatDate(vipPkg.discount_ends_at)}
-                                    </span>
-                                )}
-                                {!vipPkg.discount_ends_at && (
-                                    <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                        ⏳ Diskon 50% hingga 21 Mei 2026
+                                        ⏳ Diskon {vipPkg.discount_percentage}% s/d {formatDate(vipPkg.discount_ends_at)}
                                     </span>
                                 )}
                             </div>

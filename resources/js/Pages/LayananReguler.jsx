@@ -29,9 +29,9 @@ const DotIcon = ({ color = 'bg-blue-500' }) => (
 
 export default function LayananReguler({ auth, packages = [] }) {
     const regulerPkg = packages.find((p) => p.slug === 'reguler') || {
-        base_price: 2000000,
-        current_price: 1000000,
-        discount_percentage: 50,
+        base_price: 0,
+        current_price: 0,
+        discount_percentage: 0,
         discount_ends_at: null,
     };
 
@@ -39,6 +39,15 @@ export default function LayananReguler({ auth, packages = [] }) {
         new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })
             .format(price)
             .replace('IDR', 'Rp');
+
+    const formatDate = (dateString) => {
+        if (!dateString) return null;
+        return new Date(dateString).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    };
 
     const masalahGroups = [
         {
@@ -361,9 +370,11 @@ export default function LayananReguler({ auth, packages = [] }) {
                                     <p className="text-3xl font-black text-gray-900 dark:text-white">
                                         {formatPrice(regulerPkg.current_price || regulerPkg.base_price)}
                                     </p>
-                                    <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
-                                        Diskon 50% hingga 21 Mei 2026
-                                    </span>
+                                    {regulerPkg.discount_percentage > 0 && regulerPkg.discount_ends_at && (
+                                        <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
+                                            Diskon {regulerPkg.discount_percentage}% hingga {formatDate(regulerPkg.discount_ends_at)}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-400 font-medium">
