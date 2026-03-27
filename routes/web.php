@@ -44,6 +44,29 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
         }
     });
 
+    Route::get('/setup-storage-link', function () {
+        try {
+            $target = storage_path('app/public');
+            $link = public_path('storage');
+
+            if (file_exists($link)) {
+                if (is_link($link)) {
+                    unlink($link);
+                } else {
+                    return '❌ Error: Folder "public/storage" masih ada dan bukan shortcut/symlink. Silakan hapus folder tersebut secara manual di File Manager cPanel, lalu refresh halaman ini.';
+                }
+            }
+
+            symlink($target, $link);
+            return '✅ Storage link berhasil diperbarui! <br> Link Baru: ' . $link . ' -> ' . $target;
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\Artisan::call('storage:link') === 0) {
+                 return '✅ Storage link berhasil diperbarui via Artisan!';
+            }
+            return '❌ Error: ' . $e->getMessage();
+        }
+    });
+
     Route::get('/setup-schedules', function () {
         try {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
