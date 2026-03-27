@@ -14,16 +14,14 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                 { name: 'Home', href: '/', key: 'home' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Layanan', href: '/layanan', key: 'layanan' },
-                { name: 'Artikel', href: '/blog', key: 'blog' },
-                { name: 'Pelatihan', href: '/courses', key: 'courses' }
+                { name: 'Artikel', href: '/blog', key: 'blog' }
             ];
         } catch (e) {
             return [
                 { name: 'Home', href: '/', key: 'home' },
                 { name: 'Metode', href: '/metode', key: 'methods' },
                 { name: 'Layanan', href: '/layanan', key: 'layanan' },
-                { name: 'Artikel', href: '/blog', key: 'blog' },
-                { name: 'Pelatihan', href: '/courses', key: 'courses' }
+                { name: 'Artikel', href: '/blog', key: 'blog' }
             ];
         }
     };

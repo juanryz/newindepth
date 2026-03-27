@@ -62,7 +62,6 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                             {transactions.data.map(tx => {
-                                                const isCourse = tx.transactionable_type?.includes('Course');
                                                 const isBooking = tx.transactionable_type?.includes('Booking');
                                                 const amount = tx.amount ? new Intl.NumberFormat('id-ID').format(tx.amount) : '-';
 
@@ -88,12 +87,7 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                         </td>
                                                         <td className="py-4 px-4 align-top">
                                                             <div className="font-medium whitespace-nowrap">
-                                                                {isCourse ? (
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-[10px] font-black uppercase text-indigo-500">Kelas Pelatihan</span>
-                                                                        <span>{tx.transactionable?.title || '-'}</span>
-                                                                    </div>
-                                                                ) : isBooking ? (
+                                                                {isBooking ? (
                                                                     <div className="flex flex-col">
                                                                         <span className="text-[10px] font-black uppercase text-emerald-500">Sesi Terapi</span>
                                                                         <span>
@@ -114,8 +108,6 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                                         {tx.transactionable?.schedule ? `${tx.transactionable.schedule.start_time?.substring(0, 5) || '--:--'} - ${tx.transactionable.schedule.end_time?.substring(0, 5) || '--:--'} WIB` : '-'}
                                                                     </div>
                                                                 </>
-                                                            ) : isCourse ? (
-                                                                <div className="text-sm text-gray-500 italic mt-2">Akses Selamanya</div>
                                                             ) : '-'}
                                                         </td>
                                                         <td className="py-4 px-4 align-top font-semibold text-gray-700 dark:text-gray-300">
@@ -136,13 +128,6 @@ export default function TransactionHistory({ transactions, profileProgress }) {
                                                                     className="text-sm font-semibold text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                                                                 >
                                                                     Lihat Detail Booking →
-                                                                </Link>
-                                                            ) : isCourse && isCompleted ? (
-                                                                <Link
-                                                                    href={route('courses.show', tx.transactionable_id)}
-                                                                    className="text-sm font-semibold text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
-                                                                >
-                                                                    Mulai Belajar →
                                                                 </Link>
                                                             ) : null}
                                                         </td>

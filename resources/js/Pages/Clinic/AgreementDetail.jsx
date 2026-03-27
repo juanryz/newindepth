@@ -262,7 +262,7 @@ export default function AgreementDetail({ userModel }) {
                             <CheckRow label="Kebijakan Privasi (Persetujuan pengelolaan data pribadi)" checked={agreementData?.privacy_policy || (!!agreementData && !agreementData.hasOwnProperty('privacy_policy'))} />
                             <CheckRow label="Kebijakan Non-Refund (Seluruh pembayaran bersifat final)" checked={agreementData?.refund_policy || (!!agreementData && !agreementData.hasOwnProperty('refund_policy'))} />
                             <CheckRow label="Perjanjian Afiliasi (Syarat komisi dan rujukan)" checked={agreementData?.affiliate_agreement || (!!agreementData && !agreementData.hasOwnProperty('affiliate_agreement'))} />
-                            <CheckRow label="Perjanjian Produk Digital & Kelas (Hak akses e-learning)" checked={agreementData?.course_agreement || (!!agreementData && !agreementData.hasOwnProperty('course_agreement'))} />
+
 
                             <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex flex-col sm:flex-row justify-between gap-2">
                                 <span className="flex items-center gap-2">

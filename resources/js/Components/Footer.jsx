@@ -22,7 +22,7 @@ export default function Footer() {
                             <li><Link href="/" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Home</Link></li>
                             <li><Link href="/metode" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Metode</Link></li>
                             <li><Link href="/blog" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Artikel</Link></li>
-                            <li><Link href="/courses" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Pelatihan</Link></li>
+
                             <li><Link href="/testimoni" className="text-gray-600 dark:text-gray-400 hover:text-gold-600 transition-colors">Testimoni</Link></li>
                         </ul>
                     </div>

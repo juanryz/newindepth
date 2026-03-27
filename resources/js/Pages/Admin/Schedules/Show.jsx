@@ -21,7 +21,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
     const [isAddingPatient, setIsAddingPatient] = useState(false);
     const [selectedPatientDetail, setSelectedPatientDetail] = useState(null);
     const [patientSubTab, setPatientSubTab] = useState('summary');
-    const [selectedCourseAgreement, setSelectedCourseAgreement] = useState(null);
+
     const [showChecklist, setShowChecklist] = useState({});
 
     const { auth } = usePage().props;
@@ -695,31 +695,6 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                                                 ) : <div className="mt-6 text-center text-[10px] font-bold text-gray-400 uppercase italic border border-dashed p-8 rounded-2xl">Belum Bergabung Afiliasi</div>}
                                             </div>
 
-                                            {/* Course Agreements */}
-                                            {selectedPatientDetail.transactions?.filter(tx => tx.transactionable_type?.includes('Course') && tx.payment_agreement_data).map((tx) => (
-                                                <div key={`course-legal-${tx.id}`} className="p-8 rounded-[2rem] border bg-gray-50/50 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700 md:col-span-2">
-                                                    <div className="flex justify-between items-start mb-6">
-                                                        <div>
-                                                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">E-Learning / Kelas</p>
-                                                            <h4 className="font-black text-gray-900 dark:text-white uppercase leading-tight">S&K Peserta Kelas: {tx.transactionable?.title || 'Course'}</h4>
-                                                            <p className="text-[9px] font-bold text-gray-400 mt-1">Invoice: {tx.invoice_number}</p>
-                                                        </div>
-                                                        <Clipboard className="w-10 h-10 text-gray-200" />
-                                                    </div>
-                                                    <div className="flex items-center gap-4 mb-6">
-                                                        <div className="p-2.5 bg-emerald-500 rounded-xl text-white">
-                                                            <CheckCircle2 className="w-5 h-5" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400">Persetujuan Terdaftar</p>
-                                                            <p className="text-[10px] font-bold text-gray-400 font-mono italic">{new Date(tx.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => setSelectedCourseAgreement({ tx, data: tx.payment_agreement_data })} className="w-full py-4 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 rounded-2xl hover:shadow-lg transition-all">
-                                                        Lihat Detail S&K Lengkap
-                                                    </button>
-                                                </div>
-                                            ))}
                                         </div>
                                     </div>
                                 </motion.div>
@@ -841,38 +816,7 @@ function InnerSchedulesShow({ schedule, availableSchedules, patients = [] }) {
                 )}
             </Modal>
 
-            {/* MODAL: COURSE AGREEMENT DETAIL (MATCHING USERS/SHOW.JSX) */}
-            <Modal show={selectedCourseAgreement !== null} onClose={() => setSelectedCourseAgreement(null)} maxWidth="2xl">
-                {selectedCourseAgreement && (
-                    <div className="p-10 dark:bg-gray-900 rounded-[2.5rem] relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full -mr-16 -mt-16"></div>
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Syarat & Ketentuan Peserta</h3>
-                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-8">Kelas: {selectedCourseAgreement.tx.transactionable?.title}</p>
 
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-3xl border border-gray-100 dark:border-gray-700/50 max-h-[400px] overflow-y-auto mb-8 custom-scrollbar">
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                    {selectedCourseAgreement.data.agreement_text || "Peserta setuju untuk mengikuti seluruh rangkaian materi dan mematuhi kode etik bimbingan InDepth Mental Wellness."}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
-                                <p className="text-[8px] font-black text-gray-400 uppercase mb-2">Tanda Tangan Peserta</p>
-                                <img src={selectedCourseAgreement.data.signature} className="h-16 mx-auto object-contain invert dark:invert-0" alt="course-signature" />
-                            </div>
-                            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 flex flex-col justify-center items-center">
-                                <CheckCircle2 className="w-6 h-6 text-emerald-500 mb-1" />
-                                <p className="text-[8px] font-black text-emerald-600 uppercase">Tervalidasi Sistem</p>
-                                <p className="text-[9px] font-bold text-gray-500 mt-1">{new Date(selectedCourseAgreement.tx.created_at).toLocaleDateString('id-ID')}</p>
-                            </div>
-                        </div>
-
-                        <button onClick={() => setSelectedCourseAgreement(null)} className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-black text-[10px] uppercase rounded-2xl shadow-xl tracking-widest">Tutup Dokumen</button>
-                    </div>
-                )}
-            </Modal>
 
             {/* Existing Modals: Reschedule, No-Show, Add Patient */}
             <Modal show={selectedRescheduleBooking !== null} onClose={() => setSelectedRescheduleBooking(null)}>

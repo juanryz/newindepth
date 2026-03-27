@@ -26,8 +26,7 @@ class RoleController extends Controller
             'roles' => ['view', 'create', 'edit', 'delete'],
             'permissions' => ['view', 'create', 'edit', 'delete'],
             'blog_posts' => ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
-            'courses' => ['view', 'create', 'edit', 'delete'],
-            'lessons' => ['view', 'create', 'edit', 'delete'],
+
             'reports' => ['view', 'export'],
             'petty_cash' => ['view', 'create', 'edit', 'delete', 'approve', 'reject'],
             'finance' => ['view'],
@@ -80,8 +79,7 @@ class RoleController extends Controller
             'roles' => ['view', 'create', 'edit', 'delete'],
             'permissions' => ['view', 'create', 'edit', 'delete'],
             'blog_posts' => ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
-            'courses' => ['view', 'create', 'edit', 'delete'],
-            'lessons' => ['view', 'create', 'edit', 'delete'],
+
             'reports' => ['view', 'export'],
             'petty_cash' => ['view', 'create', 'edit', 'delete', 'approve', 'reject'],
             'finance' => ['view'],

@@ -3,7 +3,7 @@ import React from 'react';
 const REFUND_POLICY = {
     title: "KEBIJAKAN NON-REFUND",
     updated: "23 Februari 2026",
-    content: `Dengan melakukan pembayaran atas layanan, pelatihan, seminar, LMS, sertifikasi, keanggotaan, atau program apa pun yang diselenggarakan oleh InDepth Mental Wellness, pengguna secara sadar dan sukarela menyatakan:
+    content: `Dengan melakukan pembayaran atas layanan, seminar, sertifikasi, keanggotaan, atau program apa pun yang diselenggarakan oleh InDepth Mental Wellness, pengguna secara sadar dan sukarela menyatakan:
 1. Telah membaca kebijakan ini.
 2. Memahami seluruh ketentuan.
 3. Menyetujui tanpa keberatan.
@@ -31,48 +31,41 @@ PASAL 3: EVENT OFFLINE & ONLINE
 4. Materi yang telah diakses dianggap telah diterima secara sah.
 5. Refund hanya mungkin jika acara dibatalkan sepenuhnya oleh penyelenggara tanpa opsi penjadwalan ulang.
 
-PASAL 4: LMS DAN AKSES DIGITAL
-1. Setelah akses LMS diberikan, pembayaran tidak dapat dikembalikan.
-2. Tidak menyelesaikan materi bukan alasan refund.
-3. Ketidaksesuaian ekspektasi bukan alasan refund.
-4. Akses yang telah dibuka dianggap sebagai layanan yang telah diberikan.
-5. Mengunduh materi, membuka video, atau login pertama kali dianggap penggunaan aktif.
-
-PASAL 5: SERTIFIKASI
+PASAL 4: SERTIFIKASI
 1. Biaya sertifikasi bersifat final.
 2. Tidak lulus bukan alasan refund.
 3. Ketidaksiapan peserta bukan tanggung jawab penyelenggara.
 4. Sertifikat hanya diberikan jika memenuhi standar evaluasi.
 
-PASAL 6: PERPANJANGAN ALUMNI / KEANGGOTAAN
+PASAL 5: PERPANJANGAN ALUMNI / KEANGGOTAAN
 1. Pembayaran tahunan bersifat final.
 2. Tidak aktif atau tidak menggunakan fasilitas bukan alasan refund.
 3. Perubahan keputusan pribadi tidak membatalkan kewajiban pembayaran.
 
-PASAL 7: CHARGEBACK DAN SENGKETA PEMBAYARAN
+PASAL 6: CHARGEBACK DAN SENGKETA PEMBAYARAN
 1. Pengajuan chargeback tanpa dasar hukum yang sah dianggap pelanggaran perjanjian.
 2. Perusahaan berhak menempuh jalur hukum jika terjadi penyalahgunaan sistem pembayaran.
 3. Biaya administrasi akibat chargeback dapat dibebankan kepada pengguna.
 
-PASAL 8: FORCE MAJEURE
+PASAL 7: FORCE MAJEURE
 Jika terjadi keadaan di luar kendali (bencana alam, kebijakan pemerintah, gangguan sistem besar):
 1. Solusi utama adalah penjadwalan ulang.
 2. Refund hanya dipertimbangkan jika kegiatan sepenuhnya tidak dapat dilaksanakan dan tidak ada alternatif solusi.
 3. Keputusan akhir berada pada penyelenggara.
 
-PASAL 9: PEMBATASAN TANGGUNG JAWAB
+PASAL 8: PEMBATASAN TANGGUNG JAWAB
 1. Tanggung jawab maksimal InDepth terbatas pada nilai pembayaran yang diterima.
 2. Tidak ada kompensasi tambahan.
 3. Tidak ada ganti rugi immaterial.
 4. Tidak ada klaim kerugian tidak langsung.
 
-PASAL 10: PELEPASAN HAK PEMBATALAN
+PASAL 9: PELEPASAN HAK PEMBATALAN
 Dengan melakukan pembayaran, pengguna secara tegas melepaskan hak untuk:
 - Membatalkan secara sepihak
 - Menuntut refund tanpa dasar hukum
 - Mengklaim ketidakpuasan subjektif
 
-PASAL 11: KEABSAHAN PERSETUJUAN DIGITAL
+PASAL 10: KEABSAHAN PERSETUJUAN DIGITAL
 Persetujuan melalui checkbox, klik tombol bayar, atau tanda tangan digital memiliki kekuatan hukum yang sama dengan tanda tangan fisik sesuai UU ITE.`
 };
 

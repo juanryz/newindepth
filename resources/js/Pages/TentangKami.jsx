@@ -207,7 +207,7 @@ export default function TentangKami({ auth }) {
                         {[
                             'Metodologi dikembangkan secara internal',
                             'Pendekatan berbasis unconscious dan kecerdasan tubuh',
-                            'Sistem terintegrasi antara layanan dan pelatihan',
+                            'Sistem terintegrasi antara layanan dan teknologi AI',
                             'Sertifikasi praktisi berjenjang',
                             'Privasi dan dokumentasi sesi terjaga',
                             'Proses terarah dalam satu sesi',

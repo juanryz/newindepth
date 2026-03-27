@@ -328,43 +328,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
             }
         }
 
-        // 8. Courses & Course User tables
-        if (!$schema::hasTable('courses')) {
-            try {
-                \Illuminate\Support\Facades\DB::statement("CREATE TABLE courses (
-                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                    title VARCHAR(255) NOT NULL,
-                    slug VARCHAR(255) UNIQUE NOT NULL,
-                    description TEXT NOT NULL,
-                    thumbnail VARCHAR(255) NULL,
-                    price DECIMAL(12,2) DEFAULT 0,
-                    is_published TINYINT(1) DEFAULT 0,
-                    created_at TIMESTAMP NULL,
-                    updated_at TIMESTAMP NULL
-                )");
-                $output[] = "✅ Created table: courses";
-            } catch (\Throwable $e) {
-                $output[] = "❌ Failed courses: " . $e->getMessage();
-            }
-        }
 
-        if (!$schema::hasTable('course_user')) {
-            try {
-                \Illuminate\Support\Facades\DB::statement("CREATE TABLE course_user (
-                    user_id BIGINT UNSIGNED NOT NULL,
-                    course_id BIGINT UNSIGNED NOT NULL,
-                    transaction_id BIGINT UNSIGNED NULL,
-                    enrolled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (user_id, course_id),
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-                    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
-                )");
-                $output[] = "✅ Created table: course_user";
-            } catch (\Throwable $e) {
-                $output[] = "❌ Failed course_user: " . $e->getMessage();
-            }
-        }
 
         return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
     });
@@ -504,7 +468,7 @@ Route::get('/', function () {
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'articles' => \App\Models\BlogPost::with('author')->where('is_published', true)->latest('published_at')->take(3)->get(),
-        'courses' => \App\Models\Course::where('is_published', true)->latest()->take(3)->get(),
+
         'packages' => \App\Models\Package::where('is_active', true)->get(),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
@@ -610,13 +574,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/schedules/sessions/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])->name('schedules.no-show');
             Route::get('/patients/{user}/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'patientAgreement'])->name('agreement.patient');
 
-            // Therapist Course Management
-            Route::name('therapist.')->prefix('therapist')->group(
-                function () {
-                Route::resource('courses', \App\Http\Controllers\Therapist\CourseController::class);
-                Route::resource('courses.lessons', \App\Http\Controllers\Therapist\LessonController::class);
-            }
-            );
+
         }
     );
 
@@ -710,12 +668,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('permission:export reports')
                 ->name('finance.export-csv');
 
-            // Courses & Lessons
-            Route::resource('courses', \App\Http\Controllers\Admin\CourseCMSController::class)
-                ->middleware('permission:view courses|create courses|edit courses|delete courses');
-            Route::resource('courses.lessons', \App\Http\Controllers\Admin\LessonCMSController::class)
-                ->except(['show'])
-                ->middleware('permission:view lessons|create lessons|edit lessons|delete lessons');
+
 
             // Clinic / Bookings Admin
             Route::patch('/clinic/bookings/{booking}/assign-therapist', [\App\Http\Controllers\Admin\AdminBookingController::class, 'assignTherapist'])
@@ -864,17 +817,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-// Public / LMS Routes (Protected by Auth where necessary inside controllers)
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/my-courses', [\App\Http\Controllers\Lms\CourseController::class, 'myCourses'])->name('courses.my');
-    Route::post('/courses/{course:slug}/enroll', [\App\Http\Controllers\Lms\CourseController::class, 'enroll'])->name('courses.enroll');
-    Route::get('/courses/{course:slug}/payment', [\App\Http\Controllers\Lms\CourseController::class, 'payment'])->name('courses.payment');
-    Route::post('/courses/{course:slug}/payment', [\App\Http\Controllers\Lms\CourseController::class, 'storePayment'])->name('courses.payment.store');
-});
 
-Route::get('/courses', [\App\Http\Controllers\Lms\CourseController::class, 'index'])->name('courses.index');
-Route::get('/courses/{course:slug}', [\App\Http\Controllers\Lms\CourseController::class, 'show'])->name('courses.show');
-Route::get('/courses/{course:slug}/lessons/{lesson}', [\App\Http\Controllers\Lms\LessonController::class, 'show'])->name('lessons.show');
 
 // Public Blog Routes
 Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
@@ -924,7 +867,7 @@ Route::get('/therapists/{user}', [\App\Http\Controllers\TherapistController::cla
 // Dynamic XML Sitemap — SEO Optimized
 Route::get('/sitemap.xml', function () {
     $posts = \App\Models\BlogPost::where('is_published', true)->latest('published_at')->get();
-    $courses = \App\Models\Course::where('is_published', true)->latest()->get();
+
     $now = now()->toAtomString();
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -934,7 +877,7 @@ Route::get('/sitemap.xml', function () {
     $staticPages = [
         ['url' => url('/'), 'freq' => 'weekly', 'priority' => '1.0'],
         ['url' => url('/blog'), 'freq' => 'daily', 'priority' => '0.9'],
-        ['url' => url('/courses'), 'freq' => 'weekly', 'priority' => '0.8'],
+
         ['url' => url('/metode'), 'freq' => 'monthly', 'priority' => '0.8'],
         ['url' => url('/testimoni'), 'freq' => 'monthly', 'priority' => '0.8'],
         ['url' => url('/therapists'), 'freq' => 'monthly', 'priority' => '0.7'],
@@ -965,15 +908,7 @@ Route::get('/sitemap.xml', function () {
         $xml .= '</url>';
     }
 
-    // ── Courses ─────────────────────────────────────────────────
-    foreach ($courses as $course) {
-        $xml .= '<url>';
-        $xml .= '<loc>' . htmlspecialchars(url('/courses/' . $course->slug)) . '</loc>';
-        $xml .= '<lastmod>' . $course->updated_at->toAtomString() . '</lastmod>';
-        $xml .= '<changefreq>monthly</changefreq>';
-        $xml .= '<priority>0.7</priority>';
-        $xml .= '</url>';
-    }
+
 
     $xml .= '</urlset>';
 

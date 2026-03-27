@@ -72,12 +72,12 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
             $baseBookingQuery = \App\Models\Booking::query();
-            $baseCourseQuery = \App\Models\Course::query();
+
 
             // If not admin, filter by therapist_id
             if (!$user->hasAnyRole(['admin', 'super_admin'])) {
                 $baseBookingQuery->where('bookings.therapist_id', $user->id);
-                $baseCourseQuery->where('instructor_id', $user->id);
+
             }
 
             // Upcoming + overdue confirmed sessions (include past sessions that still need action)
@@ -121,7 +121,7 @@ class DashboardController extends Controller
                     ->whereIn('status', ['confirmed', 'in_progress', 'completed'])
                     ->distinct()
                     ->count('patient_id'),
-                'active_courses' => (clone $baseCourseQuery)->count(),
+
             ];
 
             if ($user->hasAnyRole(['admin', 'super_admin'])) {

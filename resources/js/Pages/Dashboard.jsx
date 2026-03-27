@@ -702,15 +702,7 @@ export default function Dashboard() {
                                             color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
                                         />
                                     )}
-                                    {(isSuperAdmin || permissions.includes('view courses')) && (
-                                        <QuickCard
-                                            href={route('admin.courses.index')}
-                                            title="Manajemen Kelas"
-                                            description="Kelola kelas online dan kurikulum"
-                                            iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                            color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                        />
-                                    )}
+
                                     {(!isSuperAdmin && permissions.includes('view transactions')) && (
                                         <QuickCard
                                             href={route('admin.transactions.index')}
@@ -831,7 +823,7 @@ export default function Dashboard() {
                     {isTherapist && (
                         <div className="space-y-8">
                             <section>
-                                <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi & LMS)' : 'Statistik Saya'}</SectionLabel>
+                                <SectionLabel>{isAdmin ? 'Statistik Perusahaan (Konsultasi)' : 'Statistik Saya'}</SectionLabel>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <Link href={isAdmin ? route('admin.orders.index') : route('schedules.index')} className="block group">
                                         <GlassPanel className="p-6 hover:shadow-[0_12px_40px_rgba(99,102,241,0.06)] hover:border-indigo-200/50 dark:hover:border-indigo-500/20 transition-all">
@@ -1089,7 +1081,7 @@ export default function Dashboard() {
 
                                 <div className="space-y-6">
                                     <section>
-                                        <SectionLabel>{isAdmin ? 'Layanan Terapi & LMS' : 'Menu Terapis'}</SectionLabel>
+                                        <SectionLabel>{isAdmin ? 'Layanan Terapi' : 'Menu Terapis'}</SectionLabel>
                                         <div className="flex flex-col gap-4">
                                             <QuickCard
                                                 href={route('schedules.index')}
@@ -1098,15 +1090,7 @@ export default function Dashboard() {
                                                 iconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                                 color="bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400"
                                             />
-                                            {!isAdmin && !isTherapist && (
-                                                <QuickCard
-                                                    href={route('therapist.courses.index')}
-                                                    title="Kelas Online Saya"
-                                                    description="Buat & kelola kursus yang Anda ajar"
-                                                    iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                                    color="bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
-                                                />
-                                            )}
+
                                             {!isTherapist && (
                                                 <QuickCard
                                                     href={route('profile.edit')}
@@ -1195,13 +1179,7 @@ export default function Dashboard() {
                                             iconPath="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                                             color="bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400"
                                         />
-                                        <QuickCard
-                                            href="/my-courses"
-                                            title="Pelatihan Saya"
-                                            description="Daftar program pelatihan offline yang Anda ikuti"
-                                            iconPath="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                            color="bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                                        />
+
                                     </div>
                                 </section>
 

@@ -20,7 +20,7 @@ class ScheduleController extends Controller
         $bookingsQuery = Booking::with([
             'schedule.therapist',
             'patient.screeningResults',
-            'patient.courses',
+
             'patient.bookings' => function ($query) {
                 $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
             }
@@ -182,7 +182,7 @@ class ScheduleController extends Controller
         $user->load([
             'screeningResults' => fn($q) => $q->latest(),
             'bookings' => fn($q) => $q->with(['schedule.therapist', 'therapist'])->latest(),
-            'courses',
+
         ]);
 
         $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);

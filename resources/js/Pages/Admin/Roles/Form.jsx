@@ -33,7 +33,7 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         'Booking & Konsultasi': ['bookings', 'schedules', 'own_schedule'],
         'Transaksi & Pembayaran': ['transactions', 'all_transactions', 'packages', 'vouchers'],
         'Manajemen Pengguna': ['users', 'roles', 'permissions'],
-        'Konten Akses Publik': ['blog_posts', 'courses', 'lessons'],
+        'Konten Akses Publik': ['blog_posts'],
         'Laporan & Keuangan': ['reports', 'finance', 'expenses', 'petty_cash'],
     };
 
@@ -46,7 +46,7 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
         'all_transactions': 'Akses melihat seluruh history transaksi pengguna.',
         'users': 'Manajemen daftar pengguna dan pemberian hak akses.',
         'blog_posts': 'Mengelola informasi artikel blog publik.',
-        'courses': 'Mengelola paket dan konten kursus edukasi.',
+
         'reports': 'Export dan view laporan statistik bulanan.',
         'finance': 'Melihat arus kas utama & dashboard finance.',
         'petty_cash': 'Mengelola pengajuan dan saldo kas kecil.',
@@ -75,8 +75,6 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
             },
             'Konten Akses Publik': {
                 'blog_posts': ['view', 'create', 'edit', 'delete', 'publish', 'analyze'],
-                'courses': ['view', 'create', 'edit', 'delete'],
-                'lessons': ['view', 'create', 'edit', 'delete']
             },
             'Laporan & Keuangan': {
                 'reports': ['view', 'export'],
@@ -163,7 +161,7 @@ export default function RolesForm({ roleModel, permissions, rolePermissions }) {
             'all_transactions': 'Seluruh Riwayat Transaksi',
             'users': 'Manajemen Pengguna & Admin',
             'blog_posts': 'Artikel Blog Publik',
-            'courses': 'Layanan Kursus Edukasi',
+
             'reports': 'Laporan Sistem Utama',
             'finance': 'Dashboard Keuangan (Finance)',
             'petty_cash': 'Kas Kecil Internal/Eksternal',

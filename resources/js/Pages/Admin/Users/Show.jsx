@@ -12,10 +12,9 @@ import {
     Fingerprint, MapPin, Clipboard
 } from 'lucide-react';
 
-function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion, courseTransactions = [] }) {
+function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [selectedBooking, setSelectedBooking] = useState(null);
-    const [selectedCourseAgreement, setSelectedCourseAgreement] = useState(null);
 
     const isPatient = (userModel.roles || []).includes('patient');
     const isTherapist = (userModel.roles || []).includes('therapist');
@@ -372,31 +371,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                     </div>
                                                 )}
 
-                                                {/* Course Agreements */}
-                                                {courseTransactions && courseTransactions.length > 0 && courseTransactions.map((tx) => tx.payment_agreement_data && (
-                                                    <div key={`course-legal-${tx.id}`} className="p-6 rounded-[2rem] border bg-gray-50/30 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700">
-                                                        <div className="flex justify-between items-start mb-6">
-                                                            <div>
-                                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">E-Learning / Kelas</p>
-                                                                <h4 className="font-black text-gray-900 dark:text-white uppercase leading-tight line-clamp-1">Agreement & Ketentuan Peserta Kelas: {tx.transactionable?.title || 'Course'}</h4>
-                                                                <p className="text-[9px] font-bold text-gray-400 mt-1">Invoice: {tx.invoice_number}</p>
-                                                            </div>
-                                                            <Clipboard className="w-8 h-8 text-gray-200" />
-                                                        </div>
-                                                        <div className="flex items-center gap-3 mb-6">
-                                                            <div className="p-2 bg-emerald-500 rounded-lg text-white">
-                                                                <CheckCircle2 className="w-4 h-4" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400">Persetujuan Terdaftar</p>
-                                                                <p className="text-[10px] font-bold text-gray-400 font-mono italic">{new Date(tx.created_at).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</p>
-                                                            </div>
-                                                        </div>
-                                                        <button onClick={() => setSelectedCourseAgreement({ tx, data: tx.payment_agreement_data })} className="w-full py-3 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 rounded-xl hover:shadow-md transition-all">
-                                                            Lihat Detail S&K
-                                                        </button>
-                                                    </div>
-                                                ))}
+
                                             </div>
 
                                             {/* Disclaimer Non-Refund if no other specific agreement exists but we want to show it */}
@@ -643,10 +618,10 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                     <td className="px-6 py-5 text-center">
                                                                         <div className="flex flex-col items-center gap-1">
                                                                             <span className="text-[10px] font-black px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg border border-indigo-500/20 w-fit uppercase tracking-widest">
-                                                                                {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop() || 'Course'}
+                                                                                {isBooking ? 'Booking' : tx.transactionable_type?.split('\\').pop() || 'Lainnya'}
                                                                             </span>
                                                                             <span className="text-xs font-bold text-gray-800 dark:text-gray-200 mt-1">
-                                                                                {isBooking ? `${tx.transactionable?.package_type || 'Package'}` : `${tx.transactionable?.title || 'Online Course'}`}
+                                                                                {isBooking ? `${tx.transactionable?.package_type || 'Package'}` : `${tx.transactionable?.title || 'Layanan'}`}
                                                                             </span>
                                                                             {tx.payment_agreement_data && (
                                                                                 <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-black flex items-center justify-center gap-1 uppercase mt-1">
@@ -939,34 +914,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                         )}
                     </Modal>
 
-                    {/* Course Agreement Modal */}
-                    <Modal show={selectedCourseAgreement !== null} onClose={() => setSelectedCourseAgreement(null)} maxWidth="lg">
-                        <div className="p-8">
-                            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Persetujuan Course</h2>
-                            <p className="text-xs text-indigo-600 font-black uppercase mb-8">{selectedCourseAgreement?.tx?.transactionable?.title}</p>
 
-                            <div className="space-y-4 mb-10 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                {selectedCourseAgreement?.data && Object.entries(selectedCourseAgreement.data).map(([key, value]) => {
-                                    if (key === 'signature') return null;
-                                    return (
-                                        <div key={key} className="p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 flex items-start gap-4">
-                                            <div className="mt-0.5 w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center shrink-0">
-                                                <CheckCircle2 className="w-4 h-4" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{key.replace(/_/g, ' ')}</p>
-                                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{value === true ? 'Setuju' : (value || '-')}</p>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-gray-700/50">
-                                <SecondaryButton onClick={() => setSelectedCourseAgreement(null)} className="!rounded-xl !px-6 !py-3 !text-[10px] !font-black !uppercase !tracking-widest">Tutup</SecondaryButton>
-                            </div>
-                        </div>
-                    </Modal>
 
                 </div>
             </div>

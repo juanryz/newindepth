@@ -170,10 +170,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Commission::class, 'affiliate_user_id');
     }
 
-    public function courses()
-    {
-        return $this->belongsToMany(Course::class)->withPivot('transaction_id', 'enrolled_at');
-    }
+
 
     public function hasVerifiedEmail(): bool
     {

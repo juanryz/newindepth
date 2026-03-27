@@ -977,20 +977,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Hasil Skrining</p>
                                 <p className="font-black text-indigo-600">{selectedHistoryPatient?.recommended_package || 'Belum ada data'}</p>
                             </div>
-                            <div className="sm:col-span-2">
-                                <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Partisipasi Kelas (Course)</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedHistoryPatient?.courses?.length > 0 ? (
-                                        selectedHistoryPatient.courses.map(course => (
-                                            <span key={course.id} className="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-purple-100 text-purple-700 border border-purple-200">
-                                                {course.title}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-400 italic text-xs">Belum terdaftar di kelas manapun.</span>
-                                    )}
-                                </div>
-                            </div>
+
                             <div className="sm:col-span-2">
                                 <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-1">Pesan Admin (Skrining)</p>
                                 <p className="italic text-gray-600 dark:text-gray-400 text-xs bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">{selectedHistoryPatient?.screening_results?.[0]?.admin_notes || 'Tidak ada catatan.'}</p>

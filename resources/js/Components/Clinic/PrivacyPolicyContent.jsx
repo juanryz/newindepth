@@ -34,20 +34,16 @@ C. Data Kesehatan dan Psikologis (Khusus Klien)
 - Hasil screening awal
 - Catatan sesi hipnoterapi
 
-D. Data Akademik (Siswa LMS & Pelatihan)
-- Riwayat kursus
-- Hasil kuis dan ujian
-- Sertifikat
-- Status kelulusan
-- Catatan evaluasi
 
-E. Data Affiliate
+
+
+D. Data Affiliate
 - Data identitas
 - Data rekening atau metode payout
 - Data performa referral
 - Data transaksi komisi
 
-F. Data Teknis Website
+E. Data Teknis Website
 - Alamat IP
 - Browser
 - Cookies
@@ -61,7 +57,7 @@ F. Data Teknis Website
 Data digunakan untuk:
 - Proses booking dan administrasi layanan
 - Dokumentasi terapi
-- Pelaksanaan pelatihan dan sertifikasi
+- Pelaksanaan layanan dan sertifikasi
 - Proses pembayaran dan komisi affiliate
 - Verifikasi identitas
 - Pengiriman notifikasi
@@ -169,7 +165,7 @@ Website: indepth.co.id
 
 12. PERSETUJUAN
 
-Dengan menggunakan layanan kami, melakukan booking, mengikuti pelatihan, mendaftar sebagai affiliate, atau mengakses website, Anda dianggap telah membaca, memahami, dan menyetujui Kebijakan Privasi ini.`
+Dengan menggunakan layanan kami, melakukan booking, mendaftar sebagai affiliate, atau mengakses website, Anda dianggap telah membaca, memahami, dan menyetujui Kebijakan Privasi ini.`
 };
 
 export default function PrivacyPolicyContent() {

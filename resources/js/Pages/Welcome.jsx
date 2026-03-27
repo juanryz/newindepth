@@ -12,7 +12,7 @@ const Footer = lazy(() => import('@/Components/Footer'));
 const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
 
 
-export default function Welcome({ auth, articles = [], courses = [], packages = [] }) {
+export default function Welcome({ auth, articles = [], packages = [] }) {
     // Helper to find package by slug
     const getPackage = (slug) => {
         return packages.find(p => p.slug === slug) || {

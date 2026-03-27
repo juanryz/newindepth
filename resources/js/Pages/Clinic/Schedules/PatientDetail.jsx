@@ -249,26 +249,10 @@ export default function PatientDetail({ patient, profileProgress, availableSched
                                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-3 mb-6">
                                                     <BookOpen className="w-5 h-5 text-indigo-500" /> Partisipasi Program
                                                 </h3>
-                                                {patient.courses?.length > 0 ? (
-                                                    <div className="space-y-3">
-                                                        {patient.courses.map(course => (
-                                                            <div key={course.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700">
-                                                                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                                                                    <BookOpen className="w-5 h-5" />
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate pr-2">{course.title}</p>
-                                                                    <p className="text-[10px] text-gray-500 font-medium">Terdaftar pada: {new Date(course.pivot.enrolled_at).toLocaleDateString('id-ID')}</p>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-                                                        <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
-                                                        <p className="text-sm italic">Belum terdaftar di kelas manapun.</p>
-                                                    </div>
-                                                )}
+                                                <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                                                    <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+                                                    <p className="text-sm italic">Tidak ada data program.</p>
+                                                </div>
                                             </div>
 
                                             <div className="bg-white dark:bg-gray-800/60 rounded-3xl p-8 border border-gray-100 dark:border-gray-700/50 shadow-sm">

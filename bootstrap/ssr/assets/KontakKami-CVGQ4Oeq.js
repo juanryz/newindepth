@@ -1,0 +1,353 @@
+import { jsxs, jsx } from "react/jsx-runtime";
+import { Head, Link } from "@inertiajs/react";
+import { useState, Suspense, lazy } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { N as Navbar } from "./Navbar-DnQfU1E1.js";
+import { L as LiquidBackground } from "./LiquidBackground-DsMP_cZ6.js";
+import { P as PageLoader } from "./PageLoader-Fgf54pWN.js";
+import "./ThemeToggle-SHr-61ed.js";
+import "react-dom";
+import "axios";
+const Footer = lazy(() => import("./Footer-CpVcuKD4.js"));
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.6, delay }
+});
+const SectionLabel = ({ children }) => /* @__PURE__ */ jsx("span", { className: "inline-block mb-3 text-xs font-black uppercase tracking-[0.25em] text-gold-600 dark:text-gold-400", children });
+const Card = ({ children, className = "" }) => /* @__PURE__ */ jsx("div", { className: `bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-[2.5rem] shadow-xl ${className}`, children });
+const FAQ_DATA = [
+  {
+    question: "Bagaimana cara memulai konsultasi?",
+    answer: "Konsultasi dimulai melalui WhatsApp ke 082220800034 untuk proses screening awal dan penjadwalan sesi.",
+    tags: ["konsultasi", "mulai", "whatsapp", "cara"]
+  },
+  {
+    question: "Di mana lokasi InDepth Clinic?",
+    answer: "InDepth Clinic berlokasi di Jalan Kelud Raya 34B, Petompon, Gajahmungkur, Semarang, Jawa Tengah.",
+    tags: ["lokasi", "alamat", "semarang", "tempat"]
+  },
+  {
+    question: "Apa saja jam operasional klinik?",
+    answer: "Klinik beroperasi Senin – Sabtu dengan sesi tersedia: 08.00–10.00, 10.00–12.00, 13.00–15.00, dan 15.00–17.00.",
+    tags: ["jam", "operasional", "jadwal", "buka"]
+  },
+  {
+    question: "Berapa durasi setiap sesi?",
+    answer: "Setiap sesi berdurasi kurang lebih 2 jam.",
+    tags: ["durasi", "sesi", "lama", "waktu"]
+  },
+  {
+    question: "Bagaimana cara melakukan pembayaran?",
+    answer: "Pembayaran melalui transfer ke Bank BCA, No. Rekening 2520639058 atas nama Julius Bambang. Konfirmasi via WhatsApp setelah transfer.",
+    tags: ["pembayaran", "transfer", "bca", "rekening", "bayar"]
+  },
+  {
+    question: "Apakah privasi saya terjaga?",
+    answer: "Ya, privasi klien dijaga sepenuhnya dalam setiap proses. Dokumentasi sesi juga tersedia untuk keperluan evaluasi.",
+    tags: ["privasi", "kerahasiaan", "aman", "dokumen"]
+  },
+  {
+    question: "Apa saja alur penanganan awal?",
+    answer: "Alur: (1) Konsultasi via WhatsApp → (2) Screening kondisi → (3) Login sistem → (4) Booking jadwal → (5) Pembayaran.",
+    tags: ["alur", "proses", "langkah", "tahapan"]
+  },
+  {
+    question: "Bagaimana cara menghubungi via email?",
+    answer: "Untuk kebutuhan administrasi dan komunikasi resmi, hubungi kami di admin@indepth.co.id.",
+    tags: ["email", "administrasi", "resmi", "surat"]
+  },
+  {
+    question: "Apakah sesi dilakukan secara terjadwal?",
+    answer: "Ya, sesi dilakukan secara terjadwal. Jadwal dapat ditentukan setelah proses screening via WhatsApp.",
+    tags: ["terjadwal", "booking", "jadwal", "registrasi"]
+  },
+  {
+    question: "Nomor WhatsApp klinik berapa?",
+    answer: "Nomor WhatsApp InDepth Clinic adalah 082220800034.",
+    tags: ["whatsapp", "nomor", "telepon", "hp", "kontak"]
+  }
+];
+function KontakKami({ auth }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openFaq, setOpenFaq] = useState(null);
+  const filteredFaqs = searchQuery.trim() === "" ? FAQ_DATA : FAQ_DATA.filter((faq) => {
+    const q = searchQuery.toLowerCase();
+    return faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q) || faq.tags.some((t) => t.includes(q));
+  });
+  return /* @__PURE__ */ jsxs("div", { className: "min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative", children: [
+    /* @__PURE__ */ jsx(PageLoader, {}),
+    /* @__PURE__ */ jsx(Head, { title: "Kontak Kami | InDepth Clinic" }),
+    /* @__PURE__ */ jsx(LiquidBackground, {}),
+    /* @__PURE__ */ jsx(Navbar, { auth, active: "kontak" }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 pt-40 pb-24 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsx("div", { className: "max-w-4xl mx-auto text-center", children: /* @__PURE__ */ jsxs(motion.div, { ...fadeUp(0), children: [
+      /* @__PURE__ */ jsx(SectionLabel, { children: "Kontak Kami" }),
+      /* @__PURE__ */ jsxs("h1", { className: "text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-gray-900 dark:text-white mb-6 leading-[1.1]", children: [
+        "Hubungi",
+        /* @__PURE__ */ jsx("br", {}),
+        /* @__PURE__ */ jsx("span", { className: "text-gold-500", children: "InDepth Clinic" })
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-light leading-relaxed max-w-2xl mx-auto mb-4", children: "Konsultasikan kondisi Anda dan dapatkan arahan penanganan yang sesuai melalui proses yang terstruktur." }),
+      /* @__PURE__ */ jsx("p", { className: "text-base text-gray-500 dark:text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto", children: "Tim InDepth siap membantu Anda melalui konsultasi awal." })
+    ] }) }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 pb-10 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsx("div", { className: "max-w-3xl mx-auto", children: /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0), children: /* @__PURE__ */ jsxs(Card, { className: "p-6 sm:p-8", children: [
+      /* @__PURE__ */ jsx(SectionLabel, { children: "Cari Informasi" }),
+      /* @__PURE__ */ jsx("h2", { className: "text-xl font-black text-gray-900 dark:text-white mb-4", children: "Temukan jawaban yang Anda cari" }),
+      /* @__PURE__ */ jsxs("div", { className: "relative mb-6", children: [
+        /* @__PURE__ */ jsx("div", { className: "absolute inset-y-0 left-4 flex items-center pointer-events-none", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-gray-400", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" }) }) }),
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            type: "text",
+            value: searchQuery,
+            onChange: (e) => {
+              setSearchQuery(e.target.value);
+              setOpenFaq(null);
+            },
+            placeholder: "Contoh: jadwal, pembayaran, lokasi, WhatsApp...",
+            className: "w-full pl-12 pr-4 py-3.5 bg-white/60 dark:bg-gray-800/60 border border-white/60 dark:border-gray-700/50 rounded-2xl text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-400 dark:focus:ring-gold-600 transition-all"
+          }
+        ),
+        searchQuery && /* @__PURE__ */ jsx(
+          "button",
+          {
+            onClick: () => setSearchQuery(""),
+            className: "absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors",
+            children: /* @__PURE__ */ jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M6 18L18 6M6 6l12 12" }) })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "space-y-2", children: filteredFaqs.length === 0 ? /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500 dark:text-gray-400 text-center py-6", children: [
+        'Tidak ada hasil untuk "',
+        /* @__PURE__ */ jsx("span", { className: "font-semibold", children: searchQuery }),
+        '". Coba kata kunci lain atau hubungi kami langsung.'
+      ] }) : filteredFaqs.map((faq, i) => /* @__PURE__ */ jsxs("div", { className: "rounded-2xl border border-white/60 dark:border-gray-700/40 bg-white/30 dark:bg-gray-800/30 overflow-hidden", children: [
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            onClick: () => setOpenFaq(openFaq === i ? null : i),
+            className: "w-full flex items-center justify-between gap-4 px-5 py-4 text-left",
+            children: [
+              /* @__PURE__ */ jsx("span", { className: "text-sm font-semibold text-gray-800 dark:text-gray-200", children: faq.question }),
+              /* @__PURE__ */ jsx(
+                "svg",
+                {
+                  className: `w-4 h-4 text-gold-500 shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`,
+                  fill: "none",
+                  stroke: "currentColor",
+                  viewBox: "0 0 24 24",
+                  children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M19 9l-7 7-7-7" })
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx(AnimatePresence, { initial: false, children: openFaq === i && /* @__PURE__ */ jsx(
+          motion.div,
+          {
+            initial: { height: 0, opacity: 0 },
+            animate: { height: "auto", opacity: 1 },
+            exit: { height: 0, opacity: 0 },
+            transition: { duration: 0.25 },
+            className: "overflow-hidden",
+            children: /* @__PURE__ */ jsx("div", { className: "px-5 pb-4 text-sm text-gray-600 dark:text-gray-400 font-medium leading-relaxed border-t border-white/40 dark:border-gray-700/30 pt-3", children: faq.answer })
+          },
+          "answer"
+        ) })
+      ] }, i)) }),
+      searchQuery && filteredFaqs.length > 0 && /* @__PURE__ */ jsxs("p", { className: "mt-4 text-xs text-gray-400 dark:text-gray-500 text-center", children: [
+        filteredFaqs.length,
+        " hasil ditemukan"
+      ] })
+    ] }) }) }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 py-10 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsx("div", { className: "max-w-7xl mx-auto", children: /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0), children: /* @__PURE__ */ jsxs(Card, { className: "p-10 lg:p-14", children: [
+      /* @__PURE__ */ jsx(SectionLabel, { children: "Konsultasi WhatsApp" }),
+      /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-4", children: "Mulai dari WhatsApp" }),
+      /* @__PURE__ */ jsx("p", { className: "text-gray-600 dark:text-gray-400 font-medium leading-relaxed mb-8 max-w-2xl", children: "Konsultasi awal dilakukan melalui WhatsApp untuk proses screening dan penjadwalan." }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col sm:flex-row items-start sm:items-center gap-6", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-14 h-14 rounded-2xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 flex items-center justify-center text-green-600 dark:text-green-400 shrink-0", children: /* @__PURE__ */ jsxs("svg", { className: "w-7 h-7", fill: "currentColor", viewBox: "0 0 24 24", children: [
+            /* @__PURE__ */ jsx("path", { d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" }),
+            /* @__PURE__ */ jsx("path", { d: "M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.534 5.845L.057 23.486a.5.5 0 00.606.607l5.688-1.487A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.9 0-3.686-.513-5.217-1.407l-.374-.22-3.882 1.016 1.031-3.773-.239-.384A9.945 9.945 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" })
+          ] }) }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx("p", { className: "text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1", children: "WhatsApp" }),
+            /* @__PURE__ */ jsx("p", { className: "text-2xl font-black text-gray-900 dark:text-white", children: "082220800034" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs(
+          "a",
+          {
+            href: "https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi%20awal",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-sm shadow-[0_8px_30px_rgba(34,197,94,0.3)] hover:shadow-[0_15px_40px_rgba(34,197,94,0.4)] transition-all duration-300 inline-flex items-center gap-2 group",
+            children: [
+              "Mulai Konsultasi",
+              /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M14 5l7 7m0 0l-7 7m7-7H3" }) })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsx("p", { className: "mt-6 text-sm text-gray-500 dark:text-gray-500 font-medium", children: "Klik untuk mulai konsultasi dan mendapatkan arahan awal sesuai kondisi Anda." })
+    ] }) }) }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 py-10 px-4 sm:px-6 lg:px-8 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto", children: [
+      /* @__PURE__ */ jsxs(motion.div, { ...fadeUp(0), className: "text-center mb-12", children: [
+        /* @__PURE__ */ jsx(SectionLabel, { children: "Alur Awal Penanganan" }),
+        /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-3xl font-black text-gray-900 dark:text-white", children: "Lima Langkah Mudah" })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4", children: [
+        { step: "01", label: "Konsultasi via WhatsApp" },
+        { step: "02", label: "Screening kondisi" },
+        { step: "03", label: "Login sistem" },
+        { step: "04", label: "Booking jadwal" },
+        { step: "05", label: "Pembayaran" }
+      ].map((item, i) => /* @__PURE__ */ jsx(motion.div, { ...fadeUp(i * 0.08), children: /* @__PURE__ */ jsxs(Card, { className: "p-6 text-center h-full flex flex-col items-center gap-3", children: [
+        /* @__PURE__ */ jsx("div", { className: "text-2xl font-black text-gold-500 dark:text-gold-400", children: item.step }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm font-medium text-gray-700 dark:text-gray-300 leading-snug", children: item.label })
+      ] }) }, i)) })
+    ] }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 py-10 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto", children: [
+      /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-8", children: [
+        /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0), children: /* @__PURE__ */ jsxs(Card, { className: "p-10 h-full", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 rounded-2xl bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-6", children: /* @__PURE__ */ jsxs("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
+            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" }),
+            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M15 11a3 3 0 11-6 0 3 3 0 016 0z" })
+          ] }) }),
+          /* @__PURE__ */ jsx(SectionLabel, { children: "Lokasi InDepth Clinic" }),
+          /* @__PURE__ */ jsx("h2", { className: "text-xl font-black text-gray-900 dark:text-white mb-4", children: "InDepth Clinic" }),
+          /* @__PURE__ */ jsxs("address", { className: "not-italic space-y-1 text-gray-600 dark:text-gray-400 font-medium leading-relaxed", children: [
+            /* @__PURE__ */ jsx("p", { children: "Jalan Kelud Raya 34B" }),
+            /* @__PURE__ */ jsx("p", { children: "Petompon, Gajahmungkur" }),
+            /* @__PURE__ */ jsx("p", { children: "Semarang, Jawa Tengah" })
+          ] }),
+          /* @__PURE__ */ jsxs(
+            "a",
+            {
+              href: "https://www.google.com/maps?q=Jalan+Kelud+Raya+34B+Petompon+Gajahmungkur+Semarang",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "mt-6 inline-flex items-center gap-2 text-sm font-bold text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors group",
+              children: [
+                "Buka di Google Maps",
+                /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" }) })
+              ]
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0.1), children: /* @__PURE__ */ jsxs(Card, { className: "p-10 h-full", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 rounded-2xl bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-6", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
+          /* @__PURE__ */ jsx(SectionLabel, { children: "Jam Operasional" }),
+          /* @__PURE__ */ jsx("h2", { className: "text-xl font-black text-gray-900 dark:text-white mb-2", children: "Senin – Sabtu" }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest mb-5", children: "Sesi tersedia" }),
+          /* @__PURE__ */ jsx("div", { className: "grid grid-cols-2 gap-3", children: [
+            "08.00 – 10.00",
+            "10.00 – 12.00",
+            "13.00 – 15.00",
+            "15.00 – 17.00"
+          ].map((sesi, i) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 bg-white/40 dark:bg-gray-800/40 rounded-2xl px-4 py-3 border border-white/50 dark:border-gray-700/30", children: [
+            /* @__PURE__ */ jsx("span", { className: "w-2 h-2 rounded-full bg-gold-500 shrink-0" }),
+            /* @__PURE__ */ jsx("span", { className: "text-sm font-semibold text-gray-800 dark:text-gray-200", children: sesi })
+          ] }, i)) })
+        ] }) })
+      ] }),
+      /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0.15), className: "mt-8", children: /* @__PURE__ */ jsxs(Card, { className: "overflow-hidden p-0", children: [
+        /* @__PURE__ */ jsxs("div", { className: "px-8 pt-8 pb-4", children: [
+          /* @__PURE__ */ jsx(SectionLabel, { children: "Peta Lokasi" }),
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 dark:text-gray-400 font-medium", children: "Gunakan peta berikut untuk navigasi langsung ke lokasi InDepth Clinic." })
+        ] }),
+        /* @__PURE__ */ jsx("div", { className: "w-full h-[350px] overflow-hidden rounded-b-[2.5rem]", children: /* @__PURE__ */ jsx(
+          "iframe",
+          {
+            src: "https://www.google.com/maps?q=Jalan+Kelud+Raya+34B+Petompon+Gajahmungkur+Semarang&output=embed",
+            width: "100%",
+            height: "350",
+            style: { border: 0 },
+            allowFullScreen: "",
+            loading: "lazy",
+            referrerPolicy: "no-referrer-when-downgrade",
+            title: "Peta Lokasi InDepth Clinic"
+          }
+        ) })
+      ] }) })
+    ] }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 py-10 px-4 sm:px-6 lg:px-8 bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm", children: /* @__PURE__ */ jsx("div", { className: "max-w-7xl mx-auto", children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-8", children: [
+      /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0), children: /* @__PURE__ */ jsxs(Card, { className: "p-10 h-full", children: [
+        /* @__PURE__ */ jsx("div", { className: "w-12 h-12 rounded-2xl bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-6", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" }) }) }),
+        /* @__PURE__ */ jsx(SectionLabel, { children: "Pembayaran" }),
+        /* @__PURE__ */ jsx("h2", { className: "text-xl font-black text-gray-900 dark:text-white mb-6", children: "Transfer Bank" }),
+        /* @__PURE__ */ jsxs("div", { className: "bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 border border-white/60 dark:border-gray-700/40 space-y-3", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500", children: "Bank" }),
+            /* @__PURE__ */ jsx("span", { className: "font-black text-gray-900 dark:text-white", children: "BCA" })
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "h-px bg-gray-200/60 dark:bg-gray-700/40" }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500", children: "No. Rekening" }),
+            /* @__PURE__ */ jsx("span", { className: "font-black text-gray-900 dark:text-white tracking-wider", children: "2520639058" })
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "h-px bg-gray-200/60 dark:bg-gray-700/40" }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500", children: "Atas Nama" }),
+            /* @__PURE__ */ jsx("span", { className: "font-black text-gray-900 dark:text-white", children: "Julius Bambang" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("p", { className: "mt-5 text-sm text-gray-500 dark:text-gray-500 font-medium leading-relaxed", children: "Konfirmasi pembayaran melalui WhatsApp setelah melakukan transfer." })
+      ] }) }),
+      /* @__PURE__ */ jsxs(motion.div, { ...fadeUp(0.1), className: "flex flex-col gap-6", children: [
+        /* @__PURE__ */ jsxs(Card, { className: "p-8", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 rounded-2xl bg-gold-50 dark:bg-gold-950/30 border border-gold-200 dark:border-gold-800/50 flex items-center justify-center text-gold-600 dark:text-gold-400 mb-5", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "1.5", d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) }),
+          /* @__PURE__ */ jsx(SectionLabel, { children: "Email" }),
+          /* @__PURE__ */ jsx("a", { href: "mailto:admin@indepth.co.id", className: "block text-xl font-black text-gold-600 dark:text-gold-400 hover:text-gold-500 transition-colors", children: "admin@indepth.co.id" }),
+          /* @__PURE__ */ jsx("p", { className: "mt-3 text-sm text-gray-500 dark:text-gray-500 font-medium", children: "Digunakan untuk kebutuhan administrasi dan komunikasi resmi." })
+        ] }),
+        /* @__PURE__ */ jsxs(Card, { className: "p-8 flex-1", children: [
+          /* @__PURE__ */ jsx(SectionLabel, { children: "Informasi Tambahan" }),
+          /* @__PURE__ */ jsx("ul", { className: "space-y-3 mt-2", children: [
+            "Sesi dilakukan secara terjadwal",
+            "Setiap sesi berdurasi ±2 jam",
+            "Privasi klien dijaga dalam setiap proses",
+            "Dokumentasi sesi tersedia untuk evaluasi"
+          ].map((item, i) => /* @__PURE__ */ jsxs("li", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsx("span", { className: "mt-1.5 w-2 h-2 rounded-full bg-gold-500 shrink-0" }),
+            /* @__PURE__ */ jsx("span", { className: "text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed", children: item })
+          ] }, i)) })
+        ] })
+      ] })
+    ] }) }) }),
+    /* @__PURE__ */ jsx("section", { className: "relative z-10 py-20 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsx("div", { className: "max-w-5xl mx-auto", children: /* @__PURE__ */ jsx(motion.div, { ...fadeUp(0), children: /* @__PURE__ */ jsxs("div", { className: "relative rounded-[3rem] border border-gold-500/20 dark:border-gray-800 bg-white/40 dark:bg-gray-900/30 backdrop-blur-2xl shadow-xl overflow-hidden py-20 px-8 text-center", children: [
+      /* @__PURE__ */ jsx("div", { className: "absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent" }),
+      /* @__PURE__ */ jsx("div", { className: "absolute -top-[50%] -left-[10%] w-[120%] h-[100%] bg-gradient-to-b from-gold-500/5 to-transparent blur-2xl transform -rotate-6 pointer-events-none" }),
+      /* @__PURE__ */ jsx("h2", { className: "text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-6 relative z-10", children: "Siap Memulai?" }),
+      /* @__PURE__ */ jsx("p", { className: "text-lg text-gray-600 dark:text-gray-300 font-light leading-relaxed max-w-2xl mx-auto mb-10 relative z-10", children: "Mulai dari konsultasi awal untuk mendapatkan arahan yang sesuai dengan kondisi Anda." }),
+      /* @__PURE__ */ jsxs("div", { className: "flex flex-col sm:flex-row gap-4 justify-center relative z-10", children: [
+        /* @__PURE__ */ jsxs(
+          "a",
+          {
+            href: "https://wa.me/6282220800034?text=Halo%20InDepth%2C%20saya%20ingin%20konsultasi%20awal",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full text-sm shadow-[0_8px_30px_rgba(34,197,94,0.3)] hover:shadow-[0_15px_40px_rgba(34,197,94,0.4)] transition-all duration-300 inline-flex items-center gap-2 group",
+            children: [
+              "Konsultasi via WhatsApp sekarang",
+              /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 group-hover:translate-x-1 transition-transform", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M14 5l7 7m0 0l-7 7m7-7H3" }) })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          Link,
+          {
+            href: "/layanan",
+            className: "px-8 py-4 bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-full text-sm border border-white/80 dark:border-gray-700 transition-all duration-300 inline-flex items-center gap-2",
+            children: "Lihat Layanan Kami"
+          }
+        )
+      ] })
+    ] }) }) }) }),
+    /* @__PURE__ */ jsx(Suspense, { fallback: /* @__PURE__ */ jsx("div", { className: "h-32 flex items-center justify-center", children: "Loading..." }), children: /* @__PURE__ */ jsx(Footer, {}) })
+  ] });
+}
+export {
+  KontakKami as default
+};

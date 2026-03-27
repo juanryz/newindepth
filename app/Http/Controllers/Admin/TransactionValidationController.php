@@ -151,11 +151,6 @@ class TransactionValidationController extends Controller
                     } catch (\Throwable $m) {
                         \Illuminate\Support\Facades\Log::error('Notification Failure during validation: ' . $m->getMessage());
                     }
-                } else if ($transaction->transactionable_type === \App\Models\Course::class) {
-                    $transaction->transactionable->users()->attach($transaction->user_id, [
-                        'transaction_id' => $transaction->id,
-                        'enrolled_at' => now(),
-                    ]);
                 }
 
                 event(new TransactionPaid($transaction));

@@ -44,7 +44,7 @@ export default function InitialAgreement({ userAge }) {
         privacy_policy: false,
         refund_policy: false,
         affiliate_agreement: false,
-        course_agreement: false,
+        course_agreement: true,
     });
 
     const canvasRef1 = useRef(null);
@@ -125,7 +125,7 @@ export default function InitialAgreement({ userAge }) {
             data.cond_data_benar, data.cond_bukan_pengganti_medis, data.cond_sadar_penuh, data.cond_riwayat_penyakit,
             data.risk_hubungi_medis, data.risk_henti_sesi, data.doc_direkam, data.doc_hukum, data.konfirmasi_akhir,
             data.agree_1, data.agree_2, data.agree_3,
-            data.privacy_policy, data.refund_policy, data.affiliate_agreement, data.course_agreement
+            data.privacy_policy, data.refund_policy, data.affiliate_agreement
         ];
         const requiredCheckboxes = requiredBools.every(Boolean);
 
@@ -158,7 +158,7 @@ export default function InitialAgreement({ userAge }) {
         if (!data.privacy_policy) missing.push("Persetujuan Kebijakan Privasi");
         if (!data.refund_policy) missing.push("Persetujuan Kebijakan Non-Refund");
         if (!data.affiliate_agreement) missing.push("Persetujuan Perjanjian Afiliasi");
-        if (!data.course_agreement) missing.push("Persetujuan Perjanjian Kelas/Produk Digital");
+
 
         const isProfileComplete = user?.age && user?.gender && user?.phone;
         setAllChecked(requiredCheckboxes && isMedisSelected && isWaliValid && hasDrawn1 && hasDrawn2 && isProfileComplete);
@@ -542,7 +542,7 @@ export default function InitialAgreement({ userAge }) {
                             <div className="mb-8 border-b pb-6 dark:border-gray-700 text-center">
                                 <span className="inline-block py-1 px-3 text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 mb-3 rounded-full">DOKUMEN 3 DARI 3</span>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Kebijakan & Perjanjian Tambahan</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Persetujuan untuk operasional, layanan afiliasi, dan produk digital.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Persetujuan untuk operasional dan layanan afiliasi.</p>
                             </div>
 
                             <div className="space-y-4">
@@ -564,11 +564,6 @@ export default function InitialAgreement({ userAge }) {
                                     <CheckboxItem label="Saya menyetujui Syarat & Ketentuan Afiliasi." checked={data.affiliate_agreement} onChange={e => setData('affiliate_agreement', e)} />
                                 </div>
 
-                                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 text-sm">
-                                    <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">4. Perjanjian Produk Digital & Kelas</h4>
-                                    <p className="text-gray-600 dark:text-gray-400 mb-3">Akses ke materi e-learning dan kelas digital bersifat personal dan tidak boleh disebarluaskan atau digandakan tanpa izin tertulis.</p>
-                                    <CheckboxItem label="Saya menyetujui Ketentuan Produk Digital & Kelas." checked={data.course_agreement} onChange={e => setData('course_agreement', e)} />
-                                </div>
                             </div>
                         </div>
 

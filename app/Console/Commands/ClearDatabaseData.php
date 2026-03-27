@@ -36,9 +36,6 @@ class ClearDatabaseData extends Command
         'screening_results',
         'screening_forms',
 
-        // Kursus
-        'lessons',
-        'courses',
 
         // Blog
         'blog_posts',
