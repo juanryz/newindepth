@@ -45,26 +45,50 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     });
 
     Route::get('/setup-storage-link', function () {
-        try {
-            $target = storage_path('app/public');
-            $link = public_path('storage');
+        $target = storage_path('app/public');
+        $link = public_path('storage');
 
+        try {
             if (file_exists($link)) {
                 if (is_link($link)) {
                     unlink($link);
                 } else {
-                    return '❌ Error: Folder "public/storage" masih ada dan bukan shortcut/symlink. Silakan hapus folder tersebut secara manual di File Manager cPanel, lalu refresh halaman ini.';
+                    return '❌ Error: Folder "public/storage" masih ada. Hapus manual dulu di cPanel.';
                 }
             }
-
-            symlink($target, $link);
-            return '✅ Storage link berhasil diperbarui! <br> Link Baru: ' . $link . ' -> ' . $target;
-        } catch (\Throwable $e) {
-            if (\Illuminate\Support\Facades\Artisan::call('storage:link') === 0) {
-                 return '✅ Storage link berhasil diperbarui via Artisan!';
+            
+            // Try native symlink
+            if (function_exists('symlink')) {
+                @symlink($target, $link);
             }
-            return '❌ Error: ' . $e->getMessage();
-        }
+
+            if (file_exists($link) && is_link($link)) {
+                 return '✅ Storage link berhasil diperbarui via PHP!';
+            }
+        } catch (\Throwable $e) {}
+
+        // If it fails because symlink/exec is disabled, give them the exact command
+        $artisanPath = base_path('artisan');
+        return "
+        <div style='font-family: sans-serif; padding: 20px; background: #fffcf0; border: 1px solid #e0c85c; border-radius: 8px;'>
+            <h3 style='color: #8a6d3b;'>⚠️ Fungsi Symlink diblokir oleh Hosting Anda</h3>
+            <p>Penyedia hosting cPanel Anda mendisable fungsi <code>symlink()</code> dan <code>exec()</code> dari PHP untuk alasan keamanan.</p>
+            <p><strong>Solusi Paling Ampuh (Pilih salah satu):</strong></p>
+            
+            <h4>Opsi A: Menggunakan Menu 'Terminal' di cPanel</h4>
+            <p>Jika cPanel Anda memiliki menu <strong>Terminal</strong>, buka dan jalankan perintah ini (Kopi-Paste lalu Enter):</p>
+            <pre style='background: #111; color: #0db320; padding: 15px; border-radius: 5px; overflow-x: auto;'>ln -s \"{$target}\" \"{$link}\"</pre>
+            
+            <h4>Opsi B: Menggunakan 'Cron Jobs' di cPanel (Pasti Bisa)</h4>
+            <ol>
+                <li>Buka cPanel > Cari menu <strong>Cron Jobs</strong>.</li>
+                <li>Di bagian <strong>Add New Cron Job</strong>, atur waktunya jadi <em>Once Per Minute</em> (Sekali Semenit).</li>
+                <li>Di kolom <strong>Command</strong>, masukkan persis kode di bawah ini:</li>
+            </ol>
+            <pre style='background: #111; color: #0db320; padding: 15px; border-radius: 5px; overflow-x: auto;'>/usr/bin/php {$artisanPath} storage:link</pre>
+            <p>Simpan, lalu tunggu 1-2 menit. Setelah itu Anda bisa hapus lagi Cron Job tersebut. Gambar akan otomatis muncul!</p>
+        </div>
+        ";
     });
 
     Route::get('/setup-schedules', function () {
