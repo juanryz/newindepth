@@ -552,22 +552,41 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                     <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Kategori Pengeluaran</h3>
                                                     <p className="text-xs text-gray-400 mt-1">Distribusi pengeluaran kas kecil operasional bulan ini berdasarkan kategori.</p>
                                                 </div>
-                                                <div className="h-[320px]">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <PieChart>
-                                                            <Pie
-                                                                data={reports.charts.expensesByCategory}
-                                                                cx="50%" cy="50%" innerRadius={80} outerRadius={110} paddingAngle={5}
-                                                                dataKey="total" nameKey="category"
-                                                            >
-                                                                {reports.charts.expensesByCategory.map((_, i) => (
-                                                                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                                                                ))}
-                                                            </Pie>
-                                                            <Tooltip formatter={(v) => `Rp ${v.toLocaleString('id-ID')}`} />
-                                                            <Legend wrapperStyle={{ fontSize: '10px', fontWeight: 'bold' }} />
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
+                                                <div className="flex flex-col md:flex-row h-[360px] md:h-[320px] items-center gap-6">
+                                                    <div className="w-full md:w-1/2 h-[200px] md:h-full">
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <PieChart>
+                                                                <Pie
+                                                                    data={reports.charts.expensesByCategory}
+                                                                    cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={2}
+                                                                    dataKey="total" nameKey="category"
+                                                                >
+                                                                    {reports.charts.expensesByCategory.map((_, i) => (
+                                                                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} stroke="rgba(0,0,0,0)" />
+                                                                    ))}
+                                                                </Pie>
+                                                                <Tooltip
+                                                                    contentStyle={{ borderRadius: '1rem', border: 'none', background: '#111827', color: '#fff', fontSize: '11px', fontWeight: 'bold' }}
+                                                                    formatter={(v) => [`Rp ${v.toLocaleString('id-ID')}`, 'Total']}
+                                                                />
+                                                            </PieChart>
+                                                        </ResponsiveContainer>
+                                                    </div>
+                                                    <div className="w-full md:w-1/2 h-full overflow-y-auto pr-2 space-y-2">
+                                                        {reports.charts.expensesByCategory.length === 0 ? (
+                                                            <div className="h-full flex items-center justify-center text-xs text-gray-400 font-bold uppercase tracking-widest">Belum ada pengeluaran</div>
+                                                        ) : (
+                                                            reports.charts.expensesByCategory.map((item, i) => (
+                                                                <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                                                    <div className="w-4 h-4 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">{item.category}</p>
+                                                                        <p className="text-sm font-black text-gray-900 dark:text-white">Rp {item.total.toLocaleString('id-ID')}</p>
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
