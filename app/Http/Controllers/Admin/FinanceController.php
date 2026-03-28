@@ -71,13 +71,13 @@ class FinanceController extends Controller
             ->get();
 
         $expensesByCategory = PettyCashTransaction::select(
-            DB::raw('"Kas Kecil" as category'),
+            DB::raw('COALESCE(category, "Lain-lain") as category'),
             DB::raw('SUM(amount) as total')
         )
             ->where('type', 'out')
             ->whereMonth('transaction_date', $month)
             ->whereYear('transaction_date', $year)
-            ->groupBy('category')
+            ->groupBy(DB::raw('COALESCE(category, "Lain-lain")'))
             ->get();
 
         // --- KAS KECIL ---
