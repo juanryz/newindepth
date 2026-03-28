@@ -68,7 +68,11 @@ class FinanceController extends Controller
             ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
             ->groupBy('month_year', 'sort_key')
             ->orderBy('sort_key')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->total = (float) $item->total;
+                return $item;
+            });
 
         $expensesByCategory = PettyCashTransaction::select(
             DB::raw('COALESCE(category, "Lain-lain") as category'),
@@ -78,7 +82,11 @@ class FinanceController extends Controller
             ->whereMonth('transaction_date', $month)
             ->whereYear('transaction_date', $year)
             ->groupBy(DB::raw('COALESCE(category, "Lain-lain")'))
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->total = (float) $item->total;
+                return $item;
+            });
 
         // --- KAS KECIL ---
         $pettyCashTransactions = PettyCashTransaction::with('recorder')
