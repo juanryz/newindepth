@@ -711,9 +711,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/finance/petty-cash', [\App\Http\Controllers\Admin\FinanceController::class, 'storePettyCash'])
                 ->middleware('permission:manage petty cash')
                 ->name('finance.petty-cash.store');
-            Route::delete('/finance/petty-cash/{transaction}', [\App\Http\Controllers\Admin\FinanceController::class, 'destroyPettyCash'])
-                ->middleware('permission:manage petty cash')
-                ->name('finance.petty-cash.destroy');
+
             Route::post('/finance/transactions/{transaction}/correct', [\App\Http\Controllers\Admin\FinanceController::class, 'correctRevenue'])
                 ->name('finance.transactions.correct');
             Route::get('/finance/export', [\App\Http\Controllers\Admin\FinanceController::class, 'exportCsv'])
