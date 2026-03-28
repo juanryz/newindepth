@@ -1169,6 +1169,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                     <td className="px-6 py-5">
                                                                         <div className="flex flex-col">
                                                                             <span className="text-sm font-black text-gray-900 dark:text-white">Rp {new Intl.NumberFormat('id-ID').format(tx.amount || 0)}</span>
+                                                                            {/* Badge metode pembayaran */}
+                                                                            <span className={`mt-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border w-fit ${
+                                                                                tx.payment_method === 'cash'
+                                                                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                                                                    : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                                                                            }`}>
+                                                                                {tx.payment_method === 'cash' ? '💵 Cash' : '🏦 Transfer'}
+                                                                            </span>
                                                                             {hasDiscount ? (
                                                                                 <div className="mt-1 flex flex-col">
                                                                                     <span className="text-[9px] font-black text-rose-500 uppercase">🏷️ DISKON</span>
@@ -1180,7 +1188,11 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-6 py-5">
-                                                                        {tx.payment_proof ? (
+                                                                        {tx.payment_method === 'cash' ? (
+                                                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[9px] font-black uppercase rounded-lg">
+                                                                                💵 Bayar di Klinik
+                                                                            </span>
+                                                                        ) : tx.payment_proof ? (
                                                                             <a href={`/storage/${tx.payment_proof}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 group/proof">
                                                                                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover/proof:bg-indigo-500 group-hover/proof:text-white transition-all">
                                                                                     <Eye className="w-4 h-4" />
@@ -1202,8 +1214,12 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div className="flex flex-col items-center gap-2">
                                                                             {tx.status === 'pending' && (
                                                                                 <div className="flex justify-center gap-2">
-                                                                                    {tx.payment_proof ? (
-                                                                                        <button disabled={validatingTx === tx.id} onClick={() => setValidationChoiceTx(tx)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">{validatingTx === tx.id ? '...' : 'Validasi'}</button>
+                                                                                    {(tx.payment_proof || tx.payment_method === 'cash') ? (
+                                                                                        <button disabled={validatingTx === tx.id} onClick={() => setValidationChoiceTx(tx)} className={`px-4 py-2 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg disabled:opacity-50 ${
+                                                                                            tx.payment_method === 'cash'
+                                                                                                ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'
+                                                                                                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'
+                                                                                        }`}>{validatingTx === tx.id ? '...' : tx.payment_method === 'cash' ? 'Konfirmasi Cash' : 'Validasi'}</button>
                                                                                     ) : (
                                                                                         <span className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-400 text-[9px] font-black uppercase rounded-xl border border-gray-200 dark:border-gray-700 cursor-not-allowed">Bukti Belum Ada</span>
                                                                                     )}

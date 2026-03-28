@@ -23,7 +23,11 @@ import {
     Zap,
     Scale,
     AlertCircle,
-    Image as ImageIcon
+    Image as ImageIcon,
+    PencilLine,
+    Info,
+    TrendingUp,
+    TrendingDown,
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -51,6 +55,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     const [activeTab, setActiveTab] = useState(filters.active_tab || 'reports');
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
+    const [correctionTx, setCorrectionTx] = useState(null); // For revenue correction modal
 
     // Activity Log Filters
     const [logFilterType, setLogFilterType] = useState('');
@@ -296,6 +301,30 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     }, [activityLog, logFilterType, logFilterSearch, logFilterDateFrom, logFilterDateTo]);
 
 
+    const { data: correctionData, setData: setCorrectionData, post: postCorrection, processing: processingCorrection, reset: resetCorrection, errors: correctionErrors } = useForm({
+        corrected_amount: '',
+        correction_reason: '',
+    });
+
+    const openCorrectionModal = (tx) => {
+        setCorrectionTx(tx);
+        // Pre-fill dengan nominal rounded (bulatkan ke ratusan terdekat untuk hapus angka unik)
+        const rounded = Math.floor(tx.amount / 1000) * 1000;
+        setCorrectionData('corrected_amount', String(tx.corrected_amount ?? rounded));
+        setCorrectionData('correction_reason', tx.correction_reason ?? 'Koreksi nominal Cash (hapus angka unik)');
+    };
+
+    const submitCorrection = (e) => {
+        e.preventDefault();
+        postCorrection(route('admin.finance.transactions.correct', correctionTx.id), {
+            onSuccess: () => {
+                setCorrectionTx(null);
+                resetCorrection();
+            },
+            preserveScroll: true,
+        });
+    };
+
     const submitPettyInternal = (e) => {
         e.preventDefault();
         postPettyInternal(route('admin.finance.petty-cash.store'), {
@@ -408,7 +437,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                         {/* MAIN CONTENT AREA */}
                         <div className="flex-1 min-w-0 pb-12">
                             <AnimatePresence mode="wait">
-                                {activeTab === 'reports' && (
+                                 {activeTab === 'reports' && (
                                     <motion.div
                                         key="reports"
                                         initial={{ opacity: 0, y: 20 }}
@@ -416,22 +445,81 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                         exit={{ opacity: 0, y: -20 }}
                                         className="space-y-8"
                                     >
+                                        {/* Intro / Context Banner */}
+                                        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/20 rounded-[2rem] p-6 border border-indigo-100 dark:border-indigo-900/30 flex items-start gap-4">
+                                            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                                <Info className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-indigo-900 dark:text-indigo-300 mb-1">Laporan Keuangan Bulan Ini</p>
+                                                <p className="text-xs text-indigo-700/70 dark:text-indigo-400/70 leading-relaxed">
+                                                    Halaman ini merangkum semua pemasukan dari sesi terapi, pengeluaran kas kecil, dan laba bersih klinik.
+                                                    Nominal yang ditampilkan sudah memperhitungkan <strong>koreksi pemasukan</strong> (misal: pembayaran cash yang sudah dirapikan angkanya).
+                                                    Gunakan tombol <span className="inline-flex items-center gap-0.5 bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-black"><PencilLine className="w-3 h-3" /> Koreksi</span> di tabel bawah untuk menyesuaikan nominal.
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         {/* Status Stats Grid */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                                             {[
-                                                { label: 'Total Pemasukan', val: reports?.stats?.revenue ?? 0, color: 'indigo' },
-                                                { label: 'Saldo Kas Kecil', val: pettyCash?.currentBalance ?? 0, color: 'emerald' },
-                                                { label: 'Komisi Afiliasi', val: reports?.stats?.commissions ?? 0, color: 'amber' },
-                                                { label: 'Laba Bersih', val: reports?.stats?.netIncome ?? 0, color: 'emerald', highlight: true }
+                                                {
+                                                    label: 'Total Pemasukan',
+                                                    sub: 'Semua pembayaran sesi terapi yang sudah divalidasi bulan ini. Sudah memperhitungkan koreksi nominal.',
+                                                    val: reports?.stats?.revenue ?? 0,
+                                                    color: 'indigo',
+                                                    icon: TrendingUp,
+                                                },
+                                                {
+                                                    label: 'Saldo Kas Kecil',
+                                                    sub: 'Dana operasional harian yang tersisa setelah dikurangi semua pengeluaran kas kecil.',
+                                                    val: pettyCash?.currentBalance ?? 0,
+                                                    color: 'emerald',
+                                                    icon: Wallet,
+                                                },
+                                                {
+                                                    label: 'Komisi Afiliasi',
+                                                    sub: 'Total komisi yang dibayarkan ke mitra afiliasi atas referral yang valid bulan ini.',
+                                                    val: reports?.stats?.commissions ?? 0,
+                                                    color: 'amber',
+                                                    icon: TrendingDown,
+                                                },
+                                                {
+                                                    label: 'Laba Bersih',
+                                                    sub: 'Pemasukan dikurangi komisi afiliasi dan pengeluaran kas kecil operasional.',
+                                                    val: reports?.stats?.netIncome ?? 0,
+                                                    color: 'white',
+                                                    highlight: true,
+                                                    icon: CheckCircle2,
+                                                },
                                             ].map((stat, i) => (
-                                                <div key={i} className={`p-8 rounded-[2.5rem] shadow-xl border transition-all duration-500 ${stat.highlight
-                                                    ? 'bg-indigo-600 text-white border-transparent'
-                                                    : 'bg-white dark:bg-gray-900 border-white dark:border-gray-800'
-                                                    }`}>
-                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-4 ${stat.highlight ? 'text-white/70' : 'text-gray-400'
+                                                <div key={i} className={`p-7 rounded-[2.5rem] shadow-xl border transition-all duration-500 flex flex-col justify-between gap-4 ${
+                                                    stat.highlight
+                                                        ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white border-transparent shadow-indigo-500/30'
+                                                        : 'bg-white dark:bg-gray-900 border-white dark:border-gray-800'
+                                                }`}>
+                                                    <div className="flex items-center justify-between">
+                                                        <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                                                            stat.highlight ? 'text-white/70' : 'text-gray-400'
                                                         }`}>{stat.label}</p>
-                                                    <h4 className={`text-2xl font-black ${stat.highlight ? 'text-white' : `text-${stat.color}-600 dark:text-${stat.color}-400`
-                                                        }`}>Rp {stat.val.toLocaleString('id-ID')}</h4>
+                                                        <div className={`p-2 rounded-xl ${
+                                                            stat.highlight ? 'bg-white/20' : `bg-${stat.color}-50 dark:bg-${stat.color}-900/20`
+                                                        }`}>
+                                                            <stat.icon className={`w-4 h-4 ${
+                                                                stat.highlight ? 'text-white' : `text-${stat.color}-600 dark:text-${stat.color}-400`
+                                                            }`} />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className={`text-2xl font-black ${
+                                                            stat.highlight ? 'text-white' : `text-${stat.color}-600 dark:text-${stat.color}-400`
+                                                        }`}>
+                                                            Rp {stat.val.toLocaleString('id-ID')}
+                                                        </h4>
+                                                        <p className={`text-[10px] mt-2 leading-relaxed ${
+                                                            stat.highlight ? 'text-white/60' : 'text-gray-400 dark:text-gray-500'
+                                                        }`}>{stat.sub}</p>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -439,8 +527,11 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                         {/* Charts */}
                                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Tren Pendapatan</h3>
-                                                <div className="h-[350px]">
+                                                <div className="mb-6">
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Tren Pendapatan</h3>
+                                                    <p className="text-xs text-gray-400 mt-1">Total pemasukan efektif per bulan dalam 12 bulan terakhir. Angka sudah memperhitungkan semua koreksi nominal.</p>
+                                                </div>
+                                                <div className="h-[320px]">
                                                     <ResponsiveContainer width="100%" height="100%">
                                                         <LineChart data={reports.charts.revenueByMonth}>
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(156, 163, 175, 0.1)" />
@@ -448,7 +539,7 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                             <YAxis tickFormatter={(v) => `Rp${v / 1000000}jt`} tick={{ fontSize: 10, fontWeight: 'bold' }} />
                                                             <Tooltip
                                                                 contentStyle={{ borderRadius: '1.5rem', border: 'none', background: '#111827', color: '#fff' }}
-                                                                formatter={(v) => [`Rp ${v.toLocaleString('id-ID')}`, 'Pemasukan']}
+                                                                formatter={(v) => [`Rp ${v.toLocaleString('id-ID')}`, 'Pemasukan Efektif']}
                                                             />
                                                             <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={4} dot={{ r: 4 }} activeDot={{ r: 8 }} />
                                                         </LineChart>
@@ -457,8 +548,11 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                             </div>
 
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-tight uppercase">Kategori Pengeluaran</h3>
-                                                <div className="h-[350px]">
+                                                <div className="mb-6">
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Kategori Pengeluaran</h3>
+                                                    <p className="text-xs text-gray-400 mt-1">Distribusi pengeluaran kas kecil operasional bulan ini berdasarkan kategori.</p>
+                                                </div>
+                                                <div className="h-[320px]">
                                                     <ResponsiveContainer width="100%" height="100%">
                                                         <PieChart>
                                                             <Pie
@@ -475,6 +569,95 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                         </PieChart>
                                                     </ResponsiveContainer>
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        {/* ─── Tabel Transaksi & Koreksi Pemasukan ─── */}
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 overflow-hidden">
+                                            <div className="px-8 pt-8 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                                <div>
+                                                    <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Rincian Pemasukan Bulan Ini</h3>
+                                                    <p className="text-xs text-gray-400 mt-1">Daftar semua pembayaran yang sudah lunas. Klik <span className="font-bold text-amber-600">Koreksi</span> untuk menyesuaikan nominal (misal: hapus angka unik untuk pembayaran Cash).</p>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[10px] font-black uppercase">
+                                                    <span className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                                                        {(reports?.transactions ?? []).length} transaksi
+                                                    </span>
+                                                    <span className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                                                        Total: Rp {(reports?.stats?.revenue ?? 0).toLocaleString('id-ID')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-100 dark:border-gray-800">
+                                                            <th className="px-6 py-4">Invoice</th>
+                                                            <th className="px-6 py-4">Pasien</th>
+                                                            <th className="px-6 py-4">Metode</th>
+                                                            <th className="px-6 py-4">Nominal Asli</th>
+                                                            <th className="px-6 py-4">Nominal Efektif</th>
+                                                            <th className="px-6 py-4 text-center">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                                                        {(reports?.transactions ?? []).length === 0 ? (
+                                                            <tr><td colSpan="6" className="px-6 py-16 text-center text-gray-400 text-xs font-bold">Belum ada transaksi lunas bulan ini.</td></tr>
+                                                        ) : (reports?.transactions ?? []).map((tx) => (
+                                                            <tr key={tx.id} className="hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-all">
+                                                                <td className="px-6 py-4">
+                                                                    <div className="text-xs font-black text-gray-900 dark:text-white">{tx.invoice_number}</div>
+                                                                    <div className="text-[9px] text-gray-400 mt-0.5">
+                                                                        {tx.created_at ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="text-xs font-bold text-gray-800 dark:text-gray-200">{tx.user_name}</div>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-lg border ${
+                                                                        tx.payment_method === 'cash'
+                                                                            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                                                                            : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                                                                    }`}>
+                                                                        {tx.payment_method === 'cash' ? '💵 Cash' : '🏦 Transfer'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <span className={`text-sm font-black ${
+                                                                        tx.corrected_amount !== null ? 'line-through text-gray-400 text-xs' : 'text-gray-900 dark:text-white'
+                                                                    }`}>
+                                                                        Rp {tx.amount.toLocaleString('id-ID')}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex flex-col gap-0.5">
+                                                                        <span className={`text-sm font-black ${
+                                                                            tx.corrected_amount !== null ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white'
+                                                                        }`}>
+                                                                            Rp {tx.effective_amount.toLocaleString('id-ID')}
+                                                                        </span>
+                                                                        {tx.corrected_amount !== null && (
+                                                                            <span className="text-[9px] text-emerald-600 font-bold flex items-center gap-1">
+                                                                                <CheckCircle2 className="w-2.5 h-2.5" />
+                                                                                Dikoreksi · {tx.correction_reason}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4 text-center">
+                                                                    <button
+                                                                        onClick={() => openCorrectionModal(tx)}
+                                                                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all"
+                                                                    >
+                                                                        <PencilLine className="w-3 h-3" />
+                                                                        Koreksi
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -1216,6 +1399,96 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* ─── Modal Koreksi Pemasukan ─── */}
+            <Modal show={!!correctionTx} onClose={() => { setCorrectionTx(null); resetCorrection(); }} maxWidth="lg">
+                <div className="p-8 dark:bg-gray-900">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1">Koreksi Nominal Pemasukan</h2>
+                    <p className="text-xs text-gray-500 mb-6">
+                        Fitur ini digunakan untuk menyesuaikan nominal yang tercatat, misalnya menghapus angka unik dari pembayaran Cash.
+                        Nominal asli tetap tersimpan untuk keperluan audit.
+                    </p>
+
+                    {correctionTx && (
+                        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-1">
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Invoice</p>
+                            <p className="text-sm font-black text-gray-900 dark:text-white">{correctionTx.invoice_number}</p>
+                            <p className="text-xs text-gray-500">{correctionTx.user_name} &middot; {correctionTx.payment_method === 'cash' ? '💵 Cash' : '🏦 Transfer'}</p>
+                            <div className="flex items-center gap-3 pt-2">
+                                <div>
+                                    <p className="text-[9px] font-black text-gray-400 uppercase">Nominal Asli</p>
+                                    <p className="text-sm font-black text-gray-700 dark:text-gray-300">Rp {correctionTx.amount?.toLocaleString('id-ID')}</p>
+                                </div>
+                                <div className="text-gray-300">→</div>
+                                <div>
+                                    <p className="text-[9px] font-black text-emerald-500 uppercase">Nominal Koreksi</p>
+                                    <p className="text-sm font-black text-emerald-600">Rp {Number(correctionData.corrected_amount || 0).toLocaleString('id-ID')}</p>
+                                </div>
+                                {correctionData.corrected_amount && correctionTx.amount && (
+                                    <div className="ml-auto px-2 py-1 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-lg">
+                                        <p className="text-[9px] font-black text-rose-500 uppercase">Selisih</p>
+                                        <p className="text-xs font-black text-rose-600">
+                                            {(Number(correctionData.corrected_amount) - correctionTx.amount) >= 0 ? '+' : '-'}
+                                            Rp {Math.abs(Number(correctionData.corrected_amount) - correctionTx.amount).toLocaleString('id-ID')}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <form onSubmit={submitCorrection} className="space-y-4">
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nominal Koreksi (Rp) *</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                required
+                                value={correctionData.corrected_amount}
+                                onChange={e => setCorrectionData('corrected_amount', e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                                placeholder="Masukkan nominal yang benar..."
+                            />
+                            {correctionErrors.corrected_amount && <p className="text-xs text-rose-500 mt-1">{correctionErrors.corrected_amount}</p>}
+                            <p className="text-[10px] text-gray-400 mt-1">💡 Tip: untuk Cash, bulatkan ke ribuan terdekat (hilangkan &quot;angka unik&quot; di belakang).</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Alasan Koreksi *</label>
+                            <input
+                                type="text"
+                                required
+                                maxLength={255}
+                                value={correctionData.correction_reason}
+                                onChange={e => setCorrectionData('correction_reason', e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                                placeholder="cth: Koreksi nominal Cash (hapus angka unik)"
+                            />
+                            {correctionErrors.correction_reason && <p className="text-xs text-rose-500 mt-1">{correctionErrors.correction_reason}</p>}
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => { setCorrectionTx(null); resetCorrection(); }}
+                                className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={processingCorrection}
+                                className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                            >
+                                <PencilLine className="w-3.5 h-3.5" />
+                                {processingCorrection ? 'Menyimpan...' : 'Simpan Koreksi'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </AuthenticatedLayout >
+
     );
 }

@@ -17,9 +17,9 @@ class BookingService
      * @return Booking
      * @throws Exception
      */
-    public function createBooking(array $data, int $patientId): Booking
+    public function createBooking(array $data, int $patientId, string $paymentMethod = 'transfer'): Booking
     {
-        return DB::transaction(function () use ($data, $patientId) {
+        return DB::transaction(function () use ($data, $patientId, $paymentMethod) {
             // Lock the specific schedule row to prevent parallel bookings
             $schedule = Schedule::where('id', $data['schedule_id'])
                 ->lockForUpdate()
@@ -55,13 +55,15 @@ class BookingService
             $taxAmount = $basePrice * 0.11;
             $priceWithTax = $basePrice + $taxAmount;
 
-            $uniqueCode = rand(101, 999);
+            // Angka unik hanya untuk Transfer Bank, bukan Cash
+            $uniqueCode = ($paymentMethod === 'cash') ? 0 : rand(101, 999);
             $amount = $priceWithTax + $uniqueCode;
 
             $booking->transaction()->create([
                 'user_id' => $patientId,
                 'invoice_number' => 'INV-' . strtoupper(\Illuminate\Support\Str::random(10)),
                 'amount' => $amount,
+                'payment_method' => $paymentMethod,
                 'status' => 'pending',
                 'ip_address' => request()->ip(),
                 'payment_agreement_data' => [

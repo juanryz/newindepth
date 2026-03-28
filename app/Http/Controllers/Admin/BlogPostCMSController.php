@@ -96,16 +96,16 @@ class BlogPostCMSController extends Controller
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dibuat.');
     }
 
-    public function edit(BlogPost $post)
+    public function edit(BlogPost $blog)
     {
         return Inertia::render('Admin/Blog/Form', [
-            'post' => $post,
+            'post' => $blog,
             'seoRules' => SeoSetting::getRules(),
             'forbiddenWords' => $this->getForbiddenWords(),
         ]);
     }
 
-    public function update(Request $request, BlogPost $post)
+    public function update(Request $request, BlogPost $blog)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -148,20 +148,20 @@ class BlogPostCMSController extends Controller
 
         if (!empty($validated['scheduled_at']) && !$validated['is_published']) {
             // keep
-        } elseif ($validated['is_published'] && !$post->is_published) {
+        } elseif ($validated['is_published'] && !$blog->is_published) {
             $validated['published_at'] = now();
             $validated['scheduled_at'] = null;
         } elseif (!$validated['is_published']) {
             $validated['published_at'] = null;
         }
 
-        $post->update($validated);
+        $blog->update($validated);
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil diperbarui.');
     }
 
-    public function destroy(BlogPost $post)
+    public function destroy(BlogPost $blog)
     {
-        $post->delete();
+        $blog->delete();
         return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dihapus.');
     }
 
