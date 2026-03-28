@@ -57,21 +57,30 @@ class FinanceController extends Controller
         $rev_period = $request->get('rev_period', 'month');
         $exp_period = $request->get('exp_period', 'month');
 
+        // Tentukan batas waktu berdasarkan filter global Bulan & Tahun (agar sinkron)
+        $selectedDate = \Carbon\Carbon::createFromDate($year, $month, 1);
+        $isCurrentMonth = $month == now()->format('m') && $year == now()->format('Y');
+
         // Revenue Chart Logic
         $revQuery = Transaction::where('status', 'paid');
         $revFormat = ''; $revSort = '';
         if ($rev_period === 'week') {
-            $revQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            $startWeek = $isCurrentMonth ? now()->startOfWeek() : $selectedDate->copy()->startOfWeek();
+            $endWeek = $isCurrentMonth ? now()->endOfWeek() : $selectedDate->copy()->endOfWeek();
+            $revQuery->whereBetween('created_at', [$startWeek, $endWeek]);
             $revFormat = $driver === 'sqlite' ? 'strftime("%d-%m", created_at)' : 'DATE_FORMAT(created_at, "%d-%m")';
             $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m-%d", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m-%d")';
         } elseif ($rev_period === 'month') {
-            $revQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+            $revQuery->whereMonth('created_at', $month)->whereYear('created_at', $year);
             $revFormat = $driver === 'sqlite' ? 'strftime("%d-%m", created_at)' : 'DATE_FORMAT(created_at, "%d-%m")';
             $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m-%d", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m-%d")';
-        } else { // year
-            $revQuery->whereYear('created_at', now()->year);
+        } elseif ($rev_period === 'year') {
+            $revQuery->whereYear('created_at', $year);
             $revFormat = $driver === 'sqlite' ? 'strftime("%m-%Y", created_at)' : 'DATE_FORMAT(created_at, "%m-%Y")';
             $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m")';
+        } else { // all
+            $revFormat = $driver === 'sqlite' ? 'strftime("%Y", created_at)' : 'DATE_FORMAT(created_at, "%Y")';
+            $revSort = $driver === 'sqlite' ? 'strftime("%Y", created_at)' : 'DATE_FORMAT(created_at, "%Y")';
         }
 
         $revenueByMonth = $revQuery->select(
@@ -90,11 +99,13 @@ class FinanceController extends Controller
         // Expense Chart Logic
         $expQuery = PettyCashTransaction::where('type', 'out');
         if ($exp_period === 'week') {
-            $expQuery->whereBetween('transaction_date', [now()->startOfWeek(), now()->endOfWeek()]);
+            $startWeek = $isCurrentMonth ? now()->startOfWeek() : $selectedDate->copy()->startOfWeek();
+            $endWeek = $isCurrentMonth ? now()->endOfWeek() : $selectedDate->copy()->endOfWeek();
+            $expQuery->whereBetween('transaction_date', [$startWeek, $endWeek]);
         } elseif ($exp_period === 'month') {
-            $expQuery->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year);
+            $expQuery->whereMonth('transaction_date', $month)->whereYear('transaction_date', $year);
         } else { // year
-            $expQuery->whereYear('transaction_date', now()->year);
+            $expQuery->whereYear('transaction_date', $year);
         }
 
         $expensesByCategory = $expQuery->select(
