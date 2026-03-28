@@ -57,8 +57,20 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     const [isPettyCashModalOpen, setIsPettyCashModalOpen] = useState(false);
     const [correctionTx, setCorrectionTx] = useState(null); // For revenue correction modal
 
-    // Activity Log Filters
-    const [logFilterType, setLogFilterType] = useState('');
+    // Period Filters for Charts
+    const [revPeriod, setRevPeriod] = useState(filters.rev_period || 'month');
+    const [expPeriod, setExpPeriod] = useState(filters.exp_period || 'month');
+
+    // Chart Filters Effect
+    useEffect(() => {
+        if (!logFilterType && !logFilterSearch && !logFilterDateFrom && !logFilterDateTo) {
+            router.get(
+                route('admin.finance.index'),
+                { ...filters, rev_period: revPeriod, exp_period: expPeriod, active_tab: activeTab },
+                { preserveState: true, replace: true, only: ['reports'] }
+            );
+        }
+    }, [revPeriod, expPeriod, activeTab]);
     const [logFilterSearch, setLogFilterSearch] = useState('');
     const [logFilterDateFrom, setLogFilterDateFrom] = useState('');
     const [logFilterDateTo, setLogFilterDateTo] = useState('');
@@ -525,40 +537,70 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                         </div>
 
                                         {/* Charts */}
-                                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                        <div className="flex flex-col gap-8">
+                                            {/* Line Chart Section */}
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <div className="mb-6">
-                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Tren Pendapatan</h3>
-                                                    <p className="text-xs text-gray-400 mt-1">Total pemasukan efektif per bulan dalam 12 bulan terakhir. Angka sudah memperhitungkan semua koreksi nominal.</p>
+                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 relative">
+                                                    <div>
+                                                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Tren Pendapatan</h3>
+                                                        <p className="text-xs text-gray-400 mt-1">Total pemasukan efektif berdasar periode terpilih.</p>
+                                                    </div>
+                                                    <select
+                                                        value={revPeriod}
+                                                        onChange={e => setRevPeriod(e.target.value)}
+                                                        className="w-full md:w-auto bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-xs font-bold px-4 py-2 cursor-pointer focus:ring-2 focus:ring-indigo-500"
+                                                    >
+                                                        <option value="week">Minggu Ini (Harian)</option>
+                                                        <option value="month">Bulan Ini (Harian)</option>
+                                                        <option value="year">Tahun Ini (Bulanan)</option>
+                                                        <option value="all">Semua Waktu (Tahunan)</option>
+                                                    </select>
                                                 </div>
-                                                <div className="h-[320px]">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <LineChart data={reports.charts.revenueByMonth}>
-                                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(156, 163, 175, 0.1)" />
-                                                            <XAxis dataKey="month_year" tick={{ fontSize: 10, fontWeight: 'bold' }} />
-                                                            <YAxis tickFormatter={(v) => `Rp${v / 1000000}jt`} tick={{ fontSize: 10, fontWeight: 'bold' }} />
-                                                            <Tooltip
-                                                                contentStyle={{ borderRadius: '1.5rem', border: 'none', background: '#111827', color: '#fff' }}
-                                                                formatter={(v) => [`Rp ${v.toLocaleString('id-ID')}`, 'Pemasukan Efektif']}
-                                                            />
-                                                            <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={4} dot={{ r: 4 }} activeDot={{ r: 8 }} />
-                                                        </LineChart>
-                                                    </ResponsiveContainer>
+                                                <div className="h-[360px] w-full mt-4">
+                                                    {reports.charts.revenueByMonth.length === 0 ? (
+                                                        <div className="h-full flex items-center justify-center text-xs font-bold text-gray-400 uppercase">Belum ada data untuk periode ini</div>
+                                                    ) : (
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <LineChart data={reports.charts.revenueByMonth} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+                                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(156, 163, 175, 0.1)" />
+                                                                <XAxis dataKey="month_year" tick={{ fontSize: 10, fontWeight: 'bold' }} tickMargin={10} minTickGap={20} />
+                                                                <YAxis tickFormatter={(v) => `Rp ${v >= 1000000 ? (v / 1000000) + 'jt' : v >= 1000 ? (v / 1000) + 'rb' : v}`} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                                                                <Tooltip
+                                                                    contentStyle={{ borderRadius: '1.5rem', border: 'none', background: '#111827', color: '#fff' }}
+                                                                    formatter={(v) => [`Rp ${v.toLocaleString('id-ID')}`, 'Pemasukan']}
+                                                                    labelStyle={{ fontWeight: 'bold', color: '#888', marginBottom: '4px' }}
+                                                                />
+                                                                <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={5} dot={{ r: 5, fill: '#fff', strokeWidth: 3 }} activeDot={{ r: 8 }} isAnimationActive={true} />
+                                                            </LineChart>
+                                                        </ResponsiveContainer>
+                                                    )}
                                                 </div>
                                             </div>
 
+                                            {/* Pie Chart Section */}
                                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                                <div className="mb-6">
-                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Kategori Pengeluaran</h3>
-                                                    <p className="text-xs text-gray-400 mt-1">Distribusi pengeluaran kas kecil operasional bulan ini berdasarkan kategori.</p>
+                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                                                    <div>
+                                                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Kategori Pengeluaran</h3>
+                                                        <p className="text-xs text-gray-400 mt-1">Distribusi pengeluaran kas kecil berdasarkan kategori.</p>
+                                                    </div>
+                                                    <select
+                                                        value={expPeriod}
+                                                        onChange={e => setExpPeriod(e.target.value)}
+                                                        className="w-full md:w-auto bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-xs font-bold px-4 py-2 cursor-pointer focus:ring-2 focus:ring-indigo-500"
+                                                    >
+                                                        <option value="week">Minggu Ini</option>
+                                                        <option value="month">Bulan Ini</option>
+                                                        <option value="year">Tahun Ini</option>
+                                                    </select>
                                                 </div>
-                                                <div className="flex flex-col md:flex-row h-[360px] md:h-[320px] items-center gap-6">
-                                                    <div className="w-full md:w-1/2 h-[200px] md:h-full">
+                                                <div className="flex flex-col lg:flex-row h-auto lg:h-[400px] items-center gap-8 mt-4">
+                                                    <div className="w-full lg:w-[45%] h-[300px] lg:h-full">
                                                         <ResponsiveContainer width="100%" height="100%">
                                                             <PieChart>
                                                                 <Pie
                                                                     data={reports.charts.expensesByCategory}
-                                                                    cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={2}
+                                                                    cx="50%" cy="50%" innerRadius="65%" outerRadius="90%" paddingAngle={2}
                                                                     dataKey="total" nameKey="category"
                                                                 >
                                                                     {reports.charts.expensesByCategory.map((_, i) => (
@@ -572,16 +614,18 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
                                                             </PieChart>
                                                         </ResponsiveContainer>
                                                     </div>
-                                                    <div className="w-full md:w-1/2 h-full overflow-y-auto pr-2 space-y-2">
+                                                    <div className="w-full lg:w-[55%] h-auto lg:max-h-full lg:overflow-y-auto pr-2 space-y-3 pb-4 custom-scrollbar">
                                                         {reports.charts.expensesByCategory.length === 0 ? (
-                                                            <div className="h-full flex items-center justify-center text-xs text-gray-400 font-bold uppercase tracking-widest">Belum ada pengeluaran</div>
+                                                            <div className="h-full flex items-center justify-center text-xs text-gray-400 font-bold uppercase tracking-widest py-12">Belum ada pengeluaran</div>
                                                         ) : (
                                                             reports.charts.expensesByCategory.map((item, i) => (
-                                                                <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                                                    <div className="w-4 h-4 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">{item.category}</p>
-                                                                        <p className="text-sm font-black text-gray-900 dark:text-white">Rp {item.total.toLocaleString('id-ID')}</p>
+                                                                <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                                                    <div className="w-8 h-8 rounded-xl flex-shrink-0 shadow-sm flex items-center justify-center" style={{ backgroundColor: `${PIE_COLORS[i % PIE_COLORS.length]}20` }}>
+                                                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0 flex items-center justify-between">
+                                                                        <p className="text-xs font-black uppercase tracking-wider text-gray-600 dark:text-gray-300 truncate mr-2">{item.category}</p>
+                                                                        <p className="text-base font-black text-gray-900 dark:text-white flex-shrink-0 text-right">Rp {item.total.toLocaleString('id-ID')}</p>
                                                                     </div>
                                                                 </div>
                                                             ))

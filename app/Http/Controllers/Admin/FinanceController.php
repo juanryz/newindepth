@@ -54,18 +54,31 @@ class FinanceController extends Controller
 
         $netIncome = $revenue - (float) $commissions - (float) $pettyCashExpenses;
 
-        // Tren pendapatan 12 bulan (gunakan COALESCE agar koreksi diperhitungkan)
-        $revenueByMonth = Transaction::select(
+        $rev_period = $request->get('rev_period', 'month');
+        $exp_period = $request->get('exp_period', 'month');
+
+        // Revenue Chart Logic
+        $revQuery = Transaction::where('status', 'paid');
+        $revFormat = ''; $revSort = '';
+        if ($rev_period === 'week') {
+            $revQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            $revFormat = $driver === 'sqlite' ? 'strftime("%d-%m", created_at)' : 'DATE_FORMAT(created_at, "%d-%m")';
+            $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m-%d", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m-%d")';
+        } elseif ($rev_period === 'month') {
+            $revQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+            $revFormat = $driver === 'sqlite' ? 'strftime("%d-%m", created_at)' : 'DATE_FORMAT(created_at, "%d-%m")';
+            $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m-%d", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m-%d")';
+        } else { // year
+            $revQuery->whereYear('created_at', now()->year);
+            $revFormat = $driver === 'sqlite' ? 'strftime("%m-%Y", created_at)' : 'DATE_FORMAT(created_at, "%m-%Y")';
+            $revSort = $driver === 'sqlite' ? 'strftime("%Y-%m", created_at)' : 'DATE_FORMAT(created_at, "%Y-%m")';
+        }
+
+        $revenueByMonth = $revQuery->select(
             DB::raw('SUM(COALESCE(corrected_amount, amount)) as total'),
-            DB::raw($driver === 'sqlite'
-                ? 'strftime("%m-%Y", created_at) as month_year'
-                : 'DATE_FORMAT(created_at, "%m-%Y") as month_year'),
-            DB::raw($driver === 'sqlite'
-                ? 'strftime("%Y-%m", created_at) as sort_key'
-                : 'DATE_FORMAT(created_at, "%Y-%m") as sort_key')
+            DB::raw("$revFormat as month_year"),
+            DB::raw("$revSort as sort_key")
         )
-            ->where('status', 'paid')
-            ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
             ->groupBy('month_year', 'sort_key')
             ->orderBy('sort_key')
             ->get()
@@ -74,13 +87,20 @@ class FinanceController extends Controller
                 return $item;
             });
 
-        $expensesByCategory = PettyCashTransaction::select(
+        // Expense Chart Logic
+        $expQuery = PettyCashTransaction::where('type', 'out');
+        if ($exp_period === 'week') {
+            $expQuery->whereBetween('transaction_date', [now()->startOfWeek(), now()->endOfWeek()]);
+        } elseif ($exp_period === 'month') {
+            $expQuery->whereMonth('transaction_date', now()->month)->whereYear('transaction_date', now()->year);
+        } else { // year
+            $expQuery->whereYear('transaction_date', now()->year);
+        }
+
+        $expensesByCategory = $expQuery->select(
             DB::raw('COALESCE(category, "Lain-lain") as category'),
             DB::raw('SUM(amount) as total')
         )
-            ->where('type', 'out')
-            ->whereMonth('transaction_date', $month)
-            ->whereYear('transaction_date', $year)
             ->groupBy(DB::raw('COALESCE(category, "Lain-lain")'))
             ->get()
             ->map(function ($item) {
