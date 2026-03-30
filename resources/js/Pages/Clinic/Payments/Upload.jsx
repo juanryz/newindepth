@@ -17,7 +17,7 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
         payment_bank: '',
         payment_account_name: '',
         payment_account_number: '',
-        payment_method: 'Transfer Bank',
+        payment_method: transaction?.payment_method === 'cash' ? 'Tunai' : 'Transfer Bank',
         payment_proof: null,
         agree_refund: true,
         agree_final: true,
@@ -149,10 +149,16 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                 </div>
                             </div>
 
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-                                Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat.
-                                <span className="block mt-2 font-bold text-rose-500 italic">⚠️ Harap selesaikan pembayaran dan upload bukti transfer dalam waktu 2 jam SEBELUM jadwal dimulai, agar tidak dibatalkan otomatis.</span>
-                            </p>
+                            {isCash ? (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+                                    Silakan datang ke klinik dan lakukan pembayaran tunai kepada staf kami.
+                                </p>
+                            ) : (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+                                    Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat.
+                                    <span className="block mt-2 font-bold text-rose-500 italic">⚠️ Harap selesaikan pembayaran dan upload bukti transfer dalam waktu 2 jam SEBELUM jadwal dimulai, agar tidak dibatalkan otomatis.</span>
+                                </p>
+                            )}
                             <div className="flex flex-col sm:flex-row gap-6 mb-6">
                                 <div className="flex-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Nominal</p>
@@ -171,15 +177,17 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                         {isCash ? '*Sudah termasuk PPN 11% (tanpa kode unik)' : '*Sudah termasuk PPN 11% dan kode unik'}
                                     </p>
                                 </div>
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
-                                            <p className="text-[10px] text-slate-400">a.n. Julius Bambang</p>
+                                {!isCash && (
+                                    <div className="flex-1 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
+                                                <p className="text-[10px] text-slate-400">a.n. Julius Bambang</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                             {/* Voucher Input */}
@@ -219,7 +227,7 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                         )}
 
                         <form onSubmit={submit} className="space-y-8">
-                            {/* ── Pilih Metode Pembayaran ── */}
+                            {/* ── Metode Pembayaran (read-only, sudah dipilih saat booking) ── */}
                             <div>
                                 <InputLabel value="Metode Pembayaran" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-3 ml-1" />
                                 <div className="flex flex-wrap gap-3">
@@ -227,17 +235,18 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                         <button
                                             key={method}
                                             type="button"
-                                            onClick={() => setData('payment_method', method)}
-                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
+                                            disabled
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 cursor-not-allowed ${
                                                 data.payment_method === method
                                                     ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                                    : 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-500 hover:border-indigo-300'
+                                                    : 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-300 dark:text-slate-600'
                                             }`}
                                         >
                                             {method}
                                         </button>
                                     ))}
                                 </div>
+                                <p className="text-[9px] text-slate-400 mt-2 ml-1 italic">Metode pembayaran dipilih saat booking dan tidak dapat diubah.</p>
                             </div>
 
                             {isCash ? (

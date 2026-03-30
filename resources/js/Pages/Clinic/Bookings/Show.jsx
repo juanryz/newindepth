@@ -7,6 +7,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 export default function BookingShow({ booking, userVouchers = [] }) {
     const isPendingPayment = booking.status === 'pending_payment';
     const isPendingScreening = booking.status === 'pending_screening';
+    const isCashPayment = booking.transaction?.payment_method === 'cash';
     const isPendingValidation = booking.status === 'pending_validation';
     const isConfirmed = booking.status === 'confirmed';
     const isCompleted = booking.status === 'completed';
@@ -194,13 +195,22 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                             isConfirmed || isCompleted ? 'LUNAS / SELESAI' : 'MENUNGGU'}
                                     </span>
                                 </div>
-                                {isPendingPayment && (
+                                {isPendingPayment && !isCashPayment && (
                                     <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-lg text-sm text-orange-800 dark:text-orange-300">
                                         <span className="font-bold flex items-center gap-2 mb-1">
                                             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             Perhatian Kode Unik
                                         </span>
                                         Pastikan Anda mentransfer <strong>tepat sesuai nominal di atas hingga 3 digit terakhir</strong> untuk memastikan kelancaran verifikasi sistem kami.
+                                    </div>
+                                )}
+                                {isPendingPayment && isCashPayment && (
+                                    <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 rounded-lg text-sm text-emerald-800 dark:text-emerald-300">
+                                        <span className="font-bold flex items-center gap-2 mb-1">
+                                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                            Pembayaran Tunai di Klinik
+                                        </span>
+                                        Silakan datang ke klinik dan lakukan pembayaran tunai kepada staf kami. <strong>Admin akan mengkonfirmasi setelah pembayaran diterima.</strong>
                                     </div>
                                 )}
 
@@ -290,7 +300,7 @@ export default function BookingShow({ booking, userVouchers = [] }) {
                                 Batalkan & Ganti Jadwal
                             </button>
 
-                            {isPendingPayment && (
+                            {isPendingPayment && !isCashPayment && (
                                 <Link href={route('payments.create', booking.id)}>
                                     <PrimaryButton className="!bg-blue-600 hover:!bg-blue-500 !rounded-md !px-6 !py-2.5 !text-sm !font-bold">Lanjutkan ke Pembayaran</PrimaryButton>
                                 </Link>
