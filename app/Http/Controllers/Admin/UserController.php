@@ -37,6 +37,9 @@ class UserController extends Controller
         'Ringan', 'Sedang', 'Berat Akut', 'Berat Kronis', 'High Risk',
     ];
 
+    // Role yang dapat ditetapkan saat pendaftaran offline (sinkron dengan kebutuhan klinik)
+    private const OFFLINE_ASSIGNABLE_ROLES = ['patient', 'santa_maria'];
+
     public function index(Request $request)
     {
         $query = User::with('roles');
@@ -246,12 +249,13 @@ class UserController extends Controller
             ]);
 
         return Inertia::render('Admin/Users/CreateOffline', [
-            'roles'           => Role::all(),
+            'roles'           => Role::whereIn('name', self::OFFLINE_ASSIGNABLE_ROLES)->get(),
             'severityOptions' => self::SEVERITY_OPTIONS,
             'packageOptions'  => self::PACKAGE_OPTIONS,
             'genderOptions'   => self::GENDER_OPTIONS,
             'schedules'       => $schedules,
             'bookingPackages' => $bookingPackages,
+            'paymentMethods'  => config('clinic.payment_methods'),
         ]);
     }
 

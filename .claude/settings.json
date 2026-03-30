@@ -3,7 +3,11 @@
     "allow": [
       "Bash(\"C:/Users/ryano/.config/herd/bin/php.bat\" artisan:*)",
       "Bash(npm run:*)",
-      "Bash(find /d/Herd/newindepth -name *ai_training* -o -name *AiTraining*)"
+      "Bash(find /d/Herd/newindepth -name *ai_training* -o -name *AiTraining*)",
+      "Bash(find /d/Herd/newindepth -type f -name *route*)",
+      "Bash(find /d/Herd/newindepth/app/Models -type f -name *.php)",
+      "Bash(grep -r \"3.*digit\\\\|999\\\\|101\" /d/Herd/newindepth/app --include=*.php)",
+      "Bash(find /d/Herd/newindepth/resources -type f \\\\\\(-name *User* -o -name *user* -o -name *register* \\\\\\))"
     ]
   }
 }
