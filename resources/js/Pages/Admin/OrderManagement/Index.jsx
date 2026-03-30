@@ -173,8 +173,8 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [txFilterDateTo, setTxFilterDateTo] = useState('');
 
     const filteredTransactions = (transactions || []).filter(tx => {
-        // Only show transactions that have payment proof or are already processed
-        if (!tx.payment_proof && tx.status === 'pending') return false;
+        // Only show transactions that have payment proof, are cash, or are already processed
+        if (!tx.payment_proof && tx.payment_method !== 'cash' && tx.payment_method !== 'Tunai' && tx.status === 'pending') return false;
 
         if (txFilterStatus && tx.status !== txFilterStatus) return false;
         if (txFilterSearch) {
