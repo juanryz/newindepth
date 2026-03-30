@@ -189,6 +189,7 @@ class BookingController extends Controller
         $validated = $request->validate([
             'schedule_id' => 'required|exists:schedules,id',
             'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
+            'payment_method' => 'required|in:transfer,cash',
             'agree_refund' => 'required|accepted',
             'agree_final' => 'required|accepted',
             'agree_access' => 'required|accepted',
@@ -220,7 +221,14 @@ class BookingController extends Controller
         }
 
         try {
-            $booking = $bookingService->createBooking($validated, $user->id);
+            $paymentMethod = $validated['payment_method'] ?? 'transfer';
+            $booking = $bookingService->createBooking($validated, $user->id, $paymentMethod);
+
+            if ($paymentMethod === 'cash') {
+                // Cash: langsung arahkan ke halaman detail booking, admin yang konfirmasi
+                return redirect()->route('bookings.show', $booking->id)->with('success', 'Booking berhasil dibuat dengan metode Cash. Silakan lakukan pembayaran di klinik.');
+            }
+
             return redirect()->route('payments.create', $booking->id)->with('success', 'Booking berhasil dibuat. Silakan lanjut ke pembayaran.');
         } catch (Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);

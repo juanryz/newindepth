@@ -295,6 +295,7 @@ function BookingCreate({ schedules, packageOptions, screeningResult, activeBooki
   const { data, setData, post, processing, errors } = useForm({
     schedule_id: "",
     package_type: packageOptions.recommended,
+    payment_method: "transfer",
     agree_privacy: false,
     agree_refund: false,
     agree_final: false,
@@ -482,7 +483,35 @@ function BookingCreate({ schedules, packageOptions, screeningResult, activeBooki
                 ].map((item) => /* @__PURE__ */ jsxs("label", { className: `flex items-center gap-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${data[item.id] ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/40" : "bg-gray-50 dark:bg-gray-800/30 border-gray-100 dark:border-gray-800"}`, children: [
                   /* @__PURE__ */ jsx("input", { type: "checkbox", checked: data[item.id], onChange: (e) => setData(item.id, e.target.checked), className: "w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500" }),
                   /* @__PURE__ */ jsx("span", { className: `text-[11px] font-black uppercase tracking-tight ${data[item.id] ? "text-red-900 dark:text-red-200" : "text-gray-600 dark:text-gray-400"}`, children: item.label })
-                ] }, item.id)) })
+                ] }, item.id)) }),
+                /* @__PURE__ */ jsxs("div", { className: "mt-2 p-5 bg-indigo-50/70 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30", children: [
+                  /* @__PURE__ */ jsxs("h4", { className: "text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsx("svg", { className: "w-3.5 h-3.5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" }) }),
+                    "Metode Pembayaran"
+                  ] }),
+                  /* @__PURE__ */ jsx("div", { className: "grid grid-cols-2 gap-3", children: [
+                    { id: "transfer", label: "Transfer Bank", icon: "🏦", desc: "BCA / Mandiri / BNI" },
+                    { id: "cash", label: "Bayar di Klinik", icon: "💵", desc: "Tunai langsung" }
+                  ].map((method) => /* @__PURE__ */ jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => setData("payment_method", method.id),
+                      className: `flex flex-col items-center gap-1.5 p-4 rounded-2xl border-2 transition-all ${data.payment_method === method.id ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/30 shadow-md" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300"}`,
+                      children: [
+                        /* @__PURE__ */ jsx("span", { className: "text-xl", children: method.icon }),
+                        /* @__PURE__ */ jsx("span", { className: `text-[10px] font-black uppercase tracking-wider ${data.payment_method === method.id ? "text-indigo-700 dark:text-indigo-300" : "text-gray-700 dark:text-gray-300"}`, children: method.label }),
+                        /* @__PURE__ */ jsx("span", { className: "text-[9px] font-bold text-gray-400 uppercase", children: method.desc })
+                      ]
+                    },
+                    method.id
+                  )) }),
+                  data.payment_method === "cash" && /* @__PURE__ */ jsxs("p", { className: "mt-3 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl px-4 py-2", children: [
+                    "⚠️ Nominal yang tertera adalah harga bersih ",
+                    /* @__PURE__ */ jsx("strong", { children: "tanpa angka unik" }),
+                    ". Pembayaran Cash harus dilakukan langsung di klinik."
+                  ] })
+                ] })
               ] }),
               /* @__PURE__ */ jsx("div", { className: "p-6 bg-white dark:bg-gray-800 flex justify-between items-center border-t border-gray-100 dark:border-gray-800", children: /* @__PURE__ */ jsx(
                 "button",
@@ -502,13 +531,16 @@ function BookingCreate({ schedules, packageOptions, screeningResult, activeBooki
                 /* @__PURE__ */ jsx("p", { className: "text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-[0.2em] mb-2 text-center", children: "Terjadi Kesalahan" }),
                 /* @__PURE__ */ jsx("ul", { className: "text-[10px] font-bold text-red-500/80 list-disc list-inside space-y-1 text-center", children: Object.values(errors).map((err, i) => /* @__PURE__ */ jsx("li", { children: err }, i)) })
               ] }),
-              /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsxs(
                 "button",
                 {
                   onClick: submit,
                   disabled: !data.schedule_id || !data.agree_privacy || !(data.agree_refund && data.agree_final && data.agree_access && data.agree_chargeback) || processing,
                   className: `w-full max-w-md py-6 rounded-[2rem] font-black uppercase tracking-[0.25em] text-sm transition-all shadow-2xl ${data.schedule_id && data.agree_privacy && data.agree_refund && data.agree_final && data.agree_access && data.agree_chargeback ? "bg-gradient-to-r from-red-600 via-rose-700 to-red-800 text-white hover:scale-[1.02] active:scale-[0.98] shadow-red-500/20" : "bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600 cursor-not-allowed grayscale"}`,
-                  children: "KONFIRMASI & LANJUT PEMBAYARAN"
+                  children: [
+                    "KONFIRMASI & ",
+                    data.payment_method === "cash" ? "BAYAR DI KLINIK" : "LANJUT PEMBAYARAN"
+                  ]
                 }
               ),
               /* @__PURE__ */ jsx("p", { className: "text-[10px] font-black text-gray-400 uppercase tracking-widest text-center px-10 leading-relaxed", children: "Dengan menekan tombol di atas, Anda menyatakan persetujuan mutlak terhadap seluruh syarat dan ketentuan platform." })

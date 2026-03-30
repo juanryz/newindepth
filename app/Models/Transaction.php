@@ -11,8 +11,17 @@ class Transaction extends Model
     protected $casts = [
         'payment_proof_uploaded_at' => 'datetime',
         'validated_at' => 'datetime',
+        'corrected_at' => 'datetime',
         'payment_agreement_data' => 'json',
     ];
+
+    /**
+     * Ambil nominal efektif (setelah koreksi jika ada).
+     */
+    public function getEffectiveAmountAttribute(): float
+    {
+        return $this->corrected_amount !== null ? (float) $this->corrected_amount : (float) $this->amount;
+    }
 
     public function user()
     {
@@ -21,7 +30,12 @@ class Transaction extends Model
 
     public function validatedBy()
     {
-        return $this->belongsTo(User::class , 'validated_by');
+        return $this->belongsTo(User::class, 'validated_by');
+    }
+
+    public function correctedBy()
+    {
+        return $this->belongsTo(User::class, 'corrected_by');
     }
 
     public function transactionable()

@@ -28,6 +28,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
     const { data, setData, post, processing, errors } = useForm({
         schedule_id: '',
         package_type: packageOptions.recommended,
+        payment_method: 'transfer',
         agree_privacy: false,
         agree_refund: false,
         agree_final: false,
@@ -295,6 +296,42 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                             </label>
                                         ))}
                                     </div>
+
+                                    {/* Payment Method Selector */}
+                                    <div className="mt-2 p-5 bg-indigo-50/70 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                                        <h4 className="text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                            Metode Pembayaran
+                                        </h4>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {[
+                                                { id: 'transfer', label: 'Transfer Bank', icon: '🏦', desc: 'BCA / Mandiri / BNI' },
+                                                { id: 'cash', label: 'Bayar di Klinik', icon: '💵', desc: 'Tunai langsung' },
+                                            ].map((method) => (
+                                                <button
+                                                    key={method.id}
+                                                    type="button"
+                                                    onClick={() => setData('payment_method', method.id)}
+                                                    className={`flex flex-col items-center gap-1.5 p-4 rounded-2xl border-2 transition-all ${
+                                                        data.payment_method === method.id
+                                                            ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/30 shadow-md'
+                                                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300'
+                                                    }`}
+                                                >
+                                                    <span className="text-xl">{method.icon}</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-wider ${
+                                                        data.payment_method === method.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'
+                                                    }`}>{method.label}</span>
+                                                    <span className="text-[9px] font-bold text-gray-400 uppercase">{method.desc}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {data.payment_method === 'cash' && (
+                                            <p className="mt-3 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl px-4 py-2">
+                                                ⚠️ Nominal yang tertera adalah harga bersih <strong>tanpa angka unik</strong>. Pembayaran Cash harus dilakukan langsung di klinik.
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="p-6 bg-white dark:bg-gray-800 flex justify-between items-center border-t border-gray-100 dark:border-gray-800">
@@ -326,7 +363,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                         : 'bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600 cursor-not-allowed grayscale'
                                         }`}
                                 >
-                                    KONFIRMASI & LANJUT PEMBAYARAN
+                                    KONFIRMASI & {data.payment_method === 'cash' ? 'BAYAR DI KLINIK' : 'LANJUT PEMBAYARAN'}
                                 </button>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center px-10 leading-relaxed">
                                     Dengan menekan tombol di atas, Anda menyatakan persetujuan mutlak terhadap seluruh syarat dan ketentuan platform.
