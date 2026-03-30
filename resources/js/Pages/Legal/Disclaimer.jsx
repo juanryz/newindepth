@@ -10,8 +10,15 @@ export default function Disclaimer({ auth }) {
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
                 <title>Disclaimer Resmi | InDepth Mental Wellness</title>
+                <meta name="description" content="Disclaimer resmi InDepth Mental Wellness. Layanan hipnoterapi bukan pengganti diagnosis medis profesional. Baca ketentuan penggunaan layanan kami sebelum memulai sesi." />
+                <meta name="keywords" content="disclaimer InDepth, ketentuan layanan hipnoterapi, bukan pengganti medis, hipnoterapi Semarang syarat" />
+                <meta property="og:title" content="Disclaimer Resmi | InDepth Mental Wellness" />
+                <meta property="og:description" content="Disclaimer resmi InDepth Mental Wellness. Layanan hipnoterapi bukan pengganti diagnosis medis." />
                 <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="noindex, follow" />
             </Head>
 
             <LiquidBackground />

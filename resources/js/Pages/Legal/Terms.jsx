@@ -10,8 +10,15 @@ export default function Terms({ auth }) {
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
                 <title>Syarat dan Ketentuan | InDepth Mental Wellness</title>
+                <meta name="description" content="Syarat dan ketentuan penggunaan layanan InDepth Mental Wellness. Baca selengkapnya mengenai hak, kewajiban, kebijakan pembatalan, dan peraturan sesi hipnoterapi." />
+                <meta name="keywords" content="syarat ketentuan InDepth, aturan layanan hipnoterapi, kebijakan pembatalan sesi, ketentuan InDepth Semarang" />
+                <meta property="og:title" content="Syarat dan Ketentuan | InDepth Mental Wellness" />
+                <meta property="og:description" content="Syarat dan ketentuan layanan InDepth Mental Wellness: hak, kewajiban, dan kebijakan sesi hipnoterapi." />
                 <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="noindex, follow" />
             </Head>
 
             <LiquidBackground />

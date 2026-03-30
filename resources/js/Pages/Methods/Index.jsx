@@ -10,7 +10,34 @@ export default function MethodsIndex({ auth }) {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="Metodologi InDepth — Akses Unconscious, Kecerdasan Tubuh, dan Pemrograman Ulang Sistem Internal" />
+            <Head title="Metodologi InDepth — Akses Unconscious, Kecerdasan Tubuh, dan Pemrograman Ulang Sistem Internal">
+                <meta name="description" content="Metodologi eksklusif InDepth: InDepth TRANCE, InDepth SOLUTION, dan SUPREME TRANCE — teknik hipnoterapi canggih yang mengakses unconscious mind, kecerdasan tubuh, dan melakukan pemrograman ulang sistem internal." />
+                <meta name="keywords" content="metodologi hipnoterapi InDepth, InDepth TRANCE, InDepth SOLUTION, SUPREME TRANCE, akses unconscious, kecerdasan tubuh, teknik hipnoterapi, pemrograman ulang pikiran" />
+                <meta property="og:title" content="Metodologi InDepth — Teknik Hipnoterapi Eksklusif" />
+                <meta property="og:description" content="Tiga metodologi eksklusif InDepth: TRANCE, SOLUTION, dan SUPREME TRANCE untuk akses unconscious dan pemrograman ulang sistem internal." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Metodologi InDepth — Teknik Hipnoterapi Eksklusif" />
+                <meta name="twitter:description" content="Tiga metodologi eksklusif: InDepth TRANCE, SOLUTION, dan SUPREME TRANCE." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "WebPage",
+                    "name": "Metodologi InDepth",
+                    "description": "Metodologi eksklusif InDepth menggunakan tiga teknik utama: InDepth TRANCE, InDepth SOLUTION, dan SUPREME TRANCE untuk terapi mental mendalam.",
+                    "url": typeof window !== 'undefined' ? window.location.href : '',
+                    "isPartOf": {
+                        "@type": "WebSite",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : ''
+                    }
+                }) }} />
+            </Head>
 
             {/* Premium Liquid Background */}
             <LiquidBackground />

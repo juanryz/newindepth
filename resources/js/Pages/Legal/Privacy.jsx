@@ -10,8 +10,15 @@ export default function Privacy({ auth }) {
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
                 <title>Kebijakan Privasi | InDepth Mental Wellness</title>
+                <meta name="description" content="Kebijakan privasi InDepth Mental Wellness. Pelajari bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda selama menggunakan layanan hipnoterapi kami." />
+                <meta name="keywords" content="kebijakan privasi InDepth, perlindungan data hipnoterapi, privasi klien InDepth, data pribadi InDepth Semarang" />
+                <meta property="og:title" content="Kebijakan Privasi | InDepth Mental Wellness" />
+                <meta property="og:description" content="Pelajari bagaimana InDepth Mental Wellness mengumpulkan dan melindungi data pribadi klien." />
                 <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="noindex, follow" />
             </Head>
 
             <LiquidBackground />

@@ -133,7 +133,43 @@ export default function LayananPremium({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi Premium Semarang — Optimalisasi Performa dan Pengembangan Diri | InDepth" />
+            <Head title="Hipnoterapi Premium Semarang — Optimalisasi Performa dan Pengembangan Diri | InDepth">
+                <meta name="description" content="Paket Hipnoterapi Premium InDepth Semarang: program intensif untuk optimalisasi performa, kepercayaan diri, pengembangan diri, dan trauma mendalam. Sesi privat eksklusif dengan terapis senior bersertifikat." />
+                <meta name="keywords" content="hipnoterapi premium Semarang, optimalisasi performa, pengembangan diri hipnoterapi, terapi trauma, kepercayaan diri, hipnoterapi intensif, InDepth premium" />
+                <meta property="og:title" content="Hipnoterapi Premium Semarang — Optimalisasi Performa & Pengembangan Diri | InDepth" />
+                <meta property="og:description" content="Paket Premium InDepth: hipnoterapi intensif untuk performa optimal, kepercayaan diri, dan pemrosesan trauma mendalam. Eksklusif, privat, dan terstruktur." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Hipnoterapi Premium Semarang | InDepth" />
+                <meta name="twitter:description" content="Hipnoterapi intensif untuk performa optimal, kepercayaan diri, dan trauma mendalam. InDepth Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Service",
+                    "name": "Hipnoterapi Premium InDepth",
+                    "description": "Paket hipnoterapi intensif untuk optimalisasi performa, pengembangan diri, dan pemrosesan trauma mendalam melalui sesi privat eksklusif.",
+                    "provider": {
+                        "@type": "MedicalBusiness",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : '',
+                        "telephone": "+6282220800034",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "Jalan Kelud Raya 34B",
+                            "addressLocality": "Semarang",
+                            "addressRegion": "Jawa Tengah",
+                            "addressCountry": "ID"
+                        }
+                    },
+                    "areaServed": { "@type": "City", "name": "Semarang" },
+                    "url": typeof window !== 'undefined' ? window.location.href : ''
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 

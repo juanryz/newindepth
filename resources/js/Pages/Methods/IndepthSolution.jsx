@@ -8,7 +8,22 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function IndepthSolution({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="InDepth SOLUTION — Menggali Solusi dari Kecerdasan Tubuh" />
+            <Head title="InDepth SOLUTION — Menggali Solusi dari Kecerdasan Tubuh">
+                <meta name="description" content="InDepth SOLUTION adalah metode terapi unik yang menggali solusi langsung dari kecerdasan tubuh dan sistem bawah sadar klien. Pendekatan berbasis sumber daya internal untuk transformasi yang tahan lama." />
+                <meta name="keywords" content="InDepth SOLUTION, kecerdasan tubuh, terapi solusi, bawah sadar, hipnoterapi solusi, sumber daya internal, metodologi InDepth, transformasi mental" />
+                <meta property="og:title" content="InDepth SOLUTION — Menggali Solusi dari Kecerdasan Tubuh" />
+                <meta property="og:description" content="Metode InDepth SOLUTION: menggali solusi dari kecerdasan tubuh dan bawah sadar untuk transformasi mental yang tahan lama." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="InDepth SOLUTION — Kecerdasan Tubuh" />
+                <meta name="twitter:description" content="Metode terapi yang menggali solusi dari kecerdasan tubuh dan bawah sadar klien." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+            </Head>
 
             <LiquidBackground />
             <Navbar auth={auth} active="methods" />

@@ -154,7 +154,43 @@ export default function LayananVip({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi VIP Semarang — Psikosomatis, Medis Kronis, Halusinasi | InDepth" />
+            <Head title="Hipnoterapi VIP Semarang — Psikosomatis, Medis Kronis, Halusinasi | InDepth">
+                <meta name="description" content="Paket Hipnoterapi VIP InDepth Semarang: penanganan kasus kompleks psikosomatis, penyakit medis kronis, halusinasi, dan kondisi berat lainnya. Program eksklusif, pendampingan penuh, terapis senior berpengalaman." />
+                <meta name="keywords" content="hipnoterapi VIP Semarang, terapi psikosomatis, hipnoterapi medis kronis, terapi halusinasi, hipnoterapi kasus berat, program VIP hipnoterapi, InDepth VIP" />
+                <meta property="og:title" content="Hipnoterapi VIP Semarang — Psikosomatis, Medis Kronis, Halusinasi | InDepth" />
+                <meta property="og:description" content="Paket VIP InDepth: penanganan kasus kompleks psikosomatis, medis kronis, dan kondisi berat. Program eksklusif dengan pendampingan penuh oleh terapis senior." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Hipnoterapi VIP Semarang | InDepth" />
+                <meta name="twitter:description" content="Penanganan psikosomatis, medis kronis, dan kondisi berat. Program VIP eksklusif InDepth Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Service",
+                    "name": "Hipnoterapi VIP InDepth",
+                    "description": "Paket hipnoterapi eksklusif untuk penanganan kasus kompleks: psikosomatis, penyakit medis kronis, halusinasi, dan kondisi psikologis berat.",
+                    "provider": {
+                        "@type": "MedicalBusiness",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : '',
+                        "telephone": "+6282220800034",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "Jalan Kelud Raya 34B",
+                            "addressLocality": "Semarang",
+                            "addressRegion": "Jawa Tengah",
+                            "addressCountry": "ID"
+                        }
+                    },
+                    "areaServed": { "@type": "City", "name": "Semarang" },
+                    "url": typeof window !== 'undefined' ? window.location.href : ''
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 

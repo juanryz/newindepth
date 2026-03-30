@@ -30,7 +30,41 @@ export default function TentangKami({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Tentang Kami | PT InDepth Mental Wellness" />
+            <Head title="Tentang Kami | PT InDepth Mental Wellness">
+                <meta name="description" content="PT InDepth Mental Wellness — klinik hipnoterapi profesional di Semarang. Didirikan dengan misi menghadirkan solusi kesehatan mental berbasis ilmu pengetahuan, dengan pendekatan holistik dan privat." />
+                <meta name="keywords" content="tentang InDepth Mental Wellness, klinik hipnoterapi Semarang, PT InDepth, kesehatan mental Semarang, profil klinik hipnoterapi, terapi mental profesional" />
+                <meta property="og:title" content="Tentang Kami | PT InDepth Mental Wellness" />
+                <meta property="og:description" content="Mengenal InDepth Mental Wellness — klinik hipnoterapi profesional di Semarang dengan pendekatan holistik, privat, dan berbasis bukti ilmiah." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Tentang Kami | PT InDepth Mental Wellness" />
+                <meta name="twitter:description" content="Klinik hipnoterapi profesional di Semarang. Pendekatan holistik, privat, dan berbasis bukti ilmiah." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Organization",
+                    "name": "PT InDepth Mental Wellness",
+                    "alternateName": "InDepth Clinic",
+                    "description": "Klinik hipnoterapi profesional di Semarang menyediakan layanan kesehatan mental berbasis ilmu pengetahuan dengan pendekatan holistik dan privat.",
+                    "url": typeof window !== 'undefined' ? window.location.origin : '',
+                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '',
+                    "telephone": "+6282220800034",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "Jalan Kelud Raya 34B",
+                        "addressLocality": "Semarang",
+                        "addressRegion": "Jawa Tengah",
+                        "addressCountry": "ID"
+                    },
+                    "foundingDate": "2020",
+                    "areaServed": { "@type": "City", "name": "Semarang" }
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="tentangkami" />
 

@@ -6,7 +6,22 @@ export default function TherapistsIndex({ therapists }) {
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950">
             <Navbar auth={null} />
-            <Head title="Tim Terapis Kami" />
+            <Head title="Tim Terapis Kami | InDepth Mental Wellness">
+                <meta name="description" content="Kenali tim terapis profesional InDepth Mental Wellness Semarang. Terapis bersertifikat dengan keahlian hipnoterapi, psikologi klinis, dan kesehatan mental untuk mendampingi perjalanan pemulihan Anda." />
+                <meta name="keywords" content="terapis hipnoterapi Semarang, tim terapis InDepth, terapis bersertifikat, hipnoterapis profesional, psikolog Semarang, konselor kesehatan mental" />
+                <meta property="og:title" content="Tim Terapis InDepth Mental Wellness Semarang" />
+                <meta property="og:description" content="Tim terapis profesional bersertifikat InDepth Semarang. Spesialis hipnoterapi, psikologi klinis, dan kesehatan mental." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Tim Terapis InDepth Semarang" />
+                <meta name="twitter:description" content="Terapis hipnoterapi profesional bersertifikat di InDepth Mental Wellness Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+            </Head>
 
             <div className="py-12 bg-white dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
