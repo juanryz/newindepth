@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Booking;
+use App\Models\ClinicSetting;
 use Carbon\Carbon;
 
 class AutoCloseSessions extends Command
@@ -20,14 +21,15 @@ class AutoCloseSessions extends Command
      *
      * @var string
      */
-    protected $description = 'Otomatis menutup sesi terapi yang sudah berjalan lebih dari 90 menit';
+    protected $description = 'Otomatis menutup sesi terapi yang sudah berjalan lebih dari batas durasi yang dikonfigurasi';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $cutoffTime = Carbon::now()->subMinutes(90);
+        $autoCloseMins = ClinicSetting::getSessionAutoCloseMins();
+        $cutoffTime = Carbon::now()->subMinutes($autoCloseMins);
 
         $expiredBookings = Booking::where('status', 'in_progress')
             ->where('started_at', '<=', $cutoffTime)
@@ -42,9 +44,9 @@ class AutoCloseSessions extends Command
             /** @var Booking $booking */
             $booking->update([
                 'status' => 'completed',
-                'ended_at' => $booking->started_at->addMinutes(90),
+                'ended_at' => $booking->started_at->addMinutes($autoCloseMins),
                 'completion_outcome' => 'Normal',
-                'therapist_notes' => ($booking->therapist_notes ? $booking->therapist_notes . "\n\n" : "") . "[Sesi ditutup otomatis oleh sistem karena melebihi durasi 90 menit]",
+                'therapist_notes' => ($booking->therapist_notes ? $booking->therapist_notes . "\n\n" : "") . "[Sesi ditutup otomatis oleh sistem karena melebihi durasi {$autoCloseMins} menit]",
                 'patient_visible_notes' => ($booking->patient_visible_notes ? $booking->patient_visible_notes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.",
             ]);
 
