@@ -61,6 +61,12 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
     const [revPeriod, setRevPeriod] = useState(filters.rev_period || 'month');
     const [expPeriod, setExpPeriod] = useState(filters.exp_period || 'month');
 
+    // Log Filters
+    const [logFilterType, setLogFilterType] = useState('');
+    const [logFilterSearch, setLogFilterSearch] = useState('');
+    const [logFilterDateFrom, setLogFilterDateFrom] = useState('');
+    const [logFilterDateTo, setLogFilterDateTo] = useState('');
+
     // Chart Filters Effect
     useEffect(() => {
         if (!logFilterType && !logFilterSearch && !logFilterDateFrom && !logFilterDateTo) {
@@ -71,9 +77,6 @@ export default function FinanceIndex({ reports, pettyCash, filters, auth, userRo
             );
         }
     }, [revPeriod, expPeriod, activeTab]);
-    const [logFilterSearch, setLogFilterSearch] = useState('');
-    const [logFilterDateFrom, setLogFilterDateFrom] = useState('');
-    const [logFilterDateTo, setLogFilterDateTo] = useState('');
 
     // Search States for Petty Cash
     const [internalSearch, setInternalSearch] = useState('');
