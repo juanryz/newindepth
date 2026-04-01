@@ -42,6 +42,7 @@ class SocialiteController extends Controller
                 }
                 if (!empty($updates)) {
                     $user->update($updates);
+                    $user->refresh();
                 }
             } else {
                 // Register a new user

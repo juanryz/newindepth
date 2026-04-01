@@ -138,7 +138,43 @@ export default function Layanan({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Layanan Hipnoterapi Semarang | InDepth Klinik" />
+            <Head title="Layanan Hipnoterapi Semarang | InDepth Klinik">
+                <meta name="description" content="Pilih paket hipnoterapi sesuai kebutuhan Anda: Reguler untuk kecemasan & overthinking, Premium untuk pengembangan diri, VIP untuk kasus psikosomatis & medis kronis. InDepth Clinic Semarang." />
+                <meta name="keywords" content="layanan hipnoterapi Semarang, paket hipnoterapi, hipnoterapi reguler, hipnoterapi premium, hipnoterapi VIP, klinik hipnoterapi, terapi mental Semarang" />
+                <meta property="og:title" content="Layanan Hipnoterapi Semarang | InDepth Klinik" />
+                <meta property="og:description" content="Pilih paket hipnoterapi sesuai kebutuhan: Reguler, Premium, atau VIP. Sesi privat bersama terapis bersertifikat di InDepth Clinic Semarang." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Layanan Hipnoterapi Semarang | InDepth Klinik" />
+                <meta name="twitter:description" content="Paket hipnoterapi Reguler, Premium, dan VIP di InDepth Clinic Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Service",
+                    "name": "Layanan Hipnoterapi InDepth",
+                    "description": "Hipnoterapi profesional di Semarang dengan tiga tingkat paket: Reguler, Premium, dan VIP, disesuaikan dengan kebutuhan klien.",
+                    "provider": {
+                        "@type": "MedicalBusiness",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : '',
+                        "telephone": "+6282220800034",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "Jalan Kelud Raya 34B",
+                            "addressLocality": "Semarang",
+                            "addressRegion": "Jawa Tengah",
+                            "addressCountry": "ID"
+                        }
+                    },
+                    "areaServed": { "@type": "City", "name": "Semarang" },
+                    "url": typeof window !== 'undefined' ? window.location.href : ''
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 

@@ -8,7 +8,22 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function SupremeTrance({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="SUPREME TRANCE — Akses Penuh ke Unconscious dalam Kondisi Sadar" />
+            <Head title="SUPREME TRANCE — Akses Penuh ke Unconscious dalam Kondisi Sadar">
+                <meta name="description" content="SUPREME TRANCE adalah puncak metodologi InDepth — teknik hipnoterapi tertinggi yang memungkinkan akses penuh ke unconscious mind dalam kondisi klien tetap sadar penuh. Untuk kasus kompleks dan transformasi mendalam." />
+                <meta name="keywords" content="SUPREME TRANCE, akses unconscious sadar, hipnoterapi tingkat lanjut, teknik hipnoterapi tertinggi, transformasi mendalam, kasus kompleks hipnoterapi, metodologi InDepth" />
+                <meta property="og:title" content="SUPREME TRANCE — Akses Penuh ke Unconscious dalam Kondisi Sadar" />
+                <meta property="og:description" content="Puncak metodologi InDepth: SUPREME TRANCE untuk akses penuh ke unconscious mind sambil klien tetap sadar penuh. Untuk kasus paling kompleks." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="SUPREME TRANCE — Teknik Hipnoterapi Tertinggi" />
+                <meta name="twitter:description" content="Akses penuh ke unconscious mind dalam kondisi sadar. Puncak metodologi InDepth untuk kasus kompleks." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+            </Head>
 
             <LiquidBackground />
             <Navbar auth={auth} active="methods" />

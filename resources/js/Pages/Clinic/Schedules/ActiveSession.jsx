@@ -75,7 +75,7 @@ const CHECKLIST_SECTIONS = [
     },
 ];
 
-export default function ActiveSession({ booking, patient }) {
+export default function ActiveSession({ booking, patient, isAdmin = false }) {
     // Load draft from localStorage on mount
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -153,7 +153,13 @@ export default function ActiveSession({ booking, patient }) {
             }
             // Force complete at 95 minutes
             if (mins >= 95 && !forceCompleting) {
-                setSessionAlert('force');
+                if (isAdmin) {
+                    // Admin: show dismissable warning, not a blocking modal
+                    if (!alertDismissed80) setSessionAlert('force_admin');
+                } else {
+                    // Therapist: show blocking message, must contact admin
+                    setSessionAlert('force');
+                }
             }
         }, 1000);
         return () => clearInterval(interval);
@@ -267,7 +273,8 @@ export default function ActiveSession({ booking, patient }) {
                             type="text"
                             value={cl[field.key] || ''}
                             onChange={e => updateChecklist(field.key, e.target.value)}
-                            className="w-full bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-5 py-3.5 text-sm font-bold dark:text-white transition-all"
+                            disabled={isFormDisabled}
+                            className="w-full bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-5 py-3.5 text-sm font-bold dark:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             placeholder={`Isi ${field.label.toLowerCase()}...`}
                         />
                     </div>
@@ -278,7 +285,7 @@ export default function ActiveSession({ booking, patient }) {
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">{field.label}</label>
                         <div className="flex flex-wrap gap-2">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                                <button key={n} type="button" onClick={() => updateChecklist(field.key, n)}
+                                <button key={n} type="button" onClick={() => updateChecklist(field.key, n)} disabled={isFormDisabled}
                                     className={`w-10 h-10 rounded-xl font-black text-sm transition-all border-2 ${cl[field.key] === n
                                         ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110'
                                         : 'bg-white/50 dark:bg-black/20 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-indigo-400'
@@ -293,13 +300,13 @@ export default function ActiveSession({ booking, patient }) {
                     <div key={field.key} className="mb-4">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 block">{field.label}</label>
                         <div className="flex gap-3">
-                            <button type="button" onClick={() => updateChecklist(field.key, true)}
-                                className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 ${cl[field.key] === true
+                            <button type="button" onClick={() => updateChecklist(field.key, true)} disabled={isFormDisabled}
+                                className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 disabled:opacity-50 disabled:cursor-not-allowed ${cl[field.key] === true
                                     ? 'bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400'
                                     : 'bg-white/50 dark:bg-black/20 border-gray-200 dark:border-gray-700 text-gray-500'
                                     }`}>Ya</button>
-                            <button type="button" onClick={() => updateChecklist(field.key, false)}
-                                className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 ${cl[field.key] === false
+                            <button type="button" onClick={() => updateChecklist(field.key, false)} disabled={isFormDisabled}
+                                className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 disabled:opacity-50 disabled:cursor-not-allowed ${cl[field.key] === false
                                     ? 'bg-rose-500/10 border-rose-500 text-rose-700 dark:text-rose-400'
                                     : 'bg-white/50 dark:bg-black/20 border-gray-200 dark:border-gray-700 text-gray-500'
                                     }`}>Tidak</button>
@@ -314,7 +321,7 @@ export default function ActiveSession({ booking, patient }) {
                             {field.options.map(opt => {
                                 const selected = (cl[field.key] || []).includes(opt);
                                 return (
-                                    <button key={opt} type="button" onClick={() => toggleMulti(field.key, opt)}
+                                    <button key={opt} type="button" onClick={() => toggleMulti(field.key, opt)} disabled={isFormDisabled}
                                         className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border-2 ${selected
                                             ? 'bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400'
                                             : 'bg-white/50 dark:bg-black/20 border-gray-200 dark:border-gray-700 text-gray-500 hover:border-indigo-400'
@@ -331,6 +338,8 @@ export default function ActiveSession({ booking, patient }) {
     };
 
     const progress = getFilledCount();
+    const isOvertime = elapsedMinutes >= 95;
+    const isFormDisabled = isOvertime && !isAdmin;
 
     return (
         <AuthenticatedLayout
@@ -397,6 +406,26 @@ export default function ActiveSession({ booking, patient }) {
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                                 className="bg-white/40 dark:bg-white/[0.03] backdrop-blur-[40px] rounded-[3rem] p-8 md:p-10 border border-white/40 dark:border-white/[0.08] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.05)]">
 
+                                {/* Overtime Banner for Therapist */}
+                                {isFormDisabled && (
+                                    <div className="mb-10 p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-700 rounded-[2rem]">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-red-500/20 text-red-600 dark:text-red-400 rounded-2xl flex-shrink-0">
+                                                <AlertCircle className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-base font-black text-red-700 dark:text-red-400 uppercase tracking-widest mb-1">Sesi Melebihi 95 Menit</p>
+                                                <p className="text-sm font-medium text-red-600 dark:text-red-300 leading-relaxed">
+                                                    Pengisian data sesi tidak dapat dilakukan setelah durasi 95 menit. Silakan hubungi admin untuk mengisi data atas nama Anda.
+                                                </p>
+                                                <div className="mt-3 flex items-center gap-2 text-xs font-black text-red-500 dark:text-red-400 uppercase tracking-widest">
+                                                    <MessageCircle className="w-4 h-4" /> Hubungi admin untuk melanjutkan
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Recording Link */}
                                 <div className="mb-12">
                                     <div className="flex items-center justify-between mb-6">
@@ -413,7 +442,8 @@ export default function ActiveSession({ booking, patient }) {
                                     <div className="relative group">
                                         <input type="url" value={data.recording_link} onChange={e => setData('recording_link', e.target.value)}
                                             placeholder="https://www.youtube.com/live/..."
-                                            className={`w-full pl-14 pr-6 py-5 bg-white/50 dark:bg-black/20 border-2 rounded-[1.5rem] focus:ring-8 transition-all font-bold tracking-tight ${errors.recording_link ? 'border-red-500/50 focus:ring-red-500/10' : 'border-transparent focus:border-indigo-500/30 focus:ring-indigo-500/10'} dark:text-white placeholder:text-gray-400`}
+                                            disabled={isFormDisabled}
+                                            className={`w-full pl-14 pr-6 py-5 bg-white/50 dark:bg-black/20 border-2 rounded-[1.5rem] focus:ring-8 transition-all font-bold tracking-tight ${errors.recording_link ? 'border-red-500/50 focus:ring-red-500/10' : 'border-transparent focus:border-indigo-500/30 focus:ring-indigo-500/10'} dark:text-white placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed`}
                                         />
                                         <div className="absolute left-5 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
                                             <Zap className="w-4 h-4 text-indigo-500" />
@@ -441,7 +471,8 @@ export default function ActiveSession({ booking, patient }) {
                                     </div>
                                     <textarea value={data.therapist_notes} onChange={e => setData('therapist_notes', e.target.value)}
                                         rows="8" placeholder="Tulis analisis sesi, terobosan, dan intervensi di sini..."
-                                        className="w-full p-8 bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500/30 focus:ring-8 focus:ring-indigo-500/10 rounded-[2rem] transition-all dark:text-white leading-relaxed resize-none font-bold text-base shadow-inner"
+                                        disabled={isFormDisabled}
+                                        className="w-full p-8 bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500/30 focus:ring-8 focus:ring-indigo-500/10 rounded-[2rem] transition-all dark:text-white leading-relaxed resize-none font-bold text-base shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
                                     ></textarea>
                                 </div>
 
@@ -458,7 +489,8 @@ export default function ActiveSession({ booking, patient }) {
                                     </div>
                                     <textarea value={data.patient_visible_notes} onChange={e => setData('patient_visible_notes', e.target.value)}
                                         rows="4" placeholder="Berikan semangat, tugas mandiri, atau tujuan sesi berikutnya..."
-                                        className="w-full p-8 bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-emerald-500/30 focus:ring-8 focus:ring-emerald-500/10 rounded-[2rem] transition-all dark:text-white leading-relaxed resize-none font-bold text-base"
+                                        disabled={isFormDisabled}
+                                        className="w-full p-8 bg-white/50 dark:bg-black/20 border-2 border-transparent focus:border-emerald-500/30 focus:ring-8 focus:ring-emerald-500/10 rounded-[2rem] transition-all dark:text-white leading-relaxed resize-none font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                     ></textarea>
                                 </div>
 
@@ -546,7 +578,7 @@ export default function ActiveSession({ booking, patient }) {
                                     <Activity className="w-4 h-4 text-indigo-500" /> Hasil Sesi
                                 </h3>
                                 <div className="grid grid-cols-1 gap-4">
-                                    <button type="button" onClick={() => setData('completion_outcome', 'Normal')}
+                                    <button type="button" onClick={() => setData('completion_outcome', 'Normal')} disabled={isFormDisabled}
                                         className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${data.completion_outcome === 'Normal' ? 'bg-emerald-500/10 border-emerald-500 dark:bg-emerald-500/20' : 'border-transparent bg-white/50 dark:bg-black/20'}`}>
                                         <div className="flex items-center gap-4">
                                             <div className={`p-2 rounded-xl transition-colors ${data.completion_outcome === 'Normal' ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'}`}>
@@ -555,7 +587,7 @@ export default function ActiveSession({ booking, patient }) {
                                             <span className={`font-black uppercase tracking-widest text-xs ${data.completion_outcome === 'Normal' ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-500'}`}>Perkembangan Normal</span>
                                         </div>
                                     </button>
-                                    <button type="button" onClick={() => setData('completion_outcome', 'Abnormal/Emergency')}
+                                    <button type="button" onClick={() => setData('completion_outcome', 'Abnormal/Emergency')} disabled={isFormDisabled}
                                         className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${data.completion_outcome === 'Abnormal/Emergency' ? 'bg-red-500/10 border-red-500 dark:bg-red-500/20' : 'border-transparent bg-white/50 dark:bg-black/20'}`}>
                                         <div className="flex items-center gap-4">
                                             <div className={`p-2 rounded-xl transition-colors ${data.completion_outcome === 'Abnormal/Emergency' ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'}`}>
@@ -577,7 +609,7 @@ export default function ActiveSession({ booking, patient }) {
                                     </div>
                                 )}
                                 <button onClick={handleFinalSubmit}
-                                    disabled={processing || !data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome || !isChecklistComplete()}
+                                    disabled={isFormDisabled || processing || !data.recording_link || !data.therapist_notes || !data.patient_visible_notes || !data.completion_outcome || !isChecklistComplete()}
                                     className="w-full py-8 bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 disabled:opacity-30 disabled:grayscale text-white rounded-[2.5rem] font-black text-xl shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all enabled:hover:scale-[1.02] enabled:active:scale-95 group flex items-center justify-center gap-4">
                                     <div className="p-2 bg-white/20 rounded-xl group-hover:rotate-12 transition-transform">
                                         <Save className="w-6 h-6" />
@@ -600,7 +632,10 @@ export default function ActiveSession({ booking, patient }) {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[999999] flex items-center justify-center p-4">
                         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => {
-                            if (sessionAlert !== 'force') {
+                            if (sessionAlert === 'force_admin') {
+                                setAlertDismissed80(true);
+                                setSessionAlert(null);
+                            } else if (sessionAlert !== 'force') {
                                 if (sessionAlert === '30') setAlertDismissed30(true);
                                 if (sessionAlert === '60') setAlertDismissed60(true);
                                 if (sessionAlert === '80') setAlertDismissed80(true);
@@ -661,10 +696,30 @@ export default function ActiveSession({ booking, patient }) {
                                         <Clock className="w-10 h-10 text-red-600 animate-spin-slow" />
                                     </div>
                                     <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Waktu Habis (95 Menit)</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">Sesi ini telah melewati batas toleransi maksimal sistem. Sesi akan ditutup sekarang.</p>
-                                    <button onClick={handleForceComplete} disabled={forceCompleting}
-                                        className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-red-500/30 flex justify-center items-center gap-2">
-                                        {forceCompleting ? 'Memproses...' : 'Selesaikan Otomatis'}
+                                    <p className="text-slate-500 dark:text-slate-400 mb-4 font-medium">Sesi ini telah melewati batas durasi maksimal sistem.</p>
+                                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-2xl mb-6 text-left">
+                                        <p className="text-sm font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                            <MessageCircle className="w-4 h-4" /> Hubungi Admin
+                                        </p>
+                                        <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
+                                            Untuk mengisi atau melengkapi data sesi yang melebihi 95 menit, silakan hubungi admin. Admin dapat mengisi data atas nama Anda.
+                                        </p>
+                                    </div>
+                                    <p className="text-xs text-slate-400 font-medium">Sistem akan menutup sesi ini secara otomatis.</p>
+                                </>
+                            )}
+
+                            {sessionAlert === 'force_admin' && (
+                                <>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-orange-500 rounded-t-full"></div>
+                                    <div className="mx-auto w-20 h-20 bg-orange-50 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <AlertCircle className="w-10 h-10 text-orange-500" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Sesi Melebihi 95 Menit</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">Sesi ini telah melewati durasi standar. Sebagai admin, Anda masih dapat mengisi dan menyimpan data sesi ini.</p>
+                                    <button onClick={() => { setAlertDismissed80(true); setSessionAlert(null); }}
+                                        className="w-full py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-black tracking-widest text-xs uppercase transition-colors shadow-lg shadow-orange-500/30">
+                                        Lanjutkan Pengisian Data
                                     </button>
                                 </>
                             )}

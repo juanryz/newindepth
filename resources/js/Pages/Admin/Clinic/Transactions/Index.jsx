@@ -294,7 +294,11 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                             </div>
                                                             <span className="text-xs font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Lihat</span>
                                                         </a>
-                                                    ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Belum Upload</span>}
+                                                    ) : (tx.payment_method === 'cash' || tx.payment_method === 'Tunai') ? (
+                                                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Tunai (Klinik)</span>
+                                                    ) : (
+                                                        <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Belum Upload</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     <span className={`px-4 py-1.5 inline-flex text-[10px] font-black uppercase tracking-widest rounded-full border
@@ -314,7 +318,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                 <td className="px-6 py-5 text-center">
                                                     {tx.status === 'pending' && hasPermission('edit transactions') && (
                                                         <div className="flex justify-center gap-2">
-                                                            {(tx.payment_proof || tx.payment_method === 'cash') ? (
+                                                            {(tx.payment_proof || tx.payment_method === 'cash' || tx.payment_method === 'Tunai') ? (
                                                                 hasPermission('validate transactions') && (
                                                                     <button
                                                                         disabled={validating}

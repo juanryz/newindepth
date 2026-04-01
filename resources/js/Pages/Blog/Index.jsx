@@ -38,8 +38,34 @@ export default function BlogIndex({ posts, auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <Head>
-                <title>Blog - InDepth Mental Wellness</title>
-                <meta name="description" content="Baca artikel, tips, dan wawasan seputar kesehatan mental, psikologi, dan kesejahteraan jiwa langsung dari tim profesional InDepth Mental Wellness." />
+                <title>Blog Kesehatan Mental | InDepth Mental Wellness Semarang</title>
+                <meta name="description" content="Baca artikel, tips, dan wawasan seputar kesehatan mental, hipnoterapi, psikologi, dan kesejahteraan jiwa langsung dari tim profesional InDepth Mental Wellness Semarang." />
+                <meta name="keywords" content="blog kesehatan mental, artikel hipnoterapi, tips psikologi, wawasan kesehatan jiwa, InDepth Mental Wellness, artikel terapi mental Semarang" />
+                <meta property="og:title" content="Blog Kesehatan Mental | InDepth Mental Wellness" />
+                <meta property="og:description" content="Artikel, tips, dan wawasan kesehatan mental dan hipnoterapi dari tim profesional InDepth Mental Wellness Semarang." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Blog Kesehatan Mental | InDepth Mental Wellness" />
+                <meta name="twitter:description" content="Artikel dan tips kesehatan mental dari tim profesional InDepth Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Blog",
+                    "name": "Blog InDepth Mental Wellness",
+                    "description": "Artikel dan wawasan kesehatan mental, hipnoterapi, dan psikologi dari tim profesional InDepth Mental Wellness.",
+                    "url": typeof window !== 'undefined' ? window.location.href : '',
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : '',
+                        "logo": { "@type": "ImageObject", "url": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '' }
+                    }
+                }) }} />
             </Head>
 
             {/* Premium Liquid Background */}

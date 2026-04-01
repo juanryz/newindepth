@@ -78,7 +78,49 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Klinik Hipnoterapi Semarang | InDepth Mental Wellness — Sesi Privat & Profesional" />
+            <Head title="Klinik Hipnoterapi Semarang | InDepth Mental Wellness — Sesi Privat & Profesional">
+                <meta name="description" content="InDepth Mental Wellness — klinik hipnoterapi profesional di Semarang. Atasi kecemasan, trauma, overthinking, dan masalah psikosomatis dengan sesi hipnoterapi privat bersama terapis bersertifikat." />
+                <meta name="keywords" content="klinik hipnoterapi Semarang, hipnoterapi profesional, mengatasi kecemasan, terapi trauma, hipnoterapi privat, kesehatan mental Semarang, InDepth Mental Wellness" />
+                <meta property="og:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness" />
+                <meta property="og:description" content="Klinik hipnoterapi profesional di Semarang. Sesi privat untuk kecemasan, trauma, overthinking, dan psikosomatis. Terapis bersertifikat, hasil nyata." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Klinik Hipnoterapi Semarang | InDepth Mental Wellness" />
+                <meta name="twitter:description" content="Klinik hipnoterapi profesional di Semarang. Sesi privat untuk kecemasan, trauma, overthinking, dan psikosomatis." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "MedicalBusiness",
+                    "name": "InDepth Mental Wellness",
+                    "alternateName": "InDepth Clinic",
+                    "description": "Klinik hipnoterapi profesional di Semarang menyediakan sesi privat untuk mengatasi kecemasan, trauma, overthinking, dan masalah psikosomatis.",
+                    "url": typeof window !== 'undefined' ? window.location.origin : '',
+                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '',
+                    "image": typeof window !== 'undefined' ? `${window.location.origin}/images/og-dark.jpg` : '',
+                    "telephone": "+6282220800034",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "Jalan Kelud Raya 34B",
+                        "addressLocality": "Semarang",
+                        "addressRegion": "Jawa Tengah",
+                        "addressCountry": "ID"
+                    },
+                    "geo": {
+                        "@type": "GeoCoordinates",
+                        "latitude": "-7.0051",
+                        "longitude": "110.4189"
+                    },
+                    "openingHours": "Mo-Sa 09:00-20:00",
+                    "priceRange": "Rp1.500.000 – Rp5.000.000",
+                    "medicalSpecialty": "Hypnotherapy",
+                    "sameAs": []
+                }) }} />
+            </Head>
 
             {/* Premium Liquid Background */}
             <LiquidBackground />

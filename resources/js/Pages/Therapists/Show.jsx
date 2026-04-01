@@ -12,7 +12,35 @@ export default function TherapistShow({ therapist, schedules }) {
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950">
             <Navbar auth={null} />
-            <Head title={`Profil Terapis - ${therapist.name}`} />
+            <Head title={`${therapist.name} — Terapis InDepth Mental Wellness Semarang`}>
+                <meta name="description" content={`Profil ${therapist.name}, terapis hipnoterapi profesional bersertifikat di InDepth Mental Wellness Semarang. Lihat jadwal sesi, spesialisasi, dan cara booking konsultasi.`} />
+                <meta name="keywords" content={`${therapist.name}, terapis hipnoterapi, InDepth Semarang, profil terapis, hipnoterapis bersertifikat, booking sesi hipnoterapi`} />
+                <meta property="og:title" content={`${therapist.name} — Terapis InDepth Mental Wellness`} />
+                <meta property="og:description" content={`Profil ${therapist.name}: terapis hipnoterapi profesional di InDepth Semarang. Lihat jadwal dan booking sesi.`} />
+                <meta property="og:image" content={therapist.photo ? `/storage/${therapist.photo}` : '/images/og-dark.jpg'} />
+                <meta property="og:type" content="profile" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${therapist.name} — Terapis InDepth`} />
+                <meta name="twitter:description" content={`Profil terapis hipnoterapi ${therapist.name} di InDepth Semarang.`} />
+                <meta name="twitter:image" content={therapist.photo ? `/storage/${therapist.photo}` : '/images/og-dark.jpg'} />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Person",
+                    "name": therapist.name,
+                    "jobTitle": "Terapis Hipnoterapi",
+                    "worksFor": {
+                        "@type": "MedicalBusiness",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : ''
+                    },
+                    "image": therapist.photo ? (typeof window !== 'undefined' ? `${window.location.origin}/storage/${therapist.photo}` : '') : '',
+                    "url": typeof window !== 'undefined' ? window.location.href : ''
+                }) }} />
+            </Head>
 
             <div className="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

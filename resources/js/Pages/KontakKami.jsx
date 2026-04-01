@@ -97,7 +97,50 @@ export default function KontakKami({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Kontak Kami | InDepth Clinic" />
+            <Head title="Kontak Kami | InDepth Clinic">
+                <meta name="description" content="Hubungi InDepth Mental Wellness Semarang via WhatsApp, telepon, atau kunjungi langsung di Jalan Kelud Raya 34B, Semarang. Konsultasi awal gratis untuk menentukan paket hipnoterapi yang tepat." />
+                <meta name="keywords" content="kontak InDepth Clinic, hubungi hipnoterapi Semarang, alamat InDepth Semarang, WhatsApp klinik hipnoterapi, konsultasi hipnoterapi Semarang, InDepth Kelud Raya" />
+                <meta property="og:title" content="Kontak Kami | InDepth Clinic Semarang" />
+                <meta property="og:description" content="Hubungi InDepth Mental Wellness via WhatsApp atau kunjungi klinik kami di Semarang. Konsultasi awal untuk hipnoterapi tersedia setiap hari." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Kontak Kami | InDepth Clinic Semarang" />
+                <meta name="twitter:description" content="Hubungi InDepth Mental Wellness Semarang. Konsultasi hipnoterapi tersedia via WhatsApp setiap hari." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "MedicalBusiness",
+                    "name": "InDepth Mental Wellness",
+                    "description": "Klinik hipnoterapi profesional di Semarang.",
+                    "url": typeof window !== 'undefined' ? window.location.origin : '',
+                    "telephone": "+6282220800034",
+                    "email": "info@indepth.id",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "Jalan Kelud Raya 34B",
+                        "addressLocality": "Petompon, Gajahmungkur",
+                        "addressRegion": "Semarang, Jawa Tengah",
+                        "addressCountry": "ID"
+                    },
+                    "geo": {
+                        "@type": "GeoCoordinates",
+                        "latitude": "-7.0051",
+                        "longitude": "110.4189"
+                    },
+                    "openingHours": "Mo-Sa 09:00-20:00",
+                    "contactPoint": {
+                        "@type": "ContactPoint",
+                        "telephone": "+6282220800034",
+                        "contactType": "customer service",
+                        "availableLanguage": "Indonesian"
+                    }
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="kontak" />
 

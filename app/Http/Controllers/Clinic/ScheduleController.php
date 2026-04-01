@@ -265,9 +265,12 @@ class ScheduleController extends Controller
 
         $booking->load(['patient', 'schedule.therapist']);
 
+        $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
+
         return Inertia::render('Clinic/Schedules/ActiveSession', [
             'booking' => $booking,
             'patient' => $booking->patient->load('screeningResults'),
+            'isAdmin' => $isAdmin,
         ]);
     }
 

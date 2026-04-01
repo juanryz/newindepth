@@ -76,7 +76,7 @@ function scheduleLabel(s) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CreateOffline({
-    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages,
+    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages, paymentMethods,
 }) {
     const { data, setData, post, processing, errors } = useForm({
         disclaimer_confirmed: false,
@@ -487,7 +487,15 @@ export default function CreateOffline({
                                                 <div className="space-y-2">
                                                     <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Metode Pembayaran</InputLabel>
                                                     <div className="relative">
-                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_method} onChange={(e) => setData('payment_method', e.target.value)} placeholder="Transfer Bank / Tunai / QRIS" />
+                                                        <select
+                                                            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all appearance-none"
+                                                            value={data.payment_method}
+                                                            onChange={(e) => setData('payment_method', e.target.value)}
+                                                        >
+                                                            {paymentMethods.map((m) => (
+                                                                <option key={m} value={m}>{m}</option>
+                                                            ))}
+                                                        </select>
                                                         <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                     </div>
                                                     <InputError message={errors.payment_method} className="mt-2" />

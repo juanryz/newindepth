@@ -63,7 +63,22 @@ export default function Index({ auth }) {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="Testimoni - InDepth Mental Wellness" />
+            <Head title="Testimoni Klien | InDepth Mental Wellness Semarang">
+                <meta name="description" content="Baca testimoni nyata dari klien InDepth Mental Wellness Semarang. Kisah nyata pemulihan dari kecemasan, trauma, overthinking, psikosomatis, dan berbagai masalah mental melalui hipnoterapi profesional." />
+                <meta name="keywords" content="testimoni hipnoterapi InDepth, ulasan klinik hipnoterapi Semarang, cerita sukses terapi, review InDepth Mental Wellness, hasil hipnoterapi nyata" />
+                <meta property="og:title" content="Testimoni Klien InDepth Mental Wellness Semarang" />
+                <meta property="og:description" content="Kisah nyata pemulihan klien InDepth Semarang: kecemasan, trauma, overthinking, dan psikosomatis teratasi dengan hipnoterapi profesional." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Testimoni Klien InDepth Semarang" />
+                <meta name="twitter:description" content="Kisah nyata pemulihan dari kecemasan, trauma, dan overthinking melalui hipnoterapi InDepth." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+            </Head>
 
             {/* Global Background Ambient Light */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">

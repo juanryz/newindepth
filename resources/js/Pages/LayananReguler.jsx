@@ -177,7 +177,43 @@ export default function LayananReguler({ auth, packages = [] }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased selection:bg-gold-500 selection:text-white transition-colors duration-500 overflow-x-hidden relative">
             <PageLoader />
-            <Head title="Hipnoterapi Reguler Semarang — Mengatasi Overthinking, Kecemasan, dan Kebiasaan Buruk | InDepth" />
+            <Head title="Hipnoterapi Reguler Semarang — Mengatasi Overthinking, Kecemasan, dan Kebiasaan Buruk | InDepth">
+                <meta name="description" content="Paket Hipnoterapi Reguler InDepth Semarang: solusi efektif untuk overthinking, kecemasan, fobia, insomnia, dan kebiasaan buruk. Sesi privat dengan terapis bersertifikat, proses terstruktur dan aman." />
+                <meta name="keywords" content="hipnoterapi reguler Semarang, mengatasi overthinking, terapi kecemasan, hipnoterapi fobia, terapi insomnia, hipnoterapi kebiasaan buruk, InDepth Semarang" />
+                <meta property="og:title" content="Hipnoterapi Reguler Semarang — Mengatasi Overthinking, Kecemasan & Kebiasaan Buruk | InDepth" />
+                <meta property="og:description" content="Paket Reguler InDepth: hipnoterapi privat untuk overthinking, kecemasan, fobia, insomnia, dan kebiasaan buruk. Terapis bersertifikat di Semarang." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Hipnoterapi Reguler Semarang | InDepth" />
+                <meta name="twitter:description" content="Hipnoterapi privat untuk overthinking, kecemasan, fobia, insomnia. Terapis bersertifikat di Semarang." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Service",
+                    "name": "Hipnoterapi Reguler InDepth",
+                    "description": "Paket hipnoterapi untuk mengatasi overthinking, kecemasan, fobia, insomnia, dan kebiasaan buruk melalui sesi privat terstruktur.",
+                    "provider": {
+                        "@type": "MedicalBusiness",
+                        "name": "InDepth Mental Wellness",
+                        "url": typeof window !== 'undefined' ? window.location.origin : '',
+                        "telephone": "+6282220800034",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "Jalan Kelud Raya 34B",
+                            "addressLocality": "Semarang",
+                            "addressRegion": "Jawa Tengah",
+                            "addressCountry": "ID"
+                        }
+                    },
+                    "areaServed": { "@type": "City", "name": "Semarang" },
+                    "url": typeof window !== 'undefined' ? window.location.href : ''
+                }) }} />
+            </Head>
             <LiquidBackground />
             <Navbar auth={auth} active="layanan" />
 

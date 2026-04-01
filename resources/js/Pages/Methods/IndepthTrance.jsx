@@ -8,7 +8,22 @@ import LiquidBackground from '@/Components/LiquidBackground';
 export default function IndepthTrance({ auth }) {
     return (
         <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-500 overflow-x-hidden relative">
-            <Head title="InDepth TRANCE — Akses Unconscious dan Kecerdasan Tubuh" />
+            <Head title="InDepth TRANCE — Akses Unconscious dan Kecerdasan Tubuh">
+                <meta name="description" content="InDepth TRANCE adalah teknik induksi hipnotis eksklusif yang membawa klien ke kondisi trance optimal untuk mengakses unconscious mind dan kecerdasan tubuh secara mendalam dan terarah." />
+                <meta name="keywords" content="InDepth TRANCE, teknik induksi hipnosis, akses unconscious, kondisi trance, kecerdasan tubuh, hipnoterapi trance, metodologi InDepth, terapi mendalam" />
+                <meta property="og:title" content="InDepth TRANCE — Akses Unconscious dan Kecerdasan Tubuh" />
+                <meta property="og:description" content="Teknik InDepth TRANCE: induksi hipnotis eksklusif untuk mengakses unconscious mind dan kecerdasan tubuh secara mendalam." />
+                <meta property="og:image" content="/images/og-dark.jpg" />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+                <meta property="og:locale" content="id_ID" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="InDepth TRANCE — Akses Unconscious" />
+                <meta name="twitter:description" content="Teknik induksi hipnotis eksklusif untuk mengakses unconscious mind dan kecerdasan tubuh." />
+                <meta name="twitter:image" content="/images/og-dark.jpg" />
+                <meta name="robots" content="index, follow" />
+                <link rel="canonical" href={typeof window !== 'undefined' ? window.location.href : ''} />
+            </Head>
 
             <LiquidBackground />
             <Navbar auth={auth} active="methods" />

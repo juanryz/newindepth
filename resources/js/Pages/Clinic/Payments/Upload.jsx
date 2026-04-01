@@ -10,20 +10,24 @@ const GlassPanel = ({ children, className = '', ...props }) => (
     <div className={`bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-[2.5rem] transition-all duration-500 ${className}`} {...props}>{children}</div>
 );
 
-export default function PaymentUpload({ booking, transaction }) {
+export default function PaymentUpload({ booking, transaction, paymentMethods }) {
     const { errors: pageErrors } = usePage().props;
 
     const { data, setData, processing, errors } = useForm({
         payment_bank: '',
         payment_account_name: '',
         payment_account_number: '',
-        payment_method: 'Transfer Bank',
+        payment_method: transaction?.payment_method === 'cash' ? 'Tunai' : 'Transfer Bank',
         payment_proof: null,
         agree_refund: true,
         agree_final: true,
         agree_access: true,
         agree_chargeback: true,
     });
+
+    const isCash = data.payment_method === 'Tunai';
+    const cashAmount = transaction?.amount ? transaction.amount - (transaction.amount % 1000) : 0;
+    const displayAmount = isCash ? cashAmount : (transaction?.amount || 0);
 
     const [showPolicyModal, setShowPolicyModal] = useState(false);
     const [voucherCode, setVoucherCode] = useState('');
@@ -48,15 +52,17 @@ export default function PaymentUpload({ booking, transaction }) {
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append('payment_bank', data.payment_bank);
-        formData.append('payment_account_name', data.payment_account_name);
-        formData.append('payment_account_number', data.payment_account_number);
         formData.append('payment_method', data.payment_method);
-        formData.append('payment_proof', data.payment_proof);
         formData.append('agree_refund', data.agree_refund ? '1' : '0');
         formData.append('agree_final', data.agree_final ? '1' : '0');
         formData.append('agree_access', data.agree_access ? '1' : '0');
         formData.append('agree_chargeback', data.agree_chargeback ? '1' : '0');
+        if (!isCash) {
+            formData.append('payment_bank', data.payment_bank);
+            formData.append('payment_account_name', data.payment_account_name);
+            formData.append('payment_account_number', data.payment_account_number);
+            if (data.payment_proof) formData.append('payment_proof', data.payment_proof);
+        }
 
         router.post(route('payments.store', booking.id), formData, {
             forceFormData: true,
@@ -143,15 +149,21 @@ export default function PaymentUpload({ booking, transaction }) {
                                 </div>
                             </div>
 
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-                                Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat.
-                                <span className="block mt-2 font-bold text-rose-500 italic">⚠️ Harap selesaikan pembayaran dan upload bukti transfer dalam waktu 2 jam SEBELUM jadwal dimulai, agar tidak dibatalkan otomatis.</span>
-                            </p>
+                            {isCash ? (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+                                    Silakan datang ke klinik dan lakukan pembayaran tunai kepada staf kami.
+                                </p>
+                            ) : (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+                                    Silakan transfer ke salah satu rekening resmi InDepth Mental Wellness sejumlah tepat.
+                                    <span className="block mt-2 font-bold text-rose-500 italic">⚠️ Harap selesaikan pembayaran dan upload bukti transfer dalam waktu 2 jam SEBELUM jadwal dimulai, agar tidak dibatalkan otomatis.</span>
+                                </p>
+                            )}
                             <div className="flex flex-col sm:flex-row gap-6 mb-6">
                                 <div className="flex-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Nominal</p>
                                     <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-                                        Rp {new Intl.NumberFormat('id-ID').format(transaction.amount || 0)}
+                                        Rp {new Intl.NumberFormat('id-ID').format(displayAmount)}
                                     </p>
                                     {((transaction.payment_agreement_data?.discount_amount > 0) || (booking.user_voucher?.voucher?.discount_amount > 0)) && (
                                         <div className="mt-2 space-y-1">
@@ -161,17 +173,21 @@ export default function PaymentUpload({ booking, transaction }) {
                                             </p>
                                         </div>
                                     )}
-                                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">*Sudah termasuk PPN 11% dan kode unik</p>
+                                    <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                                        {isCash ? '*Sudah termasuk PPN 11% (tanpa kode unik)' : '*Sudah termasuk PPN 11% dan kode unik'}
+                                    </p>
                                 </div>
-                                <div className="flex-1 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
-                                            <p className="text-[10px] text-slate-400">a.n. Julius Bambang</p>
+                                {!isCash && (
+                                    <div className="flex-1 space-y-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
+                                                <p className="text-[10px] text-slate-400">a.n. Julius Bambang</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
                             {/* Voucher Input */}
@@ -211,84 +227,125 @@ export default function PaymentUpload({ booking, transaction }) {
                         )}
 
                         <form onSubmit={submit} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="md:col-span-2">
-                                    <InputLabel htmlFor="payment_bank" value="Nama Bank Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
-                                    <TextInput
-                                        id="payment_bank"
-                                        type="text"
-                                        placeholder="Contoh: BCA / Mandiri / BNI (Gunakan huruf)"
-                                        className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
-                                        value={data.payment_bank}
-                                        onChange={(e) => {
-                                            const val = e.target.value.replace(/[0-9]/g, '');
-                                            setData('payment_bank', val);
-                                        }}
-                                        required
-                                    />
-                                    {errors.payment_bank && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_bank}</p>}
+                            {/* ── Metode Pembayaran (read-only, sudah dipilih saat booking) ── */}
+                            <div>
+                                <InputLabel value="Metode Pembayaran" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-3 ml-1" />
+                                <div className="flex flex-wrap gap-3">
+                                    {paymentMethods.map((method) => (
+                                        <button
+                                            key={method}
+                                            type="button"
+                                            disabled
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 cursor-not-allowed ${
+                                                data.payment_method === method
+                                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                    : 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-300 dark:text-slate-600'
+                                            }`}
+                                        >
+                                            {method}
+                                        </button>
+                                    ))}
                                 </div>
+                                <p className="text-[9px] text-slate-400 mt-2 ml-1 italic">Metode pembayaran dipilih saat booking dan tidak dapat diubah.</p>
+                            </div>
 
-                                <div>
-                                    <InputLabel htmlFor="payment_account_number" value="Nomor Rekening Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                                    <TextInput
-                                        id="payment_account_number"
-                                        type="text"
-                                        placeholder="Masukkan nomor rekening Anda"
-                                        className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
-                                        value={data.payment_account_number}
-                                        onChange={(e) => {
-                                            const val = e.target.value.replace(/[^0-9]/g, '');
-                                            setData('payment_account_number', val);
-                                        }}
-                                        required
-                                    />
-                                    {errors.payment_account_number && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_number}</p>}
+                            {isCash ? (
+                                <div className="p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">Pembayaran Tunai di Klinik</p>
+                                            <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium mt-1">
+                                                Silakan datang ke klinik dan lakukan pembayaran tunai sebesar <strong>Rp {new Intl.NumberFormat('id-ID').format(cashAmount)}</strong> kepada staf kami.
+                                            </p>
+                                            <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-bold mt-2 uppercase tracking-wide">
+                                                Admin akan mengkonfirmasi setelah pembayaran diterima.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <InputLabel htmlFor="payment_account_name" value="Nama Pemilik Rekening" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                                    <TextInput
-                                        id="payment_account_name"
-                                        type="text"
-                                        placeholder="Masukkan nama pemilik rekening"
-                                        className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
-                                        value={data.payment_account_name}
-                                        onChange={(e) => {
-                                            const val = e.target.value.replace(/[0-9]/g, '');
-                                            setData('payment_account_name', val);
-                                        }}
-                                        required
-                                    />
-                                    {errors.payment_account_name && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_name}</p>}
-                                </div>
-
-                                <div className="md:col-span-2">
-                                    <InputLabel htmlFor="payment_proof" value="Upload Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
-                                    <div className="relative group">
-                                        <input
-                                            id="payment_proof"
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => setData('payment_proof', e.target.files[0])}
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:col-span-2">
+                                        <InputLabel htmlFor="payment_bank" value="Nama Bank Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-2 ml-1" />
+                                        <TextInput
+                                            id="payment_bank"
+                                            type="text"
+                                            placeholder="Contoh: BCA / Mandiri / BNI (Gunakan huruf)"
+                                            className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
+                                            value={data.payment_bank}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[0-9]/g, '');
+                                                setData('payment_bank', val);
+                                            }}
                                             required
                                         />
-                                        <label
-                                            htmlFor="payment_proof"
-                                            className="flex items-center justify-center w-full p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white/30 dark:bg-white/[0.01] cursor-pointer transition-all gap-3 group"
-                                        >
-                                            <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                            </div>
-                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
-                                                {data.payment_proof ? data.payment_proof.name : 'Pilih File Gambar Bukti Transfer'}
-                                            </span>
-                                        </label>
+                                        {errors.payment_bank && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_bank}</p>}
                                     </div>
-                                    {errors.payment_proof && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_proof}</p>}
+
+                                    <div>
+                                        <InputLabel htmlFor="payment_account_number" value="Nomor Rekening Pengirim" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                        <TextInput
+                                            id="payment_account_number"
+                                            type="text"
+                                            placeholder="Masukkan nomor rekening Anda"
+                                            className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
+                                            value={data.payment_account_number}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                                setData('payment_account_number', val);
+                                            }}
+                                            required
+                                        />
+                                        {errors.payment_account_number && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_number}</p>}
+                                    </div>
+
+                                    <div>
+                                        <InputLabel htmlFor="payment_account_name" value="Nama Pemilik Rekening" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                        <TextInput
+                                            id="payment_account_name"
+                                            type="text"
+                                            placeholder="Masukkan nama pemilik rekening"
+                                            className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
+                                            value={data.payment_account_name}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[0-9]/g, '');
+                                                setData('payment_account_name', val);
+                                            }}
+                                            required
+                                        />
+                                        {errors.payment_account_name && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_account_name}</p>}
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <InputLabel htmlFor="payment_proof" value="Upload Bukti Transfer" className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 ml-1" />
+                                        <div className="relative group">
+                                            <input
+                                                id="payment_proof"
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => setData('payment_proof', e.target.files[0])}
+                                                required
+                                            />
+                                            <label
+                                                htmlFor="payment_proof"
+                                                className="flex items-center justify-center w-full p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 bg-white/30 dark:bg-white/[0.01] cursor-pointer transition-all gap-3 group"
+                                            >
+                                                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
+                                                    {data.payment_proof ? data.payment_proof.name : 'Pilih File Gambar Bukti Transfer'}
+                                                </span>
+                                            </label>
+                                        </div>
+                                        {errors.payment_proof && <p className="text-xs text-red-600 mt-2 font-bold">{errors.payment_proof}</p>}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="mt-8 p-6 bg-amber-50/50 dark:bg-amber-950/10 rounded-2xl border border-amber-100 dark:border-amber-900/30">
                                 <h3 className="text-[10px] font-black text-amber-900 dark:text-amber-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
