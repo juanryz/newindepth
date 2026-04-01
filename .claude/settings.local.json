@@ -3,7 +3,11 @@
     "allow": [
       "Bash(php artisan:*)",
       "Bash(node -e:*)",
-      "Bash(\"/c/laragon/bin/php/php-8.3.14-nts-Win32-vs16-x64/php.exe\" artisan:*)"
+      "Bash(\"/c/laragon/bin/php/php-8.3.14-nts-Win32-vs16-x64/php.exe\" artisan:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)"
     ]
   }
 }
