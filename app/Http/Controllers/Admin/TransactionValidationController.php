@@ -59,7 +59,7 @@ class TransactionValidationController extends Controller
 
     public function validatePayment(Request $request, Transaction $transaction)
     {
-        $isCash = $transaction->payment_method === 'cash';
+        $isCash = in_array($transaction->payment_method, ['cash', 'Tunai']);
 
         if (!$isCash && !$transaction->payment_proof) {
             return back()->with('error', 'Tidak dapat memvalidasi: Bukti pembayaran belum diunggah oleh pasien.');
