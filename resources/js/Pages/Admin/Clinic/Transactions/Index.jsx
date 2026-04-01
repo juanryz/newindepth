@@ -278,7 +278,11 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    {tx.payment_proof ? (
+                                                    {tx.payment_method === 'cash' ? (
+                                                        <span className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                                            💵 Bayar Tunai
+                                                        </span>
+                                                    ) : tx.payment_proof ? (
                                                         <a
                                                             href={`/storage/${tx.payment_proof}`}
                                                             target="_blank"
@@ -310,7 +314,7 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                 <td className="px-6 py-5 text-center">
                                                     {tx.status === 'pending' && hasPermission('edit transactions') && (
                                                         <div className="flex justify-center gap-2">
-                                                            {tx.payment_proof ? (
+                                                            {(tx.payment_proof || tx.payment_method === 'cash') ? (
                                                                 hasPermission('validate transactions') && (
                                                                     <button
                                                                         disabled={validating}
