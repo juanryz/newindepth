@@ -401,6 +401,8 @@ class UserController extends Controller
                     'invoice_number'         => 'INV-' . strtoupper(Str::random(10)),
                     'amount'                 => $amount,
                     'status'                 => 'pending',
+                    'payment_method'         => $request->payment_method,
+                    'payment_bank'           => $request->payment_bank,
                     'ip_address'             => $request->ip(),
                     'payment_agreement_data' => [
                         'registered_offline_by_admin_id'   => auth()->id(),
