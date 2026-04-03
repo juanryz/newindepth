@@ -4,12 +4,48 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import axios from 'axios';
 
 const COLOR_MAP = {
-    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/40', text: 'text-indigo-600 dark:text-indigo-400', bubble: 'bg-indigo-600', send: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30' },
-    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/40', text: 'text-emerald-600 dark:text-emerald-400', bubble: 'bg-emerald-600', send: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30' },
-    rose: { bg: 'bg-rose-100 dark:bg-rose-900/40', text: 'text-rose-600 dark:text-rose-400', bubble: 'bg-rose-600', send: 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30' },
-    amber: { bg: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-600 dark:text-amber-400', bubble: 'bg-amber-600', send: 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30' },
-    violet: { bg: 'bg-violet-100 dark:bg-violet-900/40', text: 'text-violet-600 dark:text-violet-400', bubble: 'bg-violet-600', send: 'bg-violet-600 hover:bg-violet-700 shadow-violet-600/30' },
-    sky: { bg: 'bg-sky-100 dark:bg-sky-900/40', text: 'text-sky-600 dark:text-sky-400', bubble: 'bg-sky-600', send: 'bg-sky-600 hover:bg-sky-700 shadow-sky-600/30' },
+    indigo: { 
+        bg: 'bg-indigo-100/50 dark:bg-indigo-900/40', 
+        text: 'text-indigo-600 dark:text-indigo-400', 
+        bubble: 'bg-gradient-to-br from-indigo-500/90 to-indigo-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-indigo-500/20', 
+        send: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30',
+        blob: 'bg-indigo-400/30 dark:bg-indigo-600/20'
+    },
+    emerald: { 
+        bg: 'bg-emerald-100/50 dark:bg-emerald-900/40', 
+        text: 'text-emerald-600 dark:text-emerald-400', 
+        bubble: 'bg-gradient-to-br from-emerald-500/90 to-emerald-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-emerald-500/20', 
+        send: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30',
+        blob: 'bg-emerald-400/30 dark:bg-emerald-600/20'
+    },
+    rose: { 
+        bg: 'bg-rose-100/50 dark:bg-rose-900/40', 
+        text: 'text-rose-600 dark:text-rose-400', 
+        bubble: 'bg-gradient-to-br from-rose-500/90 to-rose-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-rose-500/20', 
+        send: 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30',
+        blob: 'bg-rose-400/30 dark:bg-rose-600/20'
+    },
+    amber: { 
+        bg: 'bg-amber-100/50 dark:bg-amber-900/40', 
+        text: 'text-amber-600 dark:text-amber-400', 
+        bubble: 'bg-gradient-to-br from-amber-500/90 to-amber-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-amber-500/20', 
+        send: 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30',
+        blob: 'bg-amber-400/30 dark:bg-amber-600/20'
+    },
+    violet: { 
+        bg: 'bg-violet-100/50 dark:bg-violet-900/40', 
+        text: 'text-violet-600 dark:text-violet-400', 
+        bubble: 'bg-gradient-to-br from-violet-500/90 to-violet-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-violet-500/20', 
+        send: 'bg-violet-600 hover:bg-violet-700 shadow-violet-600/30',
+        blob: 'bg-violet-400/30 dark:bg-violet-600/20'
+    },
+    sky: { 
+        bg: 'bg-sky-100/50 dark:bg-sky-900/40', 
+        text: 'text-sky-600 dark:text-sky-400', 
+        bubble: 'bg-gradient-to-br from-sky-500/90 to-sky-700/90 backdrop-blur-md border border-white/20 shadow-lg shadow-sky-500/20', 
+        send: 'bg-sky-600 hover:bg-sky-700 shadow-sky-600/30',
+        blob: 'bg-sky-400/30 dark:bg-sky-600/20'
+    },
 };
 
 function getColor(value) {
@@ -19,13 +55,13 @@ function getColor(value) {
 function TypingIndicator({ color }) {
     const c = getColor(color);
     return (
-        <div className="flex items-end gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${c.bg} ${c.text}`}>🤖</div>
-            <div className="bg-white dark:bg-gray-800 border border-gray-200/60 dark:border-gray-700/40 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
-                <div className="flex gap-1.5 items-center h-4">
-                    <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="flex items-end gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 shadow-lg border border-white/20 animate-pulse ${c.bg} ${c.text}`}>🤖</div>
+            <div className="bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[24px] rounded-bl-none px-5 py-4 shadow-xl">
+                <div className="flex gap-2 items-center h-4">
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/50 animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
             </div>
         </div>
@@ -38,16 +74,16 @@ function Message({ msg, agentColor, agentName }) {
 
     if (isUser) {
         return (
-            <div className="flex justify-end">
-                <div className={`max-w-[80%] px-4 py-3 rounded-2xl rounded-br-sm text-sm font-medium text-white shadow-md ${c.bubble}`}>
-                    {msg.content}
+            <div className="flex justify-end animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className={`max-w-[85%] px-5 py-3.5 rounded-[24px] rounded-br-none text-sm font-medium text-white shadow-xl ${c.bubble}`}>
+                    <p className="leading-relaxed">{msg.content}</p>
                     {msg.attachment && (
-                        <div className="mt-3 overflow-hidden rounded-lg">
+                        <div className="mt-3 overflow-hidden rounded-2xl border border-white/20 shadow-inner">
                             {msg.attachment.type === 'image' ? (
                                 <img
                                     src={msg.attachment.url}
                                     alt={msg.attachment.name}
-                                    className="max-w-full h-auto max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    className="max-w-full h-auto max-h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-500"
                                     onClick={() => window.open(msg.attachment.url, '_blank')}
                                 />
                             ) : (
@@ -55,10 +91,15 @@ function Message({ msg, agentColor, agentName }) {
                                     href={msg.attachment.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 p-2 rounded-xl text-xs font-semibold no-underline transition-all bg-white/20 hover:bg-white/30 text-white"
+                                    className="flex items-center gap-3 p-3 rounded-xl text-xs font-semibold no-underline transition-all bg-white/10 hover:bg-white/20 text-white"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
+                                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </div>
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
+                                        <span className="opacity-60 text-[10px]">Klik untuk mengunduh</span>
+                                    </div>
                                 </a>
                             )}
                         </div>
@@ -69,18 +110,18 @@ function Message({ msg, agentColor, agentName }) {
     }
 
     return (
-        <div className="flex items-end gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${c.bg} ${c.text}`}>🤖</div>
-            <div className="max-w-[80%] bg-white dark:bg-gray-800 border border-gray-200/60 dark:border-gray-700/40 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{agentName}</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+        <div className="flex items-end gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg flex-shrink-0 shadow-lg border border-white/20 ${c.bg} ${c.text}`}>🤖</div>
+            <div className="max-w-[85%] bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[24px] rounded-bl-none px-5 py-3.5 shadow-xl shadow-black/5 dark:shadow-white/[0.02]">
+                <p className={`text-[10px] font-black uppercase tracking-widest mb-1.5 ${c.text}`}>{agentName}</p>
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium whitespace-pre-wrap">{msg.content}</p>
                 {msg.attachment && (
-                    <div className="mt-3 overflow-hidden rounded-lg">
+                    <div className="mt-3 overflow-hidden rounded-2xl border border-gray-200/50 dark:border-white/10 shadow-inner">
                         {msg.attachment.type === 'image' ? (
                             <img
                                 src={msg.attachment.url}
                                 alt={msg.attachment.name}
-                                className="max-w-full h-auto max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                className="max-w-full h-auto max-h-64 object-cover cursor-pointer hover:scale-105 transition-transform duration-500"
                                 onClick={() => window.open(msg.attachment.url, '_blank')}
                             />
                         ) : (
@@ -88,10 +129,15 @@ function Message({ msg, agentColor, agentName }) {
                                 href={msg.attachment.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 p-2 rounded-xl text-xs font-semibold no-underline transition-all bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200"
+                                className="flex items-center gap-3 p-3 rounded-xl text-xs font-semibold no-underline transition-all bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
+                                <div className="w-8 h-8 rounded-lg bg-gray-200/50 dark:bg-white/5 flex items-center justify-center">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                    <span className="truncate max-w-[200px]">{msg.attachment.name}</span>
+                                    <span className="opacity-60 text-[10px]">Klik untuk mengunduh</span>
+                                </div>
                             </a>
                         )}
                     </div>
@@ -219,117 +265,133 @@ export default function InternalAiChat({ agent }) {
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link href={route('internal-ai.index')} className="text-sm text-indigo-500 hover:text-indigo-700 font-bold inline-flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                        Semua Agent
+                    <Link href={route('internal-ai.index')} className="w-10 h-10 rounded-2xl flex items-center justify-center bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 text-gray-500 hover:text-indigo-500 transition-all shadow-sm">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                     </Link>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${c.bg} ${c.text}`}>🤖</div>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-white/20 ${c.bg} ${c.text}`}>🤖</div>
                     <div>
-                        <h2 className="text-lg font-black text-gray-900 dark:text-white leading-tight">{agent.name}</h2>
-                        {agent.description && <p className="text-xs text-gray-500 dark:text-gray-400">{agent.description}</p>}
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight">{agent.name}</h2>
+                        <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">AI Memberikan Solusi</p>
+                        </div>
                     </div>
                 </div>
             }
         >
             <Head title={`Chat - ${agent.name}`} />
 
-            <div className="flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-6">
-                    <div className="max-w-3xl mx-auto space-y-4">
+            <div className="relative flex flex-col overflow-hidden bg-white/50 dark:bg-gray-950/50" style={{ height: 'calc(100vh - 160px)' }}>
+                {/* Liquid Background Blobs */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] animate-blob opacity-50 ${c.blob}`} />
+                    <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] animate-blob animation-delay-2000 opacity-50 ${c.blob}`} />
+                    <div className={`absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full blur-[100px] animate-blob animation-delay-4000 opacity-30 ${c.blob}`} />
+                </div>
+
+                {/* Messages Container */}
+                <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar px-4 py-8">
+                    <div className="max-w-4xl mx-auto space-y-8">
                         {messages.map((msg, i) => (
                             <Message key={i} msg={msg} agentColor={agent.avatar_color} agentName={agent.name} />
                         ))}
                         {loading && <TypingIndicator color={agent.avatar_color} />}
                         {error && (
-                            <div className="flex justify-center">
-                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-2xl px-4 py-3 text-sm text-red-600 dark:text-red-400 font-medium">
-                                    ⚠️ {error}
+                            <div className="flex justify-center animate-in zoom-in-95 duration-300">
+                                <div className="bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-2xl px-6 py-4 text-sm text-red-600 dark:text-red-400 font-bold shadow-xl shadow-red-500/10 flex items-center gap-3">
+                                    <span className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">⚠️</span>
+                                    {error}
                                 </div>
                             </div>
                         )}
-                        <div ref={bottomRef} />
+                        <div ref={bottomRef} className="h-4" />
                     </div>
                 </div>
 
-                {/* Input */}
-                <div className="border-t border-white/40 dark:border-white/[0.08] bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl px-4 py-4">
-                    <div className="max-w-3xl mx-auto">
-                        {/* File Preview */}
-                        {selectedFile && (
-                            <div className="mb-3 flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/50 p-2 rounded-2xl animate-in fade-in slide-in-from-bottom-2">
-                                {filePreview ? (
-                                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
-                                        <img src={filePreview} alt="Preview" className="w-full h-full object-cover" />
+                {/* Floating Input Area */}
+                <div className="relative z-10 px-4 pb-8 pt-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-[32px] p-2 shadow-2xl shadow-black/5 dark:shadow-white/[0.02]">
+                            {/* File Preview */}
+                            {selectedFile && (
+                                <div className="mx-2 mb-2 flex items-center gap-4 bg-white/50 dark:bg-white/5 border border-white/40 dark:border-white/10 p-3 rounded-2xl animate-in fade-in slide-in-from-bottom-4">
+                                    {filePreview ? (
+                                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-white shadow-md">
+                                            <img src={filePreview} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-14 h-14 rounded-xl bg-gray-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/20">
+                                            <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{selectedFile.name}</p>
+                                        <p className="text-[10px] font-black uppercase text-gray-400">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {selectedFile.type || 'File'}</p>
                                     </div>
-                                ) : (
-                                    <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 border border-gray-200 dark:border-gray-700">
-                                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold text-gray-700 dark:text-gray-200 truncate">{selectedFile.name}</p>
-                                    <p className="text-[10px] text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                    <button
+                                        onClick={removeFile}
+                                        className="w-10 h-10 rounded-full hover:bg-red-500 hover:text-white dark:hover:bg-red-500/20 text-gray-400 transition-all flex items-center justify-center"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
                                 </div>
+                            )}
+
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center">
+                                    <button
+                                        onClick={clearChat}
+                                        className="w-12 h-12 rounded-[24px] text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all flex items-center justify-center flex-shrink-0"
+                                        title="Hapus riwayat chat"
+                                    >
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                    
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                                    />
+                                    
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={loading}
+                                        className="w-12 h-12 rounded-[24px] text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all flex items-center justify-center flex-shrink-0 disabled:opacity-50"
+                                        title="Lampirkan file"
+                                    >
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 relative">
+                                    <textarea
+                                        ref={inputRef}
+                                        value={input}
+                                        onChange={e => setInput(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder={`Ketik pesan untuk ${agent.name}...`}
+                                        rows={1}
+                                        disabled={loading}
+                                        className="w-full bg-transparent border-none px-4 py-4 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:ring-0 resize-none font-medium leading-relaxed"
+                                        style={{ maxHeight: '150px' }}
+                                    />
+                                </div>
+                                
                                 <button
-                                    onClick={removeFile}
-                                    className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                    onClick={() => sendMessage()}
+                                    disabled={(!input.trim() && !selectedFile) || loading}
+                                    className={`w-14 h-14 rounded-[26px] flex items-center justify-center text-white transition-all shadow-xl hover:scale-105 active:scale-95 disabled:opacity-30 disabled:scale-100 disabled:grayscale flex-shrink-0 mr-1 ${c.send}`}
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    <svg className="w-6 h-6 rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </button>
                             </div>
-                        )}
-
-                        <div className="flex items-end gap-3">
-                            <button
-                                onClick={clearChat}
-                                className="p-2.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
-                                title="Mulai chat baru"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                            </button>
-                            
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                className="hidden"
-                                accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-                            />
-                            
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={loading}
-                                className="p-2.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0 disabled:opacity-50"
-                                title="Lampirkan file atau gambar"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                            </button>
-
-                            <div className="flex-1 relative">
-                                <textarea
-                                    ref={inputRef}
-                                    value={input}
-                                    onChange={e => setInput(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder={`Tanya ${agent.name}...`}
-                                    rows={1}
-                                    disabled={loading}
-                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200/60 dark:border-gray-700/50 rounded-2xl px-4 py-3 pr-12 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none disabled:opacity-60 transition-all font-medium"
-                                    style={{ maxHeight: '120px' }}
-                                />
-                            </div>
-                            <button
-                                onClick={() => sendMessage()}
-                                disabled={(!input.trim() && !selectedFile) || loading}
-                                className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white transition-all shadow-lg disabled:opacity-40 disabled:scale-95 active:scale-95 flex-shrink-0 ${c.send}`}
-                            >
-                                <svg className="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                            </button>
                         </div>
-                        <p className="text-[10px] text-gray-400 text-center mt-2">
-                            Enter untuk kirim · Shift+Enter untuk baris baru
-                        </p>
+                        <div className="flex justify-between px-6 mt-3">
+                            <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Shift+Enter untuk baris baru</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">End-to-End Encrypted</span>
+                        </div>
                     </div>
                 </div>
             </div>
