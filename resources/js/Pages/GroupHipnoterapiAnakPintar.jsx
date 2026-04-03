@@ -61,6 +61,35 @@ export default function GroupHipnoterapiAnakPintar({ auth }) {
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                         {/* Hero Text */}
                         <div className="flex-1 text-center lg:text-left">
+                            {/* Breadcrumbs */}
+                            <nav className="flex mb-8 justify-center lg:justify-start" aria-label="Breadcrumb">
+                                <ol className="inline-flex items-center space-x-1 md:space-x-3">
+                                    <li className="inline-flex items-center">
+                                        <Link href="/" className="inline-flex items-center text-xs font-semibold text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 uppercase tracking-widest transition-colors">
+                                            Beranda
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <div className="flex items-center">
+                                            <svg className="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <Link href={route('layanan')} className="ml-1 text-xs font-semibold text-gray-500 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-blue-400 uppercase tracking-widest transition-colors">
+                                                Layanan
+                                            </Link>
+                                        </div>
+                                    </li>
+                                    <li aria-current="page">
+                                        <div className="flex items-center">
+                                            <svg className="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4" />
+                                            </svg>
+                                            <span className="ml-1 text-xs font-semibold text-blue-600 md:ml-2 dark:text-blue-400 uppercase tracking-widest">Anak Pintar</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                                 className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">
                                 <span className="relative flex h-2 w-2">
