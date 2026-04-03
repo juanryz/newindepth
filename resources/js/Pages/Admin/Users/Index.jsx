@@ -19,6 +19,7 @@ import {
     Key,
     AlertCircle,
     Building2,
+    ChevronLeft,
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -147,6 +148,13 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
                     <div className="flex gap-3">
+                        <Link
+                            href={route('dashboard')}
+                            className="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-sm active:scale-95"
+                        >
+                            <ChevronLeft className="w-4 h-4 mr-2" />
+                            Dashboard
+                        </Link>
                         {activeTab === 'users' && hasPermission('create users') ? (
                             <>
                                 <Link

@@ -231,7 +231,7 @@ class GroupBookingController extends Controller
             $user->markEmailAsVerified();
             $user->assignRole('patient');
 
-            GroupBookingMember::create([
+            $groupMember = GroupBookingMember::create([
                 'group_booking_id' => $groupBooking->id,
                 'user_id'          => $user->id,
                 'booking_id'       => null,
@@ -240,6 +240,7 @@ class GroupBookingController extends Controller
             ]);
 
             $groupBooking->recalculateTotal();
+            $this->syncMemberBookings($groupBooking);
 
             return redirect()->route('admin.group-bookings.show', $groupBooking->id)
                 ->with('success', "Anggota {$request->name} berhasil ditambahkan ke grup. Lengkapi profilnya melalui tombol edit.");
@@ -262,10 +263,9 @@ class GroupBookingController extends Controller
             'package_type' => $request->package_type,
         ]);
 
-        // Update semua member booking untuk pakai jadwal ini (opsional, jika belum punya booking)
-        // Logika lanjutan bisa ditambahkan di sini
+        $this->syncMemberBookings($groupBooking);
 
-        return redirect()->back()->with('success', 'Jadwal sesi grup berhasil disimpan.');
+        return redirect()->back()->with('success', 'Jadwal sesi grup berhasil disimpan dan disinkronisasikan ke Order Manajemen.');
     }
 
 
@@ -288,7 +288,7 @@ class GroupBookingController extends Controller
         if ($request->payment_status === 'paid') {
             $groupBooking->members()
                 ->whereNotNull('booking_id')
-                ->each(function ($member) {
+                ->each(function ($member) use ($request) {
                     if ($member->booking && $member->booking->status === 'pending_payment') {
                         $member->booking->update(['status' => 'confirmed']);
 
@@ -299,9 +299,13 @@ class GroupBookingController extends Controller
                                 $schedule->update(['status' => 'full']);
                             }
                         }
+                    } else if ($member->booking && $request->payment_status === 'pending') {
+                        $member->booking->update(['status' => 'pending_payment']);
                     }
                 });
         }
+        
+        $this->syncMemberBookings($groupBooking);
 
         return redirect()->back()->with('success', 'Status pembayaran grup berhasil diperbarui.');
     }
@@ -376,5 +380,53 @@ class GroupBookingController extends Controller
         } while (Booking::where('booking_code', $code)->exists());
 
         return $code;
+    }
+
+    private function syncMemberBookings(GroupBooking $groupBooking): void
+    {
+        if (!$groupBooking->schedule_id) return;
+
+        $schedule = Schedule::find($groupBooking->schedule_id);
+        if (!$schedule) return;
+
+        $groupBooking->loadMissing('members');
+        $isPaid = $groupBooking->payment_status === 'paid';
+
+        foreach ($groupBooking->members as $member) {
+            if (!$member->booking_id) {
+                // Create a booking for this member
+                $packageSlug = $member->package_type ?? $groupBooking->package_type ?? 'reguler';
+                
+                $booking = Booking::create([
+                    'booking_code' => $this->generateBookingCode(),
+                    'patient_id'   => $member->user_id,
+                    'schedule_id'  => $schedule->id,
+                    'therapist_id' => $schedule->therapist_id,
+                    'package_type' => $packageSlug,
+                    'session_type' => $groupBooking->session_type,
+                    'status'       => $isPaid ? 'confirmed' : 'pending_payment',
+                    'notes'        => $groupBooking->notes,
+                ]);
+
+                $member->update(['booking_id' => $booking->id]);
+
+                // If paid, slot gets occupied
+                if ($isPaid) {
+                    $schedule->increment('booked_count');
+                    if ($schedule->booked_count >= $schedule->quota) {
+                        $schedule->update(['status' => 'full']);
+                    }
+                }
+            } else {
+                // Update existing booking schedule if it differs
+                $booking = Booking::find($member->booking_id);
+                if ($booking && $booking->schedule_id !== $schedule->id) {
+                    $booking->update([
+                        'schedule_id' => $schedule->id,
+                        'therapist_id' => $schedule->therapist_id,
+                    ]);
+                }
+            }
+        }
     }
 }

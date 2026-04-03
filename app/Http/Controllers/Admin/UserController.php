@@ -142,7 +142,7 @@ class UserController extends Controller
             'schedules' => $schedules,
             'screeningResults' => $user->screeningResults()->orderBy('completed_at', 'desc')->get(),
             'profileCompletion' => $user->getProfileCompletionStats(),
-
+            'bankAccounts' => config('clinic.bank_accounts', []),
         ]);
     }
 

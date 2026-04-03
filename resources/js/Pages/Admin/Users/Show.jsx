@@ -12,161 +12,10 @@ import {
     Fingerprint, MapPin, Clipboard, Download, X, Printer,
     Banknote, CheckCircle
 } from 'lucide-react';
+import { InvoiceModal } from '@/Components/InvoiceModal';
 
-// ── Invoice Modal (muncul setelah storeOffline redirect) ─────────────────────
-function InvoiceModal({ invoiceData, onClose }) {
-    const printRef = useRef();
-    if (!invoiceData) return null;
-
-    const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
-    const isPaid = invoiceData.payment_status === 'paid';
-
-    const handlePrint = () => {
-        const content = printRef.current?.innerHTML;
-        const win = window.open('', '_blank', 'width=800,height=900');
-        win.document.write(`
-            <html><head><title>Invoice ${invoiceData.invoice_number}</title>
-            <style>
-                * { margin:0; padding:0; box-sizing:border-box; }
-                body { font-family: Arial, sans-serif; padding: 40px; color: #111; }
-                .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-                .logo { font-size: 24px; font-weight: 900; color: #4f46e5; text-transform: uppercase; letter-spacing: -1px; }
-                .badge { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-                .badge-paid { background: #d1fae5; color: #065f46; }
-                .badge-pending { background: #fef3c7; color: #92400e; }
-                .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
-                .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #9ca3af; margin-bottom: 12px; }
-                .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; }
-                .row .label { color: #6b7280; }
-                .row .value { font-weight: 700; }
-                .total-row { display: flex; justify-content: space-between; padding: 16px 0; border-top: 2px solid #4f46e5; margin-top: 8px; }
-                .total-label { font-size: 14px; font-weight: 900; text-transform: uppercase; color: #4f46e5; }
-                .total-value { font-size: 22px; font-weight: 900; color: #4f46e5; }
-                .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #9ca3af; }
-            </style></head><body>${content}</body></html>
-        `);
-        win.document.close();
-        win.focus();
-        setTimeout(() => { win.print(); win.close(); }, 400);
-    };
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div className="flex items-center justify-between p-8 border-b border-gray-100 dark:border-gray-800">
-                    <div>
-                        <h2 className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-1">Invoice</h2>
-                        <p className="text-2xl font-black text-gray-900 dark:text-white font-mono">{invoiceData.invoice_number}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                            {isPaid ? '✓ Lunas' : '⏳ Belum Dibayar'}
-                        </span>
-                        <button onClick={onClose} className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Body — printable */}
-                <div ref={printRef} className="p-8 space-y-6">
-                    {/* Print header (hanya terlihat di print) */}
-                    <div className="hidden print:block header">
-                        <div className="logo">InDepth</div>
-                        <div>
-                            <p style={{ fontSize: '12px', color: '#6b7280' }}>Invoice #{invoiceData.invoice_number}</p>
-                            <p style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(invoiceData.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
-                        </div>
-                    </div>
-
-                    {/* Info Pasien */}
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Informasi Pasien</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[
-                                { label: 'Nama', value: invoiceData.patient_name },
-                                { label: 'Email', value: invoiceData.patient_email },
-                                { label: 'Telepon', value: invoiceData.patient_phone || '—' },
-                                { label: 'Kode Booking', value: invoiceData.booking_code },
-                            ].map(({ label, value }) => (
-                                <div key={label}>
-                                    <p className="text-[9px] font-black uppercase text-gray-400">{label}</p>
-                                    <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">{value}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Detail Sesi */}
-                    <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Detail Sesi</p>
-                        <div className="space-y-3">
-                            {[
-                                { label: 'Paket Layanan', value: invoiceData.package_name },
-                                { label: 'Tipe Sesi', value: invoiceData.session_type === 'online' ? '💻 Online' : '🏥 Offline' },
-                                { label: 'Tanggal Sesi', value: invoiceData.schedule ? new Date(invoiceData.schedule.date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : '—' },
-                                { label: 'Waktu', value: invoiceData.schedule?.start_time?.substring(0, 5) ? `${invoiceData.schedule.start_time.substring(0, 5)} WIB` : '—' },
-                                { label: 'Terapis', value: invoiceData.schedule?.therapist || '—' },
-                            ].map(({ label, value }) => (
-                                <div key={label} className="flex justify-between text-sm">
-                                    <span className="text-gray-500 font-medium">{label}</span>
-                                    <span className="font-black text-gray-900 dark:text-white">{value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Pembayaran */}
-                    <div className="border border-gray-100 dark:border-gray-800 rounded-2xl p-6">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Rincian Pembayaran</p>
-                        <div className="space-y-3">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Metode</span>
-                                <span className="font-black text-gray-900 dark:text-white">{invoiceData.payment_method || '—'}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">Status</span>
-                                <span className={`font-black uppercase text-xs ${
-                                    isPaid ? 'text-emerald-600' : 'text-amber-600'
-                                }`}>{isPaid ? '✓ Lunas' : '⏳ Belum Dibayar'}</span>
-                            </div>
-                        </div>
-                        {/* Total */}
-                        <div className="flex justify-between items-center mt-4 pt-4 border-t-2 border-indigo-600">
-                            <span className="text-sm font-black uppercase tracking-widest text-indigo-600">Total</span>
-                            <span className="text-2xl font-black text-indigo-600">{fmt(invoiceData.amount)}</span>
-                        </div>
-                    </div>
-
-                    {/* Dibuat oleh */}
-                    <p className="text-[10px] text-gray-400 text-center">
-                        Dibuat oleh <span className="font-black">{invoiceData.created_by}</span> · {new Date(invoiceData.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
-                    </p>
-                </div>
-
-                {/* Footer Actions */}
-                <div className="flex items-center justify-between p-8 border-t border-gray-100 dark:border-gray-800">
-                    <button onClick={onClose} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors">
-                        Tutup
-                    </button>
-                    <button
-                        onClick={handlePrint}
-                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-                    >
-                        <Download className="w-4 h-4" />
-                        Download / Print Invoice
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-
-function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion }) {
+// Use shared InvoiceModal components
+function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion, bankAccounts = [] }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [selectedBooking, setSelectedBooking] = useState(null);
     const { flash } = usePage().props;
@@ -1081,8 +930,10 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                 {/* Invoice Modal — muncul otomatis setelah registrasi */}
                 {showInvoice && flash?.invoiceData && (
                     <InvoiceModal
-                        invoiceData={flash.invoiceData}
+                        invoice={flash.invoiceData}
+                        type="individual"
                         onClose={() => setShowInvoice(false)}
+                        bankAccounts={bankAccounts}
                     />
                 )}
 

@@ -20,37 +20,36 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
     const isCash   = data.payment_method === 'Cash';
     const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
 
-    const handlePrint = () => {
-        const content = printRef.current?.innerHTML;
-        const win = window.open('', '_blank', 'width=820,height=1000');
-        win.document.write(`
-            <html><head><title>Invoice — ${data.name || 'Pasien'}</title>
-            <style>
-                * { margin:0; padding:0; box-sizing:border-box; }
-                body { font-family: 'Arial', sans-serif; padding: 48px; color: #1f2937; background:#fff; }
-                .logo { font-size: 26px; font-weight: 900; color: #4f46e5; letter-spacing: -1px; text-transform:uppercase; }
-                .badge { display:inline-block; padding:4px 14px; border-radius:99px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:2px; }
-                .badge-paid { background:#d1fae5; color:#065f46; }
-                .badge-pending { background:#fef3c7; color:#92400e; }
-                .section { margin:24px 0; }
-                .label { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:#9ca3af; margin-bottom:4px; }
-                .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6; font-size:13px; }
-                .row .key { color:#6b7280; }
-                .row .val { font-weight:700; color:#111827; }
-                .bank-card { background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:14px 18px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
-                .bank-name { font-size:11px; font-weight:900; text-transform:uppercase; color:#1d4ed8; }
-                .bank-acc  { font-size:15px; font-weight:900; font-family:monospace; color:#1e40af; letter-spacing:2px; }
-                .bank-holder { font-size:10px; color:#6b7280; margin-top:2px; }
-                .total-row { display:flex; justify-content:space-between; padding:18px 0 0; border-top:2px solid #4f46e5; margin-top:8px; }
-                .total-label { font-size:14px; font-weight:900; text-transform:uppercase; color:#4f46e5; }
-                .total-val { font-size:24px; font-weight:900; color:#4f46e5; }
-                .footer { margin-top:40px; text-align:center; font-size:9px; color:#9ca3af; border-top:1px solid #f3f4f6; padding-top:16px; }
-            </style></head>
-            <body>${content}</body></html>
-        `);
-        win.document.close();
-        win.focus();
-        setTimeout(() => { win.print(); win.close(); }, 400);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const downloadPDF = () => {
+        setIsDownloading(true);
+        const element = printRef.current;
+        
+        const doDownload = () => {
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Draft_Invoice_${data.name || 'Pasien'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                setIsDownloading(false);
+            }).catch(err => {
+                console.error("PDF generation failed:", err);
+                setIsDownloading(false);
+            });
+        };
+
+        if (window.html2pdf) {
+            doDownload();
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.body.appendChild(script);
+            script.onload = doDownload;
+        }
     };
 
     return (
@@ -63,9 +62,9 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                         <p className="text-lg font-black text-gray-900 dark:text-white">Draft — Belum Final</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button onClick={handlePrint}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-                            <Download className="w-4 h-4" /> Download / Print
+                        <button onClick={downloadPDF} disabled={isDownloading}
+                            className={`flex items-center gap-2 px-5 py-2.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 ${isDownloading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+                            <Download className="w-4 h-4" /> {isDownloading ? 'Memproses PDF...' : 'Download PDF'}
                         </button>
                         <button onClick={onClose} className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
                             <X className="w-5 h-5" />
@@ -78,14 +77,14 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                     {/* Header klinik */}
                     <div className="flex items-start justify-between pb-6 border-b-2 border-indigo-100">
                         <div>
-                            <div className="logo">InDepth Clinic</div>
-                            <p className="text-xs text-gray-500 mt-1">Hipnoterapi &amp; Kesehatan Mental Profesional</p>
+                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">InDepth Clinic</h1>
+                            <p className="text-xs text-gray-500 font-medium mt-1">Hipnoterapi &amp; Kesehatan Mental Profesional</p>
                         </div>
                         <div className="text-right">
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Invoice (Draft)</p>
                             <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
-                            <span className={`badge mt-2 ${
-                                data.payment_status === 'paid' ? 'badge-paid' : 'badge-pending'
+                            <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border mt-2 ${
+                                data.payment_status === 'paid' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700'
                             }`}>
                                 {data.payment_status === 'paid' ? '✓ Lunas' : '⏳ Belum Dibayar'}
                             </span>
@@ -102,8 +101,8 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                                 { label: 'Telepon', value: data.phone || '—' },
                                 { label: 'Tipe Sesi', value: isOnline ? '💻 Online' : '🏥 Offline' },
                             ].map(({ label, value }) => (
-                                <div key={label}>
-                                    <p className="label">{label}</p>
+                                <div key={label} className="mb-2">
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-1">{label}</p>
                                     <p className="font-bold text-gray-900 dark:text-white">{value}</p>
                                 </div>
                             ))}
@@ -136,11 +135,15 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                             <>
                                 <p className="text-[9px] font-black uppercase tracking-widest text-blue-500 mb-2">Rekening Tujuan Transfer</p>
                                 {bankAccounts.map((b) => (
-                                    <div key={b.bank} className="bank-card mb-2 flex items-center justify-between bg-blue-50 rounded-xl p-4 border border-blue-100">
-                                        <div>
-                                            <p className="bank-name text-xs font-black text-blue-700 uppercase">{b.bank}</p>
-                                            <p className="bank-acc text-lg font-mono font-black text-indigo-700 tracking-wider">{b.account}</p>
-                                            <p className="bank-holder text-xs text-gray-500">{b.holder}</p>
+                                    <div key={b.bank} className="mb-2 flex items-center justify-between bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                <span className="text-white font-black text-[10px]">{b.bank}</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-black text-gray-900 uppercase">{b.holder}</p>
+                                                <p className="text-sm font-mono font-black text-indigo-600 tracking-wider">{b.account}</p>
+                                            </div>
                                         </div>
                                         <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)}
                                             className="text-[9px] font-black uppercase text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg hover:bg-blue-200 transition-colors">
@@ -365,6 +368,7 @@ export default function CreateOffline({
                     invoice={invoiceData}
                     type="individual"
                     onClose={() => setInvoiceData(null)}
+                    bankAccounts={bankAccounts}
                 />
             )}
 

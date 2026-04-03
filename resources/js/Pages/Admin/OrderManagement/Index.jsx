@@ -173,10 +173,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [txFilterDateTo, setTxFilterDateTo] = useState('');
 
     const filteredTransactions = (transactions || []).filter(tx => {
-        // Only show transactions that have payment proof, are cash/Tunai, have no payment method yet (offline pending), or are already processed
-        const isCash = tx.payment_method === 'cash' || tx.payment_method === 'Tunai' || !tx.payment_method;
-        if (!tx.payment_proof && !isCash && tx.status === 'pending') return false;
-
+        // Show all transactions so admin can track pending payments, both online and offline
         if (txFilterStatus && tx.status !== txFilterStatus) return false;
         if (txFilterSearch) {
             const q = txFilterSearch.toLowerCase();

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
@@ -26,7 +26,7 @@ function Section({ icon: Icon, iconBg, iconColor, title, children }) {
 }
 
 // ─── Invoice Modal ─────────────────────────────────────────────────────────────
-export function InvoiceModal({ invoice, onClose, type = 'individual' }) {
+export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccounts = [] }) {
     if (!invoice) return null;
 
     const formatDate = (d) => {
@@ -40,11 +40,41 @@ export function InvoiceModal({ invoice, onClose, type = 'individual' }) {
     const statusLabel = invoice.payment_status === 'paid' ? '✅ LUNAS' : '⏳ MENUNGGU PEMBAYARAN';
     const statusColor = invoice.payment_status === 'paid' ? 'text-emerald-600' : 'text-amber-600';
 
-    const printInvoice = () => window.print();
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const downloadPDF = () => {
+        setIsDownloading(true);
+        const element = document.getElementById('invoice-print-area');
+        
+        const doDownload = () => {
+            const opt = {
+                margin: [10, 10, 10, 10], // top, left, bottom, right
+                filename: `Invoice_${invoice.invoice_number}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                setIsDownloading(false);
+            }).catch(err => {
+                console.error("PDF generation failed:", err);
+                setIsDownloading(false);
+            });
+        };
+
+        if (window.html2pdf) {
+            doDownload();
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.body.appendChild(script);
+            script.onload = doDownload;
+        }
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-10 pb-10 sm:pt-20 bg-black/60 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl mt-auto mb-auto bg-clip-padding relative">
                 {/* Print-friendly area */}
                 <div id="invoice-print-area" className="p-10">
                     {/* Header */}
@@ -164,6 +194,29 @@ export function InvoiceModal({ invoice, onClose, type = 'individual' }) {
                         )}
                     </div>
 
+                    {invoice.payment_status === 'pending' && (!invoice.payment_method || invoice.payment_method === 'Transfer Bank') && bankAccounts.length > 0 && (
+                        <div className="bg-blue-50/50 rounded-2xl p-5 mb-6">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 flex items-center gap-2">
+                                <CreditCard className="w-4 h-4" /> Tujuan Transfer Bank
+                            </p>
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                {bankAccounts.map((b, idx) => (
+                                    <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-blue-100 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                <span className="text-white font-black text-[10px]">{b.bank}</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-black text-gray-900">{b.holder}</p>
+                                                <p className="text-sm font-mono font-black text-indigo-600">{b.account}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Footer */}
                     <p className="text-[9px] text-gray-400 text-center leading-relaxed">
                         Invoice ini diterbitkan secara elektronik oleh InDepth Clinic. Diinput oleh: {invoice.created_by}.
@@ -174,11 +227,12 @@ export function InvoiceModal({ invoice, onClose, type = 'individual' }) {
                 {/* Action Buttons */}
                 <div className="flex gap-3 p-6 border-t border-gray-100 no-print">
                     <button
-                        onClick={printInvoice}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                        onClick={downloadPDF}
+                        disabled={isDownloading}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 ${isDownloading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
                     >
-                        <Printer className="w-4 h-4" />
-                        Download / Print PDF
+                        <Download className="w-4 h-4" />
+                        {isDownloading ? 'Memproses PDF...' : 'Download PDF'}
                     </button>
                     <button
                         onClick={onClose}
@@ -192,11 +246,18 @@ export function InvoiceModal({ invoice, onClose, type = 'individual' }) {
             {/* Print CSS */}
             <style>{`
                 @media print {
-                    body > * { display: none !important; }
+                    body * { visibility: hidden; }
+                    #invoice-print-area, #invoice-print-area * { visibility: visible; }
+                    #invoice-print-area {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        background: white;
+                    }
                     .no-print { display: none !important; }
-                    #invoice-print-area { display: block !important; }
-                    .fixed { position: relative !important; background: white !important; }
-                    .bg-black\\/60 { background: white !important; }
+                    .fixed { position: static !important; background: transparent !important; }
+                    .bg-black\\/60 { background: transparent !important; }
                 }
             `}</style>
         </div>

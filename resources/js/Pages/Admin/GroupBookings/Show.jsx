@@ -63,7 +63,7 @@ function ProfileCompletionBadge({ completion }) {
     );
 }
 
-export default function GroupBookingsShow({ group, invoiceData, schedules = [], bookingPackages = [], paymentMethods = ['Transfer Bank', 'Cash'] }) {
+export default function GroupBookingsShow({ group, invoiceData, schedules = [], bookingPackages = [], paymentMethods = ['Transfer Bank', 'Cash'], bankAccounts = [] }) {
     const { flash } = usePage().props;
     const [showInvoice, setShowInvoice] = useState(false);
 
@@ -161,6 +161,7 @@ export default function GroupBookingsShow({ group, invoiceData, schedules = [], 
                     invoice={{ ...invoiceData, members: invoiceData?.members || [] }}
                     type="group"
                     onClose={() => setShowInvoice(false)}
+                    bankAccounts={bankAccounts}
                 />
             )}
 
