@@ -189,7 +189,7 @@ export default function GroupHipnoterapiAnakPintar({ auth }) {
                             <h4 className="text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.4em] mb-6">Investasi Pendidikan</h4>
                             <div className="flex flex-col items-center gap-2 mb-10">
                                 <span className="text-6xl md:text-8xl font-black tracking-tighter text-gray-900 dark:text-white leading-none">
-                                    Rp 1.0 <br className="md:hidden" /> jt
+                                    Rp 1jt
                                 </span>
                                 <span className="text-xl font-bold text-gray-500">/ Sesi Intensif (+2 Jam)</span>
                             </div>
