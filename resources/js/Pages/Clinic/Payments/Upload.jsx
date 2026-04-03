@@ -146,6 +146,15 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                     <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
                                         🕐 {booking.schedule?.start_time?.substring(0, 5)} WIB • Terapis: {booking.schedule?.therapist?.name || 'Akan diinfokan'}
                                     </p>
+                                    {booking.session_type && (
+                                        <span className={`inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                                            booking.session_type === 'online'
+                                                ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/50'
+                                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/50'
+                                        }`}>
+                                            {booking.session_type === 'online' ? '💻 Sesi Online' : '🏥 Sesi Offline'}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 

@@ -34,6 +34,7 @@ class Booking extends Model
         'rescheduled_at',
         'original_schedule_id',
         'package_type',
+        'session_type',
         'ended_at',
         'last_reminder_sent_at',
         'last_reminder_label',

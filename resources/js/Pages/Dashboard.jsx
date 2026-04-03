@@ -389,6 +389,18 @@ function ActiveBookingCard({ booking }) {
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Kode Booking:</strong> #{booking_code}</p>
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Jadwal:</strong> {formatDate(schedule.date)} ({schedule.start_time?.substring(0, 5) || '--:--'} WIB)</p>
                         <p><strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Terapis:</strong> {therapist?.name || schedule.therapist?.name || <span className="italic text-slate-400">Akan diinfokan...</span>}</p>
+                        {booking.session_type && (
+                            <p className="flex items-center gap-1.5">
+                                <strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Mode Sesi:</strong>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                    booking.session_type === 'online'
+                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                                        : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                }`}>
+                                    {booking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                </span>
+                            </p>
+                        )}
                     </div>
 
                     {/* ---- 2-hour reminder (only for confirmed) ---- */}
@@ -660,6 +672,15 @@ export default function Dashboard() {
                                                 <p className="text-xs font-bold text-red-300 mt-1 uppercase tracking-widest">
                                                     {activeBooking.package_type || 'REGULER'}
                                                 </p>
+                                                {activeBooking.session_type && (
+                                                    <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                                        activeBooking.session_type === 'online'
+                                                            ? 'bg-blue-500/20 text-blue-200 border border-blue-500/30'
+                                                            : 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30'
+                                                    }`}>
+                                                        {activeBooking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                     </div>

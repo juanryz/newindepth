@@ -706,6 +706,15 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             <p>📅 {booking.schedule ? new Date(String(booking.schedule.date).substring(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No Date'}</p>
                                                             <p>🕐 {booking.schedule?.start_time?.substring(0, 5)} – {booking.schedule?.end_time?.substring(0, 5)} WIB</p>
                                                             <p className="text-[10px] uppercase tracking-widest text-indigo-600/70 pt-1">Paket: {booking.package_type || 'REGULER'}</p>
+                                                            {booking.session_type && (
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                                                                    booking.session_type === 'online'
+                                                                        ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
+                                                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
+                                                                }`}>
+                                                                    {booking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <div className="flex flex-col gap-2 mt-auto">
                                                             <Link href={booking.patient ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient ? 'opacity-50 cursor-not-allowed' : ''}`}>
