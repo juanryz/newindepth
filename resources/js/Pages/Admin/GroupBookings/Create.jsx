@@ -2,23 +2,21 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
-    ChevronLeft, Save, Users, Building2, Phone, Mail, MapPin,
-    CreditCard, FileText, Banknote, CheckCircle,
+    ChevronLeft, Save, Users, Building2, Phone, Mail, MapPin, FileText,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 
-export default function GroupBookingsCreate({ paymentMethods }) {
+export default function GroupBookingsCreate() {
     const { data, setData, post, processing, errors } = useForm({
-        group_name: '',
+        group_name:       '',
         institution_name: '',
-        address: '',
-        pic_name: '',
-        pic_phone: '',
-        pic_email: '',
-        payment_method: paymentMethods?.[0] ?? 'Transfer Bank',
-        notes: '',
+        address:          '',
+        pic_name:         '',
+        pic_phone:        '',
+        pic_email:        '',
+        notes:            '',
     });
 
     const submit = (e) => {
@@ -27,11 +25,11 @@ export default function GroupBookingsCreate({ paymentMethods }) {
     };
 
     const fields = [
-        { id: 'group_name', label: 'Nama Grup *', placeholder: 'cth: Komunitas Sehat PKBI Jakarta', icon: Users, required: true },
-        { id: 'institution_name', label: 'Nama Institusi / Perusahaan', placeholder: 'cth: PT. Sejahtera Indonesia', icon: Building2 },
-        { id: 'pic_name', label: 'Nama PIC (Person in Charge) *', placeholder: 'Nama penanggung jawab grup', icon: Users, required: true },
-        { id: 'pic_phone', label: 'Nomor Telepon PIC', placeholder: '081234567890', icon: Phone },
-        { id: 'pic_email', label: 'Email PIC', placeholder: 'pic@email.com', icon: Mail, type: 'email' },
+        { id: 'group_name',       label: 'Nama Grup *',                    placeholder: 'cth: Komunitas Sehat PKBI Jakarta', icon: Users,     required: true },
+        { id: 'institution_name', label: 'Nama Institusi / Perusahaan',    placeholder: 'cth: PT. Sejahtera Indonesia',      icon: Building2 },
+        { id: 'pic_name',         label: 'Nama PIC (Person in Charge) *',  placeholder: 'Nama penanggung jawab grup',         icon: Users,     required: true },
+        { id: 'pic_phone',        label: 'Nomor Telepon PIC',              placeholder: '081234567890',                       icon: Phone },
+        { id: 'pic_email',        label: 'Email PIC',                      placeholder: 'pic@email.com',                     icon: Mail,      type: 'email' },
     ];
 
     return (
@@ -49,7 +47,7 @@ export default function GroupBookingsCreate({ paymentMethods }) {
                             Buat Grup Baru
                         </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
-                            Isi data grup/institusi terlebih dahulu
+                            Isi data grup/institusi — metode bayar diatur di halaman detail
                         </p>
                     </div>
                 </div>
@@ -66,10 +64,11 @@ export default function GroupBookingsCreate({ paymentMethods }) {
                             <Users className="w-8 h-8 text-indigo-500 flex-shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-black text-indigo-900 dark:text-indigo-200 text-sm uppercase tracking-wide">Panduan Grup Booking</p>
-                                <p className="text-xs text-indigo-700 dark:text-indigo-400 font-medium mt-1 leading-relaxed">
-                                    Setelah membuat grup, Anda bisa menambahkan anggota satu per satu. Invoice grup akan tersedia di halaman detail setelah ada anggota.
-                                    Semua anggota grup mendapatkan sesi <strong>offline</strong> di klinik.
-                                </p>
+                                <ol className="text-xs text-indigo-700 dark:text-indigo-400 font-medium mt-2 leading-relaxed list-decimal ml-4 space-y-1">
+                                    <li>Isi data grup &amp; PIC → Simpan</li>
+                                    <li>Di halaman detail: tambah anggota satu per satu</li>
+                                    <li>Setelah semua anggota ditambahkan: pilih metode pembayaran &amp; tandai lunas</li>
+                                </ol>
                             </div>
                         </div>
 
@@ -79,7 +78,10 @@ export default function GroupBookingsCreate({ paymentMethods }) {
                                 <div className="p-3 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                                     <Building2 className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Data Grup & PIC</h3>
+                                <div>
+                                    <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Data Grup &amp; PIC</h3>
+                                    <p className="text-[10px] text-gray-400 font-medium mt-0.5">Informasi dasar institusi dan penanggung jawab</p>
+                                </div>
                             </div>
 
                             <div className="space-y-5">
@@ -119,35 +121,6 @@ export default function GroupBookingsCreate({ paymentMethods }) {
                             </div>
                         </div>
 
-                        {/* Metode Pembayaran */}
-                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="p-3 bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 rounded-2xl">
-                                    <CreditCard className="w-5 h-5" />
-                                </div>
-                                <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Metode Pembayaran Grup</h3>
-                            </div>
-
-                            <div className="space-y-3">
-                                {(paymentMethods || []).map((method) => {
-                                    const Icon = method === 'Cash' ? Banknote : CreditCard;
-                                    const isSelected = data.payment_method === method;
-                                    return (
-                                        <label key={method} className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                                            isSelected
-                                                ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                                : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-indigo-300'
-                                        }`}>
-                                            <input type="radio" className="hidden" name="payment_method" value={method} checked={isSelected} onChange={() => setData('payment_method', method)} />
-                                            <Icon className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-indigo-500'}`} />
-                                            <p className="text-sm font-black uppercase tracking-widest">{method}</p>
-                                        </label>
-                                    );
-                                })}
-                                <InputError message={errors.payment_method} className="mt-2" />
-                            </div>
-                        </div>
-
                         {/* Catatan */}
                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800">
                             <div className="flex items-center gap-4 mb-6">
@@ -177,7 +150,7 @@ export default function GroupBookingsCreate({ paymentMethods }) {
                                 className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 <Save className="w-4 h-4" />
-                                Buat Grup & Lanjut
+                                Buat Grup &amp; Lanjutkan
                             </button>
                         </div>
                     </form>

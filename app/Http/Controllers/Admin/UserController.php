@@ -177,43 +177,129 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $roles = Role::all();
-        $userRoles = $user->roles->pluck('name');
+        $roles       = Role::all();
+        $userRoles   = $user->roles->pluck('name');
+        $screening   = $user->screeningResults()->latest('completed_at')->first();
+
+        $now = Carbon::now('Asia/Jakarta');
+        $schedules = Schedule::where('schedule_type', 'consultation')
+            ->where('date', '>=', $now->toDateString())
+            ->whereNotNull('therapist_id')
+            ->where('status', 'available')
+            ->withCount(['bookings as confirmed_count' => fn($q) => $q->whereIn('status', Booking::SLOT_OCCUPYING_STATUSES)])
+            ->with('therapist:id,name')
+            ->orderBy('date')->orderBy('start_time')
+            ->get()
+            ->filter(fn($s) => $s->confirmed_count < $s->quota)
+            ->values();
+
+        $bookingPackages = Package::orderBy('base_price')->get()->map(fn($p) => [
+            'slug'  => $p->slug,
+            'name'  => $p->name,
+            'price' => $p->current_price,
+        ]);
 
         return Inertia::render('Admin/Users/Form', [
-            'userModel' => $user,
-            'roles' => $roles,
-            'userRoles' => $userRoles,
+            'userModel'       => $user,
+            'roles'           => $roles,
+            'userRoles'       => $userRoles,
+            'severityOptions' => self::SEVERITY_OPTIONS,
+            'packageOptions'  => self::PACKAGE_OPTIONS,
+            'genderOptions'   => self::GENDER_OPTIONS,
+            'schedules'       => $schedules,
+            'bookingPackages' => $bookingPackages,
+            'screeningResult' => $screening,
         ]);
     }
 
     public function update(Request $request, User $user)
     {
+        $genderValues = array_column(self::GENDER_OPTIONS, 'value');
+        $severityValues = self::SEVERITY_OPTIONS;
+        $packageOptValues = array_column(self::PACKAGE_OPTIONS, 'value');
+
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'roles' => 'array',
+            'name'                       => 'required|string|max:255',
+            'email'                      => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone'                      => 'nullable|string|max:20',
+            'age'                        => 'nullable|integer|min:1|max:120',
+            'gender'                     => ['nullable', Rule::in($genderValues)],
+            'emergency_contact_name'     => 'nullable|string|max:255',
+            'emergency_contact_phone'    => 'nullable|string|max:20',
+            'emergency_contact_relation' => 'nullable|string|max:255',
+            'password'                   => 'nullable|string|min:8|confirmed',
+            'roles'                      => 'array',
+            'ktp_photo'                  => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+            'screening_type'             => 'nullable|in:online,manual',
+            'severity_label'             => ['nullable', Rule::in($severityValues)],
+            'recommended_package'        => ['nullable', Rule::in($packageOptValues)],
+            'admin_notes'                => 'nullable|string',
+            'is_high_risk'               => 'nullable|boolean',
+            'agreement_signed_offline'   => 'nullable|boolean',
         ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'emergency_contact_name' => $request->emergency_contact_name,
-            'emergency_contact_phone' => $request->emergency_contact_phone,
+        // 1. Update user profile fields
+        $updateData = [
+            'name'                       => $request->name,
+            'email'                      => $request->email,
+            'phone'                      => $request->phone,
+            'age'                        => $request->age,
+            'gender'                     => $request->gender,
+            'emergency_contact_name'     => $request->emergency_contact_name,
+            'emergency_contact_phone'    => $request->emergency_contact_phone,
             'emergency_contact_relation' => $request->emergency_contact_relation,
-        ]);
+        ];
 
+        // 2. Handle KTP photo upload
+        if ($request->hasFile('ktp_photo')) {
+            $path = $request->file('ktp_photo')->store('ktp_photos', 'public');
+            $updateData['ktp_photo'] = $path;
+        }
+
+        // 3. Agreement offline
+        if ($request->boolean('agreement_signed_offline') && !$user->agreement_signed) {
+            $updateData['agreement_signed']    = true;
+            $updateData['agreement_signed_at'] = now();
+            $updateData['agreement_data']      = [
+                'signed_offline'       => true,
+                'signed_by_admin_id'   => auth()->id(),
+                'signed_by_admin_name' => auth()->user()->name,
+                'signed_at'            => now()->toDateTimeString(),
+            ];
+        }
+
+        $user->update($updateData);
+
+        // 4. Password update
         if ($request->filled('password')) {
             $user->update(['password' => bcrypt($request->password)]);
         }
 
+        // 5. Roles
         if ($request->has('roles')) {
             $user->syncRoles($request->roles);
         }
 
-        return redirect()->route('admin.users.index')->with('success', 'Data user berhasil diperbarui.');
+        // 6. Screening result (manual)
+        if ($request->screening_type === 'manual' && $request->filled('severity_label')) {
+            ScreeningResult::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'severity_label'      => $request->severity_label,
+                    'recommended_package' => $request->recommended_package,
+                    'admin_notes'         => $request->admin_notes,
+                    'is_high_risk'        => $request->boolean('is_high_risk'),
+                    'completed_at'        => now(),
+                ]
+            );
+            $user->update([
+                'recommended_package'    => $request->recommended_package,
+                'screening_completed_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('admin.users.show', $user->id)
+            ->with('success', 'Profil pasien berhasil diperbarui.');
     }
 
     public function destroy(User $user)
@@ -270,6 +356,7 @@ class UserController extends Controller
             'bookingPackages'    => $bookingPackages,
             'paymentMethodsBySession' => self::PAYMENT_METHODS_BY_SESSION,
             'sessionTypeOptions' => self::SESSION_TYPE_OPTIONS,
+            'bankAccounts'       => config('clinic.bank_accounts', []),
         ]);
     }
 

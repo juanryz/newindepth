@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ChevronLeft, Plus, Users, Building2, Phone, Mail,
-    Search, Eye, Trash2, CheckCircle, Clock, FileText,
+    Search, Eye, Trash2, CheckCircle, Clock, FileText, ShieldCheck, ChevronRight
 } from 'lucide-react';
 
 const statusConfig = {
@@ -26,40 +26,91 @@ export default function GroupBookingsIndex({ groups, filters }) {
     };
     const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
+    const tabs = [
+        { id: 'users', label: 'Daftar Pengguna Individu', icon: Users, href: route('admin.users.index', { tab: 'users' }) },
+        { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, href: route('admin.users.index', { tab: 'roles' }) },
+        { id: 'groups', label: 'Daftar Grup', icon: Building2, count: groups.total, active: true },
+    ];
+
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href={route('admin.users.index')}
-                            className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </Link>
-                        <div>
-                            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                                Daftar Pengguna Grup
-                            </h2>
-                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
-                                Manajemen Booking Grup & Institusi
-                            </p>
-                        </div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 className="font-bold text-2xl text-gray-800 dark:text-white leading-tight tracking-tight uppercase">Manajemen Pengguna</h2>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
-                    <Link
-                        href={route('admin.group-bookings.create')}
-                        className="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Buat Grup Baru
-                    </Link>
+                    <div className="flex gap-3">
+                        <Link
+                            href={route('admin.group-bookings.create')}
+                            className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Buat Grup Baru
+                        </Link>
+                    </div>
                 </div>
             }
         >
             <Head title="Daftar Pengguna Grup" />
 
-            <div className="py-8 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)] transition-colors duration-500">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        {/* SIDEBAR NAVIGATION */}
+                        <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+                            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500 sticky top-24">
+                                <div className="space-y-2">
+                                    {tabs.map((tab) => (
+                                        tab.href ? (
+                                            <Link
+                                                key={tab.id}
+                                                href={tab.href}
+                                                className="w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-2 rounded-xl transition-colors bg-gray-100 dark:bg-gray-800 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30">
+                                                        <tab.icon className="w-5 h-5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                                </div>
+                                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-300" />
+                                            </Link>
+                                        ) : (
+                                            <div
+                                                key={tab.id}
+                                                className="w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-2 rounded-xl transition-colors bg-white/20">
+                                                        <tab.icon className="w-5 h-5" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-white/20">
+                                                        {tab.count}
+                                                    </span>
+                                                    <ChevronRight className="w-4 h-4 translate-x-0 opacity-100 transition-transform duration-300" />
+                                                </div>
+                                            </div>
+                                        )
+                                    ))}
+                                </div>
+
+                                {/* QUICK INFO CARD */}
+                                <div className="mt-8 p-6 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/30">
+                                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Informasi Keamanan</h4>
+                                    <p className="text-xs text-indigo-900/70 dark:text-indigo-300/70 leading-relaxed font-medium">
+                                        Pastikan untuk memberikan akses role sesuai dengan fungsinya. Gunakan role <span className="text-indigo-600 font-bold">Super Admin</span> hanya untuk personil yang berwenang mengatur sistem.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* MAIN CONTENT AREA */}
+                        <div className="flex-1 min-w-0 pb-12 space-y-6">
 
                     {/* Flash */}
                     {flash?.success && (
@@ -176,6 +227,8 @@ export default function GroupBookingsIndex({ groups, filters }) {
                                 ))}
                             </div>
                         )}
+                    </div>
+                        </div>
                     </div>
                 </div>
             </div>

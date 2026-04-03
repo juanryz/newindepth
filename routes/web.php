@@ -839,10 +839,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/create', [\App\Http\Controllers\Admin\GroupBookingController::class, 'create'])->name('create');
                 Route::post('/', [\App\Http\Controllers\Admin\GroupBookingController::class, 'store'])->name('store');
                 Route::get('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'show'])->name('show');
+                Route::get('/{groupBooking}/edit', [\App\Http\Controllers\Admin\GroupBookingController::class, 'edit'])->name('edit');
+                Route::put('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'update'])->name('update');
                 Route::get('/{groupBooking}/members/add', [\App\Http\Controllers\Admin\GroupBookingController::class, 'addMember'])->name('members.add');
                 Route::post('/{groupBooking}/members', [\App\Http\Controllers\Admin\GroupBookingController::class, 'storeMember'])->name('members.store');
                 Route::delete('/{groupBooking}/members/{member}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'removeMember'])->name('members.remove');
+                Route::post('/{groupBooking}/payment-method', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updatePaymentMethod'])->name('payment-method.update');
                 Route::post('/{groupBooking}/payment', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updatePayment'])->name('payment.update');
+                Route::post('/{groupBooking}/schedule', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updateSchedule'])->name('schedule.update');
             });
 
             Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])

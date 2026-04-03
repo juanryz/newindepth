@@ -18,13 +18,16 @@ return new class extends Migration {
             $table->string('pic_email')->nullable();
             // Grup hanya bisa offline (anggota datang ke klinik)
             $table->enum('session_type', ['offline'])->default('offline');
-            $table->enum('payment_method', ['transfer', 'cash'])->default('transfer');
+            $table->string('payment_method', 50)->nullable();
             $table->enum('payment_status', ['pending', 'paid'])->default('pending');
             $table->decimal('total_amount', 15, 2)->default(0);
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('schedule_id')->nullable()->constrained('schedules')->nullOnDelete();
+            $table->string('package_type', 50)->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+
         });
     }
 

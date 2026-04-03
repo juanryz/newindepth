@@ -68,9 +68,7 @@ class GroupBookingController extends Controller
 
     public function create()
     {
-        return Inertia::render('Admin/GroupBookings/Create', [
-            'paymentMethods' => self::PAYMENT_METHODS_OFFLINE,
-        ]);
+        return Inertia::render('Admin/GroupBookings/Create');
     }
 
     // ── STORE (simpan data grup) ───────────────────────────────────────────────
@@ -84,7 +82,6 @@ class GroupBookingController extends Controller
             'pic_name'         => 'required|string|max:255',
             'pic_phone'        => 'nullable|string|max:20',
             'pic_email'        => 'nullable|email|max:255',
-            'payment_method'   => ['required', Rule::in(self::PAYMENT_METHODS_OFFLINE)],
             'notes'            => 'nullable|string|max:2000',
         ]);
 
@@ -97,14 +94,14 @@ class GroupBookingController extends Controller
             'pic_phone'        => $request->pic_phone,
             'pic_email'        => $request->pic_email,
             'session_type'     => 'offline', // grup selalu offline
-            'payment_method'   => $request->payment_method,
+            'payment_method'   => null,       // diisi setelah anggota ditambahkan
             'payment_status'   => 'pending',
             'notes'            => $request->notes,
             'created_by'       => auth()->id(),
         ]);
 
         return redirect()->route('admin.group-bookings.show', $group->id)
-            ->with('success', 'Grup berhasil dibuat. Sekarang tambahkan anggota.');
+            ->with('success', 'Grup berhasil dibuat. Tambahkan anggota lalu tentukan metode pembayaran.');
     }
 
     // ── SHOW (detail grup + daftar anggota) ───────────────────────────────────
@@ -113,180 +110,164 @@ class GroupBookingController extends Controller
     {
         $groupBooking->load([
             'createdBy',
+            'schedule.therapist',
             'members.user',
             'members.booking.schedule.therapist',
         ]);
 
-        return Inertia::render('Admin/GroupBookings/Show', [
-            'group'       => $groupBooking,
-            'invoiceData' => $this->buildInvoiceData($groupBooking),
-        ]);
-    }
+        // Append profile_completion to each member's user
+        $groupBooking->members->each(function ($m) {
+            if ($m->user) {
+                $m->user->append('profile_completion');
+            }
+        });
 
-    // ── ADD MEMBER (form tambah anggota) ──────────────────────────────────────
-
-    public function addMember(GroupBooking $groupBooking)
-    {
         $now = Carbon::now('Asia/Jakarta');
-
         $schedules = Schedule::where('schedule_type', 'consultation')
             ->where('date', '>=', $now->toDateString())
             ->whereNotNull('therapist_id')
             ->where('status', 'available')
             ->withCount(['bookings as confirmed_count' => fn($q) => $q->whereIn('status', Booking::SLOT_OCCUPYING_STATUSES)])
             ->with('therapist:id,name')
-            ->orderBy('date')
-            ->orderBy('start_time')
+            ->orderBy('date')->orderBy('start_time')
             ->get()
             ->filter(fn($s) => $s->confirmed_count < $s->quota)
             ->values();
 
-        $bookingPackages = Package::orderBy('base_price')
-            ->get()
-            ->map(fn($p) => [
-                'slug'  => $p->slug,
-                'name'  => $p->name,
-                'price' => $p->current_price,
-            ]);
+        $bookingPackages = Package::orderBy('base_price')->get()->map(fn($p) => [
+            'slug'  => $p->slug,
+            'name'  => $p->name,
+            'price' => $p->current_price,
+        ]);
 
-        return Inertia::render('Admin/GroupBookings/AddMember', [
+        return Inertia::render('Admin/GroupBookings/Show', [
             'group'           => $groupBooking,
-            'roles'           => Role::whereIn('name', self::OFFLINE_ASSIGNABLE_ROLES)->get(),
-            'severityOptions' => self::SEVERITY_OPTIONS,
-            'packageOptions'  => self::PACKAGE_OPTIONS,
-            'genderOptions'   => self::GENDER_OPTIONS,
+            'invoiceData'     => $this->buildInvoiceData($groupBooking),
             'schedules'       => $schedules,
             'bookingPackages' => $bookingPackages,
+            'paymentMethods'  => self::PAYMENT_METHODS_OFFLINE,
+            'bankAccounts'    => config('clinic.bank_accounts', []),
         ]);
     }
 
-    // ── STORE MEMBER (simpan anggota) ─────────────────────────────────────────
+    // ── UPDATE PAYMENT METHOD + PACKAGE (pilih metode bayar & paket di level grup) ──
+
+    public function updatePaymentMethod(Request $request, GroupBooking $groupBooking)
+    {
+        $packageValues = Package::pluck('slug')->toArray();
+
+        $request->validate([
+            'payment_method' => ['required', Rule::in(self::PAYMENT_METHODS_OFFLINE)],
+            'package_type'   => ['nullable', Rule::in($packageValues)],
+        ], [
+            'payment_method.required' => 'Pilih metode pembayaran terlebih dahulu.',
+            'payment_method.in'       => 'Metode pembayaran tidak valid.',
+            'package_type.in'         => 'Paket tidak valid.',
+        ]);
+
+        if ($groupBooking->payment_status === 'paid') {
+            return redirect()->back()->with('error', 'Grup sudah lunas, tidak bisa diubah.');
+        }
+
+        return DB::transaction(function () use ($request, $groupBooking) {
+            // 1. Cari harga paket yang dipilih
+            $pricePerMember = 0;
+            if ($request->filled('package_type')) {
+                $package = Package::where('slug', $request->package_type)->first();
+                $pricePerMember = $package?->current_price ?? 0;
+            }
+
+            // 2. Update semua anggota: package_type & price
+            $groupBooking->members()->update([
+                'package_type' => $request->package_type,
+                'price'        => $pricePerMember,
+            ]);
+
+            // 3. Update grup
+            $groupBooking->update([
+                'payment_method' => $request->payment_method,
+                'package_type'   => $request->package_type,
+            ]);
+
+            // 4. Recalculate total (sum of member prices)
+            $groupBooking->recalculateTotal();
+
+            return redirect()->back()->with('success', 'Metode pembayaran dan paket berhasil disimpan. Total diperbarui.');
+        });
+    }
+
+
+    // ── ADD MEMBER (form tambah anggota) ──────────────────────────────────────
+
+    public function addMember(GroupBooking $groupBooking)
+    {
+        return Inertia::render('Admin/GroupBookings/AddMember', [
+            'group' => $groupBooking,
+        ]);
+    }
+
+    // ── STORE MEMBER — hanya data dasar (Name, Email, Password) ─────────────
 
     public function storeMember(Request $request, GroupBooking $groupBooking)
     {
-        $packageValues = Package::pluck('slug')->toArray();
-        $genderValues  = array_column(self::GENDER_OPTIONS, 'value');
-        $severityValues = self::SEVERITY_OPTIONS;
-        $packageOptValues = array_column(self::PACKAGE_OPTIONS, 'value');
-
         $request->validate([
-            'disclaimer_confirmed'        => 'required|accepted',
-            'name'                        => 'required|string|max:255',
-            'email'                       => 'required|string|email|max:255|unique:users',
-            'password'                    => 'required|string|min:8|confirmed',
-            'phone'                       => 'nullable|string|max:20',
-            'age'                         => 'nullable|integer|min:1|max:120',
-            'gender'                      => ['nullable', Rule::in($genderValues)],
-            'emergency_contact_name'      => 'nullable|string|max:255',
-            'emergency_contact_phone'     => 'nullable|string|max:20',
-            'emergency_contact_relation'  => 'nullable|string|max:255',
-            'screening_type'              => 'required|in:online,manual',
-            'severity_label'              => ['nullable', 'required_if:screening_type,manual', Rule::in($severityValues)],
-            'recommended_package'         => ['nullable', 'required_if:screening_type,manual', Rule::in($packageOptValues)],
-            'admin_notes'                 => 'nullable|string',
-            'is_high_risk'                => 'nullable|boolean',
-            'agreement_signed_offline'    => 'nullable|boolean',
-            'schedule_id'                 => 'nullable|exists:schedules,id',
-            'package_type'                => ['nullable', 'required_with:schedule_id', Rule::in($packageValues)],
-            'booking_notes'               => 'nullable|string|max:1000',
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|string|email|max:255|unique:users',
+            'password'              => 'required|string|min:8|confirmed',
         ], [
-            'disclaimer_confirmed.accepted'   => 'Anda harus menyetujui disclaimer sebelum mendaftarkan anggota.',
-            'severity_label.required_if'      => 'Tingkat keparahan wajib diisi untuk skrining manual.',
-            'recommended_package.required_if' => 'Rekomendasi paket wajib dipilih untuk skrining manual.',
-            'package_type.required_with'      => 'Tipe paket wajib dipilih jika jadwal dipilih.',
+            'name.required'    => 'Nama anggota wajib diisi.',
+            'email.required'   => 'Email anggota wajib diisi.',
+            'email.unique'     => 'Email ini sudah terdaftar. Gunakan email lain.',
+            'password.min'     => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         return DB::transaction(function () use ($request, $groupBooking) {
-            // 1. Buat user baru
-            $userData = [
-                'name'                       => $request->name,
-                'email'                      => $request->email,
-                'password'                   => bcrypt($request->password),
-                'phone'                      => $request->phone,
-                'age'                        => $request->age,
-                'gender'                     => $request->gender,
-                'emergency_contact_name'     => $request->emergency_contact_name,
-                'emergency_contact_phone'    => $request->emergency_contact_phone,
-                'emergency_contact_relation' => $request->emergency_contact_relation,
-            ];
-
-            if ($request->boolean('agreement_signed_offline')) {
-                $userData['agreement_signed']    = true;
-                $userData['agreement_signed_at'] = now();
-                $userData['agreement_data']      = [
-                    'signed_offline'       => true,
-                    'signed_by_admin_id'   => auth()->id(),
-                    'signed_by_admin_name' => auth()->user()->name,
-                    'group_booking_id'     => $groupBooking->id,
-                    'signed_at'            => now()->toDateTimeString(),
-                ];
-            }
-
-            $user = User::create($userData);
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => bcrypt($request->password),
+            ]);
             $user->markEmailAsVerified();
             $user->assignRole('patient');
 
-            // 2. Skrining (opsional)
-            if ($request->screening_type === 'manual') {
-                ScreeningResult::create([
-                    'user_id'             => $user->id,
-                    'severity_label'      => $request->severity_label,
-                    'recommended_package' => $request->recommended_package,
-                    'admin_notes'         => $request->admin_notes,
-                    'is_high_risk'        => $request->boolean('is_high_risk'),
-                    'completed_at'        => now(),
-                ]);
-                $user->update([
-                    'recommended_package'    => $request->recommended_package,
-                    'screening_completed_at' => now(),
-                ]);
-            }
-
-            // 3. Booking (opsional) — session_type ikut grup (offline)
-            $bookingId = null;
-            $memberPrice = 0;
-
-            if ($request->filled('schedule_id') && $request->filled('package_type')) {
-                $schedule = Schedule::lockForUpdate()->findOrFail($request->schedule_id);
-
-                if ($schedule->status !== 'available' || $schedule->booked_count >= $schedule->quota) {
-                    throw new \Exception('Slot jadwal yang dipilih sudah penuh atau tidak tersedia.');
-                }
-
-                $package     = Package::where('slug', $request->package_type)->first();
-                $basePrice   = $package?->current_price ?? 0;
-                $memberPrice = round(($basePrice * 1.11) + rand(101, 999));
-
-                $booking = Booking::create([
-                    'booking_code' => $this->generateBookingCode(),
-                    'patient_id'   => $user->id,
-                    'schedule_id'  => $schedule->id,
-                    'therapist_id' => $schedule->therapist_id,
-                    'package_type' => $request->package_type,
-                    'session_type' => 'offline', // grup selalu offline
-                    'status'       => 'pending_payment',
-                    'notes'        => $request->booking_notes,
-                ]);
-
-                $bookingId = $booking->id;
-            }
-
-            // 4. Tambahkan ke grup
             GroupBookingMember::create([
                 'group_booking_id' => $groupBooking->id,
                 'user_id'          => $user->id,
-                'booking_id'       => $bookingId,
-                'package_type'     => $request->package_type,
-                'price'            => $memberPrice,
+                'booking_id'       => null,
+                'package_type'     => $groupBooking->package_type,
+                'price'            => 0,
             ]);
 
-            // 5. Update total grup
             $groupBooking->recalculateTotal();
 
             return redirect()->route('admin.group-bookings.show', $groupBooking->id)
-                ->with('success', "Anggota {$request->name} berhasil ditambahkan ke grup.");
+                ->with('success', "Anggota {$request->name} berhasil ditambahkan ke grup. Lengkapi profilnya melalui tombol edit.");
         });
     }
+
+    // ── UPDATE SCHEDULE (jadwal di level grup) ─────────────────────────────
+
+    public function updateSchedule(Request $request, GroupBooking $groupBooking)
+    {
+        $packageValues = Package::pluck('slug')->toArray();
+
+        $request->validate([
+            'schedule_id'  => 'required|exists:schedules,id',
+            'package_type' => ['nullable', Rule::in($packageValues)],
+        ]);
+
+        $groupBooking->update([
+            'schedule_id'  => $request->schedule_id,
+            'package_type' => $request->package_type,
+        ]);
+
+        // Update semua member booking untuk pakai jadwal ini (opsional, jika belum punya booking)
+        // Logika lanjutan bisa ditambahkan di sini
+
+        return redirect()->back()->with('success', 'Jadwal sesi grup berhasil disimpan.');
+    }
+
 
     // ── UPDATE PAYMENT STATUS ─────────────────────────────────────────────────
 

@@ -6,12 +6,179 @@ import {
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
     CheckSquare, Camera, FileImage, Calendar, Package as PackageIcon,
     CreditCard, Upload, CheckCircle, Clock, Banknote, Trash2, Users,
-    Monitor, MapPin, ArrowRight, Printer,
+    Monitor, MapPin, ArrowRight, Printer, Download, X,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import { InvoiceModal } from '@/Components/InvoiceModal';
+
+// ─── Invoice Preview Modal (client-side, sebelum submit) ──────────────────────
+function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
+    const printRef = useRef();
+    const isOnline = data.session_type === 'online';
+    const isCash   = data.payment_method === 'Cash';
+    const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
+
+    const handlePrint = () => {
+        const content = printRef.current?.innerHTML;
+        const win = window.open('', '_blank', 'width=820,height=1000');
+        win.document.write(`
+            <html><head><title>Invoice — ${data.name || 'Pasien'}</title>
+            <style>
+                * { margin:0; padding:0; box-sizing:border-box; }
+                body { font-family: 'Arial', sans-serif; padding: 48px; color: #1f2937; background:#fff; }
+                .logo { font-size: 26px; font-weight: 900; color: #4f46e5; letter-spacing: -1px; text-transform:uppercase; }
+                .badge { display:inline-block; padding:4px 14px; border-radius:99px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:2px; }
+                .badge-paid { background:#d1fae5; color:#065f46; }
+                .badge-pending { background:#fef3c7; color:#92400e; }
+                .section { margin:24px 0; }
+                .label { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:#9ca3af; margin-bottom:4px; }
+                .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f3f4f6; font-size:13px; }
+                .row .key { color:#6b7280; }
+                .row .val { font-weight:700; color:#111827; }
+                .bank-card { background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:14px 18px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+                .bank-name { font-size:11px; font-weight:900; text-transform:uppercase; color:#1d4ed8; }
+                .bank-acc  { font-size:15px; font-weight:900; font-family:monospace; color:#1e40af; letter-spacing:2px; }
+                .bank-holder { font-size:10px; color:#6b7280; margin-top:2px; }
+                .total-row { display:flex; justify-content:space-between; padding:18px 0 0; border-top:2px solid #4f46e5; margin-top:8px; }
+                .total-label { font-size:14px; font-weight:900; text-transform:uppercase; color:#4f46e5; }
+                .total-val { font-size:24px; font-weight:900; color:#4f46e5; }
+                .footer { margin-top:40px; text-align:center; font-size:9px; color:#9ca3af; border-top:1px solid #f3f4f6; padding-top:16px; }
+            </style></head>
+            <body>${content}</body></html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 400);
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                {/* Tombol tutup + print */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Preview Invoice</p>
+                        <p className="text-lg font-black text-gray-900 dark:text-white">Draft — Belum Final</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={handlePrint}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                            <Download className="w-4 h-4" /> Download / Print
+                        </button>
+                        <button onClick={onClose} className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Print area */}
+                <div ref={printRef} className="p-8 space-y-6">
+                    {/* Header klinik */}
+                    <div className="flex items-start justify-between pb-6 border-b-2 border-indigo-100">
+                        <div>
+                            <div className="logo">InDepth Clinic</div>
+                            <p className="text-xs text-gray-500 mt-1">Hipnoterapi &amp; Kesehatan Mental Profesional</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Invoice (Draft)</p>
+                            <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+                            <span className={`badge mt-2 ${
+                                data.payment_status === 'paid' ? 'badge-paid' : 'badge-pending'
+                            }`}>
+                                {data.payment_status === 'paid' ? '✓ Lunas' : '⏳ Belum Dibayar'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Data pasien */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Data Pasien</p>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            {[
+                                { label: 'Nama', value: data.name || '—' },
+                                { label: 'Email', value: data.email || '—' },
+                                { label: 'Telepon', value: data.phone || '—' },
+                                { label: 'Tipe Sesi', value: isOnline ? '💻 Online' : '🏥 Offline' },
+                            ].map(({ label, value }) => (
+                                <div key={label}>
+                                    <p className="label">{label}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white">{value}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Detail layanan */}
+                    <div className="border border-gray-100 dark:border-gray-700 rounded-2xl p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Detail Layanan</p>
+                        <div className="flex justify-between py-2 border-b border-gray-50 dark:border-gray-800 text-sm">
+                            <span className="text-gray-500">{pkg?.name ?? data.package_type ?? '—'}</span>
+                            <span className="font-black text-gray-900 dark:text-white">{fmt(price)}</span>
+                        </div>
+                        <div className="flex justify-between items-center mt-3 pt-3 border-t-2 border-indigo-600">
+                            <span className="text-sm font-black uppercase tracking-wide text-indigo-600">Total</span>
+                            <span className="text-2xl font-black text-indigo-600">{fmt(price)}</span>
+                        </div>
+                    </div>
+
+                    {/* Info pembayaran + rekening tujuan */}
+                    <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-3">Informasi Pembayaran</p>
+                        <div className="flex justify-between text-sm mb-4">
+                            <span className="text-gray-500">Metode</span>
+                            <span className="font-black text-gray-900 dark:text-white">{data.payment_method || '—'}</span>
+                        </div>
+
+                        {/* Rekening tujuan — hanya jika Transfer Bank */}
+                        {!isCash && bankAccounts.length > 0 && (
+                            <>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-blue-500 mb-2">Rekening Tujuan Transfer</p>
+                                {bankAccounts.map((b) => (
+                                    <div key={b.bank} className="bank-card mb-2 flex items-center justify-between bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                        <div>
+                                            <p className="bank-name text-xs font-black text-blue-700 uppercase">{b.bank}</p>
+                                            <p className="bank-acc text-lg font-mono font-black text-indigo-700 tracking-wider">{b.account}</p>
+                                            <p className="bank-holder text-xs text-gray-500">{b.holder}</p>
+                                        </div>
+                                        <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)}
+                                            className="text-[9px] font-black uppercase text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg hover:bg-blue-200 transition-colors">
+                                            Salin
+                                        </button>
+                                    </div>
+                                ))}
+                                <p className="text-[9px] text-amber-600 font-bold mt-2">
+                                    ⚠️ Harap transfer tepat sesuai nominal. Pembayaran akan dikonfirmasi oleh admin.
+                                </p>
+                            </>
+                        )}
+                        {!isCash && bankAccounts.length === 0 && (
+                            <p className="text-xs text-blue-600 font-medium">Silakan transfer ke rekening resmi InDepth Clinic.</p>
+                        )}
+                        {isCash && (
+                            <p className="text-xs text-emerald-600 font-bold">✅ Bayar tunai langsung di klinik saat sesi berlangsung.</p>
+                        )}
+                    </div>
+
+                    <p className="text-[9px] text-gray-400 text-center">
+                        Invoice ini merupakan draft yang dibuat oleh admin. Nomor invoice final akan diterbitkan setelah booking dikonfirmasi.
+                    </p>
+                </div>
+
+                {/* Footer actions */}
+                <div className="flex items-center justify-between p-6 border-t border-gray-100 dark:border-gray-800">
+                    <button onClick={onClose} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors">Tutup</button>
+                    <button onClick={handlePrint}
+                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                        <Download className="w-4 h-4" /> Download / Print Invoice
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 // ─── Reusable Section Card ────────────────────────────────────────────────────
 function Section({ icon: Icon, iconBg, iconColor, title, children }) {
@@ -81,9 +248,8 @@ export default function CreateOffline({
     roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages,
     paymentMethodsBySession = { online: ['Transfer Bank'], offline: ['Transfer Bank', 'Cash'] },
     sessionTypeOptions = [],
+    bankAccounts = [],
 }) {
-    // Pilihan skema pendaftaran: null = belum pilih, 'individual', 'group'
-    const [schemeChoice, setSchemeChoice] = useState(null);
     // Invoice modal state setelah submit individu berhasil
     const [invoiceData, setInvoiceData] = useState(null);
     const { flash } = usePage().props;
@@ -123,6 +289,7 @@ export default function CreateOffline({
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [ktpPreview, setKtpPreview] = useState(null);
     const [proofPreview, setProofPreview] = useState(null);
+    const [showPreview, setShowPreview] = useState(false);
 
     const handleFile = (field, previewSetter) => (e) => {
         const file = e.target.files[0];
@@ -160,94 +327,25 @@ export default function CreateOffline({
 
     const hasSchedule = !!data.schedule_id;
     const isPaid      = data.payment_status === 'paid';
+    const isOnline    = data.session_type === 'online';
 
-    // ── Sebelum form: pilih skema ──────────────────────────────────────────────
-    if (!schemeChoice) {
-        return (
-            <AuthenticatedLayout
-                header={
-                    <div className="flex items-center gap-4">
-                        <Link href={route('admin.users.index')} className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm">
-                            <ChevronLeft className="w-6 h-6" />
-                        </Link>
-                        <div>
-                            <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">Tambah User</h2>
-                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Pilih skema pendaftaran</p>
-                        </div>
-                    </div>
-                }
-            >
-                <Head title="Tambah User" />
-                <div className="py-20 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
-                    <div className="max-w-2xl mx-auto px-6 space-y-6">
-                        <div className="text-center mb-10">
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Pilih Skema Pendaftaran</h3>
-                            <p className="text-sm text-gray-400 font-medium mt-2">Pilih jenis pendaftaran yang sesuai</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {/* Individual */}
-                            <button
-                                onClick={() => setSchemeChoice('individual')}
-                                className="group text-left p-8 bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
-                            >
-                                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-2xl inline-flex mb-5 group-hover:scale-110 transition-transform">
-                                    <User className="w-8 h-8" />
-                                </div>
-                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wide mb-2">Individual</h4>
-                                <p className="text-xs text-gray-400 font-medium leading-relaxed mb-4">
-                                    Daftarkan satu pasien. Bisa memilih sesi online atau offline. Invoice individual tersedia untuk didownload.
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-[9px] font-black rounded-full uppercase">💻 Online</span>
-                                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[9px] font-black rounded-full uppercase">🏥 Offline</span>
-                                    <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-[9px] font-black rounded-full uppercase">📄 Invoice</span>
-                                </div>
-                                <div className="flex items-center gap-2 mt-5 text-indigo-600 dark:text-indigo-400">
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Pilih</span>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            </button>
-                            {/* Grup */}
-                            <button
-                                onClick={() => { window.location.href = route('admin.group-bookings.create'); }}
-                                className="group text-left p-8 bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-gray-100 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
-                            >
-                                <div className="p-4 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-2xl inline-flex mb-5 group-hover:scale-110 transition-transform">
-                                    <Users className="w-8 h-8" />
-                                </div>
-                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wide mb-2">Grup / Institusi</h4>
-                                <p className="text-xs text-gray-400 font-medium leading-relaxed mb-4">
-                                    Daftarkan banyak pasien sekaligus dalam satu grup. Sesi offline, invoice dikelola per grup.
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[9px] font-black rounded-full uppercase">🏥 Offline Only</span>
-                                    <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-[9px] font-black rounded-full uppercase">👥 Multi-user</span>
-                                    <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-[9px] font-black rounded-full uppercase">📄 Invoice Grup</span>
-                                </div>
-                                <div className="flex items-center gap-2 mt-5 text-emerald-600 dark:text-emerald-400">
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Pilih</span>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </AuthenticatedLayout>
-        );
-    }
+    // Kalkulasi harga paket terpilih
+    const selectedPkg = bookingPackages.find(p => p.slug === data.package_type);
+    const packagePrice = isOnline
+        ? (selectedPkg?.online_price ?? selectedPkg?.price ?? 0)
+        : (selectedPkg?.price ?? 0);
 
     // ── Form Individual ────────────────────────────────────────────────────────
     return (
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <button
-                        type="button"
-                        onClick={() => setSchemeChoice(null)}
+                    <Link
+                        href={route('admin.users.index')}
                         className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
                     >
                         <ChevronLeft className="w-6 h-6" />
-                    </button>
+                    </Link>
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">
                             Tambah User Individual
@@ -600,86 +698,209 @@ export default function CreateOffline({
                             </div>
                         </Section>
 
-                        {/* ── PEMBAYARAN ───────────────────────────────────── */}
+                        {/* ── INVOICE & PEMBAYARAN ─────────────────────────── */}
                         {hasSchedule && (
-                            <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Status & Bukti Pembayaran">
-                                <div className="space-y-6">
-                                    <div>
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran <span className="text-rose-500">*</span></InputLabel>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {[
-                                                { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Pasien akan melakukan pembayaran nanti.' },
-                                                { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima secara offline. Booking langsung dikonfirmasi.' },
-                                            ].map(({ value, Icon, color, label, desc }) => (
-                                                <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
-                                                    <input type="radio" className="hidden" name="payment_status" value={value} checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
-                                                    <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${data.payment_status === value ? 'text-white' : `text-${color}-500`}`} />
-                                                    <div>
-                                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
-                                                        <p className={`text-[10px] font-medium leading-relaxed ${data.payment_status === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
-                                                    </div>
-                                                </label>
-                                            ))}
-                                        </div>
-                                        <InputError message={errors.payment_status} className="mt-3" />
-                                    </div>
+                            <>
+                                <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Invoice & Pembayaran">
+                                    <div className="space-y-6">
 
-                                    {isPaid && (
-                                        <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Metode Pembayaran</InputLabel>
-                                                    <div className="relative">
-                                                        <select
-                                                            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all appearance-none"
-                                                            value={data.payment_method}
-                                                            onChange={(e) => setData('payment_method', e.target.value)}
-                                                        >
-                                                            {availablePaymentMethods.map((m) => (
-                                                                <option key={m} value={m}>{m}</option>
-                                                            ))}
-                                                        </select>
-                                                        <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        {/* Preview Invoice */}
+                                        {data.package_type && (
+                                            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-950/30 dark:to-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Preview Invoice</p>
+                                                <div className="space-y-2 text-sm">
+                                                    {[
+                                                        { label: 'Paket', value: selectedPkg?.name ?? data.package_type },
+                                                        { label: 'Tipe Sesi', value: isOnline ? '💻 Online' : '🏥 Offline' },
+                                                    ].map(({ label, value }) => (
+                                                        <div key={label} className="flex justify-between">
+                                                            <span className="text-gray-500 font-medium">{label}</span>
+                                                            <span className="font-black text-gray-900 dark:text-white">{value}</span>
+                                                        </div>
+                                                    ))}
+                                                    <div className="h-px bg-indigo-200 dark:bg-indigo-800 my-1" />
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide text-xs">Total</span>
+                                                        <span className="font-black text-xl text-indigo-700 dark:text-indigo-300">
+                                                            Rp {packagePrice.toLocaleString('id-ID')}
+
+                                                        </span>
                                                     </div>
-                                                    {data.session_type === 'online' && (
-                                                        <p className="text-[10px] text-blue-600 font-bold">💻 Sesi online hanya mendukung Transfer Bank</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Pilih Metode Pembayaran */}
+                                        <div>
+                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">
+                                                Metode Pembayaran <span className="text-rose-500">*</span>
+                                            </InputLabel>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {availablePaymentMethods.map((method) => {
+                                                    const isCash = method === 'Cash';
+                                                    const Icon = isCash ? Banknote : CreditCard;
+                                                    const sel = data.payment_method === method;
+                                                    return (
+                                                        <label key={method} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                            sel ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                                : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-indigo-300'
+                                                        }`}>
+                                                            <input type="radio" className="hidden" name="payment_method" value={method}
+                                                                checked={sel} onChange={() => setData('payment_method', method)} />
+                                                            <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${sel ? 'text-white' : 'text-indigo-500'}`} />
+                                                            <div>
+                                                                <p className={`text-sm font-black uppercase tracking-widest ${sel ? 'text-white' : 'text-gray-800 dark:text-gray-200'}`}>{method}</p>
+                                                                <p className={`text-[10px] font-medium mt-0.5 ${sel ? 'text-white/80' : 'text-gray-400'}`}>
+                                                                    {isCash ? 'Bayar tunai langsung di klinik.' : 'Transfer ke rekening klinik.'}
+                                                                </p>
+                                                            </div>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                            {isOnline && (
+                                                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold ml-1 mt-2">💻 Sesi online hanya mendukung Transfer Bank</p>
+                                            )}
+                                            <InputError message={errors.payment_method} className="mt-2" />
+                                        </div>
+
+                                        {/* Info Transfer */}
+                                        {data.payment_method === 'Transfer Bank' && (
+                                            <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-3">Rekening Tujuan Transfer</p>
+                                                {bankAccounts.length > 0 ? (
+                                                    <div className="space-y-3">
+                                                        {bankAccounts.map((b) => (
+                                                            <div key={b.bank} className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                                        <span className="text-white font-black text-[10px]">{b.bank}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-xs font-black text-gray-900 dark:text-white">{b.holder}</p>
+                                                                        <p className="text-sm font-mono font-black text-indigo-600 dark:text-indigo-400 tracking-wider">{b.account}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)}
+                                                                    className="text-[9px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-800 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg transition-colors flex-shrink-0">
+                                                                    Salin
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Silakan transfer ke rekening resmi InDepth Clinic.</p>
+                                                )}
+                                                <p className="text-[9px] text-amber-600 dark:text-amber-400 font-bold mt-2">
+                                                    ⚠️ Harap transfer tepat sesuai nominal. Pembayaran akan dikonfirmasi oleh admin.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Status Pembayaran */}
+                                        <div>
+                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran <span className="text-rose-500">*</span></InputLabel>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {[
+                                                    { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Menunggu konfirmasi transfer atau akan dibayar nanti.' },
+                                                    { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima. Booking langsung dikonfirmasi.' },
+                                                ].map(({ value, Icon: StatusIcon, color, label, desc }) => (
+                                                    <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                        data.payment_status === value
+                                                            ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20`
+                                                            : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'
+                                                    }`}>
+                                                        <input type="radio" className="hidden" name="payment_status" value={value}
+                                                            checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
+                                                        <StatusIcon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                                                            data.payment_status === value ? 'text-white' : `text-${color}-500`
+                                                        }`} />
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+                                                            <p className={`text-[10px] font-medium leading-relaxed ${
+                                                                data.payment_status === value ? 'text-white/80' : 'text-gray-400'
+                                                            }`}>{desc}</p>
+                                                        </div>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            <InputError message={errors.payment_status} className="mt-3" />
+                                        </div>
+
+                                        {/* Detail bukti — hanya jika sudah bayar */}
+                                        {isPaid && (
+                                            <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {data.payment_method !== 'Cash' && (
+                                                        <>
+                                                            <div className="space-y-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
+                                                                <div className="relative">
+                                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_bank} onChange={(e) => setData('payment_bank', e.target.value)} placeholder="Contoh: BCA / Mandiri / OVO" />
+                                                                    <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                                </div>
+                                                                <InputError message={errors.payment_bank} className="mt-2" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening Pengirim (Opsional)</InputLabel>
+                                                                <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} />
+                                                                <InputError message={errors.payment_account_number} className="mt-2" />
+                                                            </div>
+                                                            <div className="space-y-2 lg:col-span-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
+                                                                <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} />
+                                                                <InputError message={errors.payment_account_name} className="mt-2" />
+                                                            </div>
+                                                        </>
                                                     )}
-                                                    <InputError message={errors.payment_method} className="mt-2" />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
-                                                    <div className="relative">
-                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_bank} onChange={(e) => setData('payment_bank', e.target.value)} placeholder="BCA / BRI / OVO / dll" />
-                                                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                    </div>
-                                                    <InputError message={errors.payment_bank} className="mt-2" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening Pengirim</InputLabel>
-                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} placeholder="123456789" />
-                                                    <InputError message={errors.payment_account_number} className="mt-2" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
-                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Nama sesuai rekening" />
-                                                    <InputError message={errors.payment_account_name} className="mt-2" />
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Bukti Transfer (Opsional)</InputLabel>
+                                                    <FileUploadField
+                                                        hint="Foto struk transfer · JPG/PNG · Maks 5 MB"
+                                                        preview={proofPreview}
+                                                        onChange={handleFile('payment_proof', setProofPreview)}
+                                                        onClear={() => clearFile('payment_proof', setProofPreview)}
+                                                        error={errors.payment_proof}
+                                                    />
                                                 </div>
                                             </div>
+                                        )}
 
-                                            <div className="space-y-2">
-                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Bukti Transfer (Opsional)</InputLabel>
-                                                <FileUploadField
-                                                    hint="Foto struk transfer · JPG/PNG · Maks 5 MB"
-                                                    preview={proofPreview}
-                                                    onChange={handleFile('payment_proof', setProofPreview)}
-                                                    onClear={() => clearFile('payment_proof', setProofPreview)}
-                                                    error={errors.payment_proof}
-                                                />
+                                        {/* Tombol Preview & Download Invoice */}
+                                        {data.package_type && data.payment_method && (
+                                            <div className="pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPreview(true)}
+                                                    className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                    Preview &amp; Download Invoice
+                                                </button>
+                                                <p className="text-[9px] text-gray-400 text-center mt-2">
+                                                    Invoice draft berisi rekening tujuan transfer dan ringkasan layanan
+                                                </p>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </Section>
+                                        )}
+                                    </div>
+                                </Section>
+
+                                {/* Invoice Preview Modal — sibling dari Section */}
+                                {showPreview && (
+                                    <InvoicePreviewModal
+                                        data={data}
+                                        pkg={bookingPackages.find(p => p.slug === data.package_type)}
+                                        price={(() => {
+                                            const pkg2 = bookingPackages.find(p => p.slug === data.package_type);
+                                            return isOnline
+                                                ? (pkg2?.online_price ?? pkg2?.price ?? 0)
+                                                : (pkg2?.price ?? 0);
+                                        })()}
+                                        onClose={() => setShowPreview(false)}
+                                    />
+                                )}
+                            </>
                         )}
 
                         {/* ── AKUN & KEAMANAN ──────────────────────────────── */}

@@ -17,7 +17,8 @@ import {
     CheckCircle,
     UserCircle,
     Key,
-    AlertCircle
+    AlertCircle,
+    Building2,
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -93,8 +94,9 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     };
 
     const tabs = [
-        { id: 'users', label: 'Daftar Pengguna', icon: Users, count: users.total },
+        { id: 'users', label: 'Daftar Pengguna Individu', icon: Users, count: users.total },
         { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, count: roles.length },
+        { id: 'groups', label: 'Daftar Grup', icon: Building2, href: route('admin.group-bookings.index') },
     ];
 
     const handleSearch = (e) => {
@@ -145,15 +147,6 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
                     <div className="flex gap-3">
-                        {hasPermission('create users') && (
-                            <Link
-                                href={route('admin.group-bookings.index')}
-                                className="inline-flex items-center px-5 py-3 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all"
-                            >
-                                <Users className="w-4 h-4 mr-2" />
-                                Daftar Grup
-                            </Link>
-                        )}
                         {activeTab === 'users' && hasPermission('create users') ? (
                             <>
                                 <Link
@@ -222,30 +215,46 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500 sticky top-24">
                                 <div className="space-y-2">
                                     {tabs.map((tab) => (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => handleTabChange(tab.id)}
-                                            className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id
-                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                                                : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
-                                                }`}
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-2 rounded-xl transition-colors ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-white dark:group-hover:bg-gray-700'
-                                                    }`}>
-                                                    <tab.icon className="w-5 h-5" />
+                                        tab.href ? (
+                                            <Link
+                                                key={tab.id}
+                                                href={tab.href}
+                                                className="w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-2 rounded-xl transition-colors bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30">
+                                                        <tab.icon className="w-5 h-5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
                                                 </div>
-                                                <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'
-                                                    }`}>
-                                                    {tab.count}
-                                                </span>
-                                                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
-                                                    }`} />
-                                            </div>
-                                        </button>
+                                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-300" />
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => handleTabChange(tab.id)}
+                                                className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id
+                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-2 rounded-xl transition-colors ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-white dark:group-hover:bg-gray-700'
+                                                        }`}>
+                                                        <tab.icon className="w-5 h-5" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'
+                                                        }`}>
+                                                        {tab.count}
+                                                    </span>
+                                                    <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
+                                                        }`} />
+                                                </div>
+                                            </button>
+                                        )
                                     ))}
                                 </div>
 

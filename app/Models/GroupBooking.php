@@ -24,12 +24,14 @@ class GroupBooking extends Model
         'total_amount',
         'notes',
         'created_by',
+        'schedule_id',
+        'package_type',
         'paid_at',
     ];
 
     protected $casts = [
         'total_amount' => 'float',
-        'paid_at' => 'datetime',
+        'paid_at'      => 'datetime',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────────
@@ -51,6 +53,11 @@ class GroupBooking extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     public static function generateInvoiceNumber(): string
@@ -58,7 +65,7 @@ class GroupBooking extends Model
         $year  = now()->year;
         $month = now()->format('m');
         do {
-            $rand = strtoupper(Str::random(6));
+            $rand   = strtoupper(Str::random(6));
             $number = "GRP-{$year}{$month}-{$rand}";
         } while (static::where('invoice_number', $number)->exists());
 
