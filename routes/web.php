@@ -546,6 +546,10 @@ Route::get('/layanan/vip', function () {
     ]);
 })->name('layanan.vip');
 
+Route::get('/group-hipnoterapi-anak-pintar', function () {
+    return Inertia::render('GroupHipnoterapiAnakPintar');
+})->name('group-hipnoterapi-anak-pintar');
+
 Route::get('/disclaimer', function () {
     return Inertia::render('Legal/Disclaimer');
 })->name('disclaimer');

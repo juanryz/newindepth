@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -11,11 +12,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // ENUM cannot be easily extended on all DB drivers.
-        // Safest approach: change to VARCHAR which accepts any valid status string.
-        DB::statement(
-            "ALTER TABLE schedules MODIFY COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'"
-        );
+        Schema::table('schedules', function (Blueprint $table) {
+            $table->string('status', 20)->default('available')->change();
+        });
     }
 
     /**
@@ -23,9 +22,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        // Revert back to original ENUM (this will strip 'off' values — use with caution)
-        DB::statement(
-            "ALTER TABLE schedules MODIFY COLUMN status ENUM('available', 'full', 'cancelled') NOT NULL DEFAULT 'available'"
-        );
+        Schema::table('schedules', function (Blueprint $table) {
+            // Depending on the driver, enum change might not be perfectly reversible on SQLite.
+            // But this will work as a standard Laravel rollback
+            $table->enum('status', ['available', 'full', 'cancelled'])->default('available')->change();
+        });
     }
 };

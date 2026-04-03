@@ -365,8 +365,67 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                     </div>
                 </div>
             </div>
+            {/* Special Program Section */}
+            <div className="pt-24 pb-12 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 rounded-[3rem] p-8 md:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                        {/* Decorative background elements */}
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/30 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none"></div>
+                        
+                        <div className="flex-1 relative z-10 text-white">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/20">
+                                <span className="w-2 h-2 rounded-full bg-blue-300 animate-pulse"></span>
+                                Program Spesial Baru
+                            </div>
+                            <h3 className="text-3xl md:text-5xl font-black mb-5 leading-[1.1] tracking-tight">Group Hipnoterapi <br/> <span className="text-blue-200">Aku Anak Pintar</span></h3>
+                            <p className="text-blue-100/90 text-lg md:text-xl mb-8 leading-relaxed font-medium bg-blue-900/20 inline-block p-4 rounded-2xl border border-blue-400/10">
+                                Program khusus untuk mengatasi memori kelam dan membentuk mental anak berprestasi pada pelajar SD hingga SMA.
+                            </p>
+                            
+                            <div className="space-y-4 mb-10">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-blue-400/30 flex items-center justify-center shrink-0 mt-0.5 border border-blue-300/30">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <p className="text-white font-semibold text-lg">Meningkatkan fokus dan kemampuan belajar signifikan</p>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-blue-400/30 flex items-center justify-center shrink-0 mt-0.5 border border-blue-300/30">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <p className="text-white font-semibold text-lg">Mengatasi kemalasan, kecanduan gadget, & perilaku negatif</p>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-blue-400/30 flex items-center justify-center shrink-0 mt-0.5 border border-blue-300/30">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <p className="text-white font-semibold text-lg">Terapis profesional bersertifikat khusus hipnoterapi klinis</p>
+                                </div>
+                            </div>
+                            
+                            <Link href="/group-hipnoterapi-anak-pintar" className="group inline-flex items-center gap-3 bg-white text-blue-800 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-50 hover:-translate-y-1 shadow-[0_10px_25px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.3)] transition-all duration-300 border-[3px] border-white/50">
+                                Lihat Detail Program
+                                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </Link>
+                        </div>
+                        
+                        <div className="w-full md:w-5/12 relative shrink-0">
+                            {/* Aesthetic Graphic */}
+                            <div className="relative w-full aspect-[4/3] md:aspect-square bg-gradient-to-br from-blue-300/20 to-white/10 backdrop-blur-sm border border-white/20 rounded-[3rem] shadow-2xl transform hover:-translate-y-2 transition-all duration-500 overflow-hidden group">
+                                <div className="absolute inset-0 bg-blue-900/10 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+                                <img src="/images/students_group.png" alt="Anak Sekolah Indonesia SD SMP SMA" className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 pointer-events-none" />
+                                <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20 pointer-events-none">
+                                    <span className="inline-block px-5 py-2.5 bg-white/20 backdrop-blur-md rounded-xl text-white font-black text-xs md:text-sm tracking-widest border border-white/40 uppercase shadow-[0_8px_30px_rgba(0,0,0,0.5)]">Investasi Masa Depan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Packages Section (Premium Pricing) */}
-            <div id="paket" className="py-24 relative z-10 overflow-hidden">
+            <div id="paket" className="py-12 md:py-24 relative z-10 overflow-hidden">
                 {/* Background ambient glow for this section */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gold-500/5 dark:bg-gold-500/5 blur-[120px] pointer-events-none"></div>
 
@@ -378,10 +437,10 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                             Layanan InDepth
                         </p>
 
-                        <div className="mt-8 flex flex-col items-center gap-3">
-                            <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
-                                <span className="text-xl">🎉</span>
-                                <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">Program Khusus: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%{(() => { const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean); const latest = dates.length > 0 ? dates.sort().pop() : null; return latest ? ` hingga ${formatDate(latest)}` : ''; })()}</span></span>
+                        <div className="mt-8 flex flex-col items-center gap-5">
+                            <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-4 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
+                                <span className="text-2xl animate-pulse">🎉</span>
+                                <span className="text-gold-700 dark:text-gold-300 font-bold text-lg tracking-wide uppercase">Promo Layanan Terbatas: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%{(() => { const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean); const latest = dates.length > 0 ? dates.sort().pop() : null; return latest ? ` hingga ${formatDate(latest)}` : ''; })()}</span></span>
                             </div>
                         </div>
                     </div>

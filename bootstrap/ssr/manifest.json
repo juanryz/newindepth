@@ -747,6 +747,22 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/GroupHipnoterapiAnakPintar.jsx": {
+    "file": "assets/GroupHipnoterapiAnakPintar-DOEnk2av.js",
+    "name": "GroupHipnoterapiAnakPintar",
+    "src": "resources/js/Pages/GroupHipnoterapiAnakPintar.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_Navbar-DnQfU1E1.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_PageLoader-Fgf54pWN.js",
+      "_ThemeToggle-SHr-61ed.js"
+    ],
+    "dynamicImports": [
+      "resources/js/Components/Footer.jsx",
+      "resources/js/Components/DisclaimerSection.jsx"
+    ]
+  },
   "resources/js/Pages/InternalAi/Chat.jsx": {
     "file": "assets/Chat-CvO9ErW8.js",
     "name": "Chat",
@@ -1101,7 +1117,7 @@
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-DUAD6Azi.js",
+    "file": "assets/Welcome-DMCjCsyH.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
@@ -1177,6 +1193,7 @@
       "resources/js/Pages/Clinic/Screening.jsx",
       "resources/js/Pages/Clinic/Vouchers/Index.jsx",
       "resources/js/Pages/Dashboard.jsx",
+      "resources/js/Pages/GroupHipnoterapiAnakPintar.jsx",
       "resources/js/Pages/InternalAi/Chat.jsx",
       "resources/js/Pages/InternalAi/Index.jsx",
       "resources/js/Pages/KontakKami.jsx",
