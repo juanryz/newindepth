@@ -28,7 +28,21 @@ class InternalAiChatService
 
             $messages = [['role' => 'system', 'content' => $systemPrompt]];
             foreach ($history as $msg) {
-                $messages[] = ['role' => $msg['role'], 'content' => $msg['content']];
+                $content = $msg['content'] ?? '';
+
+                if (isset($msg['attachment'])) {
+                    $att = $msg['attachment'];
+                    if ($att['type'] === 'image') {
+                        $content = [
+                            ['type' => 'text', 'text' => $msg['content'] ?? ''],
+                            ['type' => 'image_url', 'image_url' => ['url' => $att['url']]]
+                        ];
+                    } else {
+                        $content .= "\n\n[File uploaded: " . $att['name'] . "]";
+                    }
+                }
+
+                $messages[] = ['role' => $msg['role'], 'content' => $content];
             }
 
             $response = Http::withHeaders([
