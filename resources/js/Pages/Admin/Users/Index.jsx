@@ -145,6 +145,15 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
                     <div className="flex gap-3">
+                        {hasPermission('create users') && (
+                            <Link
+                                href={route('admin.group-bookings.index')}
+                                className="inline-flex items-center px-5 py-3 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                            >
+                                <Users className="w-4 h-4 mr-2" />
+                                Daftar Grup
+                            </Link>
+                        )}
                         {activeTab === 'users' && hasPermission('create users') ? (
                             <>
                                 <Link

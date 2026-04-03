@@ -833,6 +833,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('permission:delete users')
                 ->name('users.destroy');
 
+            // Group Bookings (Daftar Pengguna Grup)
+            Route::prefix('group-bookings')->name('group-bookings.')->middleware('permission:create users')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\GroupBookingController::class, 'index'])->name('index');
+                Route::get('/create', [\App\Http\Controllers\Admin\GroupBookingController::class, 'create'])->name('create');
+                Route::post('/', [\App\Http\Controllers\Admin\GroupBookingController::class, 'store'])->name('store');
+                Route::get('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'show'])->name('show');
+                Route::get('/{groupBooking}/members/add', [\App\Http\Controllers\Admin\GroupBookingController::class, 'addMember'])->name('members.add');
+                Route::post('/{groupBooking}/members', [\App\Http\Controllers\Admin\GroupBookingController::class, 'storeMember'])->name('members.store');
+                Route::delete('/{groupBooking}/members/{member}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'removeMember'])->name('members.remove');
+                Route::post('/{groupBooking}/payment', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updatePayment'])->name('payment.update');
+            });
+
             Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])
                 ->middleware('permission:view roles')
                 ->name('roles.index');

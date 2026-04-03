@@ -1,15 +1,17 @@
 import React, { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
     ChevronLeft, Save, User, Mail, Phone, Lock, Shield, AlertCircle,
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
     CheckSquare, Camera, FileImage, Calendar, Package as PackageIcon,
-    CreditCard, Upload, CheckCircle, Clock, Banknote, Trash2,
+    CreditCard, Upload, CheckCircle, Clock, Banknote, Trash2, Users,
+    Monitor, MapPin, ArrowRight, Printer,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import { InvoiceModal } from '@/Components/InvoiceModal';
 
 // ─── Reusable Section Card ────────────────────────────────────────────────────
 function Section({ icon: Icon, iconBg, iconColor, title, children }) {
@@ -76,8 +78,21 @@ function scheduleLabel(s) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CreateOffline({
-    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages, paymentMethods,
+    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages,
+    paymentMethodsBySession = { online: ['Transfer Bank'], offline: ['Transfer Bank', 'Cash'] },
+    sessionTypeOptions = [],
 }) {
+    // Pilihan skema pendaftaran: null = belum pilih, 'individual', 'group'
+    const [schemeChoice, setSchemeChoice] = useState(null);
+    // Invoice modal state setelah submit individu berhasil
+    const [invoiceData, setInvoiceData] = useState(null);
+    const { flash } = usePage().props;
+
+    // Tampilkan invoice dari flash session jika ada
+    React.useEffect(() => {
+        if (flash?.invoiceData) setInvoiceData(flash.invoiceData);
+    }, [flash]);
+
     const { data, setData, post, processing, errors } = useForm({
         disclaimer_confirmed: false,
         // Identitas
@@ -91,6 +106,8 @@ export default function CreateOffline({
         severity_label: '', recommended_package: '', admin_notes: '', is_high_risk: false,
         // Perjanjian
         agreement_signed_offline: false,
+        // Mode Sesi
+        session_type: 'offline',
         // Booking
         schedule_id: '', package_type: '', booking_notes: '',
         // Pembayaran
@@ -124,6 +141,18 @@ export default function CreateOffline({
         setData('roles', checked ? [...data.roles, value] : data.roles.filter(r => r !== value));
     };
 
+    // Payment methods filtered by session type
+    const availablePaymentMethods = paymentMethodsBySession[data.session_type] ?? ['Transfer Bank'];
+
+    // When session_type changes, reset payment_method to first allowed
+    const handleSessionTypeChange = (val) => {
+        setData(prev => ({
+            ...prev,
+            session_type: val,
+            payment_method: (paymentMethodsBySession[val] ?? ['Transfer Bank'])[0],
+        }));
+    };
+
     const submit = (e) => {
         e.preventDefault();
         post(route('admin.users.store-offline'));
@@ -132,28 +161,114 @@ export default function CreateOffline({
     const hasSchedule = !!data.schedule_id;
     const isPaid      = data.payment_status === 'paid';
 
+    // ── Sebelum form: pilih skema ──────────────────────────────────────────────
+    if (!schemeChoice) {
+        return (
+            <AuthenticatedLayout
+                header={
+                    <div className="flex items-center gap-4">
+                        <Link href={route('admin.users.index')} className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm">
+                            <ChevronLeft className="w-6 h-6" />
+                        </Link>
+                        <div>
+                            <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">Tambah User</h2>
+                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">Pilih skema pendaftaran</p>
+                        </div>
+                    </div>
+                }
+            >
+                <Head title="Tambah User" />
+                <div className="py-20 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
+                    <div className="max-w-2xl mx-auto px-6 space-y-6">
+                        <div className="text-center mb-10">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Pilih Skema Pendaftaran</h3>
+                            <p className="text-sm text-gray-400 font-medium mt-2">Pilih jenis pendaftaran yang sesuai</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Individual */}
+                            <button
+                                onClick={() => setSchemeChoice('individual')}
+                                className="group text-left p-8 bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300"
+                            >
+                                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-2xl inline-flex mb-5 group-hover:scale-110 transition-transform">
+                                    <User className="w-8 h-8" />
+                                </div>
+                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wide mb-2">Individual</h4>
+                                <p className="text-xs text-gray-400 font-medium leading-relaxed mb-4">
+                                    Daftarkan satu pasien. Bisa memilih sesi online atau offline. Invoice individual tersedia untuk didownload.
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-[9px] font-black rounded-full uppercase">💻 Online</span>
+                                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[9px] font-black rounded-full uppercase">🏥 Offline</span>
+                                    <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-[9px] font-black rounded-full uppercase">📄 Invoice</span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-5 text-indigo-600 dark:text-indigo-400">
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Pilih</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </button>
+                            {/* Grup */}
+                            <button
+                                onClick={() => { window.location.href = route('admin.group-bookings.create'); }}
+                                className="group text-left p-8 bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-gray-100 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300"
+                            >
+                                <div className="p-4 bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-2xl inline-flex mb-5 group-hover:scale-110 transition-transform">
+                                    <Users className="w-8 h-8" />
+                                </div>
+                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-wide mb-2">Grup / Institusi</h4>
+                                <p className="text-xs text-gray-400 font-medium leading-relaxed mb-4">
+                                    Daftarkan banyak pasien sekaligus dalam satu grup. Sesi offline, invoice dikelola per grup.
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[9px] font-black rounded-full uppercase">🏥 Offline Only</span>
+                                    <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-[9px] font-black rounded-full uppercase">👥 Multi-user</span>
+                                    <span className="px-2.5 py-1 bg-violet-50 text-violet-700 text-[9px] font-black rounded-full uppercase">📄 Invoice Grup</span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-5 text-emerald-600 dark:text-emerald-400">
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Pilih</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
+
+    // ── Form Individual ────────────────────────────────────────────────────────
     return (
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link
-                        href={route('admin.users.index')}
+                    <button
+                        type="button"
+                        onClick={() => setSchemeChoice(null)}
                         className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
                     >
                         <ChevronLeft className="w-6 h-6" />
-                    </Link>
+                    </button>
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">
-                            Tambah User Offline
+                            Tambah User Individual
                         </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
-                            Pendaftaran Pasien yang Datang Langsung (Walk-in)
+                            Pendaftaran Pasien (Walk-in / Individual)
                         </p>
                     </div>
                 </div>
             }
         >
-            <Head title="Tambah User Offline" />
+            <Head title="Tambah User Individual" />
+
+            {/* Invoice Modal */}
+            {invoiceData && (
+                <InvoiceModal
+                    invoice={invoiceData}
+                    type="individual"
+                    onClose={() => setInvoiceData(null)}
+                />
+            )}
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
@@ -387,6 +502,34 @@ export default function CreateOffline({
                             </div>
                         </Section>
 
+                        <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Mode Sesi">
+                            <div className="mb-2">
+                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Pilih Mode Sesi *</InputLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {sessionTypeOptions.map(({ value, label, desc }) => {
+                                        const isOnline = value === 'online';
+                                        const color = isOnline ? 'blue' : 'emerald';
+                                        const emoji = isOnline ? '💻' : '🏥';
+                                        return (
+                                            <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                data.session_type === value
+                                                    ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20`
+                                                    : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'
+                                            }`}>
+                                                <input type="radio" className="hidden" name="session_type" value={value} checked={data.session_type === value} onChange={() => handleSessionTypeChange(value)} />
+                                                <span className="text-2xl flex-shrink-0">{emoji}</span>
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className={`text-[10px] font-medium leading-relaxed ${data.session_type === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <InputError message={errors.session_type} className="mt-3" />
+                            </div>
+                        </Section>
+
                         {/* ── JADWAL & PAKET ───────────────────────────────── */}
                         <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi (Opsional)">
                             <div className="space-y-6">
@@ -465,7 +608,7 @@ export default function CreateOffline({
                                         <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran <span className="text-rose-500">*</span></InputLabel>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {[
-                                                { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Pasien akan melakukan pembayaran nanti. Booking menunggu konfirmasi bayar.' },
+                                                { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Pasien akan melakukan pembayaran nanti.' },
                                                 { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima secara offline. Booking langsung dikonfirmasi.' },
                                             ].map(({ value, Icon, color, label, desc }) => (
                                                 <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
@@ -492,12 +635,15 @@ export default function CreateOffline({
                                                             value={data.payment_method}
                                                             onChange={(e) => setData('payment_method', e.target.value)}
                                                         >
-                                                            {paymentMethods.map((m) => (
+                                                            {availablePaymentMethods.map((m) => (
                                                                 <option key={m} value={m}>{m}</option>
                                                             ))}
                                                         </select>
                                                         <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                     </div>
+                                                    {data.session_type === 'online' && (
+                                                        <p className="text-[10px] text-blue-600 font-bold">💻 Sesi online hanya mendukung Transfer Bank</p>
+                                                    )}
                                                     <InputError message={errors.payment_method} className="mt-2" />
                                                 </div>
                                                 <div className="space-y-2">

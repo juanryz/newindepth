@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\GroupBooking;
 use App\Models\Package;
 use App\Models\Schedule;
 use App\Models\ScreeningResult;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -37,7 +39,18 @@ class UserController extends Controller
         'Ringan', 'Sedang', 'Berat Akut', 'Berat Kronis', 'High Risk',
     ];
 
-    // Role yang dapat ditetapkan saat pendaftaran offline (sinkron dengan kebutuhan klinik)
+    // Sumber tunggal metode pembayaran per session_type (soft-coded)
+    private const PAYMENT_METHODS_BY_SESSION = [
+        'online'  => ['Transfer Bank'],
+        'offline' => ['Transfer Bank', 'Cash'],
+    ];
+
+    private const SESSION_TYPE_OPTIONS = [
+        ['value' => 'online',  'label' => 'Online',  'desc' => 'Sesi melalui video call. Pembayaran hanya via Transfer Bank.'],
+        ['value' => 'offline', 'label' => 'Offline', 'desc' => 'Sesi tatap muka di klinik. Pembayaran bisa Transfer Bank atau Cash.'],
+    ];
+
+    // Role yang dapat ditetapkan saat pendaftaran offline
     private const OFFLINE_ASSIGNABLE_ROLES = ['patient', 'santa_maria'];
 
     public function index(Request $request)
@@ -249,13 +262,14 @@ class UserController extends Controller
             ]);
 
         return Inertia::render('Admin/Users/CreateOffline', [
-            'roles'           => Role::whereIn('name', self::OFFLINE_ASSIGNABLE_ROLES)->get(),
-            'severityOptions' => self::SEVERITY_OPTIONS,
-            'packageOptions'  => self::PACKAGE_OPTIONS,
-            'genderOptions'   => self::GENDER_OPTIONS,
-            'schedules'       => $schedules,
-            'bookingPackages' => $bookingPackages,
-            'paymentMethods'  => config('clinic.payment_methods'),
+            'roles'              => Role::whereIn('name', self::OFFLINE_ASSIGNABLE_ROLES)->get(),
+            'severityOptions'    => self::SEVERITY_OPTIONS,
+            'packageOptions'     => self::PACKAGE_OPTIONS,
+            'genderOptions'      => self::GENDER_OPTIONS,
+            'schedules'          => $schedules,
+            'bookingPackages'    => $bookingPackages,
+            'paymentMethodsBySession' => self::PAYMENT_METHODS_BY_SESSION,
+            'sessionTypeOptions' => self::SESSION_TYPE_OPTIONS,
         ]);
     }
 
@@ -265,9 +279,12 @@ class UserController extends Controller
         $packageValues       = array_column(self::PACKAGE_OPTIONS, 'value');
         $severityValues      = self::SEVERITY_OPTIONS;
         $bookingPackageSlugs = Package::pluck('slug')->toArray();
+        $sessionTypeValues   = array_column(self::SESSION_TYPE_OPTIONS, 'value');
+        $allPaymentMethods   = array_unique(array_merge(...array_values(self::PAYMENT_METHODS_BY_SESSION)));
 
         $request->validate([
             'disclaimer_confirmed'        => 'required|accepted',
+            'session_type'                => ['required', Rule::in($sessionTypeValues)],
             // Identitas
             'name'                        => 'required|string|max:255',
             'email'                       => 'required|string|email|max:255|unique:users',
@@ -297,12 +314,13 @@ class UserController extends Controller
             // Pembayaran
             'payment_status'              => ['nullable', 'required_with:schedule_id', Rule::in(['pending', 'paid'])],
             'payment_proof'               => 'nullable|image|max:5120',
-            'payment_method'              => 'nullable|string|max:50',
+            'payment_method'              => ['nullable', Rule::in($allPaymentMethods)],
             'payment_bank'                => 'nullable|string|max:50',
             'payment_account_number'      => 'nullable|string|max:50',
             'payment_account_name'        => 'nullable|string|max:100',
         ], [
             'disclaimer_confirmed.accepted'   => 'Anda harus menyetujui disclaimer sebelum mendaftarkan pasien.',
+            'session_type.required'           => 'Mode sesi (Online/Offline) wajib dipilih.',
             'severity_label.required_if'      => 'Tingkat keparahan wajib diisi untuk skrining manual.',
             'severity_label.in'               => 'Tingkat keparahan tidak valid.',
             'recommended_package.required_if' => 'Rekomendasi paket wajib dipilih untuk skrining manual.',
@@ -312,6 +330,14 @@ class UserController extends Controller
             'package_type.in'                 => 'Tipe paket tidak valid.',
             'payment_status.required_with'    => 'Status pembayaran wajib dipilih jika jadwal dipilih.',
         ]);
+
+        // Guard: jika session online, metode bayar hanya boleh Transfer Bank
+        if ($request->filled('payment_method')) {
+            $allowed = self::PAYMENT_METHODS_BY_SESSION[$request->session_type] ?? [];
+            if (!in_array($request->payment_method, $allowed)) {
+                return back()->withErrors(['payment_method' => 'Metode pembayaran tidak diizinkan untuk sesi online.']);
+            }
+        }
 
         return DB::transaction(function () use ($request) {
             // ── 1. BUAT USER ──────────────────────────────────────────────
@@ -375,7 +401,9 @@ class UserController extends Controller
                 }
 
                 $package   = Package::where('slug', $request->package_type)->first();
-                $basePrice = $package ? $package->current_price : 0;
+                $basePrice = $request->session_type === 'online'
+                    ? ($package?->online_current_price ?? $package?->current_price ?? 0)
+                    : ($package?->current_price ?? 0);
                 $amount    = round(($basePrice * 1.11) + rand(101, 999));
 
                 $isPaid         = $request->payment_status === 'paid';
@@ -387,6 +415,7 @@ class UserController extends Controller
                     'schedule_id'  => $schedule->id,
                     'therapist_id' => $schedule->therapist_id,
                     'package_type' => $request->package_type,
+                    'session_type' => $request->session_type,
                     'status'       => $bookingStatus,
                     'notes'        => $request->booking_notes,
                 ]);
@@ -437,8 +466,34 @@ class UserController extends Controller
                 $booking->transaction()->create($transactionData);
             }
 
+            // Build invoice data for frontend display
+            $invoiceData = null;
+            if (isset($booking)) {
+                $pkg = Package::where('slug', $booking->package_type)->first();
+                $invoiceData = [
+                    'invoice_number' => $booking->transaction?->invoice_number ?? 'INV-' . strtoupper(Str::random(8)),
+                    'booking_code'   => $booking->booking_code,
+                    'patient_name'   => $user->name,
+                    'patient_email'  => $user->email,
+                    'patient_phone'  => $user->phone,
+                    'package_name'   => $pkg?->name ?? $booking->package_type,
+                    'session_type'   => $booking->session_type,
+                    'amount'         => $amount ?? 0,
+                    'payment_method' => $request->payment_method,
+                    'payment_status' => $request->payment_status,
+                    'schedule'       => isset($schedule) ? [
+                        'date'       => $schedule->date,
+                        'start_time' => $schedule->start_time,
+                        'therapist'  => $schedule->therapist?->name ?? 'TBD',
+                    ] : null,
+                    'created_at'     => now()->toDateTimeString(),
+                    'created_by'     => auth()->user()->name,
+                ];
+            }
+
             return redirect()->route('admin.users.show', $user->id)
-                ->with('success', 'Pasien offline berhasil didaftarkan.');
+                ->with('success', 'Pasien offline berhasil didaftarkan.')
+                ->with('invoiceData', $invoiceData);
         });
     }
 

@@ -22,6 +22,14 @@
     "file": "assets/InputLabel-CnBOqvzp.js",
     "name": "InputLabel"
   },
+  "_InvoiceModal-SFrZCPfS.js": {
+    "file": "assets/InvoiceModal-SFrZCPfS.js",
+    "name": "InvoiceModal",
+    "imports": [
+      "_AuthenticatedLayout-DLGa0CGh.js",
+      "_TextInput-DcEnl-Ka.js"
+    ]
+  },
   "_LiquidBackground-DsMP_cZ6.js": {
     "file": "assets/LiquidBackground-DsMP_cZ6.js",
     "name": "LiquidBackground"
@@ -209,6 +217,58 @@
       "_LiquidBackground-DsMP_cZ6.js"
     ]
   },
+  "resources/js/Pages/Admin/GroupBookings/AddMember.jsx": {
+    "file": "assets/AddMember-AMRA-3SJ.js",
+    "name": "AddMember",
+    "src": "resources/js/Pages/Admin/GroupBookings/AddMember.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DLGa0CGh.js",
+      "_InputError-2JjWc6nJ.js",
+      "_InputLabel-CnBOqvzp.js",
+      "_TextInput-DcEnl-Ka.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/GroupBookings/Create.jsx": {
+    "file": "assets/Create-C18yWpbx.js",
+    "name": "Create",
+    "src": "resources/js/Pages/Admin/GroupBookings/Create.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DLGa0CGh.js",
+      "_InputError-2JjWc6nJ.js",
+      "_InputLabel-CnBOqvzp.js",
+      "_TextInput-DcEnl-Ka.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/GroupBookings/Index.jsx": {
+    "file": "assets/Index-m7AP5Cny.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Admin/GroupBookings/Index.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DLGa0CGh.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js"
+    ]
+  },
+  "resources/js/Pages/Admin/GroupBookings/Show.jsx": {
+    "file": "assets/Show-B1JJqchZ.js",
+    "name": "Show",
+    "src": "resources/js/Pages/Admin/GroupBookings/Show.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_AuthenticatedLayout-DLGa0CGh.js",
+      "_InvoiceModal-SFrZCPfS.js",
+      "_ThemeToggle-SHr-61ed.js",
+      "_LiquidBackground-DsMP_cZ6.js",
+      "_TextInput-DcEnl-Ka.js"
+    ]
+  },
   "resources/js/Pages/Admin/InternalAi/Index.jsx": {
     "file": "assets/Index-eSeWT1LZ.js",
     "name": "Index",
@@ -376,7 +436,7 @@
     ]
   },
   "resources/js/Pages/Admin/Users/CreateOffline.jsx": {
-    "file": "assets/CreateOffline-BlfFBhCu.js",
+    "file": "assets/CreateOffline-CwKKIVWx.js",
     "name": "CreateOffline",
     "src": "resources/js/Pages/Admin/Users/CreateOffline.jsx",
     "isDynamicEntry": true,
@@ -385,6 +445,7 @@
       "_InputError-2JjWc6nJ.js",
       "_InputLabel-CnBOqvzp.js",
       "_TextInput-DcEnl-Ka.js",
+      "_InvoiceModal-SFrZCPfS.js",
       "_ThemeToggle-SHr-61ed.js",
       "_LiquidBackground-DsMP_cZ6.js"
     ]
@@ -410,7 +471,7 @@
     ]
   },
   "resources/js/Pages/Admin/Users/Index.jsx": {
-    "file": "assets/Index-rsYtylMu.js",
+    "file": "assets/Index-DOnO6RyB.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Users/Index.jsx",
     "isDynamicEntry": true,
@@ -1157,6 +1218,10 @@
       "resources/js/Pages/Admin/Clinic/Transactions/Index.jsx",
       "resources/js/Pages/Admin/Expenses/Index.jsx",
       "resources/js/Pages/Admin/Finance/Index.jsx",
+      "resources/js/Pages/Admin/GroupBookings/AddMember.jsx",
+      "resources/js/Pages/Admin/GroupBookings/Create.jsx",
+      "resources/js/Pages/Admin/GroupBookings/Index.jsx",
+      "resources/js/Pages/Admin/GroupBookings/Show.jsx",
       "resources/js/Pages/Admin/InternalAi/Index.jsx",
       "resources/js/Pages/Admin/InternalAi/Train.jsx",
       "resources/js/Pages/Admin/OrderManagement/Index.jsx",
