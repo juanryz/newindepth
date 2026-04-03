@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import LiquidBackground from '@/Components/LiquidBackground';
 import PageLoader from '@/Components/PageLoader';
+import SessionModeToggle from '@/Components/SessionModeToggle';
 
 const Footer = lazy(() => import('@/Components/Footer'));
 const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
@@ -27,9 +28,15 @@ export default function LayananPremium({ auth, packages = [] }) {
     const premiumPkg = packages.find((p) => p.slug === 'premium') || {
         base_price: 0,
         current_price: 0,
+        online_current_price: 0,
         discount_percentage: 0,
         discount_ends_at: null,
     };
+
+    const [sessionMode, setSessionMode] = useState('offline');
+    const isOnline = sessionMode === 'online';
+    const displayPrice = isOnline ? premiumPkg.online_current_price : premiumPkg.current_price;
+    const hasDiscount = !isOnline && premiumPkg.discount_percentage > 0;
 
     const formatPrice = (price) =>
         new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })
@@ -382,25 +389,36 @@ export default function LayananPremium({ auth, packages = [] }) {
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <motion.div {...fadeUp(0)}>
                         <h2 className="text-base font-semibold text-gold-600 dark:text-gold-400 tracking-wide uppercase mb-2">Biaya</h2>
-                        <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8">Durasi dan Investasi</h3>
+                        <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-6">Durasi dan Investasi</h3>
+
+                        {/* Session Mode Toggle */}
+                        <div className="flex justify-center mb-8">
+                            <SessionModeToggle mode={sessionMode} onChange={setSessionMode} />
+                        </div>
+                        {isOnline && (
+                            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium text-center mb-6">
+                                Sesi online via video call — harga tanpa diskon
+                            </p>
+                        )}
+
                         <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-gold-500/50 rounded-[2.5rem] p-10 shadow-2xl hover:shadow-[0_20px_40px_rgba(208,170,33,0.15)] transition-all duration-500 w-full">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="text-center md:text-left">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Durasi</p>
                                     <p className="text-3xl font-black text-gray-900 dark:text-white">±2 jam</p>
-                                    <p className="text-gray-500 font-medium mt-1">1 sesi</p>
+                                    <p className="text-gray-500 font-medium mt-1">1 sesi {isOnline ? '(online)' : ''}</p>
                                 </div>
                                 <div className="text-center md:text-left">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Investasi</p>
-                                    {premiumPkg.discount_percentage > 0 && (
+                                    {hasDiscount && (
                                         <p className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2 mb-1">
                                             {formatPrice(premiumPkg.base_price)}
                                         </p>
                                     )}
                                     <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">
-                                        {formatPrice(premiumPkg.current_price || premiumPkg.base_price)}
+                                        {formatPrice(displayPrice || premiumPkg.base_price)}
                                     </p>
-                                    {premiumPkg.discount_percentage > 0 && premiumPkg.discount_ends_at && (
+                                    {hasDiscount && premiumPkg.discount_ends_at && (
                                         <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
                                             Diskon {premiumPkg.discount_percentage}% hingga {formatDate(premiumPkg.discount_ends_at)}
                                         </span>

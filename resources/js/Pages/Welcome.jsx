@@ -1,10 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Navbar from '@/Components/Navbar';
 import LiquidBackground from '@/Components/LiquidBackground';
 import PageLoader from '@/Components/PageLoader';
+import SessionModeToggle from '@/Components/SessionModeToggle';
 
 // Lazy loading below-the-fold components
 const VisionMissionSection = lazy(() => import('@/Components/VisionMissionSection'));
@@ -42,9 +43,17 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
         }).format(price).replace('IDR', 'Rp');
     };
 
+    const [sessionMode, setSessionMode] = useState('offline');
+    const isOnline = sessionMode === 'online';
+
     const regulerPkg = getPackage('reguler');
     const premiumPkg = getPackage('premium');
     const vipPkg = getPackage('vip');
+
+    // Get display price based on session mode
+    const getDisplayPrice = (pkg) => isOnline ? pkg.online_current_price : pkg.current_price;
+    const getBasePrice = (pkg) => isOnline ? pkg.online_current_price : pkg.base_price;
+    const hasActiveDiscount = (pkg) => !isOnline && pkg.discount_percentage > 0;
 
     // Smooth scroll for anchor links
     useEffect(() => {
@@ -437,47 +446,60 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                             Layanan InDepth
                         </p>
 
+                        {/* Session Mode Toggle */}
                         <div className="mt-8 flex flex-col items-center gap-5">
-                            <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-4 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
-                                <span className="text-2xl animate-pulse">🎉</span>
-                                <span className="text-gold-700 dark:text-gold-300 font-bold text-lg tracking-wide uppercase">Promo Layanan Terbatas: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%{(() => { const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean); const latest = dates.length > 0 ? dates.sort().pop() : null; return latest ? ` hingga ${formatDate(latest)}` : ''; })()}</span></span>
-                            </div>
+                            <SessionModeToggle mode={sessionMode} onChange={setSessionMode} />
+                            {isOnline && (
+                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium animate-fade-in">
+                                    Sesi online via video call — harga tanpa diskon
+                                </p>
+                            )}
+                            {!isOnline && (regulerPkg.discount_percentage > 0 || premiumPkg.discount_percentage > 0 || vipPkg.discount_percentage > 0) && (
+                                <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-4 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
+                                    <span className="text-2xl animate-pulse">🎉</span>
+                                    <span className="text-gold-700 dark:text-gold-300 font-bold text-lg tracking-wide uppercase">Promo Layanan Terbatas: <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-600 to-yellow-600 dark:from-gold-400 dark:to-yellow-400">Diskon s/d {Math.max(regulerPkg.discount_percentage, premiumPkg.discount_percentage, vipPkg.discount_percentage)}%{(() => { const dates = [regulerPkg.discount_ends_at, premiumPkg.discount_ends_at, vipPkg.discount_ends_at].filter(Boolean); const latest = dates.length > 0 ? dates.sort().pop() : null; return latest ? ` hingga ${formatDate(latest)}` : ''; })()}</span></span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
                         {/* Reguler Package */}
                         <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 group relative flex flex-col h-full w-full">
-                            {/* Promo ribbon top-right */}
-                            <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
-                                <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{regulerPkg.discount_percentage}%<br />OFF</span>
+                            {/* Promo ribbon top-right - only show in offline mode with active discount */}
+                            {hasActiveDiscount(regulerPkg) && (
+                                <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
+                                    <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
+                                        <span className="text-white font-black text-[9px] text-center leading-none uppercase">{regulerPkg.discount_percentage}%<br />OFF</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-200 dark:border-gray-700 pb-6 mt-2 relative z-10">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">REGULER</h3>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Stabilisasi Mental dan Emosi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {regulerPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(regulerPkg) && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(regulerPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
-                                        {formatPrice(regulerPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(regulerPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-500 text-sm">/ sesi</p>
+                                <p className="text-gray-500 text-sm">/ sesi {isOnline ? '(online)' : ''}</p>
 
-                                {/* Promo labels */}
-                                <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    {regulerPkg.discount_ends_at && (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                            ⏳ s/d {formatDate(regulerPkg.discount_ends_at)}
-                                        </span>
-                                    )}
-                                </div>
+                                {/* Promo labels - only in offline mode */}
+                                {!isOnline && (
+                                    <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                                        {regulerPkg.discount_ends_at && regulerPkg.discount_percentage > 0 && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                                ⏳ s/d {formatDate(regulerPkg.discount_ends_at)}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                                 <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Untuk kondisi yang Anda alami sehari-hari.</p>
@@ -516,36 +538,40 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                                 Direkomendasikan
                             </div>
 
-                            {/* Promo ribbon top-right */}
-                            <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
-                                <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{premiumPkg.discount_percentage}%<br />OFF</span>
+                            {/* Promo ribbon top-right - only in offline mode */}
+                            {hasActiveDiscount(premiumPkg) && (
+                                <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center">
+                                    <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
+                                        <span className="text-white font-black text-[9px] text-center leading-none uppercase">{premiumPkg.discount_percentage}%<br />OFF</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-200 dark:border-gray-700 pb-6 mt-2 relative z-10">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">PREMIUM</h3>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Optimalisasi Potensi dan Performa</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {premiumPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(premiumPkg) && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(premiumPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">
-                                        {formatPrice(premiumPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(premiumPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-500 text-sm">/ sesi</p>
+                                <p className="text-gray-500 text-sm">/ sesi {isOnline ? '(online)' : ''}</p>
 
-                                {/* Promo labels */}
-                                <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    {premiumPkg.discount_ends_at && (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                            ⏳ s/d {formatDate(premiumPkg.discount_ends_at)}
-                                        </span>
-                                    )}
-                                </div>
+                                {/* Promo labels - only in offline mode */}
+                                {!isOnline && (
+                                    <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                                        {premiumPkg.discount_ends_at && premiumPkg.discount_percentage > 0 && (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                                ⏳ s/d {formatDate(premiumPkg.discount_ends_at)}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                                 <p className="text-gray-700 dark:text-gray-300 mt-4 font-light text-sm italic">Untuk Anda yang ingin meningkat, bukan sekadar pulih.</p>
@@ -580,36 +606,40 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
 
                         {/* VIP Package */}
                         <div className="relative bg-gray-900/90 dark:bg-black/40 backdrop-blur-xl border border-gray-700/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 group flex flex-col h-full w-full">
-                            {/* Promo ribbon top-right */}
-                            <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
-                                <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
-                                    <span className="text-white font-black text-[9px] text-center leading-none uppercase">{vipPkg.discount_percentage}%<br />OFF</span>
+                            {/* Promo ribbon top-right - only in offline mode */}
+                            {hasActiveDiscount(vipPkg) && (
+                                <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
+                                    <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
+                                        <span className="text-white font-black text-[9px] text-center leading-none uppercase">{vipPkg.discount_percentage}%<br />OFF</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="mb-6 flex-grow-0 border-b border-gray-700 pb-6 relative z-10">
                                 <h3 className="text-2xl font-bold text-white mb-2">VIP</h3>
                                 <p className="text-gold-400 font-semibold mb-4 text-sm">Psikosomatis, Medis Kronis, dan Halusinasi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {vipPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(vipPkg) && (
                                         <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(vipPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
-                                        {formatPrice(vipPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(vipPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-400 text-sm">/ sesi</p>
+                                <p className="text-gray-400 text-sm">/ sesi {isOnline ? '(online)' : ''}</p>
 
-                                {/* Promo labels */}
-                                <div className="flex flex-wrap items-center gap-1.5 mt-3">
-                                    {vipPkg.discount_ends_at && (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
-                                            ⏳ s/d {formatDate(vipPkg.discount_ends_at)}
-                                        </span>
-                                    )}
-                                </div>
+                                {/* Promo labels - only in offline mode */}
+                                {!isOnline && (
+                                    <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                                        {vipPkg.discount_ends_at && vipPkg.discount_percentage > 0 && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
+                                                ⏳ s/d {formatDate(vipPkg.discount_ends_at)}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
 
                                 <p className="text-[9px] font-bold text-gray-500 mt-3 uppercase tracking-widest">*Harga belum termasuk PPN 11%</p>
                                 <p className="text-gray-300 mt-4 font-light text-sm italic">Untuk kondisi yang memerlukan pendekatan terfokus.</p>

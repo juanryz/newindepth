@@ -57,29 +57,39 @@ function PackageCard({ pkg, onEdit, onDelete, canEdit, canDelete }) {
                     </span>
                 </div>
 
-                <div className="space-y-1">
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-gray-900 dark:text-white">
-                            {formatRp(pkg.current_price)}
-                        </span>
-                        {hasDiscount && isDiscountActive && (
-                            <span className="text-sm text-gray-400 line-through font-bold">
-                                {formatRp(pkg.base_price)}
+                <div className="space-y-2">
+                    <div>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Offline</p>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-black text-gray-900 dark:text-white">
+                                {formatRp(pkg.current_price)}
                             </span>
-                        )}
-                    </div>
-                    {hasDiscount && isDiscountActive && (
-                        <div className="flex items-center gap-1.5">
-                            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 text-[10px] font-black rounded-lg">
-                                SAVE {pkg.discount_percentage}%
-                            </span>
-                            {pkg.discount_ends_at && (
-                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
-                                    UNTIL {new Date(pkg.discount_ends_at).toLocaleDateString('id-ID')}
+                            {hasDiscount && isDiscountActive && (
+                                <span className="text-sm text-gray-400 line-through font-bold">
+                                    {formatRp(pkg.base_price)}
                                 </span>
                             )}
                         </div>
-                    )}
+                        {hasDiscount && isDiscountActive && (
+                            <div className="flex items-center gap-1.5">
+                                <span className="px-1.5 py-0.5 bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 text-[10px] font-black rounded-lg">
+                                    SAVE {pkg.discount_percentage}%
+                                </span>
+                                {pkg.discount_ends_at && (
+                                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
+                                        UNTIL {new Date(pkg.discount_ends_at).toLocaleDateString('id-ID')}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div className="pt-1 border-t border-gray-100 dark:border-gray-700">
+                        <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">Online</p>
+                        <span className="text-lg font-black text-blue-600 dark:text-blue-400">
+                            {formatRp(pkg.online_current_price)}
+                        </span>
+                        <span className="text-[9px] text-gray-400 font-bold ml-1">tanpa diskon</span>
+                    </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
@@ -148,6 +158,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
         name: '',
         description: '',
         base_price: '',
+        online_base_price: '',
         discount_percentage: 0,
         discount_ends_at: '',
         is_active: true,
@@ -211,6 +222,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
             name: '',
             description: '',
             base_price: '',
+            online_base_price: '',
             discount_percentage: 0,
             discount_ends_at: '',
             is_active: true,
@@ -232,6 +244,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
             name: p.name,
             description: p.description || '',
             base_price: p.base_price,
+            online_base_price: p.online_base_price || '',
             discount_percentage: p.discount_percentage,
             discount_ends_at: p.discount_ends_at ? p.discount_ends_at.split('T')[0].split(' ')[0] : '',
             is_active: !!p.is_active,
@@ -468,7 +481,7 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Harga Dasar (Rp)</label>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Harga Offline (Rp)</label>
                                 <input
                                     type="number"
                                     value={packageForm.data.base_price}
@@ -476,6 +489,19 @@ export default function PricingIndex({ vouchers = [], packages = [] }) {
                                     className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-black focus:ring-2 focus:ring-indigo-500/20"
                                     required
                                 />
+                                <p className="text-[9px] text-gray-400 mt-1 font-bold">Harga dasar sesi tatap muka (offline). Diskon berlaku di harga ini.</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2">Harga Online (Rp)</label>
+                                <input
+                                    type="number"
+                                    value={packageForm.data.online_base_price}
+                                    onChange={e => packageForm.setData('online_base_price', e.target.value)}
+                                    className="w-full bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50 text-gray-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-black focus:ring-2 focus:ring-blue-500/20"
+                                    placeholder="Kosong = sama dengan harga offline"
+                                />
+                                <p className="text-[9px] text-blue-400 mt-1 font-bold">Harga sesi online. Tanpa diskon. Kosongkan jika sama dengan harga offline dasar.</p>
                             </div>
 
                             <div className="flex items-center gap-2 pt-6">
