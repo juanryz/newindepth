@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import LiquidBackground from '@/Components/LiquidBackground';
 import PageLoader from '@/Components/PageLoader';
+import SessionModeToggle from '@/Components/SessionModeToggle';
 
 const Footer = lazy(() => import('@/Components/Footer'));
 const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
@@ -49,6 +50,13 @@ export default function Layanan({ auth, packages = [] }) {
     const regulerPkg = getPackage('reguler');
     const premiumPkg = getPackage('premium');
     const vipPkg = getPackage('vip');
+
+    const [sessionMode, setSessionMode] = useState('offline');
+    const isOnline = sessionMode === 'online';
+
+    // Get display price based on session mode
+    const getDisplayPrice = (pkg) => isOnline ? pkg.online_current_price : pkg.current_price;
+    const hasActiveDiscount = (pkg) => !isOnline && pkg.discount_percentage > 0;
 
     const testimonials = [
         {
@@ -262,8 +270,16 @@ export default function Layanan({ auth, packages = [] }) {
                         <p className="mt-2 text-3xl leading-8 font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
                             Pilih Layanan Anda
                         </p>
-                        {(regulerPkg.discount_percentage > 0 || premiumPkg.discount_percentage > 0 || vipPkg.discount_percentage > 0) && (
-                            <div className="mt-8 flex flex-col items-center">
+
+                        {/* Session Mode Toggle */}
+                        <div className="mt-8 flex flex-col items-center gap-4">
+                            <SessionModeToggle mode={sessionMode} onChange={setSessionMode} />
+                            {isOnline && (
+                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                                    Sesi online via video call — harga tanpa diskon
+                                </p>
+                            )}
+                            {!isOnline && (regulerPkg.discount_percentage > 0 || premiumPkg.discount_percentage > 0 || vipPkg.discount_percentage > 0) && (
                                 <div className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500/10 to-yellow-500/10 dark:from-gold-500/20 dark:to-yellow-500/20 border border-gold-500/30 rounded-full px-6 py-3 shadow-[0_4px_20px_rgba(208,170,33,0.1)]">
                                     <span className="text-xl">🎉</span>
                                     <span className="text-gold-700 dark:text-gold-300 font-bold tracking-wide">
@@ -278,14 +294,14 @@ export default function Layanan({ auth, packages = [] }) {
                                         </span>
                                     </span>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
                         {/* ── REGULER ── */}
                         <motion.div {...fadeUp(0)} className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/60 dark:border-gray-800/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative flex flex-col h-full">
-                            {regulerPkg.discount_percentage > 0 && (
+                            {hasActiveDiscount(regulerPkg) && (
                                 <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
                                     <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
                                         <span className="text-white font-black text-[9px] text-center leading-none uppercase">{regulerPkg.discount_percentage}%<br />OFF</span>
@@ -301,17 +317,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1 uppercase tracking-tight">Hipnoterapi Reguler</h2>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Stabilisasi Mental dan Emosi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {regulerPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(regulerPkg) && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(regulerPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-gray-900 dark:text-white">
-                                        {formatPrice(regulerPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(regulerPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-500 text-sm">/ sesi · ±2 jam</p>
-                                {regulerPkg.discount_percentage > 0 && regulerPkg.discount_ends_at && (
+                                <p className="text-gray-500 text-sm">/ sesi · ±2 jam {isOnline ? '(online)' : ''}</p>
+                                {!isOnline && regulerPkg.discount_percentage > 0 && regulerPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
                                         ⏳ Diskon {regulerPkg.discount_percentage}% s/d {formatDate(regulerPkg.discount_ends_at)}
                                     </span>
@@ -370,7 +386,7 @@ export default function Layanan({ auth, packages = [] }) {
                                 Direkomendasikan
                             </div>
 
-                            {premiumPkg.discount_percentage > 0 && (
+                            {hasActiveDiscount(premiumPkg) && (
                                 <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
                                     <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
                                         <span className="text-white font-black text-[9px] text-center leading-none uppercase">{premiumPkg.discount_percentage}%<br />OFF</span>
@@ -386,17 +402,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1 uppercase tracking-tight">Hipnoterapi Premium</h2>
                                 <p className="text-gold-600 dark:text-gold-400 font-semibold mb-4 text-sm">Optimalisasi Performa dan Kapasitas Internal</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {premiumPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(premiumPkg) && (
                                         <span className="text-sm font-bold text-gray-400 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(premiumPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-500 to-yellow-500">
-                                        {formatPrice(premiumPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(premiumPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-500 text-sm">/ sesi · ±2 jam</p>
-                                {premiumPkg.discount_percentage > 0 && premiumPkg.discount_ends_at && (
+                                <p className="text-gray-500 text-sm">/ sesi · ±2 jam {isOnline ? '(online)' : ''}</p>
+                                {!isOnline && premiumPkg.discount_percentage > 0 && premiumPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/50 dark:bg-gray-800/50 text-gold-600 dark:text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
                                         ⏳ Diskon {premiumPkg.discount_percentage}% s/d {formatDate(premiumPkg.discount_ends_at)}
                                     </span>
@@ -451,7 +467,7 @@ export default function Layanan({ auth, packages = [] }) {
 
                         {/* ── VIP ── */}
                         <motion.div {...fadeUp(0.2)} className="relative bg-gray-900/90 dark:bg-black/40 backdrop-blur-xl border border-gray-700/50 rounded-[3rem] p-8 shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
-                            {vipPkg.discount_percentage > 0 && (
+                            {hasActiveDiscount(vipPkg) && (
                                 <div className="absolute -top-3 -right-3 w-16 h-16 flex items-center justify-center z-10">
                                     <div className="w-full h-full bg-rose-500 rounded-full flex items-center justify-center shadow-xl shadow-rose-500/40 animate-pulse">
                                         <span className="text-white font-black text-[9px] text-center leading-none uppercase">{vipPkg.discount_percentage}%<br />OFF</span>
@@ -467,17 +483,17 @@ export default function Layanan({ auth, packages = [] }) {
                                 <h2 className="text-2xl font-black text-white mb-1 uppercase tracking-tight">Hipnoterapi VIP</h2>
                                 <p className="text-gold-400 font-semibold mb-4 text-sm">Psikosomatis, Medis Kronis, dan Halusinasi</p>
                                 <div className="flex flex-col gap-0.5 mb-1">
-                                    {vipPkg.discount_percentage > 0 && (
+                                    {hasActiveDiscount(vipPkg) && (
                                         <span className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2">
                                             {formatPrice(vipPkg.base_price)}
                                         </span>
                                     )}
                                     <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
-                                        {formatPrice(vipPkg.current_price)}
+                                        {formatPrice(getDisplayPrice(vipPkg))}
                                     </span>
                                 </div>
-                                <p className="text-gray-400 text-sm">/ sesi · ±2 jam</p>
-                                {vipPkg.discount_percentage > 0 && vipPkg.discount_ends_at && (
+                                <p className="text-gray-400 text-sm">/ sesi · ±2 jam {isOnline ? '(online)' : ''}</p>
+                                {!isOnline && vipPkg.discount_percentage > 0 && vipPkg.discount_ends_at && (
                                     <span className="inline-flex items-center gap-1 mt-3 px-2.5 py-1 bg-white/10 text-gold-400 text-[9px] font-bold uppercase tracking-widest rounded-full border border-gold-500/30">
                                         ⏳ Diskon {vipPkg.discount_percentage}% s/d {formatDate(vipPkg.discount_ends_at)}
                                     </span>

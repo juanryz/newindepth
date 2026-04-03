@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import React, { Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import LiquidBackground from '@/Components/LiquidBackground';
 import PageLoader from '@/Components/PageLoader';
+import SessionModeToggle from '@/Components/SessionModeToggle';
 
 const Footer = lazy(() => import('@/Components/Footer'));
 const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
@@ -27,9 +28,15 @@ export default function LayananVip({ auth, packages = [] }) {
     const vipPkg = packages.find((p) => p.slug === 'vip') || {
         base_price: 0,
         current_price: 0,
+        online_current_price: 0,
         discount_percentage: 0,
         discount_ends_at: null,
     };
+
+    const [sessionMode, setSessionMode] = useState('offline');
+    const isOnline = sessionMode === 'online';
+    const displayPrice = isOnline ? vipPkg.online_current_price : vipPkg.current_price;
+    const hasDiscount = !isOnline && vipPkg.discount_percentage > 0;
 
     const formatPrice = (price) =>
         new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })
@@ -403,25 +410,36 @@ export default function LayananVip({ auth, packages = [] }) {
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <motion.div {...fadeUp(0)}>
                         <h2 className="text-base font-semibold text-gold-400 tracking-wide uppercase mb-2">Biaya</h2>
-                        <h3 className="text-3xl font-black text-white mb-8">Durasi dan Investasi</h3>
+                        <h3 className="text-3xl font-black text-white mb-6">Durasi dan Investasi</h3>
+
+                        {/* Session Mode Toggle */}
+                        <div className="flex justify-center mb-8">
+                            <SessionModeToggle mode={sessionMode} onChange={setSessionMode} />
+                        </div>
+                        {isOnline && (
+                            <p className="text-sm text-blue-400 font-medium text-center mb-6">
+                                Sesi online via video call — harga tanpa diskon
+                            </p>
+                        )}
+
                         <div className="bg-black/60 border border-gray-700/50 rounded-[2.5rem] p-10 shadow-2xl backdrop-blur-xl w-full">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="text-center md:text-left">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Durasi</p>
                                     <p className="text-3xl font-black text-white">±2 jam</p>
-                                    <p className="text-gray-400 font-medium mt-1">1 sesi</p>
+                                    <p className="text-gray-400 font-medium mt-1">1 sesi {isOnline ? '(online)' : ''}</p>
                                 </div>
                                 <div className="text-center md:text-left">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Investasi</p>
-                                    {vipPkg.discount_percentage > 0 && (
+                                    {hasDiscount && (
                                         <p className="text-sm font-bold text-gray-500 line-through decoration-rose-500/50 decoration-2 mb-1">
                                             {formatPrice(vipPkg.base_price)}
                                         </p>
                                     )}
                                     <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">
-                                        {formatPrice(vipPkg.current_price || vipPkg.base_price)}
+                                        {formatPrice(displayPrice || vipPkg.base_price)}
                                     </p>
-                                    {vipPkg.discount_percentage > 0 && vipPkg.discount_ends_at && (
+                                    {hasDiscount && vipPkg.discount_ends_at && (
                                         <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-rose-500/10 text-rose-400 text-xs font-bold uppercase tracking-widest rounded-full border border-rose-500/20">
                                             Diskon {vipPkg.discount_percentage}% hingga {formatDate(vipPkg.discount_ends_at)}
                                         </span>

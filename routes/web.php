@@ -377,6 +377,16 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 
 
 
+        // 8. Packages table — add online_base_price column
+        if ($schema::hasTable('packages') && !$schema::hasColumn('packages', 'online_base_price')) {
+            try {
+                \Illuminate\Support\Facades\DB::statement("ALTER TABLE packages ADD COLUMN online_base_price BIGINT NULL AFTER base_price");
+                $output[] = "✅ Added packages.online_base_price";
+            } catch (\Throwable $e) {
+                $output[] = "❌ Failed packages.online_base_price: " . $e->getMessage();
+            }
+        }
+
         return '<pre style="background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto;">' . implode("\n", $output) . '</pre>';
     });
 
