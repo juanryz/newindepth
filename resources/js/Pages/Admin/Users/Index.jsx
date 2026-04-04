@@ -20,6 +20,7 @@ import {
     AlertCircle,
     Building2,
     ChevronLeft,
+    FileText,
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -148,6 +149,12 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
     const handleDeletePermission = (id) => {
         if (confirm('Apakah Anda yakin ingin menghapus izin akses ini?')) {
             router.delete(route('admin.permissions.destroy', id));
+        }
+    };
+
+    const handleGroupDelete = (id) => {
+        if (confirm('Hapus grup ini? Seluruh data anggota dan booking di dalamnya akan dihapus.')) {
+            router.delete(route('admin.group-bookings.destroy', id));
         }
     };
 
@@ -595,13 +602,29 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.cls}`}>{st.label}</span>
                                                                         </td>
                                                                         <td className="px-6 py-4">
-                                                                            <Link
-                                                                                href={route('admin.group-bookings.show', g.id)}
-                                                                                className="inline-flex items-center gap-1.5 p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
-                                                                                title="Detail"
-                                                                            >
-                                                                                <Eye className="w-4 h-4" />
-                                                                            </Link>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Link
+                                                                                    href={route('admin.group-bookings.show', g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Detail"
+                                                                                >
+                                                                                    <Eye className="w-4 h-4" />
+                                                                                </Link>
+                                                                                <Link
+                                                                                    href={route('admin.group-bookings.edit', g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Edit"
+                                                                                >
+                                                                                    <FileText className="w-4 h-4" />
+                                                                                </Link>
+                                                                                <button
+                                                                                    onClick={() => handleGroupDelete(g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Hapus"
+                                                                                >
+                                                                                    <Trash2 className="w-4 h-4" />
+                                                                                </button>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 );

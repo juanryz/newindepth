@@ -8,20 +8,26 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 
-export default function GroupBookingsCreate() {
+export default function GroupBookingsCreate({ group }) {
+    const isEditing = !!group;
+
     const { data, setData, post, processing, errors } = useForm({
-        group_name:       '',
-        institution_name: '',
-        address:          '',
-        pic_name:         '',
-        pic_phone:        '',
-        pic_email:        '',
-        notes:            '',
+        group_name:       group?.group_name || '',
+        institution_name: group?.institution_name || '',
+        address:          group?.address || '',
+        pic_name:         group?.pic_name || '',
+        pic_phone:        group?.pic_phone || '',
+        pic_email:        group?.pic_email || '',
+        notes:            group?.notes || '',
     });
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('admin.group-bookings.store'));
+        if (isEditing) {
+            post(route('admin.group-bookings.update', group.id), { _method: 'PUT' });
+        } else {
+            post(route('admin.group-bookings.store'));
+        }
     };
 
     const fields = [
@@ -37,23 +43,23 @@ export default function GroupBookingsCreate() {
             header={
                 <div className="flex items-center gap-4">
                     <Link
-                        href={route('admin.group-bookings.index')}
+                        href={route('admin.users.index', { tab: 'groups' })}
                         className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </Link>
                     <div>
                         <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                            Buat Grup Baru
+                            {isEditing ? 'Edit Data Grup' : 'Buat Grup Baru'}
                         </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
-                            Isi data grup/institusi — metode bayar diatur di halaman detail
+                            {isEditing ? 'Perbarui informasi dasar grup/institusi' : 'Isi data grup/institusi — metode bayar diatur di halaman detail'}
                         </p>
                     </div>
                 </div>
             }
         >
-            <Head title="Buat Grup Baru" />
+            <Head title={isEditing ? 'Edit Grup' : 'Buat Grup Baru'} />
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
                 <div className="max-w-2xl mx-auto sm:px-6 lg:px-8">
@@ -141,7 +147,7 @@ export default function GroupBookingsCreate() {
 
                         {/* Submit */}
                         <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-xl border border-white dark:border-gray-800 sticky bottom-8">
-                            <Link href={route('admin.group-bookings.index')} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors px-6">
+                            <Link href={route('admin.users.index', { tab: 'groups' })} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors px-6">
                                 Batal
                             </Link>
                             <button
@@ -150,7 +156,7 @@ export default function GroupBookingsCreate() {
                                 className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 <Save className="w-4 h-4" />
-                                Buat Grup &amp; Lanjutkan
+                                {isEditing ? 'Simpan Perubahan' : 'Buat Grup & Lanjutkan'}
                             </button>
                         </div>
                     </form>

@@ -101,7 +101,10 @@ export default function GroupBookingsShow({ group, invoiceData, schedules = [], 
     // ─── Remove Member ─────────────────────────────────────────────────────────
     const handleRemoveMember = (memberId) => {
         if (!confirm('Hapus anggota ini dari grup? Booking terkait juga akan dibatalkan.')) return;
-        router.delete(route('admin.group-bookings.members.remove', { groupBooking: group.id, member: memberId }));
+        router.delete(route('admin.group-bookings.members.remove', { 
+            groupBooking: group.id, 
+            group_booking_member: memberId 
+        }));
     };
 
     // ─── Schedule for Group ───────────────────────────────────────────────────
@@ -539,43 +542,38 @@ export default function GroupBookingsShow({ group, invoiceData, schedules = [], 
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-1.5">
                                                             {/* Lihat detail user */}
                                                             <Link
                                                                 href={route('admin.users.show', member.user_id)}
-                                                                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-colors"
+                                                                className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all outline-none"
                                                                 title="Lihat Detail User"
                                                             >
                                                                 <Eye className="w-4 h-4" />
                                                             </Link>
-                                                            {/* Lengkapi profil */}
-                                                            {!complete && (
-                                                                <Link
-                                                                    href={route('admin.users.edit', member.user_id)}
-                                                                    className="p-2 text-amber-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-xl transition-colors"
-                                                                    title="Lengkapi Profil"
-                                                                >
-                                                                    <UserCheck className="w-4 h-4" />
-                                                                </Link>
-                                                            )}
-                                                            {/* Edit basic info */}
+                                                            
+                                                            {/* Edit profil */}
                                                             <Link
                                                                 href={route('admin.users.edit', member.user_id)}
-                                                                className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-colors"
-                                                                title="Edit User"
+                                                                className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all outline-none"
+                                                                title="Lengkapi/Edit Profil"
                                                             >
                                                                 <Edit2 className="w-4 h-4" />
                                                             </Link>
+
                                                             {/* Hapus dari grup */}
-                                                            {group.payment_status === 'pending' && (
-                                                                <button
-                                                                    onClick={() => handleRemoveMember(member.id)}
-                                                                    className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors"
-                                                                    title="Hapus dari Grup"
-                                                                >
-                                                                    <Trash2 className="w-4 h-4" />
-                                                                </button>
-                                                            )}
+                                                            <button
+                                                                onClick={() => handleRemoveMember(member.id)}
+                                                                disabled={group.payment_status === 'paid'}
+                                                                className={`p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-all outline-none ${
+                                                                    group.payment_status === 'paid'
+                                                                        ? 'opacity-30 cursor-not-allowed text-gray-300'
+                                                                        : 'text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:scale-110 active:scale-95'
+                                                                }`}
+                                                                title={group.payment_status === 'paid' ? 'Tidak bisa hapus anggota dari grup yang sudah lunas' : 'Hapus dari Grup'}
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -104,6 +104,62 @@ class GroupBookingController extends Controller
             ->with('success', 'Grup berhasil dibuat. Tambahkan anggota lalu tentukan metode pembayaran.');
     }
 
+    // ── EDIT (form edit grup) ─────────────────────────────────────────────────
+
+    public function edit(GroupBooking $groupBooking)
+    {
+        return Inertia::render('Admin/GroupBookings/Create', [
+            'group' => $groupBooking,
+        ]);
+    }
+
+    // ── UPDATE (simpan perubahan grup) ────────────────────────────────────────
+
+    public function update(Request $request, GroupBooking $groupBooking)
+    {
+        $request->validate([
+            'group_name'       => 'required|string|max:255',
+            'institution_name' => 'nullable|string|max:255',
+            'address'          => 'nullable|string|max:1000',
+            'pic_name'         => 'required|string|max:255',
+            'pic_phone'        => 'nullable|string|max:20',
+            'pic_email'        => 'nullable|email|max:255',
+            'notes'            => 'nullable|string|max:2000',
+        ]);
+
+        $groupBooking->update([
+            'group_name'       => $request->group_name,
+            'institution_name' => $request->institution_name,
+            'address'          => $request->address,
+            'pic_name'         => $request->pic_name,
+            'pic_phone'        => $request->pic_phone,
+            'pic_email'        => $request->pic_email,
+            'notes'            => $request->notes,
+        ]);
+
+        // If you are coming from the unified User Management tab:
+        return redirect()->route('admin.users.index', ['tab' => 'groups'])
+            ->with('success', 'Data grup berhasil diperbarui.');
+    }
+
+    // ── DESTROY (hapus grup) ──────────────────────────────────────────────────
+
+    public function destroy(GroupBooking $groupBooking)
+    {
+        return DB::transaction(function () use ($groupBooking) {
+            // Delete associated bookings if any
+            foreach ($groupBooking->members as $member) {
+                if ($member->booking_id) {
+                    Booking::find($member->booking_id)?->delete();
+                }
+            }
+            $groupBooking->delete();
+
+            return redirect()->route('admin.users.index', ['tab' => 'groups'])
+                ->with('success', 'Grup dan seluruh datanya berhasil dihapus.');
+        });
+    }
+
     // ── SHOW (detail grup + daftar anggota) ───────────────────────────────────
 
     public function show(GroupBooking $groupBooking)
@@ -312,21 +368,21 @@ class GroupBookingController extends Controller
 
     // ── REMOVE MEMBER ─────────────────────────────────────────────────────────
 
-    public function removeMember(GroupBooking $groupBooking, GroupBookingMember $member)
+    public function removeMember(GroupBooking $groupBooking, GroupBookingMember $group_booking_member)
     {
         // Hanya bisa hapus jika belum paid
         if ($groupBooking->payment_status === 'paid') {
             return redirect()->back()->with('error', 'Tidak dapat menghapus anggota dari grup yang sudah lunas.');
         }
 
-        DB::transaction(function () use ($groupBooking, $member) {
+        DB::transaction(function () use ($groupBooking, $group_booking_member) {
             // Hapus booking jika ada dan masih pending
-            if ($member->booking && $member->booking->status === 'pending_payment') {
-                $member->booking->transaction()->delete();
-                $member->booking->delete();
+            if ($group_booking_member->booking && $group_booking_member->booking->status === 'pending_payment') {
+                $group_booking_member->booking->transaction()->delete();
+                $group_booking_member->booking->delete();
             }
 
-            $member->delete();
+            $group_booking_member->delete();
             $groupBooking->recalculateTotal();
         });
 
