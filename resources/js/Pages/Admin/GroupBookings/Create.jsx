@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import {
     ChevronLeft, Save, Users, Phone, Mail, MapPin, FileText, Lock, Eye, EyeOff,
 } from 'lucide-react';
@@ -26,7 +26,10 @@ export default function GroupBookingsCreate({ group }) {
     const submit = (e) => {
         e.preventDefault();
         if (isEditing) {
-            post(route('admin.group-bookings.update', group.id), { _method: 'PUT' });
+            router.post(route('admin.group-bookings.update', group.id), {
+                ...data,
+                _method: 'PUT',
+            });
         } else {
             post(route('admin.group-bookings.store'));
         }

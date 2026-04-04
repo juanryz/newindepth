@@ -65,16 +65,19 @@ class OrderManagementController extends Controller
                 return $data;
             })->toArray();
 
-        // Transactions
+        // Individual Transactions — exclude bookings that belong to a group
         $transactions = Transaction::with([
             'user',
             'validatedBy',
             'transactionable' => function (\Illuminate\Database\Eloquent\Relations\MorphTo $morphTo) {
                 $morphTo->morphWith([
-                    \App\Models\Booking::class => ['therapist', 'schedule', 'userVoucher.voucher', 'groupMember.groupBooking.schedule'],
+                    \App\Models\Booking::class => ['therapist', 'schedule', 'userVoucher.voucher', 'groupBookingMember.groupBooking.schedule'],
                 ]);
             }
         ])
+            ->whereDoesntHaveMorph('transactionable', [\App\Models\Booking::class], function($q) {
+                $q->has('groupBookingMember'); // Only show true individual bookings
+            })
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($tx) {
@@ -85,7 +88,7 @@ class OrderManagementController extends Controller
             })->toArray();
 
         // Group Bookings — shown as 1 row per group (institution name + member count)
-        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.schedule.therapist'])
+        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.schedule.therapist', 'members.booking.transaction.validatedBy'])
             ->withCount('members')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -117,6 +120,13 @@ class OrderManagementController extends Controller
                         'name' => $m->user?->name ?? 'Anggota',
                         'package_type' => $m->package_type,
                         'price' => $m->price,
+                        'transaction' => $m->booking?->transaction ? [
+                            'id' => $m->booking->transaction->id,
+                            'status' => $m->booking->transaction->status,
+                            'invoice_number' => $m->booking->transaction->invoice_number,
+                            'amount' => $m->booking->transaction->amount,
+                            'paid_at' => $m->booking->transaction->paid_at,
+                        ] : null,
                         'schedule' => ($m->booking && $m->booking->schedule) ? [
                             'date' => $m->booking->schedule->date,
                             'start_time' => $m->booking->schedule->start_time,

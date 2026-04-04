@@ -191,6 +191,7 @@ class GroupBookingController extends Controller
             'schedule.therapist',
             'members.user',
             'members.booking.schedule.therapist',
+            'members.booking.transaction.validatedBy',
         ]);
 
         $groupBooking->members->each(function ($m) {

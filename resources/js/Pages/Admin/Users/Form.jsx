@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import {
     ChevronLeft, Save, User, Mail, Phone, Lock, Shield, AlertCircle,
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
@@ -184,7 +184,14 @@ export default function UsersForm({
     const submit = (e) => {
         e.preventDefault();
         if (isEditing) {
-            post(route('admin.users.update', userModel.id), { forceFormData: true, _method: 'PUT' });
+            // Correct way to handle file uploads with PUT in Laravel/Inertia
+            router.post(route('admin.users.update', userModel.id), {
+                ...data,
+                _method: 'PUT',
+            }, {
+                forceFormData: true,
+                onSuccess: () => {},
+            });
         } else {
             post(route('admin.users.store'));
         }
@@ -730,15 +737,17 @@ export default function UsersForm({
                                 <div className="space-y-4">
                                     <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Hak Akses (Roles)</InputLabel>
                                     <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-800 space-y-3">
-                                        {roles.map((role) => (
-                                            <label key={role.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.roles.includes(role.name) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 text-gray-500 hover:border-indigo-200'}`}>
-                                                <input type="checkbox" className="hidden" value={role.name} checked={data.roles.includes(role.name)} onChange={handleRoleChange} />
-                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${data.roles.includes(role.name) ? 'border-white bg-white' : 'border-gray-300'}`}>
-                                                    {data.roles.includes(role.name) && <div className="w-2 h-2 rounded-full bg-indigo-600" />}
+                                        {roles.filter(r => r.name === 'patient').map((role) => (
+                                            <label key={role.id} className="flex items-center gap-3 p-3 rounded-xl border-2 bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20 cursor-default">
+                                                <div className="w-4 h-4 rounded-full border-2 border-white bg-white flex items-center justify-center">
+                                                    <div className="w-2 h-2 rounded-full bg-indigo-600" />
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{role.name.replace(/_/g, ' ')}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Pasien (Patient)</span>
                                             </label>
                                         ))}
+                                        <p className="text-[9px] text-gray-400 font-medium italic mt-2 px-2">
+                                            Role otomatis diset sebagai Pasien. Untuk mengubah ke role staf (Admin/Terapis), silakan hubungi tim IT.
+                                        </p>
                                     </div>
                                     <InputError message={errors.roles} className="mt-2" />
                                 </div>

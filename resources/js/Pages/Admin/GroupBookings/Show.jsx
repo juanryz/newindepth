@@ -6,7 +6,9 @@ import {
     FileText, Trash2, CheckCircle, Clock,
     AlertTriangle, User, Calendar, Edit2,
     AlertCircle, ChevronRight, Eye,
+    CheckCircle2, CreditCard,
 } from 'lucide-react';
+import { InvoiceModal } from '@/Components/InvoiceModal';
 
 function ProfileCompletionBadge({ completion }) {
     if (!completion) return <span className="text-[10px] text-gray-400">—</span>;
@@ -65,6 +67,9 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
         : '-';
     const formatTime = (t) => t ? String(t).substring(0, 5) : '-';
 
+    const [selectedInvoice, setSelectedInvoice] = React.useState(null);
+    const [isValidating, setIsValidating] = React.useState(null);
+
     const memberCount = group.members?.length ?? 0;
 
     // ── Remove Member ──────────────────────────────────────────────────────────
@@ -94,6 +99,19 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
     const handleSaveSchedule = (e) => {
         e.preventDefault();
         postSched(route('admin.group-bookings.schedule.update', group.id));
+    };
+
+    const handleValidate = (txId) => {
+        if (!confirm('Validasi pembayaran ini?')) return;
+        setIsValidating(txId);
+        router.post(route('admin.transactions.validate', txId), {}, {
+            onFinish: () => setIsValidating(null),
+        });
+    };
+
+    const handleReject = (txId) => {
+        if (!confirm('Tolak pembayaran ini?')) return;
+        router.post(route('admin.transactions.reject', txId));
     };
 
     return (
@@ -311,7 +329,7 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
-                                            {['#', 'Nama & Email', 'Kelengkapan Profil', 'Status Booking', 'Aksi'].map((h) => (
+                                            {['#', 'Nama & Email', 'Kelengkapan Profil', 'Status Booking', 'Pembayaran', 'Aksi'].map((h) => (
                                                 <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4">{h}</th>
                                             ))}
                                         </tr>
@@ -349,6 +367,48 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
+                                                        {member.booking?.transaction ? (
+                                                            <div className="flex flex-col gap-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
+                                                                        member.booking.transaction.status === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                        member.booking.transaction.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                                        'bg-rose-50 text-rose-600 border-rose-100'
+                                                                    }`}>
+                                                                        {member.booking.transaction.status === 'paid' ? 'Valid' :
+                                                                         member.booking.transaction.status === 'pending' ? 'Menunggu' : 'Gagal'}
+                                                                    </span>
+                                                                    {member.booking.transaction.payment_proof && (
+                                                                        <a href={`/storage/${member.booking.transaction.payment_proof}`} target="_blank" className="p-1 bg-gray-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors" title="Lihat Bukti">
+                                                                            <FileText className="w-3 h-3" />
+                                                                        </a>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Validation Actions if pending */}
+                                                                {member.booking.transaction.status === 'pending' && (
+                                                                    <div className="flex gap-1">
+                                                                        <button
+                                                                            onClick={() => handleValidate(member.booking.transaction.id)}
+                                                                            disabled={isValidating === member.booking.transaction.id}
+                                                                            className="px-2 py-1 bg-emerald-600 text-white text-[8px] font-black uppercase rounded hover:bg-emerald-700 transition-all disabled:opacity-50"
+                                                                        >
+                                                                            Validasi
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleReject(member.booking.transaction.id)}
+                                                                            className="px-2 py-1 bg-rose-600 text-white text-[8px] font-black uppercase rounded hover:bg-rose-700 transition-all"
+                                                                        >
+                                                                            Tolak
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[10px] text-gray-400">—</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4">
                                                         <div className="flex items-center gap-1.5">
                                                             <Link
                                                                 href={route('admin.users.show', member.user_id)}
@@ -364,6 +424,32 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                                             >
                                                                 <Edit2 className="w-4 h-4" />
                                                             </Link>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const tx = member.booking?.transaction;
+                                                                    if (!tx) return;
+                                                                    setSelectedInvoice({
+                                                                        ...tx,
+                                                                        patient_name: member.user?.name,
+                                                                        patient_email: member.user?.email,
+                                                                        patient_phone: member.user?.phone,
+                                                                        booking_code: member.booking?.booking_code,
+                                                                        package_name: member.package_type,
+                                                                        session_type: member.booking?.session_type ?? 'offline',
+                                                                        schedule: member.booking?.schedule ? {
+                                                                            date: member.booking.schedule.date,
+                                                                            start_time: member.booking.schedule.start_time,
+                                                                            therapist: member.booking.schedule.therapist?.name ?? 'InDepth'
+                                                                        } : null,
+                                                                        group_name: group.group_name,
+                                                                    });
+                                                                }}
+                                                                className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all disabled:opacity-40"
+                                                                title="Lihat Invoice"
+                                                                disabled={!member.booking?.transaction}
+                                                            >
+                                                                <FileText className="w-4 h-4" />
+                                                            </button>
                                                             <button
                                                                 onClick={() => handleRemoveMember(member.id)}
                                                                 className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
@@ -383,6 +469,16 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                     </div>
                 </div>
             </div>
+
+            {/* Invoice Modal */}
+            {selectedInvoice && (
+                <InvoiceModal
+                    invoice={selectedInvoice}
+                    type="individual"
+                    onClose={() => setSelectedInvoice(null)}
+                    bankAccounts={usePage().props.clinicInfo?.bankAccounts ?? []}
+                />
+            )}
         </AuthenticatedLayout>
     );
 }

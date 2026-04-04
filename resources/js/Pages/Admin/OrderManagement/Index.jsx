@@ -203,7 +203,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                 therapist: booking.therapist?.name || booking.schedule?.therapist?.name || 'InDepth'
             } : null,
             // Group details if any
-            group_name: isBooking && booking?.group_member?.group_booking ? booking.group_member.group_booking.group_name : null,
+            group_name: isBooking && booking?.group_booking_member?.group_booking ? booking.group_booking_member.group_booking.group_name : null,
         };
 
         setInvoiceData(data);
@@ -1101,6 +1101,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                             <th className="px-6 py-5">PIC & Invoice</th>
                                                             <th className="px-6 py-5 text-center">Anggota</th>
                                                             <th className="px-6 py-5">Jadwal & Paket</th>
+                                                            <th className="px-6 py-5">Status Anggota</th>
                                                             <th className="px-6 py-5 text-right">Total & Status</th>
                                                             <th className="px-6 py-5 text-center">Aksi</th>
                                                         </tr>
@@ -1153,6 +1154,28 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         )}
                                                                     </div>
                                                                 </td>
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1.5">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Status Anggota</span>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                            {(() => {
+                                                                                const pending = (grp.members || []).filter(m => m.transaction?.status === 'pending').length;
+                                                                                const paid = (grp.members || []).filter(m => m.transaction?.status === 'paid').length;
+                                                                                const unpaid = (grp.members || []).filter(m => !m.transaction).length;
+
+                                                                                return (
+                                                                                    <>
+                                                                                        {paid > 0 && <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase tracking-widest border border-emerald-100">{paid} Lunas</span>}
+                                                                                        {pending > 0 && <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-md text-[9px] font-black uppercase tracking-widest border border-amber-100 animate-pulse">{pending} Perlu Validasi</span>}
+                                                                                        {unpaid > 0 && <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-md text-[9px] font-black uppercase tracking-widest border border-gray-100">{unpaid} Belum Bayar</span>}
+                                                                                    </>
+                                                                                );
+                                                                            })()}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
                                                                 <td className="px-6 py-5 text-right">
                                                                     <div className="flex flex-col items-end gap-2">
                                                                         <span className="text-base font-black text-gray-900 dark:text-white">
@@ -1187,7 +1210,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                             </tr>
                                                         ))}
                                                         {filteredGroups.length === 0 && (
-                                                            <tr><td colSpan="6" className="px-8 py-20 text-center">
+                                                            <tr><td colSpan="7" className="px-8 py-20 text-center">
                                                                 <Building2 className="w-10 h-10 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
                                                                 <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-xs">Tidak ada data grup yang cocok.</p>
                                                                 {(grpFilterSearch || grpFilterStatus) && (
