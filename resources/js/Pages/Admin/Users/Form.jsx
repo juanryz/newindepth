@@ -20,15 +20,15 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 
 export default function UsersForm({ userModel, roles, userRoles }) {
-    const isEditing = !!userModel.id;
+    const isEditing = !!userModel?.id;
 
     const { data, setData, post, put, processing, errors } = useForm({
-        name: userModel.name || '',
-        email: userModel.email || '',
-        phone: userModel.phone || '',
-        emergency_contact_name: userModel.emergency_contact_name || '',
-        emergency_contact_phone: userModel.emergency_contact_phone || '',
-        emergency_contact_relation: userModel.emergency_contact_relation || '',
+        name: userModel?.name || '',
+        email: userModel?.email || '',
+        phone: userModel?.phone || '',
+        emergency_contact_name: userModel?.emergency_contact_name || '',
+        emergency_contact_phone: userModel?.emergency_contact_phone || '',
+        emergency_contact_relation: userModel?.emergency_contact_relation || '',
         password: '',
         password_confirmation: '',
         roles: userRoles || [],
