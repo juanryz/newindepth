@@ -185,6 +185,14 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                 <ShieldCheck className="w-4 h-4 mr-2" />
                                 Tambah Role Baru
                             </Link>
+                        ) : activeTab === 'groups' ? (
+                            <Link
+                                href={route('admin.group-bookings.create')}
+                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                            >
+                                <Plus className="w-4 h-4 mr-2" />
+                                Buat Grup
+                            </Link>
                         ) : null}
                     </div>
                 </div>
@@ -524,19 +532,6 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                         exit={{ opacity: 0, y: -20 }}
                                         className="space-y-6"
                                     >
-                                        <div className="flex justify-end items-center bg-indigo-50/50 dark:bg-indigo-950/20 p-6 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/30">
-                                            <div className="hidden">
-                                                {/* Disembunyikan sesuai permintaan */}
-                                            </div>
-                                            <Link
-                                                href={route('admin.group-bookings.create')}
-                                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
-                                            >
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Buat Grup
-                                            </Link>
-                                        </div>
-
                                         {/* Search Filter for Groups */}
                                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
                                             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
