@@ -30,14 +30,44 @@ class ScheduleController extends Controller
             $bookingsQuery->where('therapist_id', $user->id);
         }
 
-        $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'in_progress', 'completed'])
+        $rawBookings = $bookingsQuery->whereIn('status', ['confirmed', 'in_progress', 'completed'])
+            ->get();
+
+        // Map schedules that belong to a GroupBooking
+        $scheduleGroupMap = \App\Models\GroupBooking::whereIn('schedule_id', $rawBookings->pluck('schedule_id')->filter())
+            ->withCount('members')
             ->get()
-            ->map(function ($booking) {
-                if ($booking->patient) {
-                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+            ->keyBy('schedule_id');
+
+        $groupedBookings = collect();
+        $processedScheduleIds = [];
+
+        foreach ($rawBookings as $b) {
+            if ($b->schedule_id && $scheduleGroupMap->has($b->schedule_id)) {
+                if (in_array($b->schedule_id, $processedScheduleIds)) {
+                    continue; // Map only 1 booking to represent the whole group
                 }
-                return $booking;
-            })
+                $processedScheduleIds[] = $b->schedule_id;
+                $gb = $scheduleGroupMap->get($b->schedule_id);
+
+                $b->is_group = true;
+                $b->group_booking = $gb;
+                // Hijack the patient object for display purposes
+                $b->patient = (object)[
+                    'id' => null, // Prevents linking to arbitrary individual patient detail
+                    'name' => '🏢 GRUP: ' . $gb->group_name . ' (' . $gb->members_count . ' p.ax)',
+                    'email' => 'Instansi: ' . ($gb->institution_name ?? $gb->group_name),
+                ];
+                $groupedBookings->push($b);
+            } else {
+                if ($b->patient) {
+                    $b->patient_profile_stats = $b->patient->getProfileCompletionStats();
+                }
+                $groupedBookings->push($b);
+            }
+        }
+
+        $bookings = $groupedBookings
             ->sortBy(function ($booking) {
                 return $booking->schedule?->date . ' ' . $booking->schedule?->start_time;
             })
@@ -76,33 +106,57 @@ class ScheduleController extends Controller
 
         $allSchedules = $allSchedulesQuery->get();
 
-        $calendarSchedules = $allSchedules->map(function ($schedule) use ($user, $isAdmin) {
+        $calendarSchedules = collect();
+        $calendarProcessedSchedules = [];
+
+        foreach ($allSchedules as $schedule) {
             $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
             $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
             $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
 
             $myBooking = null;
             if (!$isAdmin) {
-                $myBooking = $schedule->bookings->where('therapist_id', $user->id)->first();
+                $myBooking = $schedule->bookings->firstWhere('therapist_id', $user->id);
             }
 
             $isMine = $isAdmin ? true : ($schedule->therapist_id === $user->id || $myBooking !== null);
 
-            return [
+            // Group Booking Hijack for Calendar
+            $gBooking = \App\Models\GroupBooking::where('schedule_id', $schedule->id)->withCount('members')->first();
+            
+            $title = 'Tugas Sesi';
+            if ($gBooking) {
+                $title = '🏢 GRUP: ' . $gBooking->group_name . ' (' . $gBooking->members_count . ' org)';
+            } elseif ($myBooking && $myBooking->patient) {
+                $title = $myBooking->patient->name;
+            } elseif ($schedule->therapist) {
+                $title = $schedule->therapist->name;
+            }
+
+            // Only pass 1 booking to calendar if it's a group, so we don't duplicate events for N members
+            $calBookings = $schedule->bookings->values();
+            if ($gBooking) {
+                $calBookings = collect([$schedule->bookings->first()]);
+            }
+            if (!$isAdmin) {
+                $calBookings = clone $calBookings->where('therapist_id', $user->id)->values();
+            }
+
+            $calendarSchedules->push([
                 'id' => $schedule->id,
-                'title' => ($myBooking && $myBooking->patient) ? $myBooking->patient->name : ($schedule->therapist ? $schedule->therapist->name : 'Tugas Sesi'),
+                'title' => $title,
                 'start' => $date . 'T' . $startTime,
                 'end' => $date . 'T' . $endTime,
                 'backgroundColor' => null, // Use default or component colors
                 'extendedProps' => [
-                    'bookings' => $isAdmin ? $schedule->bookings->values() : $schedule->bookings->where('therapist_id', $user->id)->values(),
+                    'bookings' => $calBookings,
                     'therapist' => $schedule->therapist,
                     'schedule_type' => $schedule->schedule_type,
                     'status' => $schedule->status,
                     'is_mine' => $isMine,
                 ]
-            ];
-        });
+            ]);
+        }
 
         $mySchedules = [];
         if (!$isAdmin) {
@@ -140,6 +194,45 @@ class ScheduleController extends Controller
                 });
         }
 
+        // --- GROUP BOOKINGS ---
+        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy'])
+            ->withCount('members')
+            ->orderBy('created_at', 'desc');
+
+        if (!$isAdmin) {
+            $groupBookingsQuery->whereHas('schedule', function ($q) use ($user) {
+                $q->where('therapist_id', $user->id);
+            });
+        }
+
+        $groupBookings = $groupBookingsQuery->get()->map(function ($group) {
+            return [
+                'id'               => $group->id,
+                'invoice_number'   => $group->invoice_number,
+                'group_name'       => $group->group_name,
+                'institution_name' => $group->institution_name ?? $group->group_name,
+                'pic_name'         => $group->pic_name,
+                'pic_phone'        => $group->pic_phone,
+                'payment_method'   => $group->payment_method,
+                'payment_status'   => $group->payment_status,
+                'total_amount'     => $group->total_amount,
+                'members_count'    => $group->members_count,
+                'package_type'     => $group->package_type,
+                'session_type'     => $group->session_type,
+                'created_at'       => $group->created_at,
+                'paid_at'          => $group->paid_at,
+                'schedule'         => $group->schedule ? [
+                    'id'         => $group->schedule->id,
+                    'date'       => $group->schedule->date,
+                    'start_time' => $group->schedule->start_time,
+                    'end_time'   => $group->schedule->end_time,
+                    'therapist'  => $group->schedule->therapist ? ['id' => $group->schedule->therapist->id, 'name' => $group->schedule->therapist->name] : null,
+                ] : null,
+                'created_by_name' => $group->createdBy?->name,
+            ];
+        })->toArray();
+        // --- END GROUP BOOKINGS ---
+
         // Load clinic settings with graceful fallback if table doesn't exist yet
         try {
             $clinicSettings = [
@@ -159,6 +252,7 @@ class ScheduleController extends Controller
 
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
+            'groupBookings' => $groupBookings,
             'availableSchedules' => $availableSchedules,
             'calendarSchedules' => $calendarSchedules,
             'mySchedules' => $mySchedules,
@@ -233,7 +327,7 @@ class ScheduleController extends Controller
             }
         }
 
-        $booking->update([
+        Booking::where('schedule_id', $booking->schedule_id)->update([
             'status' => 'in_progress',
             'started_at' => now(),
         ]);
@@ -302,7 +396,7 @@ class ScheduleController extends Controller
             $patientNotes = ($patientNotes ? $patientNotes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.";
         }
 
-        $booking->update([
+        Booking::where('schedule_id', $booking->schedule_id)->update([
             'status' => 'completed',
             'ended_at' => now(),
             'recording_link' => $request->recording_link,
@@ -403,7 +497,7 @@ class ScheduleController extends Controller
             $updateData['completion_outcome'] = $request->completion_outcome;
         }
 
-        $booking->update($updateData);
+        Booking::where('schedule_id', $oldScheduleId)->update($updateData);
 
         // Notify patient
         if ($booking->patient) {
@@ -430,7 +524,7 @@ class ScheduleController extends Controller
             'no_show_reason' => 'nullable|string|max:500',
         ]);
 
-        $booking->update([
+        Booking::where('schedule_id', $booking->schedule_id)->update([
             'status' => 'completed',
             'completion_outcome' => $request->no_show_party === 'patient' ? 'No-Show (Pasien)' : 'No-Show (Praktisi)',
             'therapist_notes' => $request->no_show_reason ?? ($request->no_show_party === 'patient'

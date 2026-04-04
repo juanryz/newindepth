@@ -313,7 +313,7 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
 
                                         {/* Users Table */}
                                         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <div className="overflow-x-auto">
+                                            <div className="w-full overflow-x-auto md:overflow-visible pb-12">
                                                 <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                     <thead>
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
@@ -524,10 +524,9 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                         exit={{ opacity: 0, y: -20 }}
                                         className="space-y-6"
                                     >
-                                        <div className="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-950/20 p-6 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/30">
-                                            <div>
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Daftar Grup & Institusi</h3>
-                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Kelola data grup pemesan layanan</p>
+                                        <div className="flex justify-end items-center bg-indigo-50/50 dark:bg-indigo-950/20 p-6 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/30">
+                                            <div className="hidden">
+                                                {/* Disembunyikan sesuai permintaan */}
                                             </div>
                                             <Link
                                                 href={route('admin.group-bookings.create')}
@@ -564,7 +563,7 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                     <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Belum ada grup</p>
                                                 </div>
                                             ) : (
-                                                <div className="overflow-x-auto">
+                                                <div className="w-full overflow-x-auto md:overflow-visible pb-12">
                                                     <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                         <thead>
                                                             <tr className="bg-gray-50/50 dark:bg-gray-800/50">

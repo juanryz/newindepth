@@ -14,7 +14,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 
 
-export default function TherapistScheduleIndex({ bookings, availableSchedules = [], calendarSchedules = [], mySchedules = [], serverNow, clinicSettings = {}, isAdmin = false }) {
+export default function TherapistScheduleIndex({ bookings, groupBookings = [], availableSchedules = [], calendarSchedules = [], mySchedules = [], serverNow, clinicSettings = {}, isAdmin = false }) {
     const { auth, flash, errors: pageErrors } = usePage().props;
 
     // ── Clinic settings (dynamic from DB, not hardcoded) ──
@@ -38,8 +38,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     // Bulk delete state
     const [selectedScheduleIds, setSelectedScheduleIds] = useState([]);
     const [scheduleFilter, setScheduleFilter] = useState('all'); // all | available | booked
+    const [groupSearchQuery, setGroupSearchQuery] = useState('');
     const [showBulkConfirm, setShowBulkConfirm] = useState(false);
     const [bulkDeleteAll, setBulkDeleteAll] = useState(false);
+
+    const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    const statusConfig = {
+        paid:    { label: 'Lunas', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+        pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+    };
 
     // Server "now" for determining past sessions
     const nowDt = serverNow ? new Date(serverNow.replace(' ', 'T')) : new Date();
@@ -493,6 +501,7 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                 {[
                                     { id: 'calendar', label: 'Kalender', icon: '📅' },
                                     { id: 'history', label: 'Daftar Sesi', icon: '📋', count: bookings?.filter(b => ['confirmed', 'in_progress'].includes(b.status) && !isPastBooking(b)).length },
+                                    { id: 'groups', label: 'Daftar Grup', icon: '🏢', count: groupBookings.length },
                                     ...(!isAdmin ? [{ id: 'mySchedules', label: 'Jadwal Saya', icon: '✦', count: mySchedules.length }] : []),
                                 ].map(tab => (
                                     <button
@@ -765,6 +774,88 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                             })}
                                         </div>
                                     )}
+                                </div>
+                            )}
+
+                            {/* DAFTAR GRUP */}
+                            {activeTab === 'groups' && (
+                                <div className="space-y-6">
+                                    <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 shadow-sm p-8 pb-4">
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3 mb-6">
+                                            <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>Daftar Grup & Institusi
+                                        </h3>
+                                        <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Cari grup, institusi, atau invoice..." 
+                                                className="w-full bg-white dark:bg-gray-800 border-none rounded-xl text-sm font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500/20"
+                                                value={groupSearchQuery}
+                                                onChange={(e) => setGroupSearchQuery(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            {groupBookings.filter(g => 
+                                                g.group_name.toLowerCase().includes(groupSearchQuery.toLowerCase()) || 
+                                                g.institution_name.toLowerCase().includes(groupSearchQuery.toLowerCase()) || 
+                                                g.invoice_number.toLowerCase().includes(groupSearchQuery.toLowerCase())
+                                            ).length === 0 ? (
+                                                <div className="text-center py-20 bg-white dark:bg-gray-800/40 rounded-[1.5rem] border border-dashed border-gray-200 dark:border-gray-700">
+                                                    <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Tidak ada grup ditemukan</p>
+                                                </div>
+                                            ) : (
+                                                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                    <thead>
+                                                        <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                            {['Grup / Institusi', 'Jadwal & Sesi', 'PIC', 'Anggota', 'Status'].map((h) => (
+                                                                <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4 rounded-t-xl">{h}</th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                                                        {groupBookings.filter(g => 
+                                                            g.group_name.toLowerCase().includes(groupSearchQuery.toLowerCase()) || 
+                                                            g.institution_name.toLowerCase().includes(groupSearchQuery.toLowerCase()) || 
+                                                            g.invoice_number.toLowerCase().includes(groupSearchQuery.toLowerCase())
+                                                        ).map((g) => {
+                                                            const st = statusConfig[g.payment_status] ?? statusConfig.pending;
+                                                            return (
+                                                                <tr key={g.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                                                                    <td className="px-6 py-4">
+                                                                        <p className="font-bold text-gray-900 dark:text-white uppercase tracking-tight">{g.group_name}</p>
+                                                                        {g.institution_name !== g.group_name && <p className="text-[10px] font-bold tracking-widest text-gray-400">{g.institution_name}</p>}
+                                                                        <p className="text-[10px] font-black tracking-widest text-indigo-500 mt-1">{g.invoice_number}</p>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <p className="text-xs font-bold text-gray-900 dark:text-gray-300">
+                                                                            {g.schedule ? new Date(g.schedule.date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : '-'}
+                                                                        </p>
+                                                                        <p className="text-[10px] text-gray-400">
+                                                                            {g.schedule ? `${g.schedule.start_time.substring(0,5)} - ${g.schedule.end_time.substring(0,5)}` : '-'}
+                                                                        </p>
+                                                                        <span className={`mt-1 inline-block px-2 py-0.5 rounded text-[8px] font-black uppercase ${g.session_type === 'online' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                                                                            {g.session_type}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{g.pic_name}</p>
+                                                                        {g.pic_phone && <p className="text-[10px] text-gray-400">{g.pic_phone}</p>}
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
+                                                                            <span className="text-[10px]">👥</span> {g.members_count ?? 0}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.cls}`}>{st.label}</span>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

@@ -128,7 +128,7 @@ export default function GroupBookingsShow({ group, invoiceData, schedules = [], 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link
-                            href={route('admin.group-bookings.index')}
+                            href={route('admin.users.index', { tab: 'groups' })}
                             className="p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-indigo-600 transition-colors shadow-sm"
                         >
                             <ChevronLeft className="w-5 h-5" />
@@ -495,7 +495,7 @@ export default function GroupBookingsShow({ group, invoiceData, schedules = [], 
                                 </Link>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
+                            <div className="w-full overflow-x-auto md:overflow-visible pb-12">
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
