@@ -20,7 +20,7 @@ class ScheduleController extends Controller
         $bookingsQuery = Booking::with([
             'schedule.therapist',
             'patient.screeningResults',
-
+            'transaction',
             'patient.bookings' => function ($query) {
                 $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
             }
@@ -36,6 +36,7 @@ class ScheduleController extends Controller
         // Map schedules that belong to a GroupBooking
         $scheduleGroupMap = \App\Models\GroupBooking::whereIn('schedule_id', $rawBookings->pluck('schedule_id')->filter())
             ->withCount('members')
+            ->with(['members.user', 'members.booking.transaction'])
             ->get()
             ->keyBy('schedule_id');
 
@@ -47,15 +48,30 @@ class ScheduleController extends Controller
                 if (in_array($b->schedule_id, $processedScheduleIds)) {
                     continue; // Map only 1 booking to represent the whole group
                 }
-                $processedScheduleIds[] = $b->schedule_id;
                 $gb = $scheduleGroupMap->get($b->schedule_id);
+
+                // Filter: Only show if ALL members have paid transactions
+                $allPaid = $gb->members->every(function ($m) {
+                    return $m->booking?->transaction?->status === 'paid';
+                });
+
+                if (!$allPaid && $b->status !== 'completed') {
+                    continue; 
+                }
 
                 $b->is_group = true;
                 $b->group_booking = $gb;
+                // Attach member list for the session card
+                $b->group_members = $gb->members->map(fn($m) => [
+                    'id'                 => $m->user_id,
+                    'name'               => $m->user?->name,
+                    'booking_id'         => $m->booking_id,
+                    'transaction_status' => $m->booking?->transaction?->status,
+                ]);
                 // Hijack the patient object for display purposes
                 $b->patient = (object)[
-                    'id' => null, // Prevents linking to arbitrary individual patient detail
-                    'name' => '🏢 GRUP: ' . $gb->group_name . ' (' . $gb->members_count . ' p.ax)',
+                    'id'    => null, // Prevents linking to arbitrary individual patient detail
+                    'name'  => '🏢 GRUP: ' . $gb->group_name . ' (' . $gb->members_count . ' p.ax)',
                     'email' => 'Instansi: ' . ($gb->institution_name ?? $gb->group_name),
                 ];
                 $groupedBookings->push($b);
@@ -195,7 +211,7 @@ class ScheduleController extends Controller
         }
 
         // --- GROUP BOOKINGS ---
-        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user'])
+        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.transaction'])
             ->withCount('members')
             ->orderBy('created_at', 'desc');
 
@@ -211,12 +227,19 @@ class ScheduleController extends Controller
                 'invoice_number'   => $group->invoice_number,
                 'group_name'       => $group->group_name,
                 'institution_name' => $group->institution_name ?? $group->group_name,
-                'pic_name'         => $group->pic_name,
-                'pic_phone'        => $group->pic_phone,
+                'pic_name'         => $group->user?->name ?? 'PIC Grup',
+                'pic_phone'        => $group->phone ?? $group->pic_phone,
+                'pic_email'        => $group->email,
                 'payment_method'   => $group->payment_method,
                 'payment_status'   => $group->payment_status,
                 'total_amount'     => $group->total_amount,
                 'members_count'    => $group->members_count,
+                'members'          => $group->members->map(fn($m) => [
+                    'id'                 => $m->user_id,
+                    'name'               => $m->user?->name,
+                    'booking_id'         => $m->booking_id,
+                    'transaction_status' => $m->booking?->transaction?->status,
+                ]),
                 'package_type'     => $group->package_type,
                 'session_type'     => $group->session_type,
                 'created_at'       => $group->created_at,
@@ -252,7 +275,6 @@ class ScheduleController extends Controller
 
         return Inertia::render('Clinic/Schedules/Index', [
             'bookings' => $bookings,
-            'groupBookings' => $groupBookings,
             'availableSchedules' => $availableSchedules,
             'calendarSchedules' => $calendarSchedules,
             'mySchedules' => $mySchedules,
@@ -653,6 +675,7 @@ class ScheduleController extends Controller
         $count = 0;
         $failed = 0;
 
+        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Schedule[] $schedulesToDelete */
         foreach ($schedulesToDelete as $sc) {
             try {
                 $sc->delete();

@@ -1,0 +1,1 @@
+import{j as s}from"./app-cQsOS84H.js";function n({value:t,className:e="",children:r,...o}){return s.jsx("label",{...o,className:"block text-sm font-bold text-gray-900 dark:text-white "+e,children:t||r})}export{n as I};
