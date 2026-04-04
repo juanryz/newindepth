@@ -196,7 +196,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             'agreement.patient', 'agreement.show', 'schedules.patient-detail', 'affiliate.agreement.show',
                             'admin.roles.create', 'admin.roles.edit', 'admin.users.create', 'admin.users.edit',
                             'admin.group-bookings.index', 'admin.group-bookings.show', 'admin.group-bookings.create',
-                            'admin.users.index', 'admin.users.create-offline', 'admin.group-bookings.members.add'
+                            'admin.users.create-offline', 'admin.group-bookings.members.add'
                         ].some(r => route().current(r)) && (
                             <Link
                                 href={

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity } from 'lucide-react';
+import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity, Building2, MapPin } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -101,7 +101,7 @@ const calendarStyles = `
     }
 `;
 
-export default function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], therapists = [], availableSchedules = [], filters = {}, clinicSettings = {} }) {
+export default function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], groupBookings = [], therapists = [], availableSchedules = [], filters = {}, clinicSettings = {} }) {
     const [activeTab, setActiveTab] = useState('schedules');
     const { flash, errors: pageErrors, auth } = usePage().props;
     const { user } = auth;
@@ -171,6 +171,22 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [txFilterSearch, setTxFilterSearch] = useState('');
     const [txFilterDateFrom, setTxFilterDateFrom] = useState('');
     const [txFilterDateTo, setTxFilterDateTo] = useState('');
+
+    // ─── Group Booking filters ───
+    const [grpFilterSearch, setGrpFilterSearch] = useState('');
+    const [grpFilterStatus, setGrpFilterStatus] = useState('');
+
+    const filteredGroups = (groupBookings || []).filter(grp => {
+        if (grpFilterStatus && grp.payment_status !== grpFilterStatus) return false;
+        if (grpFilterSearch) {
+            const q = grpFilterSearch.toLowerCase();
+            if (!(grp.institution_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.group_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.pic_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.invoice_number?.toLowerCase() ?? '').includes(q)) return false;
+        }
+        return true;
+    });
 
     const filteredTransactions = (transactions || []).filter(tx => {
         // Show all transactions so admin can track pending payments, both online and offline
@@ -397,7 +413,8 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     // ─── Tabs ───
     const tabs = [
         { id: 'schedules', label: 'Jadwal', icon: Calendar, count: filteredSchedules.length, total: schedules?.length || 0 },
-        { id: 'bookings', label: 'Booking', icon: Users, count: filteredBookings.length, total: bookings?.length || 0 },
+        { id: 'bookings', label: 'Booking Individu', icon: Users, count: filteredBookings.length, total: bookings?.length || 0 },
+        { id: 'groups', label: 'Booking Grup', icon: Building2, count: filteredGroups.length, total: groupBookings?.length || 0 },
         { id: 'transactions', label: 'Pembayaran', icon: CreditCard, count: filteredTransactions.length, total: transactions?.length || 0 },
         { id: 'activity', label: 'Log Kegiatan', icon: Activity, count: filteredLog.length, total: activityLog.length },
     ];
@@ -571,8 +588,12 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                         <p className="text-xl font-black text-gray-900 dark:text-white">{schedules?.length || 0}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Total Booking</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Booking Individu</p>
                                         <p className="text-xl font-black text-gray-900 dark:text-white">{bookings?.length || 0}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Booking Grup</p>
+                                        <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">{groupBookings?.length || 0}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Transaksi Pending</p>
@@ -961,7 +982,161 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                     </motion.div>
                                 )}
 
-                                {/* ═══════════ TAB: PEMBAYARAN ═══════════ */}
+                                {/* ═══════════ TAB: BOOKING GRUP ═══════════ */}
+                                {activeTab === 'groups' && (
+                                    <motion.div key="groups" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                        <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 overflow-hidden shadow-sm">
+
+                                            {/* Header */}
+                                            <div className="p-8 border-b border-gray-50 dark:border-gray-700/50 bg-violet-50/30 dark:bg-violet-950/20">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                                        <div className="w-1.5 h-6 bg-violet-600 rounded-full"></div>
+                                                        Booking Grup / Institusi
+                                                    </h3>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="px-4 py-1.5 bg-violet-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+                                                            {filteredGroups.length} / {groupBookings?.length || 0} Grup
+                                                        </span>
+                                                        <Link
+                                                            href={route('admin.group-bookings.index')}
+                                                            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-violet-200 dark:border-violet-800/50 text-violet-700 dark:text-violet-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all shadow-sm"
+                                                        >
+                                                            <Building2 className="w-4 h-4" />
+                                                            Kelola Grup
+                                                        </Link>
+                                                    </div>
+                                                </div>
+
+                                                {/* Filter Bar */}
+                                                <div className="flex flex-col sm:flex-row gap-3 items-end">
+                                                    <div className="flex flex-col gap-1.5 flex-1 text-left">
+                                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Cari Grup / Instansi</label>
+                                                        <div className="relative">
+                                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                                            <input
+                                                                type="text" placeholder="Nama instansi / PIC / invoice..."
+                                                                value={grpFilterSearch} onChange={e => setGrpFilterSearch(e.target.value)}
+                                                                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-white placeholder-gray-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 text-left">Status Bayar</label>
+                                                        <select value={grpFilterStatus} onChange={e => setGrpFilterStatus(e.target.value)} className="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all">
+                                                            <option value="">Semua Status</option>
+                                                            <option value="pending">Pending</option>
+                                                            <option value="paid">Lunas</option>
+                                                        </select>
+                                                    </div>
+                                                    {(grpFilterSearch || grpFilterStatus) && (
+                                                        <button onClick={() => { setGrpFilterSearch(''); setGrpFilterStatus(''); }} className="px-3 py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-xl text-xs font-black hover:bg-rose-100 hover:text-rose-500 transition-all" title="Reset filter">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-gray-700/30">
+                                                            <th className="px-6 py-5">Instansi / Grup</th>
+                                                            <th className="px-6 py-5">PIC & Invoice</th>
+                                                            <th className="px-6 py-5 text-center">Anggota</th>
+                                                            <th className="px-6 py-5">Jadwal & Paket</th>
+                                                            <th className="px-6 py-5 text-right">Total & Status</th>
+                                                            <th className="px-6 py-5 text-center">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                                                        {filteredGroups.map((grp) => (
+                                                            <tr key={grp.id} className="group hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-all">
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                                                <Building2 className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="text-sm font-black text-gray-900 dark:text-white">{grp.institution_name || grp.group_name}</div>
+                                                                                {grp.institution_name && grp.group_name !== grp.institution_name && (
+                                                                                    <div className="text-[10px] text-gray-400">{grp.group_name}</div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="text-[9px] text-gray-400 ml-10">{grp.created_at ? new Date(grp.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-0.5">
+                                                                        <div className="text-sm font-bold text-gray-900 dark:text-white">{grp.pic_name || '-'}</div>
+                                                                        {grp.pic_phone && <div className="text-xs text-gray-500">{grp.pic_phone}</div>}
+                                                                        <div className="text-[10px] font-black text-violet-500 uppercase tracking-widest bg-violet-50 dark:bg-violet-900/30 px-2 py-0.5 rounded-md w-fit mt-1">{grp.invoice_number}</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <div className="inline-flex flex-col items-center justify-center gap-1 bg-violet-100 dark:bg-violet-900/30 rounded-2xl px-4 py-2">
+                                                                        <span className="text-2xl font-black text-violet-700 dark:text-violet-300">{grp.members_count ?? 0}</span>
+                                                                        <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest">Anggota</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1">
+                                                                        {grp.package_type && (
+                                                                            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">{grp.package_type}</span>
+                                                                        )}
+                                                                        {grp.schedule ? (
+                                                                            <div className="flex flex-col mt-1">
+                                                                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{new Date(grp.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                                                                                <span className="text-xs text-gray-500">{grp.schedule.start_time?.substring(0, 5)} - {grp.schedule.end_time?.substring(0, 5)} WIB</span>
+                                                                                {grp.schedule.therapist && <span className="text-[10px] text-gray-400">{grp.schedule.therapist.name}</span>}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-xs text-gray-400 italic">Jadwal belum diatur</span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-right">
+                                                                    <div className="flex flex-col items-end gap-2">
+                                                                        <span className="text-base font-black text-gray-900 dark:text-white">
+                                                                            Rp {new Intl.NumberFormat('id-ID').format(grp.total_amount || 0)}
+                                                                        </span>
+                                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${grp.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                                                                            {grp.payment_status === 'paid' ? '✓ Lunas' : '⏳ Pending'}
+                                                                        </span>
+                                                                        {grp.payment_method && (
+                                                                            <span className="text-[10px] text-gray-400">{grp.payment_method}</span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <Link
+                                                                        href={route('admin.group-bookings.show', grp.id)}
+                                                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-[10px] font-black uppercase rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20"
+                                                                    >
+                                                                        <Eye className="w-3 h-3" />
+                                                                        Detail
+                                                                    </Link>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        {filteredGroups.length === 0 && (
+                                                            <tr><td colSpan="6" className="px-8 py-20 text-center">
+                                                                <Building2 className="w-10 h-10 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
+                                                                <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-xs">Tidak ada data grup yang cocok.</p>
+                                                                {(grpFilterSearch || grpFilterStatus) && (
+                                                                    <button onClick={() => { setGrpFilterSearch(''); setGrpFilterStatus(''); }} className="mt-4 text-[10px] font-black text-violet-600 uppercase underline">Reset Filter</button>
+                                                                )}
+                                                            </td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
                                 {activeTab === 'transactions' && (
                                     <motion.div key="transactions" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                         <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 overflow-hidden shadow-sm">

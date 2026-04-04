@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
@@ -31,7 +32,7 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                 margin: [10, 10, 10, 10],
                 filename: `Draft_Invoice_${data.name || 'Pasien'}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, windowWidth: document.documentElement.offsetWidth },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             window.html2pdf().set(opt).from(element).save().then(() => {
@@ -52,8 +53,8 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    return createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                 {/* Tombol tutup + print */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
@@ -172,13 +173,14 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                 {/* Footer actions */}
                 <div className="flex items-center justify-between p-6 border-t border-gray-100 dark:border-gray-800">
                     <button onClick={onClose} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors">Tutup</button>
-                    <button onClick={handlePrint}
+                    <button onClick={downloadPDF}
                         className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
                         <Download className="w-4 h-4" /> Download / Print Invoice
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
@@ -901,6 +903,7 @@ export default function CreateOffline({
                                                 ? (pkg2?.online_price ?? pkg2?.price ?? 0)
                                                 : (pkg2?.price ?? 0);
                                         })()}
+                                        bankAccounts={bankAccounts}
                                         onClose={() => setShowPreview(false)}
                                     />
                                 )}

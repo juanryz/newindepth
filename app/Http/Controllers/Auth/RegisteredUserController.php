@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,17 +45,16 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
-            'recommended_package' => $recommendedPackage, // Optional pre-fill from URL param if available
+            'recommended_package' => $recommendedPackage,
+            'email_verified_at' => now(),
         ]);
 
         // Ensure 'patient' role exists before assignment
         \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'patient', 'guard_name' => 'web']);
         $user->assignRole('patient');
 
-        event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect()->route('verification.notice');
+        return redirect()->route('dashboard');
     }
 }

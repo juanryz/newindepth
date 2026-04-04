@@ -74,7 +74,12 @@ function ProfileCompletionBadge({ completion }) {
     );
 }
 
-export default function UsersIndex({ users, roles, permissions, filters }) {
+const statusConfig = {
+    paid:    { label: 'Lunas', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+    pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+};
+
+export default function UsersIndex({ users, roles, permissions, groups, filters }) {
     const { auth, flash } = usePage().props;
     const { user } = auth;
 
@@ -86,6 +91,13 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     const initialTab = queryParams.get('tab') || 'users';
     const [activeTab, setActiveTab] = useState(initialTab);
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [groupSearchQuery, setGroupSearchQuery] = useState(filters.group_search || '');
+
+    const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+    const formatDate = (d) => {
+        if (!d) return '-';
+        return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
 
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);
@@ -97,12 +109,12 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     const tabs = [
         { id: 'users', label: 'Daftar Pengguna Individu', icon: Users, count: users.total },
         { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, count: roles.length },
-        { id: 'groups', label: 'Daftar Grup', icon: Building2, href: route('admin.group-bookings.index') },
+        { id: 'groups', label: 'Daftar Grup', icon: Building2, count: groups?.total || 0 },
     ];
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get(route('admin.users.index'), { search: searchQuery }, {
+        router.get(route('admin.users.index'), { search: searchQuery, group_search: groupSearchQuery, tab: activeTab }, {
             preserveState: true,
             preserveScroll: true,
             replace: true
@@ -148,13 +160,6 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Kelola Akun, Terapis, dan Hak Akses Sistem</p>
                     </div>
                     <div className="flex gap-3">
-                        <Link
-                            href={route('dashboard')}
-                            className="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-sm active:scale-95"
-                        >
-                            <ChevronLeft className="w-4 h-4 mr-2" />
-                            Dashboard
-                        </Link>
                         {activeTab === 'users' && hasPermission('create users') ? (
                             <>
                                 <Link
@@ -233,7 +238,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                     <div className="p-2 rounded-xl transition-colors bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30">
                                                         <tab.icon className="w-5 h-5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
                                                     </div>
-                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                                    <span className="text-sm font-black uppercase tracking-widest text-left text-wrap leading-tight max-w-[120px] sm:max-w-none">{tab.label}</span>
                                                 </div>
                                                 <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-300" />
                                             </Link>
@@ -251,7 +256,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                         }`}>
                                                         <tab.icon className="w-5 h-5" />
                                                     </div>
-                                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                                    <span className="text-sm font-black uppercase tracking-widest text-left text-wrap leading-tight max-w-[120px] sm:max-w-none">{tab.label}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'
@@ -507,6 +512,135 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                     </tbody>
                                                 </table>
                                             </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'groups' && (
+                                    <motion.div
+                                        key="groups"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-950/20 p-6 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/30">
+                                            <div>
+                                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Daftar Grup & Institusi</h3>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Kelola data grup pemesan layanan</p>
+                                            </div>
+                                            <Link
+                                                href={route('admin.group-bookings.create')}
+                                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                                            >
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Buat Grup
+                                            </Link>
+                                        </div>
+
+                                        {/* Search Filter for Groups */}
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+                                                <div className="flex-1 relative">
+                                                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Cari nama grup, institusi, atau PIC..."
+                                                        className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-[1.5rem] pl-14 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
+                                                        value={groupSearchQuery}
+                                                        onChange={(e) => setGroupSearchQuery(e.target.value)}
+                                                    />
+                                                </div>
+                                                <button type="submit" className="px-8 py-4 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                                                    Cari Grup
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                                            {groups?.data?.length === 0 ? (
+                                                <div className="text-center py-20">
+                                                    <Users className="w-16 h-16 text-gray-200 dark:text-gray-700 mx-auto mb-4" />
+                                                    <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Belum ada grup</p>
+                                                </div>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                        <thead>
+                                                            <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                                {['Grup / Institusi', 'PIC', 'Anggota', 'Total', 'Status', 'Aksi'].map((h) => (
+                                                                    <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4">{h}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                                                            {groups?.data?.map((g) => {
+                                                                const st = statusConfig[g.payment_status] ?? statusConfig.pending;
+                                                                return (
+                                                                    <tr key={g.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                                                                        <td className="px-6 py-4">
+                                                                            <p className="font-bold text-gray-900 dark:text-white uppercase tracking-tight">{g.group_name}</p>
+                                                                            {g.institution_name && <p className="text-[10px] font-bold tracking-widest text-gray-400">{g.institution_name}</p>}
+                                                                            <p className="text-[10px] font-black tracking-widest text-indigo-500 mt-1">{g.invoice_number}</p>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{g.pic_name}</p>
+                                                                            {g.pic_phone && <p className="text-[10px] text-gray-400">{g.pic_phone}</p>}
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
+                                                                                <Users className="w-3 h-3" />
+                                                                                {g.members_count ?? 0}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <p className="text-sm font-black text-gray-900 dark:text-white">{formatCurrency(g.total_amount)}</p>
+                                                                            <p className="text-[10px] text-gray-400">{g.payment_method}</p>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.cls}`}>{st.label}</span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <Link
+                                                                                href={route('admin.group-bookings.show', g.id)}
+                                                                                className="inline-flex items-center gap-1.5 p-3 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                title="Detail"
+                                                                            >
+                                                                                <Eye className="w-4 h-4" />
+                                                                            </Link>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+
+                                            {/* Pagination for Groups */}
+                                            {groups?.last_page > 1 && (
+                                                <div className="px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                        Menampilkan {groups.from || 0} sampai {groups.to || 0} dari {groups.total} grup
+                                                    </div>
+                                                    <div className="flex justify-center gap-2">
+                                                        {groups.links.map((link, i) => (
+                                                            <Link
+                                                                key={i}
+                                                                href={link.url || '#'}
+                                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                                    link.active
+                                                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                                        : link.url
+                                                                            ? 'bg-white dark:bg-gray-900 text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                                                            : 'opacity-30 cursor-not-allowed'
+                                                                }`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

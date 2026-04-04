@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\ClinicSetting;
+use App\Models\GroupBooking;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\User;
@@ -83,6 +84,38 @@ class OrderManagementController extends Controller
                 return $data;
             })->toArray();
 
+        // Group Bookings — shown as 1 row per group (institution name + member count)
+        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy'])
+            ->withCount('members')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($group) {
+                return [
+                    'id'               => $group->id,
+                    'invoice_number'   => $group->invoice_number,
+                    'group_name'       => $group->group_name,
+                    'institution_name' => $group->institution_name ?? $group->group_name,
+                    'pic_name'         => $group->pic_name,
+                    'pic_phone'        => $group->pic_phone,
+                    'payment_method'   => $group->payment_method,
+                    'payment_status'   => $group->payment_status,
+                    'total_amount'     => $group->total_amount,
+                    'members_count'    => $group->members_count,
+                    'package_type'     => $group->package_type,
+                    'session_type'     => $group->session_type,
+                    'created_at'       => $group->created_at,
+                    'paid_at'          => $group->paid_at,
+                    'schedule'         => $group->schedule ? [
+                        'id'         => $group->schedule->id,
+                        'date'       => $group->schedule->date,
+                        'start_time' => $group->schedule->start_time,
+                        'end_time'   => $group->schedule->end_time,
+                        'therapist'  => $group->schedule->therapist ? ['id' => $group->schedule->therapist->id, 'name' => $group->schedule->therapist->name] : null,
+                    ] : null,
+                    'created_by_name' => $group->createdBy?->name,
+                ];
+            })->toArray();
+
         // Therapists
         $therapists = User::role('therapist')
             ->select('id', 'name')
@@ -109,13 +142,14 @@ class OrderManagementController extends Controller
         }
 
         return Inertia::render('Admin/OrderManagement/Index', [
-            'schedules' => $schedules,
-            'bookings' => $bookings,
-            'transactions' => $transactions,
-            'therapists' => $therapists,
+            'schedules'        => $schedules,
+            'bookings'         => $bookings,
+            'transactions'     => $transactions,
+            'groupBookings'    => $groupBookings,
+            'therapists'       => $therapists,
             'availableSchedules' => $availableSchedules,
-            'clinicSettings' => $clinicSettings,
-            'filters' => ['therapist_id' => $therapistId],
+            'clinicSettings'   => $clinicSettings,
+            'filters'          => ['therapist_id' => $therapistId],
         ]);
     }
 }

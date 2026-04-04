@@ -68,11 +68,25 @@ class UserController extends Controller
         $roles = \Spatie\Permission\Models\Role::with('permissions')->get();
         $permissions = \Spatie\Permission\Models\Permission::all();
 
+        // Group bookings for the groups tab
+        $groupSearch = $request->get('group_search');
+        $groupsQuery = GroupBooking::withCount('members')->latest();
+        if ($groupSearch) {
+            $groupsQuery->where(function ($q) use ($groupSearch) {
+                $q->where('group_name', 'like', '%' . $groupSearch . '%')
+                  ->orWhere('institution_name', 'like', '%' . $groupSearch . '%')
+                  ->orWhere('pic_name', 'like', '%' . $groupSearch . '%')
+                  ->orWhere('invoice_number', 'like', '%' . $groupSearch . '%');
+            });
+        }
+        $groups = $groupsQuery->paginate(15)->withQueryString();
+
         return Inertia::render('Admin/Users/Index', [
-            'users' => $users,
-            'roles' => $roles,
+            'users'       => $users,
+            'roles'       => $roles,
             'permissions' => $permissions,
-            'filters' => $request->only(['search']),
+            'groups'      => $groups,
+            'filters'     => $request->only(['search', 'group_search']),
         ]);
     }
 

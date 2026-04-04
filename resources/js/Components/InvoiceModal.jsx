@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
@@ -51,7 +52,7 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                 margin: [10, 10, 10, 10], // top, left, bottom, right
                 filename: `Invoice_${invoice.invoice_number}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, windowWidth: document.documentElement.offsetWidth },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             window.html2pdf().set(opt).from(element).save().then(() => {
@@ -72,8 +73,8 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-10 pb-10 sm:pt-20 bg-black/60 backdrop-blur-sm overflow-y-auto">
+    return createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-start justify-center p-4 pt-10 pb-10 sm:pt-20 bg-black/60 backdrop-blur-sm overflow-y-auto">
             <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl mt-auto mb-auto bg-clip-padding relative">
                 {/* Print-friendly area */}
                 <div id="invoice-print-area" className="p-10">
@@ -260,7 +261,8 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                     .bg-black\\/60 { background: transparent !important; }
                 }
             `}</style>
-        </div>
+        </div>,
+        document.body
     );
 }
 
