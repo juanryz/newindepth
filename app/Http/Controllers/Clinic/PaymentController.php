@@ -44,6 +44,7 @@ class PaymentController extends Controller
             'booking'        => $booking->load(['schedule.therapist', 'userVoucher.voucher']),
             'transaction'    => $transaction,
             'paymentMethods' => config('clinic.payment_methods'),
+            'bankAccounts'   => config('clinic.bank_accounts', []),
         ]);
     }
 

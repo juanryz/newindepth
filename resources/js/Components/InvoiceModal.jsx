@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
-    ChevronLeft, Users, Building2, Phone, Mail, MapPin, User,
+    MapPin, Phone, Mail, Globe,
+    ChevronLeft, Users, Building2, User,
     FileText, CreditCard, Check, ArrowRight, Trash2, Eye, Download,
     Plus, Printer, AlertTriangle, CheckCircle, Clock,
 } from 'lucide-react';
@@ -27,8 +28,11 @@ function Section({ icon: Icon, iconBg, iconColor, title, children }) {
 }
 
 // ─── Invoice Modal ─────────────────────────────────────────────────────────────
-export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccounts = [] }) {
+export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccounts: bankAccountsProp = [] }) {
     if (!invoice) return null;
+
+    const { clinicInfo } = usePage().props;
+    const bankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccountsProp;
 
     const formatDate = (d) => {
         if (!d) return '-';
@@ -79,26 +83,52 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                 {/* Print-friendly area */}
                 <div id="invoice-print-area" className="p-10">
                     {/* Header */}
-                    <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-indigo-100">
+                    <div className="flex items-start justify-between mb-6 pb-6 border-b-2 border-indigo-100">
                         <div>
-                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-10 w-auto mb-2" />
-                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">InDepth Mental Wellness</h1>
-                            <p className="text-xs text-gray-500 font-medium mt-1">Hipnoterapi & Kesehatan Mental Profesional</p>
+                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-12 w-auto mb-2" />
+                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">
+                                {clinicInfo?.name || 'InDepth Mental Wellness'}
+                            </h1>
+                            <p className="text-xs text-indigo-600/70 font-semibold mt-0.5">
+                                {clinicInfo?.tagline || 'Hipnoterapi & Kesehatan Mental Profesional'}
+                            </p>
+                            <div className="mt-2 space-y-0.5">
+                                {clinicInfo?.address && (
+                                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                        <MapPin className="w-3 h-3 flex-shrink-0" />{clinicInfo.address}
+                                    </p>
+                                )}
+                                <div className="flex flex-wrap gap-x-4">
+                                    {clinicInfo?.phone && (
+                                        <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                            <Phone className="w-3 h-3 flex-shrink-0" />{clinicInfo.phone}
+                                        </p>
+                                    )}
+                                    {clinicInfo?.email && (
+                                        <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                            <Mail className="w-3 h-3 flex-shrink-0" />{clinicInfo.email}
+                                        </p>
+                                    )}
+                                    {clinicInfo?.website && (
+                                        <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                            <Globe className="w-3 h-3 flex-shrink-0" />{clinicInfo.website}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex-shrink-0 ml-4">
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">No. Invoice</p>
                             <p className="text-lg font-black text-indigo-700">{invoice.invoice_number}</p>
                             <p className="text-[10px] text-gray-400 mt-1">{formatDate(invoice.created_at)}</p>
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border mt-3 ${
+                                invoice.payment_status === 'paid'
+                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                    : 'bg-amber-50 border-amber-200 text-amber-700'
+                            }`}>
+                                {statusLabel}
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Status Badge */}
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border mb-6 ${
-                        invoice.payment_status === 'paid'
-                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                            : 'bg-amber-50 border-amber-200 text-amber-700'
-                    }`}>
-                        {statusLabel}
                     </div>
 
                     {/* Patient/Group Info */}
@@ -114,14 +144,14 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                         </div>
                     ) : (
                         <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Data Grup / Institusi</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Data Grup</p>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div><span className="text-gray-400 text-[10px] uppercase">Nama Grup</span><p className="font-bold text-gray-900">{invoice.group_name}</p></div>
-                                {invoice.institution_name && <div><span className="text-gray-400 text-[10px] uppercase">Institusi</span><p className="font-bold text-gray-900">{invoice.institution_name}</p></div>}
-                                <div><span className="text-gray-400 text-[10px] uppercase">PIC</span><p className="font-bold text-gray-900">{invoice.pic_name}</p></div>
-                                {invoice.pic_phone && <div><span className="text-gray-400 text-[10px] uppercase">Telepon PIC</span><p className="font-bold text-gray-900">{invoice.pic_phone}</p></div>}
+                                {invoice.email && <div><span className="text-gray-400 text-[10px] uppercase">Email</span><p className="font-bold text-gray-900">{invoice.email}</p></div>}
+                                {invoice.phone && <div><span className="text-gray-400 text-[10px] uppercase">Telepon</span><p className="font-bold text-gray-900">{invoice.phone}</p></div>}
+                                {invoice.invoice_number && <div><span className="text-gray-400 text-[10px] uppercase">No. Grup</span><p className="font-bold text-indigo-700">{invoice.invoice_number}</p></div>}
                             </div>
-                            {invoice.address && <p className="text-xs text-gray-500 mt-2">{invoice.address}</p>}
+                            {invoice.address && <p className="text-xs text-gray-500 mt-3 flex items-start gap-1"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />{invoice.address}</p>}
                         </div>
                     )}
 
@@ -220,10 +250,18 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                     )}
 
                     {/* Footer */}
-                    <p className="text-[9px] text-gray-400 text-center leading-relaxed">
-                        Invoice ini diterbitkan secara elektronik oleh InDepth Clinic. Diinput oleh: {invoice.created_by}.
-                        Hubungi kami jika ada pertanyaan.
-                    </p>
+                    <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+                        <p className="text-[9px] text-gray-400 leading-relaxed">
+                            Invoice ini diterbitkan secara elektronik oleh{' '}
+                            <span className="font-bold text-indigo-600">{clinicInfo?.name || 'InDepth Mental Wellness'}</span>.
+                            {invoice.created_by && ` Diinput oleh: ${invoice.created_by}.`}
+                        </p>
+                        {(clinicInfo?.phone || clinicInfo?.email) && (
+                            <p className="text-[9px] text-gray-400 mt-1">
+                                Hubungi kami: {[clinicInfo?.phone, clinicInfo?.email].filter(Boolean).join(' · ')}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Action Buttons */}

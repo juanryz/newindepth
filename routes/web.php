@@ -845,8 +845,6 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/{groupBooking}/members/add', [\App\Http\Controllers\Admin\GroupBookingController::class, 'addMember'])->name('members.add');
                 Route::post('/{groupBooking}/members', [\App\Http\Controllers\Admin\GroupBookingController::class, 'storeMember'])->name('members.store');
                 Route::delete('/{groupBooking}/members/{group_booking_member}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'removeMember'])->name('members.remove');
-                Route::post('/{groupBooking}/payment-method', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updatePaymentMethod'])->name('payment-method.update');
-                Route::post('/{groupBooking}/payment', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updatePayment'])->name('payment.update');
                 Route::post('/{groupBooking}/schedule', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updateSchedule'])->name('schedule.update');
             });
 

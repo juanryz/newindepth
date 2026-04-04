@@ -12,29 +12,25 @@ class GroupBooking extends Model
 
     protected $fillable = [
         'invoice_number',
+        'user_id',
         'group_name',
-        'institution_name',
+        'email',
+        'phone',
         'address',
-        'pic_name',
-        'pic_phone',
-        'pic_email',
         'session_type',
-        'payment_method',
-        'payment_status',
-        'total_amount',
         'notes',
         'created_by',
         'schedule_id',
         'package_type',
-        'paid_at',
-    ];
-
-    protected $casts = [
-        'total_amount' => 'float',
-        'paid_at'      => 'datetime',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────────
+
+    /** Akun login milik grup */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function members()
     {
@@ -70,13 +66,6 @@ class GroupBooking extends Model
         } while (static::where('invoice_number', $number)->exists());
 
         return $number;
-    }
-
-    public function recalculateTotal(): void
-    {
-        $this->update([
-            'total_amount' => $this->members()->sum('price'),
-        ]);
     }
 
     public function getMemberCountAttribute(): int

@@ -10,14 +10,20 @@ const GlassPanel = ({ children, className = '', ...props }) => (
     <div className={`bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/60 dark:border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-[2.5rem] transition-all duration-500 ${className}`} {...props}>{children}</div>
 );
 
-export default function PaymentUpload({ booking, transaction, paymentMethods }) {
-    const { errors: pageErrors } = usePage().props;
+export default function PaymentUpload({ booking, transaction, paymentMethods, bankAccounts = [] }) {
+    const { errors: pageErrors, clinicInfo } = usePage().props;
+
+    const resolveInitialMethod = () => {
+        if (!transaction?.payment_method) return 'Transfer Bank';
+        if (transaction.payment_method === 'cash') return 'Tunai';
+        return transaction.payment_method;
+    };
 
     const { data, setData, processing, errors } = useForm({
         payment_bank: '',
         payment_account_name: '',
         payment_account_number: '',
-        payment_method: transaction?.payment_method === 'cash' ? 'Tunai' : 'Transfer Bank',
+        payment_method: resolveInitialMethod(),
         payment_proof: null,
         agree_refund: true,
         agree_final: true,
@@ -31,7 +37,8 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
 
     const [showPolicyModal, setShowPolicyModal] = useState(false);
     const [voucherCode, setVoucherCode] = useState('');
-    const isVoucherApplied = !!booking.user_voucher_id || !!transaction.payment_agreement_data?.applied_voucher_id;
+    const isVoucherApplied = !!booking.user_voucher_id || !!transaction?.payment_agreement_data?.applied_voucher_id;
+    const canChangeMethod = !transaction?.payment_method;
 
     const [voucherApplying, setVoucherApplying] = useState(false);
 
@@ -174,11 +181,11 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                     <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
                                         Rp {new Intl.NumberFormat('id-ID').format(displayAmount)}
                                     </p>
-                                    {((transaction.payment_agreement_data?.discount_amount > 0) || (booking.user_voucher?.voucher?.discount_amount > 0)) && (
+                                    {((transaction?.payment_agreement_data?.discount_amount > 0) || (booking.user_voucher?.voucher?.discount_amount > 0)) && (
                                         <div className="mt-2 space-y-1">
                                             <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
                                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
-                                                Terpotong Voucher: Rp {new Intl.NumberFormat('id-ID').format(transaction.payment_agreement_data?.discount_amount || booking.user_voucher?.voucher?.discount_amount || 0)}
+                                                Terpotong Voucher: Rp {new Intl.NumberFormat('id-ID').format(transaction?.payment_agreement_data?.discount_amount || booking.user_voucher?.voucher?.discount_amount || 0)}
                                             </p>
                                         </div>
                                     )}
@@ -186,15 +193,17 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                         {isCash ? '*Sudah termasuk PPN 11% (tanpa kode unik)' : '*Sudah termasuk PPN 11% dan kode unik'}
                                     </p>
                                 </div>
-                                {!isCash && (
+                                {!isCash && (clinicInfo?.bankAccounts ?? bankAccounts).length > 0 && (
                                     <div className="flex-1 space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">BCA</div>
-                                            <div className="min-w-0">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-white">2520639058</p>
-                                                <p className="text-[10px] text-slate-400">a.n. Julius Bambang</p>
+                                        {(clinicInfo?.bankAccounts ?? bankAccounts).map((b, idx) => (
+                                            <div key={idx} className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center font-black text-[10px]">{b.bank}</div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-bold text-slate-800 dark:text-white">{b.account}</p>
+                                                    <p className="text-[10px] text-slate-400">a.n. {b.holder}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -223,7 +232,7 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                     </button>
                                 </div>
                                 {pageErrors.voucher_code && <p className="text-[10px] text-red-500 font-bold mt-2">{pageErrors.voucher_code}</p>}
-                                {transaction.payment_agreement_data?.applied_voucher_code && (
+                                {transaction?.payment_agreement_data?.applied_voucher_code && (
                                     <p className="text-[10px] text-emerald-600 font-bold mt-2">✓ Kode <strong>{transaction.payment_agreement_data.applied_voucher_code}</strong> berhasil diterapkan</p>
                                 )}
                             </div>
@@ -236,7 +245,7 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                         )}
 
                         <form onSubmit={submit} className="space-y-8">
-                            {/* ── Metode Pembayaran (read-only, sudah dipilih saat booking) ── */}
+                            {/* ── Metode Pembayaran ── */}
                             <div>
                                 <InputLabel value="Metode Pembayaran" className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-200 mb-3 ml-1" />
                                 <div className="flex flex-wrap gap-3">
@@ -244,18 +253,27 @@ export default function PaymentUpload({ booking, transaction, paymentMethods }) 
                                         <button
                                             key={method}
                                             type="button"
-                                            disabled
-                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 cursor-not-allowed ${
+                                            disabled={!canChangeMethod}
+                                            onClick={() => canChangeMethod && setData('payment_method', method)}
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${
+                                                canChangeMethod ? 'cursor-pointer' : 'cursor-not-allowed'
+                                            } ${
                                                 data.payment_method === method
                                                     ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                                    : 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-300 dark:text-slate-600'
+                                                    : canChangeMethod
+                                                        ? 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-600 dark:text-slate-400 hover:border-indigo-400 hover:text-indigo-600'
+                                                        : 'bg-white/50 dark:bg-white/[0.02] border-gray-200 dark:border-gray-700 text-slate-300 dark:text-slate-600'
                                             }`}
                                         >
                                             {method}
                                         </button>
                                     ))}
                                 </div>
-                                <p className="text-[9px] text-slate-400 mt-2 ml-1 italic">Metode pembayaran dipilih saat booking dan tidak dapat diubah.</p>
+                                <p className="text-[9px] text-slate-400 mt-2 ml-1 italic">
+                                    {canChangeMethod
+                                        ? 'Pilih metode pembayaran yang Anda inginkan.'
+                                        : 'Metode pembayaran dipilih saat booking dan tidak dapat diubah.'}
+                                </p>
                             </div>
 
                             {isCash ? (

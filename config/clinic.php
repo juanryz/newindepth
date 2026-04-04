@@ -4,11 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Identitas Klinik
+    |--------------------------------------------------------------------------
+    | Digunakan di invoice, halaman pendaftaran, dan semua tampilan frontend.
+    | Ubah di .env tanpa menyentuh kode sama sekali.
+    */
+    'name'    => env('CLINIC_NAME',    'InDepth Mental Wellness'),
+    'tagline' => env('CLINIC_TAGLINE', 'Hipnoterapi & Kesehatan Mental Profesional'),
+    'address' => env('CLINIC_ADDRESS', 'Jl. Raya Kesehatan No. 1, Jakarta Selatan'),
+    'phone'   => env('CLINIC_PHONE',   '+62 812-3456-7890'),
+    'email'   => env('CLINIC_EMAIL',   'hello@indepth.co.id'),
+    'website' => env('CLINIC_WEBSITE', 'clinic.indepth.co.id'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Metode Pembayaran yang Tersedia
     |--------------------------------------------------------------------------
-    | Daftar ini digunakan di seluruh sistem (admin create-offline, halaman
-    | upload pembayaran pasien, dll). Cukup ubah di sini untuk menambah
-    | atau menghapus metode tanpa menyentuh controller / komponen lain.
     */
     'payment_methods' => [
         'Transfer Bank',
@@ -19,8 +30,6 @@ return [
     |--------------------------------------------------------------------------
     | Rekening Bank Klinik (Transfer Destination)
     |--------------------------------------------------------------------------
-    | Digunakan di invoice & form pendaftaran offline. Ubah data di sini —
-    | tidak perlu menyentuh controller atau komponen JSX sama sekali.
     */
     'bank_accounts' => [
         [

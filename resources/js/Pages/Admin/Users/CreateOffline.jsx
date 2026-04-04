@@ -15,8 +15,10 @@ import TextInput from '@/Components/TextInput';
 import { InvoiceModal } from '@/Components/InvoiceModal';
 
 // ─── Invoice Preview Modal (client-side, sebelum submit) ──────────────────────
-function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
+function InvoicePreviewModal({ data, pkg, price, bankAccounts: bankAccountsProp = [], onClose }) {
     const printRef = useRef();
+    const { clinicInfo } = usePage().props;
+    const bankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccountsProp;
     const isOnline = data.session_type === 'online';
     const isCash   = data.payment_method === 'Cash';
     const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
@@ -78,10 +80,26 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                     {/* Header klinik */}
                     <div className="flex items-start justify-between pb-6 border-b-2 border-indigo-100">
                         <div>
-                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">InDepth Clinic</h1>
-                            <p className="text-xs text-gray-500 font-medium mt-1">Hipnoterapi &amp; Kesehatan Mental Profesional</p>
+                            <img src="/images/logo-color.png" alt="Logo" className="h-12 w-auto mb-2" />
+                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">
+                                {clinicInfo?.name || 'InDepth Mental Wellness'}
+                            </h1>
+                            <p className="text-xs text-indigo-600/70 font-semibold mt-0.5">
+                                {clinicInfo?.tagline || 'Hipnoterapi & Kesehatan Mental Profesional'}
+                            </p>
+                            <div className="mt-2 space-y-0.5">
+                                {clinicInfo?.address && (
+                                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                        <MapPin className="w-3 h-3 flex-shrink-0" />{clinicInfo.address}
+                                    </p>
+                                )}
+                                <div className="flex flex-wrap gap-x-4">
+                                    {clinicInfo?.phone && <p className="text-[10px] text-gray-400">{clinicInfo.phone}</p>}
+                                    {clinicInfo?.email && <p className="text-[10px] text-gray-400">{clinicInfo.email}</p>}
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex-shrink-0 ml-4">
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Invoice (Draft)</p>
                             <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
                             <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border mt-2 ${
@@ -158,16 +176,24 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts = [], onClose }) {
                             </>
                         )}
                         {!isCash && bankAccounts.length === 0 && (
-                            <p className="text-xs text-blue-600 font-medium">Silakan transfer ke rekening resmi InDepth Clinic.</p>
+                            <p className="text-xs text-blue-600 font-medium">Silakan transfer ke rekening resmi {clinicInfo?.name || 'InDepth Mental Wellness'}.</p>
                         )}
                         {isCash && (
                             <p className="text-xs text-emerald-600 font-bold">✅ Bayar tunai langsung di klinik saat sesi berlangsung.</p>
                         )}
                     </div>
 
-                    <p className="text-[9px] text-gray-400 text-center">
-                        Invoice ini merupakan draft yang dibuat oleh admin. Nomor invoice final akan diterbitkan setelah booking dikonfirmasi.
-                    </p>
+                    <div className="pt-4 border-t border-gray-100 text-center">
+                        <p className="text-[9px] text-gray-400 leading-relaxed">
+                            Invoice ini merupakan draft yang dibuat oleh admin.
+                            Nomor invoice final akan diterbitkan setelah booking dikonfirmasi.
+                        </p>
+                        {(clinicInfo?.phone || clinicInfo?.email) && (
+                            <p className="text-[9px] text-gray-400 mt-1">
+                                {clinicInfo?.name || 'InDepth Mental Wellness'} · {[clinicInfo?.phone, clinicInfo?.email].filter(Boolean).join(' · ')}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Footer actions */}

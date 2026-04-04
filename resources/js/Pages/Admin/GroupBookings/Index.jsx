@@ -2,14 +2,9 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
-    ChevronLeft, Plus, Users, Building2, Phone, Mail,
-    Search, Eye, Trash2, CheckCircle, Clock, FileText, ShieldCheck, ChevronRight
+    Plus, Users, Building2, Phone, Mail,
+    Search, Eye, ShieldCheck, ChevronRight
 } from 'lucide-react';
-
-const statusConfig = {
-    paid:    { label: 'Lunas', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
-    pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
-};
 
 export default function GroupBookingsIndex({ groups, filters }) {
     const { flash } = usePage().props;
@@ -24,7 +19,6 @@ export default function GroupBookingsIndex({ groups, filters }) {
         if (!d) return '-';
         return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     };
-    const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
     const tabs = [
         { id: 'users', label: 'Daftar Pengguna Individu', icon: Users, href: route('admin.users.index', { tab: 'users' }) },
@@ -128,7 +122,7 @@ export default function GroupBookingsIndex({ groups, filters }) {
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari nama grup, institusi, atau PIC..."
+                                placeholder="Cari nama grup, email, atau nomor telepon..."
                                 className="w-full pl-12 pr-6 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                             />
                         </div>
@@ -155,54 +149,55 @@ export default function GroupBookingsIndex({ groups, filters }) {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-800">
-                                            {['Grup / Institusi', 'PIC', 'Anggota', 'Total', 'Metode Bayar', 'Status', 'Dibuat', 'Aksi'].map((h) => (
+                                            {['Nama Grup', 'Kontak', 'Anggota', 'Jadwal', 'Dibuat', 'Aksi'].map((h) => (
                                                 <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4">{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-                                        {groups.data.map((g) => {
-                                            const st = statusConfig[g.payment_status] ?? statusConfig.pending;
-                                            return (
-                                                <tr key={g.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <p className="font-bold text-gray-900 dark:text-white">{g.group_name}</p>
-                                                        {g.institution_name && <p className="text-[10px] text-gray-400">{g.institution_name}</p>}
-                                                        <p className="text-[10px] font-bold text-indigo-500 mt-1">{g.invoice_number}</p>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{g.pic_name}</p>
-                                                        {g.pic_phone && <p className="text-[10px] text-gray-400">{g.pic_phone}</p>}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
-                                                            <Users className="w-3 h-3" />
-                                                            {g.members_count ?? 0} orang
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="text-sm font-black text-gray-900 dark:text-white">{formatCurrency(g.total_amount)}</p>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="text-xs font-bold text-gray-600 dark:text-gray-400">{g.payment_method}</p>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.cls}`}>{st.label}</span>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="text-xs text-gray-400">{formatDate(g.created_at)}</p>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <Link
-                                                            href={route('admin.group-bookings.show', g.id)}
-                                                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors"
-                                                        >
-                                                            <Eye className="w-3 h-3" /> Detail
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
+                                        {groups.data.map((g) => (
+                                            <tr key={g.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <p className="font-bold text-gray-900 dark:text-white">{g.group_name}</p>
+                                                    <p className="text-[10px] font-bold text-indigo-500 mt-1">{g.invoice_number}</p>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {g.email && (
+                                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                                                            <Mail className="w-3 h-3 text-gray-400 flex-shrink-0" />{g.email}
+                                                        </p>
+                                                    )}
+                                                    {g.phone && (
+                                                        <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
+                                                            <Phone className="w-3 h-3 flex-shrink-0" />{g.phone}
+                                                        </p>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
+                                                        <Users className="w-3 h-3" />
+                                                        {g.members_count ?? 0} orang
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <p className="text-xs font-bold text-gray-600 dark:text-gray-400">
+                                                        {g.schedule_id ? '✅ Terjadwal' : '—'}
+                                                    </p>
+                                                    {g.package_type && <p className="text-[10px] text-gray-400 mt-0.5">{g.package_type}</p>}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <p className="text-xs text-gray-400">{formatDate(g.created_at)}</p>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <Link
+                                                        href={route('admin.group-bookings.show', g.id)}
+                                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors"
+                                                    >
+                                                        <Eye className="w-3 h-3" /> Detail
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
