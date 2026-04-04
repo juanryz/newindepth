@@ -217,7 +217,8 @@ export default function UsersForm({
             package_name:   selectedPkg?.name ?? (activeBooking.package_type || 'Custom'),
             session_type:   activeBooking.session_type || 'offline',
             amount:         activeBooking.transaction?.amount ?? packagePrice,
-            payment_status: activeBooking.transaction?.status ?? 'pending',
+            payment_status: data.payment_status || (activeBooking.transaction?.status ?? 'pending'),
+            payment_method: data.payment_method || (activeBooking.transaction?.payment_method ?? 'Transfer Bank'),
             schedule: activeBooking.schedule ? {
                 date:       activeBooking.schedule.date,
                 start_time: activeBooking.schedule.start_time,
@@ -652,7 +653,7 @@ export default function UsersForm({
                                     {data.payment_status === 'paid' && (
                                         <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/40">
                                             {data.payment_method === 'Transfer Bank' && (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                     <div className="space-y-2">
                                                         <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
                                                         <div className="relative">
@@ -660,15 +661,13 @@ export default function UsersForm({
                                                             <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                         </div>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening</InputLabel>
-                                                            <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} placeholder="000111222" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
-                                                            <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Sesuai buku tabungan" />
-                                                        </div>
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening</InputLabel>
+                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} placeholder="000111222" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
+                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Sesuai buku tabungan" />
                                                     </div>
                                                 </div>
                                             )}
@@ -694,8 +693,11 @@ export default function UsersForm({
                                         </p>
                                     </div>
 
-                                    {activeBooking && (
-                                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+                                    {activeBooking && data.payment_method && data.payment_status && (
+                                        (data.payment_status !== 'paid') ||
+                                        (data.payment_method !== 'Transfer Bank' || (data.payment_bank && data.payment_account_number && data.payment_account_name))
+                                    ) && (
+                                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-center mt-6">
                                             <button
                                                 type="button"
                                                 onClick={() => setShowInvoice(true)}

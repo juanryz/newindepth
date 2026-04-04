@@ -73,8 +73,10 @@ class HandleInertiaRequests extends Middleware
                 'tagline'      => config('clinic.tagline'),
                 'address'      => config('clinic.address'),
                 'phone'        => config('clinic.phone'),
+                'whatsapp'     => config('clinic.whatsapp'),
                 'email'        => config('clinic.email'),
                 'website'      => config('clinic.website'),
+                'mapsUrl'      => config('clinic.maps_url'),
                 'bankAccounts' => config('clinic.bank_accounts', []),
             ],
         ];

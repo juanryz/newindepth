@@ -889,7 +889,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                 <td className="px-6 py-5">
                                                                     <div className="flex flex-col">
                                                                         <span className="text-sm font-black text-gray-900 dark:text-white mb-1">{booking.booking_code}</span>
-                                                                        <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">{booking.package_type?.toUpperCase() || 'KONSULTASI'}</span>
+                                                                        <div className="flex flex-wrap items-center gap-2">
+                                                                            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">
+                                                                                {booking.package_type?.toUpperCase() || 'KONSULTASI'}
+                                                                            </span>
+                                                                            <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md w-fit ${booking.session_type === 'online' ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30'}`}>
+                                                                                {booking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5">

@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import React, { useState, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
@@ -26,60 +26,73 @@ const Card = ({ children, className = '' }) => (
     </div>
 );
 
-const FAQ_DATA = [
-    {
-        question: 'Bagaimana cara memulai konsultasi?',
-        answer: 'Konsultasi dimulai melalui WhatsApp ke 082220800034 untuk proses screening awal dan penjadwalan sesi.',
-        tags: ['konsultasi', 'mulai', 'whatsapp', 'cara'],
-    },
-    {
-        question: 'Di mana lokasi InDepth Clinic?',
-        answer: 'InDepth Clinic berlokasi di Jalan Kelud Raya 34B, Petompon, Gajahmungkur, Semarang, Jawa Tengah.',
-        tags: ['lokasi', 'alamat', 'semarang', 'tempat'],
-    },
-    {
-        question: 'Apa saja jam operasional klinik?',
-        answer: 'Klinik beroperasi Senin – Sabtu dengan sesi tersedia: 08.00–10.00, 10.00–12.00, 13.00–15.00, dan 15.00–17.00.',
-        tags: ['jam', 'operasional', 'jadwal', 'buka'],
-    },
-    {
-        question: 'Berapa durasi setiap sesi?',
-        answer: 'Setiap sesi berdurasi kurang lebih 2 jam.',
-        tags: ['durasi', 'sesi', 'lama', 'waktu'],
-    },
-    {
-        question: 'Bagaimana cara melakukan pembayaran?',
-        answer: 'Pembayaran melalui transfer ke Bank BCA, No. Rekening 2520639058 atas nama Julius Bambang. Konfirmasi via WhatsApp setelah transfer.',
-        tags: ['pembayaran', 'transfer', 'bca', 'rekening', 'bayar'],
-    },
-    {
-        question: 'Apakah privasi saya terjaga?',
-        answer: 'Ya, privasi klien dijaga sepenuhnya dalam setiap proses. Dokumentasi sesi juga tersedia untuk keperluan evaluasi.',
-        tags: ['privasi', 'kerahasiaan', 'aman', 'dokumen'],
-    },
-    {
-        question: 'Apa saja alur penanganan awal?',
-        answer: 'Alur: (1) Konsultasi via WhatsApp → (2) Screening kondisi → (3) Login sistem → (4) Booking jadwal → (5) Pembayaran.',
-        tags: ['alur', 'proses', 'langkah', 'tahapan'],
-    },
-    {
-        question: 'Bagaimana cara menghubungi via email?',
-        answer: 'Untuk kebutuhan administrasi dan komunikasi resmi, hubungi kami di admin@indepth.co.id.',
-        tags: ['email', 'administrasi', 'resmi', 'surat'],
-    },
-    {
-        question: 'Apakah sesi dilakukan secara terjadwal?',
-        answer: 'Ya, sesi dilakukan secara terjadwal. Jadwal dapat ditentukan setelah proses screening via WhatsApp.',
-        tags: ['terjadwal', 'booking', 'jadwal', 'registrasi'],
-    },
-    {
-        question: 'Nomor WhatsApp klinik berapa?',
-        answer: 'Nomor WhatsApp InDepth Clinic adalah 082220800034.',
-        tags: ['whatsapp', 'nomor', 'telepon', 'hp', 'kontak'],
-    },
-];
-
 export default function KontakKami({ auth }) {
+    const { clinicInfo } = usePage().props;
+    const clinicName  = clinicInfo?.name      || 'InDepth Mental Wellness';
+    const clinicPhone = clinicInfo?.phone      || '+62 822-2080-0034';
+    const clinicWa    = clinicInfo?.whatsapp   || '6282220800034';
+    const clinicAddr  = clinicInfo?.address    || 'Jl. Kelud Raya No. 34B, Petompon, Gajah Mungkur, Semarang';
+    const clinicEmail = clinicInfo?.email      || 'admin@indepth.co.id';
+    const clinicMaps  = clinicInfo?.mapsUrl    || 'https://maps.app.goo.gl/KUmgnva1hi9vvrNP7';
+    const bankAccounts = clinicInfo?.bankAccounts || [];
+
+    const bankFaqAnswer = bankAccounts.length > 0
+        ? bankAccounts.map(b => `${b.bank} No. ${b.account} a.n. ${b.holder}`).join(', ') + '. Konfirmasi via WhatsApp setelah transfer.'
+        : `Transfer ke rekening resmi ${clinicName}. Konfirmasi via WhatsApp setelah transfer.`;
+
+    const FAQ_DATA = [
+        {
+            question: 'Bagaimana cara memulai konsultasi?',
+            answer: `Konsultasi dimulai melalui WhatsApp ke ${clinicPhone} untuk proses screening awal dan penjadwalan sesi.`,
+            tags: ['konsultasi', 'mulai', 'whatsapp', 'cara'],
+        },
+        {
+            question: `Di mana lokasi ${clinicName}?`,
+            answer: `${clinicName} berlokasi di ${clinicAddr}.`,
+            tags: ['lokasi', 'alamat', 'semarang', 'tempat'],
+        },
+        {
+            question: 'Apa saja jam operasional klinik?',
+            answer: 'Klinik beroperasi Senin – Sabtu dengan sesi tersedia: 08.00–10.00, 10.00–12.00, 13.00–15.00, dan 15.00–17.00.',
+            tags: ['jam', 'operasional', 'jadwal', 'buka'],
+        },
+        {
+            question: 'Berapa durasi setiap sesi?',
+            answer: 'Setiap sesi berdurasi kurang lebih 2 jam.',
+            tags: ['durasi', 'sesi', 'lama', 'waktu'],
+        },
+        {
+            question: 'Bagaimana cara melakukan pembayaran?',
+            answer: `Pembayaran melalui transfer ke ${bankFaqAnswer}`,
+            tags: ['pembayaran', 'transfer', 'bca', 'rekening', 'bayar'],
+        },
+        {
+            question: 'Apakah privasi saya terjaga?',
+            answer: 'Ya, privasi klien dijaga sepenuhnya dalam setiap proses. Dokumentasi sesi juga tersedia untuk keperluan evaluasi.',
+            tags: ['privasi', 'kerahasiaan', 'aman', 'dokumen'],
+        },
+        {
+            question: 'Apa saja alur penanganan awal?',
+            answer: 'Alur: (1) Konsultasi via WhatsApp → (2) Screening kondisi → (3) Login sistem → (4) Booking jadwal → (5) Pembayaran.',
+            tags: ['alur', 'proses', 'langkah', 'tahapan'],
+        },
+        {
+            question: 'Bagaimana cara menghubungi via email?',
+            answer: `Untuk kebutuhan administrasi dan komunikasi resmi, hubungi kami di ${clinicEmail}.`,
+            tags: ['email', 'administrasi', 'resmi', 'surat'],
+        },
+        {
+            question: 'Apakah sesi dilakukan secara terjadwal?',
+            answer: 'Ya, sesi dilakukan secara terjadwal. Jadwal dapat ditentukan setelah proses screening via WhatsApp.',
+            tags: ['terjadwal', 'booking', 'jadwal', 'registrasi'],
+        },
+        {
+            question: 'Nomor WhatsApp klinik berapa?',
+            answer: `Nomor WhatsApp ${clinicName} adalah ${clinicPhone}.`,
+            tags: ['whatsapp', 'nomor', 'telepon', 'hp', 'kontak'],
+        },
+    ];
+
     const [searchQuery, setSearchQuery] = useState('');
     const [openFaq, setOpenFaq] = useState(null);
 

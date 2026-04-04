@@ -300,7 +300,7 @@ export default function PaymentUpload({ booking, transaction, paymentMethods, ba
                                         <TextInput
                                             id="payment_bank"
                                             type="text"
-                                            placeholder="Contoh: BCA / Mandiri / BNI (Gunakan huruf)"
+                                            placeholder="Contoh: BCA / Akun Anda (Gunakan huruf)"
                                             className="w-full !rounded-2xl !bg-white/50 dark:!bg-white/[0.02] !border-white/60 dark:!border-white/[0.06] focus:!ring-indigo-500"
                                             value={data.payment_bank}
                                             onChange={(e) => {

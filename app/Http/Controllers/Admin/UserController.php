@@ -353,43 +353,80 @@ class UserController extends Controller
         }
 
         // 7. Payment method (Transaction)
-        if ($request->filled('payment_method')) {
+        if ($request->filled('payment_status')) {
             $booking = $user->bookings()->latest()->first();
             if ($booking) {
-                $transaction = $booking->transaction;
-                // Only update if not already paid and method changed
-                if ($transaction && $transaction->status !== 'paid') {
-                    $transactionData = [
-                        'payment_method' => $request->payment_method,
-                    ];
+                // Find existing transaction via polymorphic relation
+                $transaction = \App\Models\Transaction::where('transactionable_type', \App\Models\Booking::class)
+                    ->where('transactionable_id', $booking->id)
+                    ->first();
 
-                    if ($request->payment_status === 'paid') {
-                        $transactionData['status'] = 'paid';
-                        $transactionData['payment_bank'] = $request->payment_bank;
-                        $transactionData['payment_account_number'] = $request->payment_account_number;
-                        $transactionData['payment_account_name'] = $request->payment_account_name;
-                        $transactionData['validated_at'] = now();
-                        $transactionData['validated_by'] = auth()->id();
+                // If no transaction exists yet, create one
+                if (!$transaction) {
+                    $packageSlug = $request->package_type ?? $booking->package_type ?? 'reguler';
+                    $pkg = \App\Models\Package::where('slug', $packageSlug)->first();
+                    $basePrice = $pkg?->current_price ?? 0;
 
-                        if ($request->hasFile('payment_proof')) {
-                            $transactionData['payment_proof'] = $request->file('payment_proof')->store('payments', 'public');
-                            $transactionData['payment_proof_uploaded_at'] = now();
-                        }
-
-                        // Update booking status also
-                        $booking->update(['status' => 'confirmed']);
-                        
-                        // Increment schedule count if applicable
-                        if ($booking->schedule) {
-                            $booking->schedule->increment('booked_count');
-                            if ($booking->schedule->booked_count >= $booking->schedule->quota) {
-                                $booking->schedule->update(['status' => 'full']);
-                            }
-                        }
+                    // If part of group, check if there's a specific member price (soft-coded)
+                    $member = \App\Models\GroupBookingMember::where('booking_id', $booking->id)->first();
+                    if ($member && $member->price > 0) {
+                        $basePrice = $member->price;
                     }
 
-                    $transaction->update($transactionData);
+                    // Apply tax and unique code even for groups
+                    $amount = round($basePrice * 1.11) + rand(101, 999);
+
+                    $transaction = new \App\Models\Transaction([
+                        'user_id'                => $user->id,
+                        'transactionable_type'   => \App\Models\Booking::class,
+                        'transactionable_id'     => $booking->id,
+                        'amount'                 => $amount,
+                        'status'                 => 'pending',
+                        'payment_method'         => $request->payment_method ?? 'Transfer Bank',
+                        'invoice_number'         => 'INV-' . strtoupper(uniqid()),
+                    ]);
+                    $transaction->save();
                 }
+
+                // Update transaction data
+                $transactionData = [
+                    'payment_method' => $request->payment_method ?? $transaction->payment_method,
+                ];
+
+                if ($request->payment_status === 'paid') {
+                    $transactionData['status']                 = 'paid';
+                    $transactionData['payment_bank']           = $request->payment_bank;
+                    $transactionData['payment_account_number'] = $request->payment_account_number;
+                    $transactionData['payment_account_name']   = $request->payment_account_name;
+                    $transactionData['validated_at']           = now();
+                    $transactionData['validated_by']           = auth()->id();
+
+                    if ($request->hasFile('payment_proof')) {
+                        $transactionData['payment_proof']             = $request->file('payment_proof')->store('payments', 'public');
+                        $transactionData['payment_proof_uploaded_at'] = now();
+                    }
+
+                    // Sync booking status to confirmed if paid
+                    $booking->update(['status' => 'confirmed']);
+
+                    // Sync schedule booked count
+                    if ($booking->schedule) {
+                        $sc = $booking->schedule;
+                        $count = \App\Models\Booking::where('schedule_id', $sc->id)
+                            ->whereIn('status', \App\Models\Booking::SLOT_OCCUPYING_STATUSES)
+                            ->count();
+                        
+                        $sc->update([
+                            'booked_count' => $count,
+                            'status' => $count >= $sc->quota ? 'full' : 'available'
+                        ]);
+                    }
+                } else {
+                    $transactionData['status'] = 'pending';
+                    $booking->update(['status' => 'pending_payment']);
+                }
+
+                $transaction->update($transactionData);
             }
         }
 

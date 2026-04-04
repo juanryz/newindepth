@@ -37,10 +37,9 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
         agree_chargeback: false,
     });
 
-    // Metode pembayaran berdasarkan session_type
     const ALL_PAYMENT_METHODS = [
-        { id: 'transfer', label: 'Transfer Bank', icon: '🏦', desc: 'BCA / Mandiri / BNI' },
-        { id: 'cash', label: 'Bayar di Klinik', icon: '💵', desc: 'Tunai langsung' },
+        { id: 'transfer', label: 'Transfer Bank', icon: '🏦', desc: 'Transfer antar bank' },
+        { id: 'cash', label: 'Bayar di Klinik', icon: '💵', desc: 'Tunai langsung / EDC' },
     ];
     const availablePaymentMethods = data.session_type === 'online'
         ? ALL_PAYMENT_METHODS.filter(m => m.id === 'transfer')
@@ -203,14 +202,21 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                         </div>
 
                                                         <div className="mb-2">
-                                                            {pkg.original_price && (
-                                                                <div className="text-[11px] text-gray-400 dark:text-gray-500 line-through">
-                                                                    Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
-                                                                </div>
-                                                            )}
-                                                            <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
-                                                                Rp {new Intl.NumberFormat('id-ID').format(data.session_type === 'online' ? (pkg.online_price || pkg.price) : pkg.price)}
-                                                            </p>
+                                                            {(() => {
+                                                                const finalPrice = data.session_type === 'online' ? (pkg.online_price || pkg.price) : pkg.price;
+                                                                return (
+                                                                    <>
+                                                                        {pkg.original_price && pkg.original_price > finalPrice && (
+                                                                            <div className="text-[11px] text-gray-400 dark:text-gray-500 line-through">
+                                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
+                                                                            </div>
+                                                                        )}
+                                                                        <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
+                                                                            Rp {new Intl.NumberFormat('id-ID').format(finalPrice)}
+                                                                        </p>
+                                                                    </>
+                                                                );
+                                                            })()}
                                                             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
                                                                 *Sudah Termasuk Konsultasi {data.session_type === 'online' ? '(Online)' : '(Offline)'}
                                                             </p>

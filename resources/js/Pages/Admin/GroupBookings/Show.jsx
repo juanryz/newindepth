@@ -400,7 +400,7 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                                                 </div>
 
                                                                 {/* Validation Actions if pending */}
-                                                                {member.booking.transaction.status === 'pending' && (
+                                                                {member.booking.transaction.status === 'pending' && (member.booking.transaction.payment_proof || ['cash', 'tunai'].includes(member.booking.transaction.payment_method?.toLowerCase())) && (
                                                                     <div className="flex gap-1">
                                                                         <button
                                                                             onClick={() => handleValidate(member.booking.transaction.id)}
