@@ -312,7 +312,7 @@ export default function UsersForm({
                                 {[
                                     { id: 'name',  label: 'Nama Lengkap *',            placeholder: 'Sesuai KTP/SIM', icon: User,  type: 'text',  required: true },
                                     { id: 'email', label: 'Alamat Email *',             placeholder: 'email@aktif.com', icon: Mail, type: 'email', required: true },
-                                    { id: 'phone', label: 'Nomor Telepon / WhatsApp',  placeholder: '081234567890',   icon: Phone, type: 'text' },
+                                    { id: 'phone', label: 'Nomor Telepon / WhatsApp',  placeholder: '08xxx',   icon: Phone, type: 'text' },
                                 ].map(({ id, label, placeholder, icon: Icon, type, required }) => (
                                     <div key={id} className="space-y-2">
                                         <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">{label}</InputLabel>
@@ -389,7 +389,7 @@ export default function UsersForm({
                                 <div className="space-y-2">
                                     <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Telepon</InputLabel>
                                     <div className="relative">
-                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_phone} onChange={(e) => setData('emergency_contact_phone', e.target.value)} placeholder="081234567890" />
+                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_phone} onChange={(e) => setData('emergency_contact_phone', e.target.value)} placeholder="08xxx" />
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     </div>
                                 </div>
@@ -660,9 +660,15 @@ export default function UsersForm({
                                                             <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                         </div>
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
-                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Sesuai buku tabungan" />
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening</InputLabel>
+                                                            <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} placeholder="000111222" />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
+                                                            <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Sesuai buku tabungan" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

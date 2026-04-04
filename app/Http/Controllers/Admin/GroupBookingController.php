@@ -32,7 +32,7 @@ class GroupBookingController extends Controller
 
     public function index(Request $request)
     {
-        $groups = GroupBooking::with(['createdBy', 'members', 'user'])
+        $groups = GroupBooking::with(['createdBy', 'members.booking.transaction', 'user'])
             ->withCount('members')
             ->when($request->filled('search'), fn($q) =>
                 $q->where('group_name', 'like', '%' . $request->search . '%')

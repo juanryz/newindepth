@@ -211,27 +211,6 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
         setShowInvoice(true);
     };
 
-    const handleViewGroupInvoice = (group) => {
-        // This would require fetching members for the invoice specifically if they aren't loaded
-        // For now, let's just make it show what we have
-        const data = {
-            id: group.id,
-            invoice_number: group.invoice_number,
-            created_at: group.created_at,
-            payment_status: group.payment_status === 'paid' ? 'paid' : 'pending',
-            group_name: group.group_name,
-            email: group.email || group.institution_name,
-            phone: group.pic_phone,
-            address: group.address,
-            amount: group.total_amount,
-            members: [], // Need to load members if we want details here
-        };
-
-        setInvoiceData(data);
-        setInvoiceType('group');
-        setShowInvoice(true);
-    };
-
     const filteredGroups = (groupBookings || []).filter(grp => {
         if (grpFilterStatus && grp.payment_status !== grpFilterStatus) return false;
         if (grpFilterSearch) {
@@ -1098,11 +1077,11 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                     <thead className="bg-gray-50/50 dark:bg-gray-800/50">
                                                         <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-gray-700/30">
                                                             <th className="px-6 py-5">Instansi / Grup</th>
-                                                            <th className="px-6 py-5">PIC & Invoice</th>
+                                                            <th className="px-6 py-5">PIC</th>
                                                             <th className="px-6 py-5 text-center">Anggota</th>
                                                             <th className="px-6 py-5">Jadwal & Paket</th>
                                                             <th className="px-6 py-5">Status Anggota</th>
-                                                            <th className="px-6 py-5 text-right">Total & Status</th>
+                                                            <th className="px-6 py-5 text-center">Status Pembayaran</th>
                                                             <th className="px-6 py-5 text-center">Aksi</th>
                                                         </tr>
                                                     </thead>
@@ -1129,7 +1108,6 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                     <div className="flex flex-col gap-0.5">
                                                                         <div className="text-sm font-bold text-gray-900 dark:text-white">{grp.pic_name || '-'}</div>
                                                                         {grp.pic_phone && <div className="text-xs text-gray-500">{grp.pic_phone}</div>}
-                                                                        <div className="text-[10px] font-black text-violet-500 uppercase tracking-widest bg-violet-50 dark:bg-violet-900/30 px-2 py-0.5 rounded-md w-fit mt-1">{grp.invoice_number}</div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5 text-center">
@@ -1176,17 +1154,27 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         </div>
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-6 py-5 text-right">
-                                                                    <div className="flex flex-col items-end gap-2">
-                                                                        <span className="text-base font-black text-gray-900 dark:text-white">
-                                                                            Rp {new Intl.NumberFormat('id-ID').format(grp.total_amount || 0)}
-                                                                        </span>
-                                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${grp.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                                                                            {grp.payment_status === 'paid' ? '✓ Lunas' : '⏳ Pending'}
-                                                                        </span>
-                                                                        {grp.payment_method && (
-                                                                            <span className="text-[10px] text-gray-400">{grp.payment_method}</span>
-                                                                        )}
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <div className="flex flex-col items-center gap-2">
+                                                                        {(() => {
+                                                                            const totalMembers = (grp.members || []).length;
+                                                                            if (totalMembers === 0) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">Belum Ada Anggota</span>;
+                                                                            }
+                                                                            
+                                                                            const paid = (grp.members || []).filter(m => m.transaction?.status === 'paid').length;
+                                                                            const pending = (grp.members || []).filter(m => m.transaction?.status === 'pending').length;
+                                                                            
+                                                                            if (paid === totalMembers) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">✓ Lunas Semua</span>;
+                                                                            }
+                                                                            
+                                                                            if (paid > 0 || pending > 0) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">⏳ Sebagian</span>;
+                                                                            }
+                                                                            
+                                                                            return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">Belum Bayar</span>;
+                                                                        })()}
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5 text-center">
@@ -1198,13 +1186,6 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                             <Eye className="w-3 h-3" />
                                                                             Detail
                                                                         </Link>
-                                                                        <button
-                                                                            onClick={() => handleViewGroupInvoice(grp)}
-                                                                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 text-violet-600 dark:text-violet-400 text-[10px] font-black uppercase rounded-xl border border-violet-100 dark:border-violet-800 transition-all hover:bg-violet-50"
-                                                                        >
-                                                                            <FileText className="w-3 h-3" />
-                                                                            Invoice
-                                                                        </button>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1372,14 +1353,22 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div className="flex flex-col gap-1 items-start">
                                                                             <span className="text-sm font-black text-gray-900 dark:text-white mb-1">{tx.invoice_number}</span>
                                                                             <span className="text-[9px] text-gray-400">{tx.created_at ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
-                                                                            {tx.payment_proof && (
-                                                                                <div className="mt-2 text-left bg-gray-50 dark:bg-gray-800/50 p-2 border border-gray-100 dark:border-gray-700/50 rounded-lg">
-                                                                                    <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{tx.payment_bank}</div>
-                                                                                    {tx.payment_agreement_data?.payment_account_number && (
-                                                                                        <div className="text-[10px] text-gray-800 dark:text-gray-300 font-bold">{tx.payment_agreement_data.payment_account_number}</div>
-                                                                                    )}
-                                                                                    {tx.payment_agreement_data?.payment_account_name && (
-                                                                                        <div className="text-[9px] text-gray-400 capitalize">{tx.payment_agreement_data.payment_account_name}</div>
+                                                                             {tx.payment_proof && (
+                                                                                <div className="mt-2 text-left bg-gray-50 dark:bg-gray-800/10 p-2.5 border border-indigo-100 dark:border-indigo-900/30 rounded-xl">
+                                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                                        <span className="text-[8px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm border border-indigo-100/50">
+                                                                                            {tx.payment_bank || tx.payment_method || '-'}
+                                                                                        </span>
+                                                                                        {(tx.payment_account_number || tx.payment_agreement_data?.payment_account_number) && (
+                                                                                            <span className="text-[10px] text-gray-900 dark:text-gray-300 font-black tracking-wider leading-none">
+                                                                                                {tx.payment_account_number || tx.payment_agreement_data?.payment_account_number}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    {(tx.payment_account_name || tx.payment_agreement_data?.payment_account_name) && (
+                                                                                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter truncate max-w-[120px]">
+                                                                                            A.N. {tx.payment_account_name || tx.payment_agreement_data?.payment_account_name}
+                                                                                        </div>
                                                                                     )}
                                                                                 </div>
                                                                             )}

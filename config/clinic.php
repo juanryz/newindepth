@@ -34,13 +34,13 @@ return [
     'bank_accounts' => [
         [
             'bank'    => env('CLINIC_BANK_1_NAME',    'BCA'),
-            'account' => env('CLINIC_BANK_1_ACCOUNT', '1234567890'),
-            'holder'  => env('CLINIC_BANK_1_HOLDER',  'InDepth Mental Wellness'),
+            'account' => env('CLINIC_BANK_1_ACCOUNT', '2520639058'),
+            'holder'  => env('CLINIC_BANK_1_HOLDER',  'JULIUS BAMBANG KURNIADIS'),
         ],
         [
             'bank'    => env('CLINIC_BANK_2_NAME',    'Mandiri'),
             'account' => env('CLINIC_BANK_2_ACCOUNT', '9876543210'),
-            'holder'  => env('CLINIC_BANK_2_HOLDER',  'InDepth Mental Wellness'),
+            'holder'  => env('CLINIC_BANK_2_HOLDER',  'JULIUS BAMBANG KURNIADIS'),
         ],
     ],
 

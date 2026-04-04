@@ -366,6 +366,7 @@ class UserController extends Controller
                     if ($request->payment_status === 'paid') {
                         $transactionData['status'] = 'paid';
                         $transactionData['payment_bank'] = $request->payment_bank;
+                        $transactionData['payment_account_number'] = $request->payment_account_number;
                         $transactionData['payment_account_name'] = $request->payment_account_name;
                         $transactionData['validated_at'] = now();
                         $transactionData['validated_by'] = auth()->id();
@@ -613,6 +614,8 @@ class UserController extends Controller
                     'status'                 => 'pending',
                     'payment_method'         => $request->payment_method,
                     'payment_bank'           => $request->payment_bank,
+                    'payment_account_number' => $request->payment_account_number,
+                    'payment_account_name'   => $request->payment_account_name,
                     'ip_address'             => $request->ip(),
                     'payment_agreement_data' => [
                         'registered_offline_by_admin_id'   => auth()->id(),
@@ -623,8 +626,6 @@ class UserController extends Controller
 
                 if ($isPaid) {
                     $transactionData['status']                   = 'paid';
-                    $transactionData['payment_method']           = $request->payment_method;
-                    $transactionData['payment_bank']             = $request->payment_bank;
                     $transactionData['payment_proof']            = $paymentProofPath;
                     $transactionData['payment_proof_uploaded_at'] = now();
                     $transactionData['validated_by']             = auth()->id();

@@ -132,7 +132,7 @@ export default function GroupBookingsCreate({ group }) {
                                             className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
                                             value={data.phone}
                                             onChange={(e) => setData('phone', e.target.value)}
-                                            placeholder="081234567890"
+                                            placeholder="08xxx"
                                         />
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                     </div>

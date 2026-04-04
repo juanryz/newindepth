@@ -662,10 +662,19 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                             const hasDiscount = tx.transactionable?.user_voucher?.voucher;
                                                             return (
                                                                 <tr key={tx.id} className="hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10 transition-colors">
-                                                                    <td className="px-6 py-5 text-center">
+                                                                     <td className="px-6 py-5 text-center">
                                                                         <div className="flex flex-col items-center">
                                                                             <span className="text-sm font-black text-slate-900 dark:text-white mb-1">{tx.invoice_number}</span>
-                                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{tx.payment_bank || '-'}</span>
+                                                                            <div className="flex flex-col items-center">
+                                                                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest leading-tight">
+                                                                                    {tx.payment_account_number || tx.payment_bank || '-'}
+                                                                                </span>
+                                                                                {(tx.payment_account_name || tx.payment_agreement_data?.payment_account_name) && (
+                                                                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">
+                                                                                        A.N. {tx.payment_account_name || tx.payment_agreement_data?.payment_account_name}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
                                                                             <span className="text-[9px] font-medium text-slate-500 mt-1">{new Date(tx.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                                                                         </div>
                                                                     </td>

@@ -369,19 +369,33 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                                     <td className="px-6 py-4">
                                                         {member.booking?.transaction ? (
                                                             <div className="flex flex-col gap-2">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
-                                                                        member.booking.transaction.status === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                        member.booking.transaction.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                        'bg-rose-50 text-rose-600 border-rose-100'
-                                                                    }`}>
-                                                                        {member.booking.transaction.status === 'paid' ? 'Valid' :
-                                                                         member.booking.transaction.status === 'pending' ? 'Menunggu' : 'Gagal'}
-                                                                    </span>
-                                                                    {member.booking.transaction.payment_proof && (
-                                                                        <a href={`/storage/${member.booking.transaction.payment_proof}`} target="_blank" className="p-1 bg-gray-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors" title="Lihat Bukti">
-                                                                            <FileText className="w-3 h-3" />
-                                                                        </a>
+                                                                 <div className="flex flex-col gap-1.5">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${
+                                                                            member.booking.transaction.status === 'paid' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                            member.booking.transaction.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                                            'bg-rose-50 text-rose-600 border-rose-100'
+                                                                        }`}>
+                                                                            {member.booking.transaction.status === 'paid' ? 'Valid' :
+                                                                             member.booking.transaction.status === 'pending' ? 'Menunggu' : 'Gagal'}
+                                                                        </span>
+                                                                        {member.booking.transaction.payment_proof && (
+                                                                            <a href={`/storage/${member.booking.transaction.payment_proof}`} target="_blank" className="p-1 bg-gray-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors" title="Lihat Bukti">
+                                                                                <FileText className="w-3 h-3" />
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
+                                                                    
+                                                                    {/* Bank Account Info */}
+                                                                    {(member.booking.transaction.payment_account_number || member.booking.transaction.payment_agreement_data?.payment_account_number) && (
+                                                                        <div className="flex flex-col text-[8px] font-bold text-gray-500 leading-tight">
+                                                                            <span className="text-indigo-600 font-black">
+                                                                                {member.booking.transaction.payment_account_number || member.booking.transaction.payment_agreement_data?.payment_account_number}
+                                                                            </span>
+                                                                            <span className="truncate max-w-[100px]">
+                                                                                A.N. {member.booking.transaction.payment_account_name || member.booking.transaction.payment_agreement_data?.payment_account_name || '-'}
+                                                                            </span>
+                                                                        </div>
                                                                     )}
                                                                 </div>
 
