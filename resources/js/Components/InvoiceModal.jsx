@@ -81,7 +81,8 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                     {/* Header */}
                     <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-indigo-100">
                         <div>
-                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">InDepth Clinic</h1>
+                            <img src="/images/logo-color.png" alt="InDepth Logo" className="h-10 w-auto mb-2" />
+                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">InDepth Mental Wellness</h1>
                             <p className="text-xs text-gray-500 font-medium mt-1">Hipnoterapi & Kesehatan Mental Profesional</p>
                         </div>
                         <div className="text-right">

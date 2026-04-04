@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ChevronLeft, User, Mail, Lock, Eye, EyeOff, Users,
-    Info, CheckCircle,
+    Info, CheckCircle, AlertCircle,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -163,6 +163,47 @@ export default function AddMember({ group }) {
                         <div className="bg-amber-50 dark:bg-amber-950/20 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/30 text-xs text-amber-700 dark:text-amber-400 font-medium flex items-start gap-3 mt-4">
                             <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" />
                             Setelah ditambahkan, lengkapi profil kesehatan anggota melalui tombol <strong>"Lengkapi Profil"</strong> di tabel anggota.
+                        </div>
+
+                        {/* Statement & Hak Akses (Disclaimer) */}
+                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-gray-800 space-y-6 mt-4">
+                            <h3 className="text-sm font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                Pernyataan &amp; Disclaimer Penting
+                            </h3>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium pb-2 border-b border-gray-100 dark:border-gray-800">
+                                Fitur ini digunakan untuk mendaftarkan pasien yang datang secara langsung (walk-in/offline). Admin wajib memastikan:
+                            </p>
+                            <ul className="space-y-4">
+                                <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">1</div>
+                                    <p>Data yang dimasukkan adalah <strong className="text-gray-900 dark:text-white">data asli pasien</strong> — bukan data fiktif, palsu, atau percobaan.</p>
+                                </li>
+                                <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">2</div>
+                                    <p>Nama, email, dan nomor telepon <strong className="text-gray-900 dark:text-white">sesuai identitas resmi</strong> pasien (KTP/SIM).</p>
+                                </li>
+                                <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">3</div>
+                                    <p>Pasien telah memberikan <strong className="text-gray-900 dark:text-white">persetujuan</strong> atas pendaftaran dan penggunaan datanya.</p>
+                                </li>
+                                <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">4</div>
+                                    <p>Password yang dibuat harus diberitahukan kepada pasien dan <strong className="text-gray-900 dark:text-white">segera diubah</strong> saat pertama login.</p>
+                                </li>
+                                <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                    <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">5</div>
+                                    <p>Admin bertanggung jawab penuh atas <strong className="text-gray-900 dark:text-white">kebenaran data</strong> yang diinput.</p>
+                                </li>
+                            </ul>
+                            <div className="mt-6 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" required className="mt-0.5 rounded border-gray-300 text-rose-600 shadow-sm focus:ring-rose-500" />
+                                    <span className="text-xs font-bold text-rose-700 dark:text-rose-400 leading-snug">
+                                        Saya menyatakan bahwa data yang akan dimasukkan adalah data pasien asli dan telah mendapat persetujuannya.
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         {/* Footer */}
