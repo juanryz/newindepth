@@ -1083,8 +1083,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                 <table className="w-full text-left border-collapse">
                                                     <thead className="bg-gray-50/50 dark:bg-gray-800/50">
                                                         <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-gray-700/30">
-                                                            <th className="px-6 py-5">Instansi / Grup</th>
-                                                            <th className="px-6 py-5">PIC</th>
+                                                            <th className="px-6 py-5">Instansi / Grup & PIC</th>
                                                             <th className="px-6 py-5 text-center">Anggota</th>
                                                             <th className="px-6 py-5">Jadwal & Paket</th>
                                                             <th className="px-6 py-5">Status Anggota</th>
@@ -1108,13 +1107,13 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                                 )}
                                                                             </div>
                                                                         </div>
-                                                                        <div className="text-[9px] text-gray-400 ml-10">{grp.created_at ? new Date(grp.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</div>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-5">
-                                                                    <div className="flex flex-col gap-0.5">
-                                                                        <div className="text-sm font-bold text-gray-900 dark:text-white">{grp.pic_name || '-'}</div>
-                                                                        {grp.pic_phone && <div className="text-xs text-gray-500">{grp.pic_phone}</div>}
+                                                                        
+                                                                        <div className="flex flex-col gap-0.5 ml-10 mt-1">
+                                                                            <div className="text-[10px] font-bold text-gray-700 dark:text-gray-300">👨‍💼 {grp.pic_name || '-'}</div>
+                                                                            {grp.pic_phone && <div className="text-[9px] text-gray-500">📞 {grp.pic_phone}</div>}
+                                                                        </div>
+
+                                                                        <div className="text-[9px] text-gray-400 ml-10 mt-1">{grp.created_at ? new Date(grp.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5 text-center">

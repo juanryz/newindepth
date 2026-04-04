@@ -32,4 +32,9 @@ class GroupBookingMember extends Model
     {
         return $this->belongsTo(Booking::class);
     }
+
+    public function transaction()
+    {
+        return $this->hasOneThrough(Transaction::class, Booking::class, 'id', 'booking_id', 'booking_id', 'id');
+    }
 }
