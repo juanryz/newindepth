@@ -710,7 +710,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                     <td className="px-6 py-5 text-center">
                                                                         {tx.payment_proof ? (
                                                                             <a
-                                                                                href={`/storage/${tx.payment_proof}`}
+                                                                                href={tx.payment_proof_url || `/storage/${tx.payment_proof}`}
                                                                                 target="_blank"
                                                                                 rel="noreferrer"
                                                                                 className="inline-flex items-center justify-center gap-2 group/proof"

@@ -678,6 +678,7 @@ export default function UsersForm({
                                                 <FileUploadField
                                                     hint="Foto struk / screenshot · Maks 5 MB"
                                                     preview={proofPreview}
+                                                    existingUrl={activeBooking?.transaction?.payment_proof_url}
                                                     onChange={handleProof}
                                                     onClear={() => { setData('payment_proof', null); setProofPreview(null); }}
                                                     error={errors.payment_proof}

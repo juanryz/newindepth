@@ -250,7 +250,7 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                         )}
                     </div>
 
-                    {invoice.payment_status === 'pending' && (!invoice.payment_method || invoice.payment_method === 'Transfer Bank') && bankAccounts.length > 0 && (
+                    {invoice.payment_status === 'pending' && (!invoice.payment_method || invoice.payment_method === 'Transfer Bank') && !['Cash', 'Tunai', 'cash', 'tunai'].includes(invoice.payment_method) && bankAccounts.length > 0 && (
                         <div className="bg-blue-50/50 rounded-2xl p-5 mb-6">
                             <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 flex items-center gap-2">
                                 <CreditCard className="w-4 h-4" /> Tujuan Transfer Bank

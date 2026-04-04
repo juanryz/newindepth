@@ -326,9 +326,8 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                             </form>
                                         </div>
 
-                                        {/* Users Table */}
-                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <div className="w-full overflow-x-auto md:overflow-visible pb-12">
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 transition-all duration-500 flex flex-col min-w-0">
+                                            <div className="w-full overflow-x-auto pb-6 rounded-t-[2.5rem]">
                                                 <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                     <thead>
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
@@ -344,21 +343,21 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                             <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all group">
                                                                 <td className="px-8 py-6">
                                                                     <div className="flex items-center gap-4">
-                                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
                                                                             {user.profile_photo_url ? (
                                                                                 <img src={user.profile_photo_url} alt="" className="w-full h-full rounded-2xl object-cover" />
                                                                             ) : (
                                                                                 <UserCircle className="w-6 h-6" />
                                                                             )}
                                                                         </div>
-                                                                        <div>
+                                                                        <div className="min-w-[150px]">
                                                                             <div className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{user.name}</div>
                                                                             <div className="text-[10px] text-gray-400 font-bold tracking-widest">{user.email}</div>
                                                                         </div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-8 py-6">
-                                                                    <div className="flex flex-wrap gap-2">
+                                                                    <div className="flex flex-wrap gap-2 min-w-[150px]">
                                                                         {user.roles.map((role, i) => {
                                                                             const roleName = typeof role === 'string' ? role : role.name;
                                                                             const roleId = typeof role === 'string' ? `${role}-${i}` : role.id;
@@ -376,10 +375,10 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                                         {user.roles.length === 0 && <span className="text-[10px] text-gray-400 italic font-medium px-2 py-1">Belum ada role</span>}
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-8 py-6 text-center">
+                                                                <td className="px-8 py-6 text-center min-w-[120px]">
                                                                     <ProfileCompletionBadge completion={user.profile_completion} />
                                                                 </td>
-                                                                <td className="px-8 py-6 text-center">
+                                                                <td className="px-8 py-6 text-center min-w-[120px]">
                                                                     {user.email_verified_at ? (
                                                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-800">
                                                                             <CheckCircle className="w-3 h-3" />
@@ -391,7 +390,7 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                                         </div>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-8 py-6 text-right whitespace-nowrap">
+                                                                <td className="px-8 py-6 text-right whitespace-nowrap min-w-[150px]">
                                                                     <div className="flex justify-end gap-2 transition-all">
                                                                         <Link
                                                                             href={route('admin.users.show', user.id)}
@@ -427,11 +426,11 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                             </div>
 
                                             {/* Pagination */}
-                                            <div className="px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            <div className="px-4 sm:px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col xl:flex-row justify-between items-center gap-6 rounded-b-[2.5rem] w-full overflow-x-auto">
+                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center xl:text-left whitespace-nowrap">
                                                     Menampilkan {users.from || 0} sampai {users.to || 0} dari {users.total} pengguna
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-wrap justify-center gap-2 max-w-full">
                                                     {users.links.map((link, i) => (
                                                         <Link
                                                             key={i}
@@ -569,7 +568,7 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                     <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                         <thead>
                                                             <tr className="bg-gray-50/50 dark:bg-gray-800/50">
-                                                                {['Grup / Institusi', 'PIC', 'Anggota', 'Total', 'Status', 'Aksi'].map((h) => (
+                                                                {['Grup / Institusi', 'Anggota', 'Status', 'Aksi'].map((h) => (
                                                                     <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4">{h}</th>
                                                                 ))}
                                                             </tr>
@@ -585,21 +584,25 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                                             <p className="text-[10px] font-black tracking-widest text-indigo-500 mt-1">{g.invoice_number}</p>
                                                                         </td>
                                                                         <td className="px-6 py-4">
-                                                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{g.pic_name}</p>
-                                                                            {g.pic_phone && <p className="text-[10px] text-gray-400">{g.pic_phone}</p>}
-                                                                        </td>
-                                                                        <td className="px-6 py-4">
                                                                             <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
                                                                                 <Users className="w-3 h-3" />
                                                                                 {g.members_count ?? 0}
                                                                             </span>
                                                                         </td>
                                                                         <td className="px-6 py-4">
-                                                                            <p className="text-sm font-black text-gray-900 dark:text-white">{formatCurrency(g.total_amount)}</p>
-                                                                            <p className="text-[10px] text-gray-400">{g.payment_method}</p>
-                                                                        </td>
-                                                                        <td className="px-6 py-4">
-                                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.cls}`}>{st.label}</span>
+                                                                            {(() => {
+                                                                                // Calculate synchronized status based on members' transactions
+                                                                                const members = g.members || [];
+                                                                                const hasMembers = members.length > 0;
+                                                                                const allPaid = hasMembers && members.every(m => m.booking?.transaction?.status === 'paid');
+                                                                                const anyPaidOrPending = hasMembers && members.some(m => ['paid', 'pending'].includes(m.booking?.transaction?.status));
+
+                                                                                let statusData = { label: 'Belum Bayar', cls: 'bg-rose-50 text-rose-700 border border-rose-100' };
+                                                                                if (allPaid) statusData = { label: '✓ Lunas Semua', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
+                                                                                else if (anyPaidOrPending) statusData = { label: '⏳ Sebagian / Proses', cls: 'bg-amber-50 text-amber-700 border border-amber-100' };
+                                                                                
+                                                                                return <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusData.cls}`}>{statusData.label}</span>;
+                                                                            })()}
                                                                         </td>
                                                                         <td className="px-6 py-4">
                                                                             <div className="flex items-center gap-2">

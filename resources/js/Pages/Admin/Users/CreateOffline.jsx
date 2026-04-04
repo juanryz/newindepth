@@ -20,7 +20,7 @@ function InvoicePreviewModal({ data, pkg, price, bankAccounts: bankAccountsProp 
     const { clinicInfo } = usePage().props;
     const bankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccountsProp;
     const isOnline = data.session_type === 'online';
-    const isCash   = data.payment_method === 'Cash';
+    const isCash   = ['Cash', 'Tunai'].includes(data.payment_method);
     const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
 
     const [isDownloading, setIsDownloading] = useState(false);
@@ -772,7 +772,7 @@ export default function CreateOffline({
                                             </InputLabel>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 {availablePaymentMethods.map((method) => {
-                                                    const isCash = method === 'Cash';
+                                                    const isCash = ['Cash', 'Tunai'].includes(method);
                                                     const Icon = isCash ? Banknote : CreditCard;
                                                     const sel = data.payment_method === method;
                                                     return (
@@ -866,7 +866,7 @@ export default function CreateOffline({
                                         {isPaid && (
                                             <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {data.payment_method !== 'Cash' && (
+                                                    {!['Cash', 'Tunai'].includes(data.payment_method) && (
                                                         <>
                                                             <div className="space-y-2">
                                                                 <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
