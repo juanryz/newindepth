@@ -140,6 +140,15 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                                 <div><span className="text-gray-400 text-[10px] uppercase">Email</span><p className="font-bold text-gray-900">{invoice.patient_email}</p></div>
                                 {invoice.patient_phone && <div><span className="text-gray-400 text-[10px] uppercase">Telepon</span><p className="font-bold text-gray-900">{invoice.patient_phone}</p></div>}
                                 <div><span className="text-gray-400 text-[10px] uppercase">Kode Booking</span><p className="font-bold text-indigo-700">#{invoice.booking_code}</p></div>
+                                {invoice.group_name && (
+                                    <div className="col-span-2 mt-1">
+                                        <span className="text-gray-400 text-[10px] uppercase block">Grup</span>
+                                        <div className="flex items-center gap-2 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                            <Users className="w-3 h-3 text-indigo-600" />
+                                            <p className="text-xs font-black text-indigo-800">{invoice.group_name}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ) : (
@@ -181,20 +190,35 @@ export function InvoiceModal({ invoice, onClose, type = 'individual', bankAccoun
                                         <td className="py-3 text-right font-bold text-gray-900">{formatCurrency(invoice.amount)}</td>
                                     </tr>
                                 ) : (
-                                    (invoice.members || []).map((m, i) => (
-                                        <tr key={i} className="border-b border-gray-50">
-                                            <td className="py-3">
-                                                <p className="font-bold text-gray-900">{m.name}</p>
-                                                <p className="text-[10px] text-gray-400">Paket {m.package_type || '-'}</p>
-                                                {m.schedule && (
-                                                    <p className="text-[10px] text-gray-400">
-                                                        📅 {formatDate(m.schedule.date)} · {formatTime(m.schedule.start_time)} WIB · {m.schedule.therapist}
+                                    <>
+                                        {invoice.schedule && (
+                                            <tr className="border-b border-gray-100 bg-indigo-50/20">
+                                                <td className="py-4 px-2" colSpan="2">
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3 text-indigo-600" />
+                                                        <p className="text-[10px] font-black uppercase text-indigo-800">Jadwal Grup Terkonfirmasi:</p>
+                                                    </div>
+                                                    <p className="text-sm font-bold text-gray-900 mt-1 ml-5">
+                                                        {formatDate(invoice.schedule.date)} · {formatTime(invoice.schedule.start_time)} WIB · {invoice.schedule.therapist}
                                                     </p>
-                                                )}
-                                            </td>
-                                            <td className="py-3 text-right font-bold text-gray-900">{formatCurrency(m.price)}</td>
-                                        </tr>
-                                    ))
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {(invoice.members || []).map((m, i) => (
+                                            <tr key={i} className="border-b border-gray-50">
+                                                <td className="py-3">
+                                                    <p className="font-bold text-gray-900">{m.name}</p>
+                                                    <p className="text-[10px] text-gray-400">Paket {m.package_type || '-'}</p>
+                                                    {m.schedule && (
+                                                        <p className="text-[10px] text-gray-400">
+                                                            📅 {formatDate(m.schedule.date)} · {formatTime(m.schedule.start_time)} WIB · {m.schedule.therapist}
+                                                        </p>
+                                                    )}
+                                                </td>
+                                                <td className="py-3 text-right font-bold text-gray-900">{formatCurrency(m.price)}</td>
+                                            </tr>
+                                        ))}
+                                    </>
                                 )}
                             </tbody>
                             <tfoot>

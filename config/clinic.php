@@ -35,12 +35,12 @@ return [
         [
             'bank'    => env('CLINIC_BANK_1_NAME',    'BCA'),
             'account' => env('CLINIC_BANK_1_ACCOUNT', '1234567890'),
-            'holder'  => env('CLINIC_BANK_1_HOLDER',  'InDepth Clinic'),
+            'holder'  => env('CLINIC_BANK_1_HOLDER',  'InDepth Mental Wellness'),
         ],
         [
             'bank'    => env('CLINIC_BANK_2_NAME',    'Mandiri'),
             'account' => env('CLINIC_BANK_2_ACCOUNT', '9876543210'),
-            'holder'  => env('CLINIC_BANK_2_HOLDER',  'InDepth Clinic'),
+            'holder'  => env('CLINIC_BANK_2_HOLDER',  'InDepth Mental Wellness'),
         ],
     ],
 

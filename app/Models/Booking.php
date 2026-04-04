@@ -90,4 +90,9 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'rescheduled_by');
     }
+
+    public function groupMember()
+    {
+        return $this->hasOne(GroupBookingMember::class, 'booking_id');
+    }
 }

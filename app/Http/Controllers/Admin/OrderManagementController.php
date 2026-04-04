@@ -71,7 +71,7 @@ class OrderManagementController extends Controller
             'validatedBy',
             'transactionable' => function (\Illuminate\Database\Eloquent\Relations\MorphTo $morphTo) {
                 $morphTo->morphWith([
-                    \App\Models\Booking::class => ['therapist', 'schedule', 'userVoucher.voucher'],
+                    \App\Models\Booking::class => ['therapist', 'schedule', 'userVoucher.voucher', 'groupMember.groupBooking.schedule'],
                 ]);
             }
         ])
@@ -85,7 +85,7 @@ class OrderManagementController extends Controller
             })->toArray();
 
         // Group Bookings — shown as 1 row per group (institution name + member count)
-        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy'])
+        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.schedule.therapist'])
             ->withCount('members')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -113,6 +113,16 @@ class OrderManagementController extends Controller
                         'therapist'  => $group->schedule->therapist ? ['id' => $group->schedule->therapist->id, 'name' => $group->schedule->therapist->name] : null,
                     ] : null,
                     'created_by_name' => $group->createdBy?->name,
+                    'members' => $group->members->map(fn($m) => [
+                        'name' => $m->user?->name ?? 'Anggota',
+                        'package_type' => $m->package_type,
+                        'price' => $m->price,
+                        'schedule' => ($m->booking && $m->booking->schedule) ? [
+                            'date' => $m->booking->schedule->date,
+                            'start_time' => $m->booking->schedule->start_time,
+                            'therapist' => ($m->booking->schedule->therapist) ? $m->booking->schedule->therapist->name : 'InDepth',
+                        ] : null,
+                    ])->toArray(),
                 ];
             })->toArray();
 

@@ -401,6 +401,14 @@ function ActiveBookingCard({ booking }) {
                                 </span>
                             </p>
                         )}
+                        {booking.group_booking_member?.group_booking && (
+                            <p className="flex items-center gap-1.5 mt-1">
+                                <strong className="text-slate-900 dark:text-slate-200 uppercase text-[10px] tracking-wider">Grup:</strong>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                    {booking.group_booking_member.group_booking.group_name}
+                                </span>
+                            </p>
+                        )}
                     </div>
 
                     {/* ---- 2-hour reminder (only for confirmed) ---- */}
@@ -931,6 +939,14 @@ export default function Dashboard() {
                                                 </div>
                                                 <div className="relative space-y-2 mb-6 text-sm text-slate-600 dark:text-slate-400">
                                                     <p><strong>Paket:</strong> {booking.package_type?.toUpperCase()}</p>
+                                                    {booking.group_booking_member?.group_booking && (
+                                                        <p className="flex items-center gap-1.5 leading-none">
+                                                            <strong className="tracking-tight">Grup:</strong> 
+                                                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-lg text-[10px] font-black uppercase">
+                                                                {booking.group_booking_member.group_booking.group_name}
+                                                            </span>
+                                                        </p>
+                                                    )}
                                                     <p><strong>Terapis:</strong> {booking.therapist?.name || booking.schedule?.therapist?.name}</p>
                                                     <p><strong>Waktu Mulai:</strong> {new Date(booking.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</p>
                                                 </div>
@@ -982,6 +998,11 @@ export default function Dashboard() {
                                                                     <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${packageColor}`}>
                                                                         {booking.package_type?.toUpperCase() || 'SESI'}
                                                                     </span>
+                                                                    {booking.group_booking_member?.group_booking && (
+                                                                        <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/40">
+                                                                            Grup: {booking.group_booking_member.group_booking.group_name}
+                                                                        </span>
+                                                                    )}
                                                                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
                                                                         🕐 {timeStr} – {endStr} WIB
                                                                     </span>

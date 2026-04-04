@@ -209,10 +209,10 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                                 </div>
                                                             )}
                                                             <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
-                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}
+                                                                Rp {new Intl.NumberFormat('id-ID').format(data.session_type === 'online' ? (pkg.online_price || pkg.price) : pkg.price)}
                                                             </p>
                                                             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                                                                *Sudah Termasuk Konsultasi
+                                                                *Sudah Termasuk Konsultasi {data.session_type === 'online' ? '(Online)' : '(Offline)'}
                                                             </p>
                                                         </div>
 

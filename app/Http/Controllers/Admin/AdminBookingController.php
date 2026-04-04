@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Models\Package;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class AdminBookingController extends Controller
@@ -194,10 +197,14 @@ class AdminBookingController extends Controller
 
     public function store(Request $request)
     {
+        $packageValues = Package::pluck('slug')->toArray();
         $request->validate([
-            'patient_id' => 'required|exists:users,id',
-            'schedule_id' => 'required|exists:schedules,id',
-            'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
+            'patient_id'     => 'required|exists:users,id',
+            'schedule_id'    => 'required|exists:schedules,id',
+            'package_type'   => ['required', \Illuminate\Validation\Rule::in($packageValues)],
+            'session_type'   => 'required|in:online,offline',
+            'payment_status' => 'required|in:pending,paid',
+            'notes'          => 'nullable|string|max:1000',
         ]);
 
         $schedule = Schedule::findOrFail($request->schedule_id);
@@ -206,15 +213,25 @@ class AdminBookingController extends Controller
             return back()->withErrors(['error' => 'Slot jadwal yang dipilih sudah penuh.']);
         }
 
-        Booking::create([
-            'booking_code' => 'B-' . strtoupper(uniqid()),
-            'patient_id' => $request->patient_id,
-            'therapist_id' => $schedule->therapist_id,
-            'schedule_id' => $schedule->id,
+        $bookingStatus = $request->payment_status === 'paid' ? 'confirmed' : 'pending_payment';
+
+        // Get Package Price
+        $package = Package::where('slug', $request->package_type)->first();
+        $basePrice = $request->session_type === 'online' ? ($package->online_current_price ?? $package->current_price) : $package->current_price;
+        $tax = $basePrice * 0.11;
+        $totalAmount = round($basePrice + $tax);
+
+        $booking = Booking::create([
+            'booking_code'         => 'BK-' . strtoupper(Str::random(10)),
+            'patient_id'           => $request->patient_id,
+            'therapist_id'         => $schedule->therapist_id,
+            'schedule_id'          => $schedule->id,
             'original_schedule_id' => $schedule->id,
-            'package_type' => $request->package_type,
-            'status' => 'confirmed', // Admin langsung masuk confirmed
-            'amount' => 0, // Assume offline / manual pay
+            'package_type'         => $request->package_type,
+            'session_type'         => $request->session_type,
+            'status'               => $bookingStatus,
+            'notes'                => $request->notes,
+            'amount'               => $totalAmount,
         ]);
 
         $schedule->increment('booked_count');
@@ -222,6 +239,40 @@ class AdminBookingController extends Controller
             $schedule->update(['status' => 'full']);
         }
 
-        return back()->with('success', 'Pasien berhasil ditambahkan ke jadwal ini.');
+        // Create Transaction
+        $invoiceNumber = 'INV-' . strtoupper(Str::random(10));
+        $transaction = Transaction::create([
+            'booking_id'      => $booking->id,
+            'user_id'         => $request->patient_id,
+            'invoice_number'  => $invoiceNumber,
+            'amount'          => $totalAmount,
+            'payment_method'  => $request->payment_status === 'paid' ? 'manual' : null,
+            'status'          => $request->payment_status === 'paid' ? 'completed' : 'pending',
+            'paid_at'         => $request->payment_status === 'paid' ? now() : null,
+            'validation_note' => $request->payment_status === 'paid' ? 'Confirmed by Admin during registration' : null,
+        ]);
+
+        // Generate Invoice Data for immediate display
+        $invoiceData = [
+            'invoice_number' => $invoiceNumber,
+            'created_at'     => $transaction->created_at->format('Y-m-d H:i:s'),
+            'patient_name'   => $booking->patient->name,
+            'patient_email'  => $booking->patient->email,
+            'patient_phone'  => $booking->patient->phone,
+            'booking_code'   => $booking->booking_code,
+            'package_name'   => ucfirst($booking->package_type),
+            'session_type'   => $booking->session_type,
+            'amount'         => (int)$totalAmount,
+            'payment_status' => $transaction->status === 'completed' ? 'paid' : 'pending',
+            'payment_method' => $transaction->payment_method === 'manual' ? 'Tunai/Transfer' : 'Transfer Bank',
+            'schedule'       => [
+                'date'       => $schedule->date,
+                'start_time' => $schedule->start_time,
+                'therapist'  => $schedule->therapist?->name ?? 'Terapis',
+            ]
+        ];
+
+        return back()->with('success', 'Booking berhasil dibuat.')
+                     ->with('invoiceData', $invoiceData);
     }
 }

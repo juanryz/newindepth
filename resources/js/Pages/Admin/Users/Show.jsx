@@ -1,25 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, useForm } from '@inertiajs/react';
 import ErrorBoundary from './ErrorBoundary';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     User, ShieldCheck, Heart, Activity, Clock, CreditCard,
     ChevronRight, AlertTriangle, FileText, Calendar,
     Phone, Mail, CheckCircle2, ChevronLeft, ExternalLink,
     Fingerprint, MapPin, Clipboard, Download, X, Printer,
-    Banknote, CheckCircle
+    Banknote, CheckCircle, Package as PackageIcon, Wifi, WifiOff,
+    Save
 } from 'lucide-react';
 import { InvoiceModal } from '@/Components/InvoiceModal';
 
+// Shared schedule label
+function scheduleLabel(s) {
+    if (!s) return '—';
+    const dateStr = new Date(s.date + 'T12:00:00').toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+    const avail = (s.quota ?? 0) - (s.confirmed_count ?? 0);
+    return `${dateStr} · ${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)} · ${s.therapist?.name ?? '—'} (${avail})`;
+}
+
 // Use shared InvoiceModal components
-function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], screeningResults = [], profileCompletion, bankAccounts = [] }) {
+function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], availableSchedules = [], bookingPackages = [], screeningResults = [], profileCompletion, bankAccounts = [] }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [selectedBooking, setSelectedBooking] = useState(null);
     const { flash } = usePage().props;
     const [showInvoice, setShowInvoice] = useState(!!flash?.invoiceData);
+    const [showNewBookingModal, setShowNewBookingModal] = useState(false);
 
     const isPatient = (userModel.roles || []).includes('patient');
     const isTherapist = (userModel.roles || []).includes('therapist');
@@ -28,6 +41,29 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
     const ktpDocumentPath = userModel.ktp_photo;
     const latestScreening = screeningResults[0];
     const isAgreementSigned = !!userModel.agreement_signed_at;
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        patient_id: userModel.id,
+        session_type: 'offline',
+        schedule_id: '',
+        package_type: '',
+        payment_status: 'pending',
+        notes: '',
+    });
+
+    const submitNewBooking = (e) => {
+        e.preventDefault();
+        post(route('admin.bookings.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setShowNewBookingModal(false);
+                reset();
+            }
+        });
+    };
+
+    const selectedPkg = bookingPackages.find(p => p.slug === data.package_type);
+    const basePrice = data.session_type === 'online' ? (selectedPkg?.online_price || selectedPkg?.price || 0) : (selectedPkg?.price || 0);
     const isAffiliateSigned = !!userModel.affiliate_agreement_signed_at;
 
     const tabs = [
@@ -200,6 +236,12 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                 <Link href={route('admin.users.edit', userModel.id)} className="w-full py-4 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-700 transition-all text-[10px] shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
                                     <FileText className="w-4 h-4" /> Edit Profil
                                 </Link>
+                                <button
+                                    onClick={() => setShowNewBookingModal(true)}
+                                    className="w-full py-4 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition-all text-[10px] shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+                                >
+                                    <Calendar className="w-4 h-4" /> Daftarkan Sesi Baru
+                                </button>
                                 {flash?.invoiceData && (
                                     <button
                                         onClick={() => setShowInvoice(true)}
@@ -560,6 +602,11 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                         <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                                                             {isPatient ? (booking.therapist?.name || '-') : (booking.patient?.name || '-')}
                                                                         </p>
+                                                                        {booking.group_booking_member?.group_booking && (
+                                                                            <p className="text-[10px] text-blue-500 font-bold uppercase mt-0.5">
+                                                                                Grup: {booking.group_booking_member.group_booking.group_name}
+                                                                            </p>
+                                                                        )}
                                                                         <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${booking.status === 'completed' ? 'text-emerald-600 bg-emerald-50' : 'text-indigo-600 bg-indigo-50'}`}>
                                                                             {booking.status}
                                                                         </span>
@@ -927,15 +974,158 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                         )}
                     </Modal>
 
-                {/* Invoice Modal — muncul otomatis setelah registrasi */}
-                {showInvoice && flash?.invoiceData && (
-                    <InvoiceModal
-                        invoice={flash.invoiceData}
-                        type="individual"
-                        onClose={() => setShowInvoice(false)}
-                        bankAccounts={bankAccounts}
-                    />
-                )}
+                    <Modal show={showNewBookingModal} onClose={() => setShowNewBookingModal(false)} maxWidth="2xl">
+                        <div className="p-8">
+                            <div className="flex items-center justify-between mb-8">
+                                <div>
+                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                                        <Calendar className="w-5 h-5 text-blue-600" /> Daftarkan Sesi Baru
+                                    </h3>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Sesi Ulang / Repeat Client</p>
+                                </div>
+                                <button onClick={() => setShowNewBookingModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+                                    <X className="w-5 h-5 text-gray-400" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={submitNewBooking} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Mode Sesi */}
+                                    <div className="space-y-2">
+                                        <InputLabel value="Mode Sesi" className="!text-[10px] !font-black !uppercase !tracking-widest !text-gray-400" />
+                                        <div className="flex gap-2">
+                                            {[
+                                                { id: 'offline', label: 'Offline', icon: MapPin },
+                                                { id: 'online', label: 'Online', icon: Wifi },
+                                            ].map(mode => (
+                                                <button
+                                                    key={mode.id}
+                                                    type="button"
+                                                    onClick={() => setData('session_type', mode.id)}
+                                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                        data.session_type === mode.id
+                                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20'
+                                                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 hover:border-blue-400'
+                                                    }`}
+                                                >
+                                                    <mode.icon className="w-3.5 h-3.5" />
+                                                    {mode.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <InputError message={errors.session_type} />
+                                    </div>
+
+                                    {/* Paket */}
+                                    <div className="space-y-2">
+                                        <InputLabel value="Pilih Paket" className="!text-[10px] !font-black !uppercase !tracking-widest !text-gray-400" />
+                                        <select
+                                            className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold focus:ring-blue-500 focus:border-blue-500 transition-all p-3.5"
+                                            value={data.package_type}
+                                            onChange={e => setData('package_type', e.target.value)}
+                                        >
+                                            <option value="">Pilih Paket...</option>
+                                            {bookingPackages.map(pkg => (
+                                                <option key={pkg.slug} value={pkg.slug}>
+                                                    {pkg.name} — Rp {new Intl.NumberFormat('id-ID').format(data.session_type === 'online' ? (pkg.online_price || pkg.price) : pkg.price)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <InputError message={errors.package_type} />
+                                    </div>
+                                </div>
+
+                                {/* Jadwal */}
+                                <div className="space-y-2">
+                                    <InputLabel value="Jadwal Konsultasi" className="!text-[10px] !font-black !uppercase !tracking-widest !text-gray-400" />
+                                    <select
+                                        className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold focus:ring-blue-500 focus:border-blue-500 transition-all p-3.5"
+                                        value={data.schedule_id}
+                                        onChange={e => setData('schedule_id', e.target.value)}
+                                    >
+                                        <option value="">Pilih Jadwal Tersedia...</option>
+                                        {availableSchedules.map(s => (
+                                            <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.schedule_id} />
+                                </div>
+
+                                {/* Status & Amount Info */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-3xl">
+                                    <div className="space-y-2">
+                                        <InputLabel value="Status Pembayaran" className="!text-[10px] !font-black !uppercase !tracking-widest !text-gray-400" />
+                                        <div className="flex gap-2">
+                                            {[
+                                                { id: 'pending', label: 'Belum Bayar' },
+                                                { id: 'paid', label: 'Lunas' },
+                                            ].map(s => (
+                                                <button
+                                                    key={s.id}
+                                                    type="button"
+                                                    onClick={() => setData('payment_status', s.id)}
+                                                    className={`flex-1 px-3 py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
+                                                        data.payment_status === s.id
+                                                            ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                                                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500'
+                                                    }`}
+                                                >
+                                                    {s.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <InputError message={errors.payment_status} />
+                                    </div>
+                                    <div className="flex flex-col justify-center">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Estimasi Tagihan</p>
+                                        <p className="text-xl font-black text-blue-700 dark:text-blue-400">
+                                            Rp {new Intl.NumberFormat('id-ID').format(basePrice * 1.11)}
+                                        </p>
+                                        <p className="text-[9px] font-bold text-blue-500 italic">Sudah termasuk PPN 11%</p>
+                                    </div>
+                                </div>
+
+                                {/* Notes */}
+                                <div className="space-y-2">
+                                    <InputLabel value="Catatan Internal / Keluhan" className="!text-[10px] !font-black !uppercase !tracking-widest !text-gray-400" />
+                                    <textarea
+                                        className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold focus:ring-blue-500 focus:border-blue-500 transition-all p-3.5 min-h-[100px]"
+                                        value={data.notes}
+                                        onChange={e => setData('notes', e.target.value)}
+                                        placeholder="Tambahkan catatan khusus jika ada..."
+                                    />
+                                    <InputError message={errors.notes} />
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <SecondaryButton
+                                        type="button"
+                                        onClick={() => setShowNewBookingModal(false)}
+                                        className="flex-1 !justify-center !py-4 !rounded-2xl !text-[10px] !font-black !uppercase !tracking-widest"
+                                    >
+                                        Batal
+                                    </SecondaryButton>
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="flex-[2] py-4 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition-all text-[10px] shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {processing ? 'Memproses...' : <><Save className="w-4 h-4" /> Simpan Booking</>}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </Modal>
+
+                    {/* Invoice Modal — muncul otomatis setelah registrasi */}
+                    {showInvoice && flash?.invoiceData && (
+                        <InvoiceModal
+                            invoice={flash.invoiceData}
+                            type="individual"
+                            onClose={() => setShowInvoice(false)}
+                            bankAccounts={bankAccounts}
+                        />
+                    )}
 
                 </div>
             </div>

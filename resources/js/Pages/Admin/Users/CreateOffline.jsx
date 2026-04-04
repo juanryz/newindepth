@@ -283,7 +283,10 @@ export default function CreateOffline({
 }) {
     // Invoice modal state setelah submit individu berhasil
     const [invoiceData, setInvoiceData] = useState(null);
-    const { flash } = usePage().props;
+    const { flash, clinicInfo } = usePage().props;
+
+    // Gunakan bankAccounts dari clinicInfo (shared props) jika tersedia, fallback ke prop
+    const effectiveBankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccounts;
 
     // Tampilkan invoice dari flash session jika ada
     React.useEffect(() => {
@@ -396,9 +399,9 @@ export default function CreateOffline({
                     invoice={invoiceData}
                     type="individual"
                     onClose={() => setInvoiceData(null)}
-                    bankAccounts={bankAccounts}
+                    bankAccounts={effectiveBankAccounts}
                 />
-            )}
+)}
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
@@ -800,9 +803,9 @@ export default function CreateOffline({
                                         {data.payment_method === 'Transfer Bank' && (
                                             <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-3">Rekening Tujuan Transfer</p>
-                                                {bankAccounts.length > 0 ? (
+                                                {effectiveBankAccounts.length > 0 ? (
                                                     <div className="space-y-3">
-                                                        {bankAccounts.map((b) => (
+                                                        {effectiveBankAccounts.map((b) => (
                                                             <div key={b.bank} className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-xl border border-blue-100 dark:border-blue-900/30">
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -821,7 +824,7 @@ export default function CreateOffline({
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Silakan transfer ke rekening resmi InDepth Clinic.</p>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Silakan transfer ke rekening resmi {clinicInfo?.name || 'InDepth Mental Wellness'}.</p>
                                                 )}
                                                 <p className="text-[9px] text-amber-600 dark:text-amber-400 font-bold mt-2">
                                                     ⚠️ Harap transfer tepat sesuai nominal. Pembayaran akan dikonfirmasi oleh admin.
@@ -929,7 +932,7 @@ export default function CreateOffline({
                                                 ? (pkg2?.online_price ?? pkg2?.price ?? 0)
                                                 : (pkg2?.price ?? 0);
                                         })()}
-                                        bankAccounts={bankAccounts}
+                                        bankAccounts={effectiveBankAccounts}
                                         onClose={() => setShowPreview(false)}
                                     />
                                 )}

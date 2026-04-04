@@ -111,7 +111,7 @@ class UserController extends Controller
         $transactions = [];
 
         if ($user->hasRole('patient')) {
-            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
+            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('patient_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -142,11 +142,31 @@ class UserController extends Controller
                 ->get();
 
             // Bookings where they are the therapist
-            $bookings = \App\Models\Booking::with(['patient', 'schedule', 'therapist'])
+            $bookings = \App\Models\Booking::with(['patient', 'schedule', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('therapist_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
+
+        // Available schedules for "New Booking" feature
+        $now = Carbon::now('Asia/Jakarta');
+        $availableSchedules = Schedule::where('schedule_type', 'consultation')
+            ->where('date', '>=', $now->toDateString())
+            ->whereNotNull('therapist_id')
+            ->where('status', 'available')
+            ->withCount(['bookings as confirmed_count' => fn($q) => $q->whereIn('status', Booking::SLOT_OCCUPYING_STATUSES)])
+            ->with('therapist:id,name')
+            ->orderBy('date')->orderBy('start_time')
+            ->get()
+            ->filter(fn($s) => $s->confirmed_count < $s->quota)
+            ->values();
+
+        $bookingPackages = Package::orderBy('base_price')->get()->map(fn($p) => [
+            'slug'         => $p->slug,
+            'name'         => $p->name,
+            'price'        => $p->current_price,
+            'online_price' => $p->online_current_price,
+        ]);
 
 
         return Inertia::render('Admin/Users/Show', [
@@ -154,6 +174,8 @@ class UserController extends Controller
             'bookings' => $bookings,
             'transactions' => $transactions,
             'schedules' => $schedules,
+            'availableSchedules' => $availableSchedules,
+            'bookingPackages' => $bookingPackages,
             'screeningResults' => $user->screeningResults()->orderBy('completed_at', 'desc')->get(),
             'profileCompletion' => $user->getProfileCompletionStats(),
             'bankAccounts' => config('clinic.bank_accounts', []),
@@ -213,6 +235,16 @@ class UserController extends Controller
             'price' => $p->current_price,
         ]);
 
+        $groupMember = \App\Models\GroupBookingMember::with('groupBooking.schedule.therapist')
+            ->where('user_id', $user->id)
+            ->first();
+
+        // Get active booking and transaction for invoice display
+        $activeBooking = \App\Models\Booking::with(['transaction', 'schedule.therapist', 'therapist'])
+            ->where('patient_id', $user->id)
+            ->latest()
+            ->first();
+
         return Inertia::render('Admin/Users/Form', [
             'userModel'       => $user,
             'roles'           => $roles,
@@ -223,6 +255,9 @@ class UserController extends Controller
             'schedules'       => $schedules,
             'bookingPackages' => $bookingPackages,
             'screeningResult' => $screening,
+            'groupMemberInfo' => $groupMember,
+            'activeBooking'   => $activeBooking,
+            'bankAccounts'    => config('clinic.bank_accounts', []),
         ]);
     }
 
@@ -250,6 +285,11 @@ class UserController extends Controller
             'admin_notes'                => 'nullable|string',
             'is_high_risk'               => 'nullable|boolean',
             'agreement_signed_offline'   => 'nullable|boolean',
+            'payment_method'             => 'nullable|string|in:Transfer Bank,Cash',
+            'payment_status'             => 'nullable|in:pending,paid',
+            'payment_bank'               => 'nullable|string|max:50',
+            'payment_account_name'       => 'nullable|string|max:100',
+            'payment_proof'              => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         // 1. Update user profile fields
@@ -310,6 +350,46 @@ class UserController extends Controller
                 'recommended_package'    => $request->recommended_package,
                 'screening_completed_at' => now(),
             ]);
+        }
+
+        // 7. Payment method (Transaction)
+        if ($request->filled('payment_method')) {
+            $booking = $user->bookings()->latest()->first();
+            if ($booking) {
+                $transaction = $booking->transaction;
+                // Only update if not already paid and method changed
+                if ($transaction && $transaction->status !== 'paid') {
+                    $transactionData = [
+                        'payment_method' => $request->payment_method,
+                    ];
+
+                    if ($request->payment_status === 'paid') {
+                        $transactionData['status'] = 'paid';
+                        $transactionData['payment_bank'] = $request->payment_bank;
+                        $transactionData['payment_account_name'] = $request->payment_account_name;
+                        $transactionData['validated_at'] = now();
+                        $transactionData['validated_by'] = auth()->id();
+
+                        if ($request->hasFile('payment_proof')) {
+                            $transactionData['payment_proof'] = $request->file('payment_proof')->store('payments', 'public');
+                            $transactionData['payment_proof_uploaded_at'] = now();
+                        }
+
+                        // Update booking status also
+                        $booking->update(['status' => 'confirmed']);
+                        
+                        // Increment schedule count if applicable
+                        if ($booking->schedule) {
+                            $booking->schedule->increment('booked_count');
+                            if ($booking->schedule->booked_count >= $booking->schedule->quota) {
+                                $booking->schedule->update(['status' => 'full']);
+                            }
+                        }
+                    }
+
+                    $transaction->update($transactionData);
+                }
+            }
         }
 
         return redirect()->route('admin.users.show', $user->id)

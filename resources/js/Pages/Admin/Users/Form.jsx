@@ -5,11 +5,12 @@ import {
     ChevronLeft, Save, User, Mail, Phone, Lock, Shield, AlertCircle,
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
     CheckSquare, Camera, FileImage, Calendar, Package as PackageIcon,
-    CheckCircle, Clock, Trash2, Upload,
+    CheckCircle, Clock, Trash2, Upload, Users, Banknote,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import InvoiceModal from '@/Components/InvoiceModal';
 
 // ─── Reusable Section Card ────────────────────────────────────────────────────
 function Section({ icon: Icon, iconBg, iconColor, title, subtitle, children }) {
@@ -75,15 +76,24 @@ function scheduleLabel(s) {
 }
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
-const STEPS = [
-    { num: 1, label: 'Identitas' },
-    { num: 2, label: 'KTP' },
-    { num: 3, label: 'Kontak Darurat' },
-    { num: 4, label: 'Skrining' },
-    { num: 5, label: 'Perjanjian' },
-    { num: 6, label: 'Jadwal' },
-    { num: 7, label: 'Akun & Akses' },
-];
+const getSteps = (isGroupMember) => {
+    const steps = [
+        { num: 1, label: 'Identitas' },
+        { num: 2, label: 'KTP' },
+        { num: 3, label: 'Kontak Darurat' },
+        { num: 4, label: 'Skrining' },
+        { num: 5, label: 'Perjanjian' },
+        { num: 6, label: 'Jadwal' },
+    ];
+
+    if (isGroupMember) {
+        steps.push({ num: 7, label: 'Pembayaran' });
+        steps.push({ num: 8, label: 'Akun & Akses' });
+    } else {
+        steps.push({ num: 7, label: 'Akun & Akses' });
+    }
+    return steps;
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function UsersForm({
@@ -96,9 +106,17 @@ export default function UsersForm({
     schedules = [],
     bookingPackages = [],
     screeningResult = null,
+    groupMemberInfo = null,
+    activeBooking   = null,
+    bankAccounts    = [],
 }) {
     const isEditing = !!userModel?.id;
+    const isGroupMember = !!groupMemberInfo;
     const { flash } = usePage().props;
+
+    const [showInvoice, setShowInvoice] = useState(false);
+
+    const STEPS = getSteps(isGroupMember);
 
     const { data, setData, post, put, processing, errors } = useForm({
         // Identitas
@@ -122,9 +140,17 @@ export default function UsersForm({
         // Perjanjian
         agreement_signed_offline: userModel?.agreement_signed ?? false,
         // Jadwal - edit tidak assign jadwal baru lewat sini (lihat booking)
-        schedule_id:   '',
-        package_type:  '',
+        // Jadwal
+        schedule_id:   groupMemberInfo?.group_booking?.schedule_id ?? '',
+        package_type:  groupMemberInfo?.package_type || groupMemberInfo?.group_booking?.package_type || '',
         booking_notes: '',
+        // Pembayaran
+        payment_method: 'Transfer Bank',
+        payment_status: activeBooking?.transaction?.status === 'paid' ? 'paid' : 'pending',
+        payment_bank:   '',
+        payment_account_number: '',
+        payment_account_name:   '',
+        payment_proof:  null,
         // Akun & Password
         password:              '',
         password_confirmation: '',
@@ -147,6 +173,14 @@ export default function UsersForm({
         setData('roles', checked ? [...data.roles, value] : data.roles.filter(r => r !== value));
     };
 
+    const [proofPreview, setProofPreview] = useState(null);
+    const handleProof = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setData('payment_proof', file);
+        setProofPreview(URL.createObjectURL(file));
+    };
+
     const submit = (e) => {
         e.preventDefault();
         if (isEditing) {
@@ -159,8 +193,33 @@ export default function UsersForm({
     const hasSchedule = !!data.schedule_id;
     const ktpUrl = userModel?.ktp_photo_url ?? null;
 
-    // Back link — if came from group booking, go back there
     const backHref = isEditing ? route('admin.users.show', userModel.id) : route('admin.users.index');
+
+    const selectedPkg = bookingPackages.find(p => p.slug === data.package_type);
+    const packagePrice = selectedPkg?.price ?? 0;
+
+    // Data invoice untuk modal
+    const getInvoiceData = () => {
+        if (!activeBooking) return null;
+        return {
+            invoice_number: activeBooking.transaction?.invoice_number ?? 'INV-',
+            booking_code:   activeBooking.booking_code,
+            patient_name:   userModel?.name,
+            patient_email:  userModel?.email,
+            patient_phone:  userModel?.phone,
+            package_name:   selectedPkg?.name ?? (activeBooking.package_type || 'Custom'),
+            session_type:   activeBooking.session_type || 'offline',
+            amount:         activeBooking.transaction?.amount ?? packagePrice,
+            payment_status: activeBooking.transaction?.status ?? 'pending',
+            schedule: activeBooking.schedule ? {
+                date:       activeBooking.schedule.date,
+                start_time: activeBooking.schedule.start_time,
+                therapist:  activeBooking.schedule.therapist?.name || activeBooking.therapist?.name || '-'
+            } : null,
+            group_name: groupMemberInfo?.group_booking?.group_name,
+            created_at: activeBooking.created_at,
+        };
+    };
 
     return (
         <AuthenticatedLayout
@@ -231,8 +290,8 @@ export default function UsersForm({
                                 </li>
                             </ul>
                             <div className="mt-6 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
-                                <label className="flex items-start gap-3 cursor-pointer">
-                                    <input type="checkbox" required className="mt-0.5 rounded border-gray-300 text-rose-600 shadow-sm focus:ring-rose-500" />
+                                <label className="flex items-start gap-4 cursor-pointer p-4 bg-rose-50/50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-900/30 hover:bg-rose-50 transition-colors">
+                                    <input type="checkbox" className="mt-1 rounded border-gray-300 text-rose-600 shadow-sm focus:ring-rose-500" />
                                     <span className="text-xs font-bold text-rose-700 dark:text-rose-400 leading-snug">
                                         Saya menyatakan bahwa data yang akan dimasukkan adalah data pasien asli dan telah mendapat persetujuannya.
                                     </span>
@@ -420,39 +479,65 @@ export default function UsersForm({
                             </label>
                         </Section>
 
-                        {/* ── STEP 6: Jadwal & Paket (hanya untuk CREATE baru atau edit tanpa booking) ── */}
-                        {!isEditing && (
-                            <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi" subtitle="Step 6 — Opsional, bisa diatur nanti">
+                        {/* ── STEP 6: Jadwal & Paket ──────────────────────────── */}
+                        {( !isEditing || isGroupMember ) && (
+                            <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi" subtitle={`Step 6 — ${isGroupMember ? 'Sinkron dengan Grup' : 'Opsional, bisa diatur nanti'}`}>
                                 <div className="space-y-6">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        Isi bagian ini jika pasien sudah memilih jadwal dan paket. Kosongkan jika belum.
-                                    </p>
+                                    {isGroupMember ? (
+                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 space-y-3">
+                                            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-bold text-xs">
+                                                <Users className="w-4 h-4" />
+                                                Terdaftar sebagai anggota grup: <span className="text-indigo-600">{groupMemberInfo.group_booking?.group_name}</span>
+                                            </div>
+                                            <p className="text-[10px] text-blue-600/70 font-medium leading-relaxed">
+                                                Jadwal dan sesi otomatis disinkronkan dengan pengaturan grup.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                            Isi bagian ini jika pasien sudah memilih jadwal dan paket. Kosongkan jika belum.
+                                        </p>
+                                    )}
+
                                     <div className="space-y-2">
                                         <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Jadwal</InputLabel>
-                                        {schedules.length === 0 ? (
-                                            <div className="p-5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-xs text-gray-400 font-medium">Tidak ada jadwal tersedia saat ini</div>
+                                        {isGroupMember ? (
+                                            <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 opacity-80">
+                                                {groupMemberInfo.group_booking?.schedule ? scheduleLabel(groupMemberInfo.group_booking.schedule) : 'Grup belum memilih jadwal'}
+                                            </div>
                                         ) : (
-                                            <select className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.schedule_id} onChange={(e) => setData('schedule_id', e.target.value)}>
-                                                <option value="">-- Tidak Ada / Pilih Nanti --</option>
-                                                {schedules.map((s) => <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>)}
-                                            </select>
+                                            <>
+                                                {schedules.length === 0 ? (
+                                                    <div className="p-5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-xs text-gray-400 font-medium">Tidak ada jadwal tersedia saat ini</div>
+                                                ) : (
+                                                    <select className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.schedule_id} onChange={(e) => setData('schedule_id', e.target.value)}>
+                                                        <option value="">-- Tidak Ada / Pilih Nanti --</option>
+                                                        {schedules.map((s) => <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>)}
+                                                    </select>
+                                                )}
+                                            </>
                                         )}
                                         <InputError message={errors.schedule_id} className="mt-2" />
                                     </div>
-                                    {hasSchedule && (
+
+                                    {(hasSchedule || isGroupMember) && (
                                         <div className="space-y-2">
                                             <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Paket <span className="text-rose-500">*</span></InputLabel>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {bookingPackages.map((pkg) => (
-                                                    <label key={pkg.slug} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${data.package_type === pkg.slug ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-blue-300'}`}>
-                                                        <input type="radio" className="hidden" name="package_type" value={pkg.slug} checked={data.package_type === pkg.slug} onChange={() => setData('package_type', pkg.slug)} />
-                                                        <PackageIcon className={`w-4 h-4 flex-shrink-0 ${data.package_type === pkg.slug ? 'text-white' : 'text-blue-400'}`} />
-                                                        <div>
-                                                            <p className={`text-[10px] font-black uppercase tracking-widest ${data.package_type === pkg.slug ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>{pkg.name}</p>
-                                                            <p className={`text-[10px] font-medium mt-0.5 ${data.package_type === pkg.slug ? 'text-white/80' : 'text-gray-400'}`}>Rp {pkg.price.toLocaleString('id-ID')}</p>
-                                                        </div>
-                                                    </label>
-                                                ))}
+                                                {bookingPackages.map((pkg) => {
+                                                    const isSelected = data.package_type === pkg.slug;
+                                                    const isDisabled = isGroupMember && !isSelected;
+                                                    return (
+                                                        <label key={pkg.slug} className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700'} ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-blue-300'}`}>
+                                                            <input type="radio" className="hidden" name="package_type" value={pkg.slug} checked={isSelected} disabled={isDisabled} onChange={() => !isGroupMember && setData('package_type', pkg.slug)} />
+                                                            <PackageIcon className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-blue-400'}`} />
+                                                            <div>
+                                                                <p className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>{pkg.name}</p>
+                                                                <p className={`text-[10px] font-medium mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>Rp {pkg.price.toLocaleString('id-ID')}</p>
+                                                            </div>
+                                                        </label>
+                                                    );
+                                                })}
                                             </div>
                                             <InputError message={errors.package_type} className="mt-2" />
                                         </div>
@@ -461,8 +546,158 @@ export default function UsersForm({
                             </Section>
                         )}
 
-                        {/* ── STEP 7: Akun & Akses ────────────────────────── */}
-                        <Section icon={Shield} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Akun & Akses" subtitle="Step 7 — Keamanan dan role">
+                        {/* ── STEP 7: Pembayaran (Hanya jika Group Member atau individual baru dengan jadwal) ── */}
+                        {(isGroupMember || (!isEditing && hasSchedule)) && (
+                            <Section icon={Save} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Informasi Pembayaran" subtitle="Step 7 — Metode pembayaran anggota">
+                                <div className="space-y-8">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                        {isGroupMember ? 'Anggota grup melakukan pembayaran secara mandiri. Tentukan metode pembayaran yang akan digunakan.' : 'Pilih metode pembayaran pasien.'}
+                                    </p>
+
+                                    {/* Preview Invoice */}
+                                    {data.package_type && (
+                                        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-950/30 dark:to-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Ringkasan Biaya</p>
+                                            <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-500 font-medium">Paket Layanan</span>
+                                                    <span className="font-black text-gray-900 dark:text-white">{selectedPkg?.name ?? data.package_type}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-500 font-medium">Sesi</span>
+                                                    <span className="font-black text-gray-900 dark:text-white">{isGroupMember ? '🏥 Offline (Grup)' : '🏥 Offline'}</span>
+                                                </div>
+                                                <div className="h-px bg-indigo-200 dark:bg-indigo-800 my-1" />
+                                                <div className="flex justify-between items-center">
+                                                    <span className="font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide text-xs">Total</span>
+                                                    <span className="font-black text-xl text-indigo-700 dark:text-indigo-300">
+                                                        Rp {packagePrice.toLocaleString('id-ID')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Metode Pembayaran */}
+                                    <div className="space-y-4">
+                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Metode Pembayaran</InputLabel>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {[
+                                                { value: 'Transfer Bank', label: 'Transfer Bank', desc: 'Transfer ke rekening klinik.' },
+                                                { value: 'Cash',          label: 'Tunai (Cash)',  desc: 'Bayar langsung di tempat.' },
+                                            ].map((opt) => (
+                                                <label key={opt.value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_method === opt.value ? 'bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-orange-300'}`}>
+                                                    <input type="radio" className="hidden" name="payment_method" value={opt.value} checked={data.payment_method === opt.value} onChange={() => setData('payment_method', opt.value)} />
+                                                    <div className={`p-2 rounded-lg ${data.payment_method === opt.value ? 'bg-white/20' : 'bg-orange-100 dark:bg-orange-900/40'}`}>
+                                                        {opt.value === 'Cash' ? <Save className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{opt.label}</p>
+                                                        <p className={`text-[10px] font-medium leading-relaxed ${data.payment_method === opt.value ? 'text-white/80' : 'text-gray-400'}`}>{opt.desc}</p>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Info Transfer - Hanya jika Pending & Transfer */}
+                                    {data.payment_method === 'Transfer Bank' && data.payment_status === 'pending' && (
+                                        <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5 space-y-4">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Rekening Tujuan</p>
+                                            <div className="space-y-3">
+                                                {bankAccounts.map((b) => (
+                                                    <div key={b.bank} className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-[10px]">{b.bank}</div>
+                                                            <div>
+                                                                <p className="text-xs font-black text-gray-900 dark:text-white">{b.holder}</p>
+                                                                <p className="text-sm font-mono font-black text-indigo-600 tracking-wider">{b.account}</p>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)} className="text-[9px] font-black text-indigo-600 px-3 py-1.5 bg-indigo-50 rounded-lg">Salin</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Status Pembayaran */}
+                                    <div className="space-y-4">
+                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Status Pembayaran</InputLabel>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {[
+                                                { value: 'pending', Icon: Clock,       color: 'orange', label: 'Belum Dibayar', desc: 'Menunggu konfirmasi atau akan dibayar nanti.' },
+                                                { value: 'paid',    Icon: CheckCircle, color: 'emerald',label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima secara langsung / transfer.' },
+                                            ].map((st) => (
+                                                <label key={st.value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === st.value ? `bg-${st.color}-600 border-${st.color}-600 text-white shadow-lg shadow-${st.color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
+                                                    <input type="radio" className="hidden" name="payment_status" value={st.value} checked={data.payment_status === st.value} onChange={() => setData('payment_status', st.value)} />
+                                                    <st.Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${data.payment_status === st.value ? 'text-white' : `text-${st.color}-500`}`} />
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{st.label}</p>
+                                                        <p className={`text-[10px] font-medium leading-relaxed ${data.payment_status === st.value ? 'text-white/80' : 'text-gray-400'}`}>{st.desc}</p>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Detail Jika Sudah Bayar */}
+                                    {data.payment_status === 'paid' && (
+                                        <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/40">
+                                            {data.payment_method === 'Transfer Bank' && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
+                                                        <div className="relative">
+                                                            <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold transition-all" value={data.payment_bank} onChange={(e) => setData('payment_bank', e.target.value)} placeholder="Contoh: BCA / Mandiri / OVO" />
+                                                            <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
+                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border-transparent focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Sesuai buku tabungan" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Bukti Pembayaran (Opsional)</InputLabel>
+                                                <FileUploadField
+                                                    hint="Foto struk / screenshot · Maks 5 MB"
+                                                    preview={proofPreview}
+                                                    onChange={handleProof}
+                                                    onClear={() => { setData('payment_proof', null); setProofPreview(null); }}
+                                                    error={errors.payment_proof}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-100 dark:border-amber-900/40">
+                                        <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                                        <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold leading-relaxed">
+                                            PENTING: Pastikan Anda menerima pembayaran sebelum mengubah status menjadi "Sudah Dibayar".
+                                        </p>
+                                    </div>
+
+                                    {activeBooking && (
+                                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowInvoice(true)}
+                                                className="flex items-center gap-2 px-6 py-3 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                Lihat &amp; Download Invoice
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Section>
+                        )}
+
+                        {/* ── STEP 8: Akun & Akses ────────────────────────── */}
+                        <Section icon={Shield} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Akun & Akses" subtitle={`Step ${STEPS.length} — Keamanan dan role`}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Password */}
                                 <div className="space-y-6">
@@ -528,6 +763,16 @@ export default function UsersForm({
                     </form>
                 </div>
             </div>
+
+            {/* Modal Invoice */}
+            {showInvoice && getInvoiceData() && (
+                <InvoiceModal
+                    invoice={getInvoiceData()}
+                    type="individual"
+                    onClose={() => setShowInvoice(false)}
+                    bankAccounts={bankAccounts}
+                />
+            )}
         </AuthenticatedLayout>
     );
 }

@@ -10,6 +10,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { createPortal } from 'react-dom';
 
 import Modal from '@/Components/Modal';
+import { InvoiceModal } from '@/Components/InvoiceModal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -110,6 +111,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const calendarOpenTime = clinicSettings.open_time || '08:00';
     const calendarCloseTime = clinicSettings.close_time || '22:00';
 
+    const [showInvoice, setShowInvoice] = useState(false);
+    const [invoiceData, setInvoiceData] = useState(null);
+    const [invoiceType, setInvoiceType] = useState('individual');
+
     // Permission checks — roles dapat berupa array of strings atau array of objects
     const hasPermission = (permissionName) => {
         const roles = auth.user.roles || [];
@@ -175,6 +180,57 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     // ─── Group Booking filters ───
     const [grpFilterSearch, setGrpFilterSearch] = useState('');
     const [grpFilterStatus, setGrpFilterStatus] = useState('');
+
+    const handleViewInvoice = (tx) => {
+        const isBooking = tx.transactionable_type?.includes('Booking');
+        const booking = tx.transactionable;
+
+        const data = {
+            id: tx.id,
+            invoice_number: tx.invoice_number,
+            created_at: tx.created_at,
+            payment_status: tx.status,
+            patient_name: tx.user?.name,
+            patient_email: tx.user?.email,
+            patient_phone: tx.user?.phone,
+            booking_code: isBooking ? booking?.booking_code : '-',
+            amount: tx.amount,
+            session_type: isBooking ? booking?.session_type : 'offline',
+            package_name: isBooking ? booking?.package_type : 'Layanan',
+            schedule: isBooking && booking?.schedule ? {
+                date: booking.schedule.date,
+                start_time: booking.schedule.start_time,
+                therapist: booking.therapist?.name || booking.schedule?.therapist?.name || 'InDepth'
+            } : null,
+            // Group details if any
+            group_name: isBooking && booking?.group_member?.group_booking ? booking.group_member.group_booking.group_name : null,
+        };
+
+        setInvoiceData(data);
+        setInvoiceType('individual');
+        setShowInvoice(true);
+    };
+
+    const handleViewGroupInvoice = (group) => {
+        // This would require fetching members for the invoice specifically if they aren't loaded
+        // For now, let's just make it show what we have
+        const data = {
+            id: group.id,
+            invoice_number: group.invoice_number,
+            created_at: group.created_at,
+            payment_status: group.payment_status === 'paid' ? 'paid' : 'pending',
+            group_name: group.group_name,
+            email: group.email || group.institution_name,
+            phone: group.pic_phone,
+            address: group.address,
+            amount: group.total_amount,
+            members: [], // Need to load members if we want details here
+        };
+
+        setInvoiceData(data);
+        setInvoiceType('group');
+        setShowInvoice(true);
+    };
 
     const filteredGroups = (groupBookings || []).filter(grp => {
         if (grpFilterStatus && grp.payment_status !== grpFilterStatus) return false;
@@ -999,7 +1055,7 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                             {filteredGroups.length} / {groupBookings?.length || 0} Grup
                                                         </span>
                                                         <Link
-                                                            href={route('admin.group-bookings.index')}
+                                                            href={route('admin.users.index', { tab: 'groups' })}
                                                             className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-violet-200 dark:border-violet-800/50 text-violet-700 dark:text-violet-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all shadow-sm"
                                                         >
                                                             <Building2 className="w-4 h-4" />
@@ -1111,13 +1167,22 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5 text-center">
-                                                                    <Link
-                                                                        href={route('admin.group-bookings.show', grp.id)}
-                                                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-[10px] font-black uppercase rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20"
-                                                                    >
-                                                                        <Eye className="w-3 h-3" />
-                                                                        Detail
-                                                                    </Link>
+                                                                    <div className="flex flex-col gap-1.5 items-center">
+                                                                        <Link
+                                                                            href={route('admin.group-bookings.show', grp.id)}
+                                                                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-[10px] font-black uppercase rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20"
+                                                                        >
+                                                                            <Eye className="w-3 h-3" />
+                                                                            Detail
+                                                                        </Link>
+                                                                        <button
+                                                                            onClick={() => handleViewGroupInvoice(grp)}
+                                                                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 text-violet-600 dark:text-violet-400 text-[10px] font-black uppercase rounded-xl border border-violet-100 dark:border-violet-800 transition-all hover:bg-violet-50"
+                                                                        >
+                                                                            <FileText className="w-3 h-3" />
+                                                                            Invoice
+                                                                        </button>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         ))}
@@ -1408,6 +1473,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                                     )}
                                                                                 </div>
                                                                             )}
+                                                                            {/* View Invoice Button */}
+                                                                            <button
+                                                                                onClick={() => handleViewInvoice(tx)}
+                                                                                className="px-3 py-1 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-50 transition-all flex items-center gap-1"
+                                                                            >
+                                                                                <FileText className="w-3 h-3" />
+                                                                                Invoice
+                                                                            </button>
                                                                             {/* Admin Voucher Button */}
                                                                             {tx.status === 'pending' && !tx.payment_agreement_data?.applied_voucher_id && (
                                                                                 <>
@@ -1986,6 +2059,19 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                     </form>
                 </div>
             </Modal>
+
+            {/* Invoice Modal — muncul saat klik tombol Invoice / otomatis dari flash */}
+            {showInvoice && invoiceData && (
+                <InvoiceModal
+                    invoice={invoiceData}
+                    type={invoiceType}
+                    onClose={() => {
+                        setShowInvoice(false);
+                        setInvoiceData(null);
+                    }}
+                    bankAccounts={usePage().props.clinicInfo?.bankAccounts ?? []}
+                />
+            )}
         </AuthenticatedLayout>
     );
 }

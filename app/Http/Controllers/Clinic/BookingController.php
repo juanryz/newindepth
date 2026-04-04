@@ -158,6 +158,7 @@ class BookingController extends Controller
                 'id' => $pkg->slug,
                 'name' => $pkg->name,
                 'price' => $pkg->current_price,
+                'online_price' => $pkg->online_current_price,
                 'original_price' => $pkg->discount_percentage > 0 ? $pkg->base_price : null,
                 'description' => $pkg->description,
             ];
