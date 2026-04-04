@@ -70,7 +70,13 @@ class UserController extends Controller
 
         // Group bookings for the groups tab
         $groupSearch = $request->get('group_search');
-        $groupsQuery = GroupBooking::withCount('members')->latest();
+        $groupsQuery = GroupBooking::with([
+            'members.user', 
+            'members.booking.transaction'
+        ])
+        ->withCount('members')
+        ->latest();
+        
         if ($groupSearch) {
             $groupsQuery->where(function ($q) use ($groupSearch) {
                 $q->where('group_name', 'like', '%' . $groupSearch . '%')
@@ -110,11 +116,18 @@ class UserController extends Controller
         $schedules = [];
         $transactions = [];
 
+        $group = null;
         if ($user->hasRole('patient')) {
             $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('patient_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+            // Check if patient belongs to any group
+            $groupMember = \App\Models\GroupBookingMember::where('user_id', $user->id)->with('groupBooking.members.user')->first();
+            if ($groupMember) {
+                $group = $groupMember->groupBooking;
+            }
 
             // Get transactions directly linked to user
             $directTransactions = \App\Models\Transaction::with(['transactionable', 'validatedBy'])->where('user_id', $user->id)
@@ -179,6 +192,14 @@ class UserController extends Controller
             'screeningResults' => $user->screeningResults()->orderBy('completed_at', 'desc')->get(),
             'profileCompletion' => $user->getProfileCompletionStats(),
             'bankAccounts' => config('clinic.bank_accounts', []),
+            'group' => $group,
+            'clinicConfig' => [
+                'name' => config('clinic.name'),
+                'tagline' => config('clinic.tagline'),
+                'whatsapp' => config('clinic.whatsapp'),
+                'phone' => config('clinic.phone'),
+                'tax_percentage' => config('clinic.tax_percentage', 11),
+            ],
         ]);
     }
 

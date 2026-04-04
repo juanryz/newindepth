@@ -353,8 +353,12 @@ class GroupBookingController extends Controller
                 // Buat Transaction — amount dihitung (anggota pilih Transfer/Tunai di halaman pembayaran)
                 $package       = Package::where('slug', $packageSlug)->first();
                 $basePrice     = $package?->current_price ?? 0;
-                $priceWithTax  = $basePrice * 1.11;
-                $uniqueCode    = rand(101, 999); // dikurangi otomatis jika pilih Tunai
+                
+                // Use config-based tax or fallback to 11%
+                $taxPercent    = config('clinic.tax_percentage', 11);
+                $priceWithTax  = $basePrice * (1 + ($taxPercent / 100));
+                
+                $uniqueCode    = rand(101, 999); 
                 $amount        = round($priceWithTax) + $uniqueCode;
 
                 $booking->transaction()->create([

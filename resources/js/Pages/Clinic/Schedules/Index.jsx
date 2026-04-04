@@ -1099,6 +1099,27 @@ export default function TherapistScheduleIndex({ bookings, groupBookings = [], a
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">
                                         Terapis: <span className="text-emerald-600">{hist.schedule?.therapist?.name}</span>
                                     </p>
+
+                                    {/* Group Members List for Group Session */}
+                                    {hist.group_booking_member?.group_booking && (
+                                        <div className="mt-4 p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                                                    <span>👥 Anggota Grup</span>
+                                                    <span className="w-1 h-3 bg-indigo-200 rounded-full"></span>
+                                                    <span className="truncate max-w-[150px]">{hist.group_booking_member.group_booking.group_name}</span>
+                                                </p>
+                                                <span className="px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded text-[8px] font-black uppercase">GROUP</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {hist.group_booking_member.group_booking.members?.map(m => (
+                                                    <div key={m.id} className="px-3 py-1 bg-white dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-lg border border-indigo-100/30 dark:border-indigo-800/30 shadow-sm">
+                                                        {m.user?.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                     {hist.started_at && (
                                         <div className="mt-2 text-[10px] font-bold text-gray-500 uppercase flex flex-wrap gap-x-4 gap-y-1">
                                             <span>Mulai: <span className="text-emerald-600 font-black">{new Date(hist.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</span></span>

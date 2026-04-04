@@ -195,7 +195,7 @@ class ScheduleController extends Controller
         }
 
         // --- GROUP BOOKINGS ---
-        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy'])
+        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user'])
             ->withCount('members')
             ->orderBy('created_at', 'desc');
 
@@ -357,13 +357,25 @@ class ScheduleController extends Controller
             return redirect()->route('schedules.index')->with('error', 'Sesi belum dimulai atau tidak aktif.');
         }
 
-        $booking->load(['patient', 'schedule.therapist']);
+        $booking->load(['patient', 'schedule.therapist', 'groupBookingMember.groupBooking.members.user']);
+
+        $groupMembers = [];
+        if ($booking->groupBookingMember) {
+            $groupMembers = $booking->groupBookingMember->groupBooking->members->map(function($m) {
+                return [
+                    'id' => $m->user_id,
+                    'name' => $m->user->name,
+                    'booking_id' => $m->booking_id,
+                ];
+            });
+        }
 
         $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
 
         return Inertia::render('Clinic/Schedules/ActiveSession', [
             'booking' => $booking,
             'patient' => $booking->patient->load('screeningResults'),
+            'groupMembers' => $groupMembers,
             'isAdmin' => $isAdmin,
         ]);
     }
@@ -396,7 +408,13 @@ class ScheduleController extends Controller
             $patientNotes = ($patientNotes ? $patientNotes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.";
         }
 
-        Booking::where('schedule_id', $booking->schedule_id)->update([
+        $targetBookingIds = [$booking->id];
+        // If it's a group booking, we might want to update all members with the same recording link
+        // but therapist notes might be individual. For now, the "Update All" logic is handled by the frontend
+        // sending multiple requests or we can handle it here if requested.
+        // Actually, the user wants to fill "1 by 1", so we only update the specific booking.
+        
+        Booking::where('id', $booking->id)->update([
             'status' => 'completed',
             'ended_at' => now(),
             'recording_link' => $request->recording_link,

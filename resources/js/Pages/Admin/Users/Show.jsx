@@ -27,7 +27,7 @@ function scheduleLabel(s) {
 }
 
 // Use shared InvoiceModal components
-function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], availableSchedules = [], bookingPackages = [], screeningResults = [], profileCompletion, bankAccounts = [] }) {
+function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], availableSchedules = [], bookingPackages = [], screeningResults = [], profileCompletion, bankAccounts = [], group = null, clinicConfig = {} }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [selectedBooking, setSelectedBooking] = useState(null);
     const { flash } = usePage().props;
@@ -249,6 +249,52 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                     >
                                         <Download className="w-4 h-4" /> Lihat Invoice
                                     </button>
+                                )}
+
+                                {/* Group Info Sidebar */}
+                                {group && (
+                                    <div className="bg-indigo-50/50 dark:bg-indigo-950/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/30 p-6 overflow-hidden relative">
+                                        <div className="absolute -right-8 -top-8 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                                        <h4 className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-indigo-600 dark:text-indigo-500 uppercase mb-4">
+                                            <div className="w-1.5 h-4 bg-indigo-500 rounded-full"></div> Anggota Grup
+                                        </h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase">Nama Grup</p>
+                                                <p className="text-sm font-black text-gray-900 dark:text-white uppercase leading-tight">{group.group_name}</p>
+                                                {group.institution_name && group.institution_name !== group.group_name && (
+                                                    <p className="text-[10px] font-bold text-indigo-500 uppercase mt-0.5">{group.institution_name}</p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase">Invoice Grup</p>
+                                                <p className="text-xs font-black text-gray-600 dark:text-gray-400 font-mono tracking-wider">{group.invoice_number}</p>
+                                            </div>
+                                            {group.members && group.members.length > 0 && (
+                                                <div className="pt-2 border-t border-indigo-100 dark:border-indigo-900/40">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase mb-3 flex justify-between">
+                                                        <span>Daftar Rekan</span>
+                                                        <span className="text-indigo-500">{group.members.length} Org</span>
+                                                    </p>
+                                                    <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
+                                                        {group.members.map(m => (
+                                                            <div key={m.id} className="flex items-center gap-3 p-2 bg-white/60 dark:bg-gray-800/60 rounded-xl border border-indigo-50 dark:border-indigo-800/30">
+                                                                <div className="w-7 h-7 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center text-[10px] font-black uppercase">
+                                                                    {m.user?.name.charAt(0)}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-[10px] font-black text-gray-800 dark:text-gray-200 uppercase truncate">{m.user?.name}</p>
+                                                                    <p className={`text-[8px] font-bold uppercase ${m.user?.id === userModel.id ? 'text-indigo-500' : 'text-gray-400'}`}>
+                                                                        {m.user?.id === userModel.id ? 'Saya' : 'Anggota'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -1133,6 +1179,7 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                             type="individual"
                             onClose={() => setShowInvoice(false)}
                             bankAccounts={bankAccounts}
+                            clinicConfig={clinicConfig}
                         />
                     )}
 
