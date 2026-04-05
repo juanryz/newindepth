@@ -28,6 +28,21 @@ class GroupBookingController extends Controller
         ['value' => 'vip',         'label' => 'VIP'],
     ];
 
+    private const GENDER_OPTIONS = [
+        ['value' => 'male',   'label' => 'Laki-laki'],
+        ['value' => 'female', 'label' => 'Perempuan'],
+        ['value' => 'other',  'label' => 'Lainnya'],
+    ];
+
+    private const SEVERITY_OPTIONS = [
+        'Ringan', 'Sedang', 'Berat Akut', 'Berat Kronis', 'High Risk',
+    ];
+
+    private const SESSION_TYPE_OPTIONS = [
+        ['value' => 'online',  'label' => 'Online',  'desc' => 'Sesi melalui video call. Pembayaran hanya via Transfer Bank.'],
+        ['value' => 'offline', 'label' => 'Offline', 'desc' => 'Sesi tatap muka di klinik. Pembayaran bisa Transfer Bank atau Cash.'],
+    ];
+
     // ── INDEX ──────────────────────────────────────────────────────────────────
 
     public function index(Request $request)
@@ -251,14 +266,10 @@ class GroupBookingController extends Controller
         ]);
 
         return Inertia::render('Admin/GroupBookings/AddMember', [
-            'group'         => $groupBooking,
-            'roles'         => $roles,
-            'genderOptions' => [
-                ['value' => 'male',   'label' => 'Laki-Laki'],
-                ['value' => 'female', 'label' => 'Perempuan'],
-                ['value' => 'other',  'label' => 'Lainnya'],
-            ],
-            'severityOptions' => ['Ringan', 'Sedang', 'Berat', 'Sangat Berat'],
+            'group'           => $groupBooking,
+            'roles'           => $roles,
+            'genderOptions'   => self::GENDER_OPTIONS,
+            'severityOptions' => self::SEVERITY_OPTIONS,
             'packageOptions'  => self::PACKAGE_OPTIONS,
             'schedules'       => $schedules,
             'bookingPackages' => $bookingPackages,
@@ -267,6 +278,7 @@ class GroupBookingController extends Controller
                 'offline' => ['Transfer Bank', 'Cash'],
             ],
             'bankAccounts'    => config('clinic.bank_accounts', []),
+            'sessionTypeOptions' => self::SESSION_TYPE_OPTIONS,
         ]);
     }
 
@@ -274,8 +286,8 @@ class GroupBookingController extends Controller
 
     public function storeMember(Request $request, GroupBooking $groupBooking)
     {
-        $genderValues   = ['male', 'female', 'other'];
-        $severityValues = ['Ringan', 'Sedang', 'Berat', 'Sangat Berat'];
+        $genderValues   = array_column(self::GENDER_OPTIONS, 'value');
+        $severityValues = self::SEVERITY_OPTIONS;
         $packageValues  = Package::pluck('slug')->toArray();
 
         $request->validate([

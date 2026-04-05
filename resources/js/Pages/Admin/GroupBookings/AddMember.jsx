@@ -5,12 +5,13 @@ import {
     ChevronLeft, Save, User, Mail, Phone, Lock, Shield, AlertCircle,
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
     CheckSquare, Camera, FileImage, Upload, CheckCircle, Trash2, Users,
-    Calendar, Package as PackageIcon, CreditCard, Banknote, Download, Clock, MapPin, X
+    Calendar, Package as PackageIcon, CreditCard, Banknote, Download, Clock, MapPin, X, ArrowRight
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // ─── Invoice Preview Modal (client-side, sebelum submit) ──────────────────────
 function InvoicePreviewModal({ data, pkg, price, bankAccounts: bankAccountsProp = [], onClose }) {
@@ -206,10 +207,12 @@ function scheduleLabel(s) {
 export default function AddMember({ 
     group, roles, genderOptions, severityOptions, packageOptions, 
     schedules = [], bookingPackages = [], paymentMethodsBySession = { online: ['Transfer Bank'], offline: ['Transfer Bank', 'Cash'] },
-    bankAccounts = []
+    bankAccounts = [], sessionTypeOptions = []
 }) {
     const { clinicInfo } = usePage().props;
     const effectiveBankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccounts;
+
+    const [step, setStep] = useState(1);
 
     const { data, setData, post, processing, errors } = useForm({
         disclaimer_confirmed: false,
@@ -224,13 +227,10 @@ export default function AddMember({
         schedule_id: group.schedule_id || '',
         package_type: group.package_type || '',
         booking_notes: '',
-        // Payment
         payment_status: 'pending',
         payment_proof: null,
         payment_method: 'Transfer Bank',
         payment_bank: '', payment_account_number: '', payment_account_name: '',
-        // Akun
-        password: '', password_confirmation: '', roles: ['patient'],
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -251,10 +251,7 @@ export default function AddMember({
         previewSetter(null);
     };
 
-    const handleRoleChange = (e) => {
-        const { value, checked } = e.target;
-        setData('roles', checked ? [...data.roles, value] : data.roles.filter(r => r !== value));
-    };
+    const availablePaymentMethods = paymentMethodsBySession[data.session_type] ?? ['Transfer Bank', 'Cash'];
 
     const submit = (e) => {
         e.preventDefault();
@@ -265,6 +262,15 @@ export default function AddMember({
     const isPaid = data.payment_status === 'paid';
     const selectedPkg = bookingPackages.find(p => p.slug === data.package_type);
     const packagePrice = selectedPkg?.price ?? 0;
+
+    const goToStep2 = () => {
+        if (!data.name || !data.email || !data.password) {
+            alert('Harap isi Nama Lengkap, Email, dan Password.');
+            return;
+        }
+        setStep(2);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <AuthenticatedLayout
@@ -284,297 +290,338 @@ export default function AddMember({
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                    <form onSubmit={submit} className="space-y-8">
-                        {/* ── DISCLAIMER ──────────────────────────────────── */}
-                        <div className="bg-amber-50 dark:bg-amber-950/30 rounded-[2.5rem] p-8 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
-                            <div className="flex items-start gap-4 mb-6">
-                                <div className="p-3 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-2xl flex-shrink-0">
-                                    <AlertTriangle className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-[0.2em] mb-2">Pernyataan & Disclaimer</h3>
-                                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">Mendaftarkan anggota grup melalui alur offline.</p>
+                    <div className="flex items-center justify-center mb-12">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-1.5 rounded-full transition-all duration-500 ${step >= 1 ? 'bg-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-gray-300 dark:bg-gray-800'}`}>
+                                <div className={`w-10 h-10 rounded-full flex flex-col items-center justify-center text-[10px] font-black ${step >= 1 ? 'bg-white text-indigo-600' : 'bg-gray-100 dark:bg-gray-900 text-gray-400'}`}>
+                                    <span>STEP</span>
+                                    <span>01</span>
                                 </div>
                             </div>
-                            <label className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${data.disclaimer_confirmed ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-white dark:bg-gray-900 border-amber-200 dark:border-amber-800 hover:border-amber-400'}`}>
-                                <input type="checkbox" className="hidden" checked={data.disclaimer_confirmed} onChange={(e) => setData('disclaimer_confirmed', e.target.checked)} />
-                                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${data.disclaimer_confirmed ? 'border-white bg-white' : 'border-amber-300 dark:border-amber-600'}`}>
-                                    {data.disclaimer_confirmed && <CheckSquare className="w-3.5 h-3.5 text-amber-500" />}
+                            <div className={`w-12 h-1 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'}`} />
+                            <div className={`p-1.5 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-gray-300 dark:bg-gray-800'}`}>
+                                <div className={`w-10 h-10 rounded-full flex flex-col items-center justify-center text-[10px] font-black ${step >= 2 ? 'bg-white text-indigo-600' : 'bg-gray-100 dark:bg-gray-900 text-gray-400'}`}>
+                                    <span>STEP</span>
+                                    <span>02</span>
                                 </div>
-                                <span className={`text-xs font-black uppercase tracking-widest ${data.disclaimer_confirmed ? 'text-white' : 'text-amber-700 dark:text-amber-400'}`}>Data anggota asli dan telah disetujui</span>
-                            </label>
-                            <InputError message={errors.disclaimer_confirmed} className="mt-3" />
+                            </div>
                         </div>
+                    </div>
 
-                        {/* ── INFORMASI PRIBADI ────────────────────────────── */}
-                        <Section icon={User} iconBg="bg-indigo-50 dark:bg-indigo-900/40" iconColor="text-indigo-600 dark:text-indigo-400" title="Informasi Pribadi Anggota">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Lengkap *</InputLabel>
-                                    <div className="relative">
-                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Sesuai KTP/SIM" required />
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    </div>
-                                    <InputError message={errors.name} className="mt-2" />
-                                </div>
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Alamat Email *</InputLabel>
-                                    <div className="relative">
-                                        <TextInput type="email" className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.email} onChange={(e) => setData('email', e.target.value)} placeholder="email@aktif.com" required />
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    </div>
-                                    <InputError message={errors.email} className="mt-2" />
-                                </div>
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Telepon / WhatsApp</InputLabel>
-                                    <div className="relative">
-                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="081234567890" />
-                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    </div>
-                                    <InputError message={errors.phone} className="mt-2" />
-                                </div>
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Usia</InputLabel>
-                                    <TextInput type="number" min="1" max="120" className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.age} onChange={(e) => setData('age', e.target.value)} placeholder="Tahun" />
-                                    <InputError message={errors.age} className="mt-2" />
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Jenis Kelamin</InputLabel>
-                                    <div className="flex gap-3 flex-wrap">
-                                        {genderOptions.map((opt) => (
-                                            <label key={opt.value} className={`flex items-center gap-2 px-5 py-3 rounded-2xl border-2 cursor-pointer transition-all text-[10px] font-black uppercase tracking-widest ${data.gender === opt.value ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-500 hover:border-indigo-300'}`}>
-                                                <input type="radio" className="hidden" name="gender" value={opt.value} checked={data.gender === opt.value} onChange={() => setData('gender', opt.value)} />
-                                                {opt.label}
-                                            </label>
-                                        ))}
-                                    </div>
-                                    <InputError message={errors.gender} className="mt-2" />
-                                </div>
-                            </div>
-                        </Section>
-
-                        {/* ── FOTO KTP ─────────────────────────────────────── */}
-                        <Section icon={Camera} iconBg="bg-sky-50 dark:bg-sky-900/40" iconColor="text-sky-600 dark:text-sky-400" title="Foto KTP / Identitas">
-                            <FileUploadField hint="JPG / PNG · Maks 5 MB" preview={ktpPreview} onChange={handleFile('ktp_photo', setKtpPreview)} onClear={() => clearFile('ktp_photo', setKtpPreview)} error={errors.ktp_photo} />
-                        </Section>
-
-                        {/* ── KONTAK DARURAT ───────────────────────────────── */}
-                        <Section icon={AlertCircle} iconBg="bg-rose-50 dark:bg-rose-900/40" iconColor="text-rose-600 dark:text-rose-400" title="Kontak Darurat (Opsional)">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Kontak</InputLabel>
-                                    <div className="relative">
-                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_name} onChange={(e) => setData('emergency_contact_name', e.target.value)} />
-                                        <Contact className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Telepon</InputLabel>
-                                    <div className="relative">
-                                        <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_phone} onChange={(e) => setData('emergency_contact_phone', e.target.value)} />
-                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Hubungan</InputLabel>
-                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_relation} onChange={(e) => setData('emergency_contact_relation', e.target.value)} placeholder="Contoh: Orang Tua, Saudara Kandung" />
-                                </div>
-                            </div>
-                        </Section>
-
-                        {/* ── SKRINING ─────────────────────────────────────── */}
-                        <Section icon={ClipboardList} iconBg="bg-teal-50 dark:bg-teal-900/40" iconColor="text-teal-600 dark:text-teal-400" title="Skrining (Screening)">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                                {[
-                                    { value: 'online', Icon: Wifi, color: 'teal', label: 'Skrining Online', desc: 'Anggota mengisi skrining sendiri setelah login.' },
-                                    { value: 'manual', Icon: WifiOff, color: 'violet', label: 'Skrining Manual', desc: 'Admin menginput hasil diagnosa secara langsung.' },
-                                ].map(({ value, Icon, color, label, desc }) => (
-                                    <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.screening_type === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
-                                        <input type="radio" className="hidden" name="screening_type" value={value} checked={data.screening_type === value} onChange={() => setData('screening_type', value)} />
-                                        <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${data.screening_type === value ? 'text-white' : `text-${color}-500`}`} />
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
-                                            <p className={`text-[10px] font-medium leading-relaxed ${data.screening_type === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
+                    <form onSubmit={submit} className="space-y-8">
+                        <AnimatePresence mode="wait">
+                            {step === 1 && (
+                                <motion.div 
+                                    key="step1"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="space-y-8"
+                                >
+                                    {/* ── INFORMASI PRIBADI (AWAL) ────────────────────── */}
+                                    <Section icon={User} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Informasi Pribadi">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Lengkap *</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Sesuai KTP/SIM" required />
+                                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                                <InputError message={errors.name} className="mt-2" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Alamat Email *</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput type="email" className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.email} onChange={(e) => setData('email', e.target.value)} placeholder="email@aktif.com" required />
+                                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                                <InputError message={errors.email} className="mt-2" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">No. HP / WhatsApp</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="0812..." />
+                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                                <InputError message={errors.phone} className="mt-2" />
+                                            </div>
                                         </div>
-                                    </label>
-                                ))}
-                            </div>
-                            {data.screening_type === 'manual' && (
-                                <div className="space-y-6 p-6 bg-violet-50/50 dark:bg-violet-950/20 rounded-2xl border border-violet-100 dark:border-violet-900/40">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Tingkat Keparahan *</InputLabel>
-                                            <select className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.severity_label} onChange={(e) => setData('severity_label', e.target.value)}>
-                                                <option value="">-- Pilih Tingkat --</option>
-                                                {severityOptions.map(l => <option key={l} value={l}>{l}</option>)}
-                                            </select>
+                                    </Section>
+
+                                    {/* ── KEAMANAN & AKSES ──────────────────────────────── */}
+                                    <Section icon={Shield} iconBg="bg-indigo-50 dark:bg-indigo-900/40" iconColor="text-indigo-600 dark:text-indigo-400" title="Keamanan & Akses">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Password Sementara *</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput type={showPassword ? 'text' : 'password'} className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.password} onChange={(e) => setData('password', e.target.value)} autoComplete="new-password" required />
+                                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                    </button>
+                                                </div>
+                                                <InputError message={errors.password} className="mt-2" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Hak Akses (Roles)</InputLabel>
+                                                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 flex flex-wrap gap-2">
+                                                    {roles.map(r => (
+                                                        <label key={r.id} className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 cursor-pointer transition-all ${data.roles.includes(r.name) ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 text-gray-500'}`}>
+                                                            <input type="checkbox" className="hidden" value={r.name} checked={data.roles.includes(r.name)} onChange={(e) => {
+                                                                const { value, checked } = e.target;
+                                                                setData('roles', checked ? [...data.roles, value] : data.roles.filter(role => role !== value));
+                                                            }} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">{r.name.replace(/_/g, ' ')}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Rekomendasi Paket *</InputLabel>
-                                            <select className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.recommended_package} onChange={(e) => setData('recommended_package', e.target.value)}>
-                                                <option value="">-- Pilih Paket --</option>
-                                                {packageOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                                            </select>
-                                        </div>
+                                    </Section>
+
+                                    <div className="flex justify-end p-6 bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800">
+                                        <button 
+                                            type="button" 
+                                            onClick={goToStep2}
+                                            className="flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 active:scale-95"
+                                        >
+                                            Simpan & Lanjut ke Detail Lengkap <ArrowRight className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                    <div className="space-y-2">
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catatan Diagnosa</InputLabel>
-                                        <textarea rows={4} className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-medium text-gray-900 dark:text-white transition-all resize-none" placeholder="Tuliskan hasil skrining..." value={data.admin_notes} onChange={(e) => setData('admin_notes', e.target.value)} />
-                                    </div>
-                                </div>
+                                </motion.div>
                             )}
-                        </Section>
 
-                        {/* ── PERJANJIAN ───────────────────────────────────── */}
-                        <Section icon={FileImage} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Perjanjian & Persetujuan">
-                            <label className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.agreement_signed_offline ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-emerald-300'}`}>
-                                <input type="checkbox" className="hidden" checked={data.agreement_signed_offline} onChange={(e) => setData('agreement_signed_offline', e.target.checked)} />
-                                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${data.agreement_signed_offline ? 'border-white bg-white' : 'border-gray-300 dark:border-gray-600'}`}>
-                                    {data.agreement_signed_offline && <CheckCircle className="w-4 h-4 text-emerald-600" />}
-                                </div>
-                                <div>
-                                    <p className={`text-[10px] font-black uppercase tracking-widest ${data.agreement_signed_offline ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>Perjanjian Sudah Ditandatangani Offline</p>
-                                    <p className={`text-[10px] font-medium mt-0.5 ${data.agreement_signed_offline ? 'text-white/80' : 'text-gray-400'}`}>Anggota telah membaca dan menyetujui S&K layanan</p>
-                                </div>
-                            </label>
-                        </Section>
+                            {step === 2 && (
+                                <motion.div 
+                                    key="step2"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="space-y-8"
+                                >
+                                    {/* ── INFORMASI PRIBADI ────────────────────────────── */}
+                                    <Section icon={User} iconBg="bg-indigo-50 dark:bg-indigo-900/40" iconColor="text-indigo-600 dark:text-indigo-400" title="Informasi Pribadi & Sosiodemografi">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Telepon / WhatsApp</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="081234567890" />
+                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                                <InputError message={errors.phone} className="mt-2" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Usia</InputLabel>
+                                                <TextInput type="number" min="1" max="120" className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.age} onChange={(e) => setData('age', e.target.value)} placeholder="Tahun" />
+                                                <InputError message={errors.age} className="mt-2" />
+                                            </div>
+                                            <div className="space-y-2 md:col-span-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Jenis Kelamin</InputLabel>
+                                                <div className="flex gap-3 flex-wrap">
+                                                    {genderOptions.map((opt) => (
+                                                        <label key={opt.value} className={`flex items-center gap-2 px-5 py-3 rounded-2xl border-2 cursor-pointer transition-all text-[10px] font-black uppercase tracking-widest ${data.gender === opt.value ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-500 hover:border-indigo-300'}`}>
+                                                            <input type="radio" className="hidden" name="gender" value={opt.value} checked={data.gender === opt.value} onChange={() => setData('gender', opt.value)} />
+                                                            {opt.label}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <InputError message={errors.gender} className="mt-2" />
+                                            </div>
+                                        </div>
+                                    </Section>
 
-                        {/* ── JADWAL & PAKET (Synchronized with Group) ─────── */}
-                        <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi">
-                            <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-4">ℹ️ Default mengikuti jadwal grup. Anda dapat melakukan override jika diperlukan.</p>
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Jadwal</InputLabel>
-                                    <select className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.schedule_id} onChange={(e) => setData('schedule_id', e.target.value)}>
-                                        <option value="">-- Pilih Jadwal --</option>
-                                        {schedules.map(s => <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>)}
-                                    </select>
-                                    <InputError message={errors.schedule_id} className="mt-2" />
-                                </div>
-                                {hasSchedule && (
-                                    <div className="space-y-2">
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Paket</InputLabel>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {bookingPackages.map(pkg => (
-                                                <label key={pkg.slug} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${data.package_type === pkg.slug ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-500'}`}>
-                                                    <input type="radio" className="hidden" name="package_type" value={pkg.slug} checked={data.package_type === pkg.slug} onChange={() => setData('package_type', pkg.slug)} />
-                                                    <PackageIcon className="w-4 h-4" />
+                                    {/* ── FOTO KTP ─────────────────────────────────────── */}
+                                    <Section icon={Camera} iconBg="bg-sky-50 dark:bg-sky-900/40" iconColor="text-sky-600 dark:text-sky-400" title="Foto KTP / Identitas">
+                                        <FileUploadField hint="JPG / PNG · Maks 5 MB" preview={ktpPreview} onChange={handleFile('ktp_photo', setKtpPreview)} onClear={() => clearFile('ktp_photo', setKtpPreview)} error={errors.ktp_photo} />
+                                    </Section>
+
+                                    {/* ── KONTAK DARURAT ───────────────────────────────── */}
+                                    <Section icon={AlertCircle} iconBg="bg-rose-50 dark:bg-rose-900/40" iconColor="text-rose-600 dark:text-rose-400" title="Kontak Darurat (Opsional)">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Kontak</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_name} onChange={(e) => setData('emergency_contact_name', e.target.value)} />
+                                                    <Contact className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Telepon</InputLabel>
+                                                <div className="relative">
+                                                    <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_phone} onChange={(e) => setData('emergency_contact_phone', e.target.value)} />
+                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 md:col-span-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Hubungan</InputLabel>
+                                                <TextInput className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.emergency_contact_relation} onChange={(e) => setData('emergency_contact_relation', e.target.value)} placeholder="Contoh: Orang Tua, Saudara Kandung" />
+                                            </div>
+                                        </div>
+                                    </Section>
+
+                                    {/* ── SKRINING ─────────────────────────────────────── */}
+                                    <Section icon={ClipboardList} iconBg="bg-teal-50 dark:bg-teal-900/40" iconColor="text-teal-600 dark:text-teal-400" title="Skrining (Screening)">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                            {[
+                                                { value: 'online', Icon: Wifi, color: 'teal', label: 'Skrining Online', desc: 'Anggota mengisi skrining sendiri setelah login.' },
+                                                { value: 'manual', Icon: WifiOff, color: 'violet', label: 'Skrining Manual', desc: 'Admin menginput hasil diagnosa secara langsung.' },
+                                            ].map(({ value, Icon, color, label, desc }) => (
+                                                <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.screening_type === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
+                                                    <input type="radio" className="hidden" name="screening_type" value={value} checked={data.screening_type === value} onChange={() => setData('screening_type', value)} />
+                                                    <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${data.screening_type === value ? 'text-white' : `text-${color}-500`}`} />
                                                     <div>
-                                                        <p className="text-[10px] font-black uppercase tracking-widest">{pkg.name}</p>
-                                                        <p className="text-[10px] font-medium">Rp {pkg.price.toLocaleString('id-ID')}</p>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+                                                        <p className={`text-[10px] font-medium leading-relaxed ${data.screening_type === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
                                                     </div>
                                                 </label>
                                             ))}
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-                        </Section>
+                                        {data.screening_type === 'manual' && (
+                                            <div className="space-y-6 p-6 bg-violet-50/50 dark:bg-violet-950/20 rounded-2xl border border-violet-100 dark:border-violet-900/40">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Tingkat Keparahan *</InputLabel>
+                                                        <select className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.severity_label} onChange={(e) => setData('severity_label', e.target.value)}>
+                                                            <option value="">-- Pilih Tingkat --</option>
+                                                            {severityOptions.map(l => <option key={l} value={l}>{l}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Rekomendasi Paket *</InputLabel>
+                                                        <select className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.recommended_package} onChange={(e) => setData('recommended_package', e.target.value)}>
+                                                            <option value="">-- Pilih Paket --</option>
+                                                            {packageOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catatan Diagnosa</InputLabel>
+                                                    <textarea rows={4} className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 rounded-2xl px-6 py-4 text-sm font-medium text-gray-900 dark:text-white transition-all resize-none" placeholder="Tuliskan hasil skrining..." value={data.admin_notes} onChange={(e) => setData('admin_notes', e.target.value)} />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </Section>
 
-                        {/* ── INVOICE & PEMBAYARAN ─────────────────────────── */}
-                        {hasSchedule && (
-                            <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Invoice & Pembayaran">
-                                <div className="space-y-6">
-                                    <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Ringkasan Biaya</p>
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide text-xs">Total</span>
-                                            <span className="font-black text-xl text-indigo-700 dark:text-indigo-300">Rp {packagePrice.toLocaleString('id-ID')}</span>
+                                    {/* ── PERJANJIAN ───────────────────────────────────── */}
+                                    <Section icon={FileImage} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Perjanjian & Persetujuan">
+                                        <label className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.agreement_signed_offline ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-emerald-300'}`}>
+                                            <input type="checkbox" className="hidden" checked={data.agreement_signed_offline} onChange={(e) => setData('agreement_signed_offline', e.target.checked)} />
+                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${data.agreement_signed_offline ? 'border-white bg-white' : 'border-gray-300 dark:border-gray-600'}`}>
+                                                {data.agreement_signed_offline && <CheckCircle className="w-4 h-4 text-emerald-600" />}
+                                            </div>
+                                            <div>
+                                                <p className={`text-[10px] font-black uppercase tracking-widest ${data.agreement_signed_offline ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>Perjanjian Sudah Ditandatangani Offline</p>
+                                                <p className={`text-[10px] font-medium mt-0.5 ${data.agreement_signed_offline ? 'text-white/80' : 'text-gray-400'}`}>Anggota telah membaca dan menyetujui S&K layanan</p>
+                                            </div>
+                                        </label>
+                                    </Section>
+
+                                    {/* ── JADWAL & PAKET (Synchronized with Group) ─────── */}
+                                    <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi">
+                                        <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-4">ℹ️ Default mengikuti jadwal grup. Anda dapat melakukan override jika diperlukan.</p>
+                                        <div className="space-y-6">
+                                            <div className="space-y-2">
+                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Jadwal</InputLabel>
+                                                <select className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.schedule_id} onChange={(e) => setData('schedule_id', e.target.value)}>
+                                                    <option value="">-- Pilih Jadwal --</option>
+                                                    {schedules.map(s => <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>)}
+                                                </select>
+                                                <InputError message={errors.schedule_id} className="mt-2" />
+                                            </div>
+                                            {hasSchedule && (
+                                                <div className="space-y-2">
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Pilih Paket</InputLabel>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {bookingPackages.map(pkg => (
+                                                            <label key={pkg.slug} className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${data.package_type === pkg.slug ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-blue-300'}`}>
+                                                                <input type="radio" className="hidden" name="package_type" value={pkg.slug} checked={data.package_type === pkg.slug} onChange={() => setData('package_type', pkg.slug)} />
+                                                                <PackageIcon className={`w-4 h-4 ${data.package_type === pkg.slug ? 'text-white' : 'text-blue-400'}`} />
+                                                                <div>
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest">{pkg.name}</p>
+                                                                    <p className={`text-[10px] font-medium ${data.package_type === pkg.slug ? 'text-white' : 'text-gray-400'}`}>Rp {pkg.price.toLocaleString('id-ID')}</p>
+                                                                </div>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                    <div>
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Metode Pembayaran *</InputLabel>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {paymentMethodsBySession[data.session_type].map(method => (
-                                                <label key={method} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_method === method ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-indigo-300'}`}>
-                                                    <input type="radio" className="hidden" name="payment_method" value={method} checked={data.payment_method === method} onChange={() => setData('payment_method', method)} />
-                                                    <CreditCard className={`w-5 h-5 ${data.payment_method === method ? 'text-white' : 'text-indigo-500'}`} />
-                                                    <p className="text-sm font-black uppercase tracking-widest">{method}</p>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran *</InputLabel>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {[
-                                                { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar' },
-                                                { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar' },
-                                            ].map(({ value, Icon, color, label }) => (
-                                                <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === value ? `bg-${color}-600 border-${color}-600 text-white` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
-                                                    <input type="radio" className="hidden" name="payment_status" value={value} checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
-                                                    <Icon className="w-5 h-5 flex-shrink-0" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {data.package_type && (
-                                        <button type="button" onClick={() => setShowPreview(true)} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-xl shadow-indigo-600/20">
-                                            <Download className="w-4 h-4" /> Preview & Download Invoice
-                                        </button>
+                                    </Section>
+
+                                    {/* ── INVOICE & PEMBAYARAN ─────────────────────────── */}
+                                    {hasSchedule && (
+                                        <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Invoice & Pembayaran">
+                                            <div className="space-y-6">
+                                                <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Ringkasan Biaya</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide text-xs">Total</span>
+                                                        <span className="font-black text-xl text-indigo-700 dark:text-indigo-300">Rp {packagePrice.toLocaleString('id-ID')}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Metode Pembayaran *</InputLabel>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {availablePaymentMethods.map(method => (
+                                                            <label key={method} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_method === method ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-indigo-300'}`}>
+                                                                <input type="radio" className="hidden" name="payment_method" value={method} checked={data.payment_method === method} onChange={() => setData('payment_method', method)} />
+                                                                <CreditCard className={`w-5 h-5 ${data.payment_method === method ? 'text-white' : 'text-indigo-500'}`} />
+                                                                <p className="text-sm font-black uppercase tracking-widest">{method}</p>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran *</InputLabel>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {[
+                                                            { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar' },
+                                                            { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar' },
+                                                        ].map(({ value, Icon, color, label }) => (
+                                                            <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
+                                                                <input type="radio" className="hidden" name="payment_status" value={value} checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
+                                                                <Icon className="w-5 h-5 flex-shrink-0" />
+                                                                <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {data.package_type && (
+                                                    <button type="button" onClick={() => setShowPreview(true)} className="w-full flex items-center justify-center gap-3 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-xl shadow-indigo-600/20">
+                                                        <Download className="w-4 h-4" /> Preview & Download Invoice
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </Section>
                                     )}
-                                </div>
-                            </Section>
-                        )}
 
-                        {showPreview && (
-                            <InvoicePreviewModal
-                                data={data}
-                                pkg={bookingPackages.find(p => p.slug === data.package_type)}
-                                price={packagePrice}
-                                bankAccounts={effectiveBankAccounts}
-                                onClose={() => setShowPreview(false)}
-                            />
-                        )}
+                                    {showPreview && (
+                                        <InvoicePreviewModal
+                                            data={data}
+                                            pkg={bookingPackages.find(p => p.slug === data.package_type)}
+                                            price={packagePrice}
+                                            bankAccounts={effectiveBankAccounts}
+                                            onClose={() => setShowPreview(false)}
+                                        />
+                                    )}
 
-                        {/* ── AKUN & KEAMANAN ──────────────────────────────── */}
-                        <Section icon={Shield} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Akun & Keamanan">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Password Sementara *</InputLabel>
-                                        <div className="relative">
-                                            <TextInput type={showPassword ? 'text' : 'password'} className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.password} onChange={(e) => setData('password', e.target.value)} autoComplete="new-password" required />
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                            </button>
-                                        </div>
-                                        <InputError message={errors.password} className="mt-2" />
+                                    <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-xl border border-white dark:border-gray-800 sticky bottom-8">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                            className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors px-6"
+                                        >
+                                            Kembali
+                                        </button>
+                                        <button type="submit" disabled={processing || !data.disclaimer_confirmed} className="flex items-center gap-3 px-10 py-5 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 active:scale-95 disabled:opacity-40">
+                                            <Users className="w-4 h-4" /> Simpan & Selesaikan
+                                        </button>
                                     </div>
-                                    <div className="space-y-2">
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Konfirmasi Password</InputLabel>
-                                        <div className="relative">
-                                            <TextInput type={showPasswordConfirm ? 'text' : 'password'} className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.password_confirmation} onChange={(e) => setData('password_confirmation', e.target.value)} autoComplete="new-password" />
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                            <button type="button" onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                {showPasswordConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Hak Akses (Roles)</InputLabel>
-                                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 space-y-3">
-                                        {roles.map(r => (
-                                            <label key={r.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${data.roles.includes(r.name) ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-700 text-gray-500'}`}>
-                                                <input type="checkbox" className="hidden" value={r.name} checked={data.roles.includes(r.name)} onChange={handleRoleChange} />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{r.name.replace(/_/g, ' ')}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </Section>
-
-                        {/* ── SUBMIT ───────────────────────────────────────── */}
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-900 p-6 rounded-[2rem] shadow-xl border border-white dark:border-gray-800 sticky bottom-8">
-                            <Link href={route('admin.group-bookings.show', group.id)} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors px-6">Batal</Link>
-                            <button type="submit" disabled={processing || !data.disclaimer_confirmed} className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 active:scale-95 disabled:opacity-40">
-                                <Users className="w-4 h-4" /> Tambahkan Anggota Grup
-                            </button>
-                        </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </form>
                 </div>
             </div>
