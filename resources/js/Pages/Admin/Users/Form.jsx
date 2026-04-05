@@ -261,16 +261,14 @@ export default function UsersForm({ userModel, roles, userRoles }) {
                                             >
                                                 <input
                                                     type="checkbox"
-                                                    className="hidden"
+                                                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 bg-gray-50 border-gray-300"
                                                     value={role.name}
                                                     checked={data.roles.includes(role.name)}
                                                     onChange={handleRoleChange}
                                                 />
-                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${data.roles.includes(role.name) ? 'border-white bg-white' : 'border-gray-300'
-                                                    }`}>
-                                                    {data.roles.includes(role.name) && <div className="w-2 h-2 rounded-full bg-indigo-600" />}
-                                                </div>
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{role.name.replace(/_/g, ' ')}</span>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${data.roles.includes(role.name) ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                                                    {role.name.replace('_', ' ')}
+                                                </span>
                                             </label>
                                         ))}
                                     </div>
