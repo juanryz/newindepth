@@ -3,10 +3,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import {
     ChevronLeft, Plus, Users, Phone, Mail, MapPin,
-    FileText, Trash2, CheckCircle, Clock,
-    AlertTriangle, User, Calendar, Edit2,
-    AlertCircle, ChevronRight, Eye,
-    CheckCircle2, CreditCard,
+    FileText, Trash2, CheckCircle, AlertTriangle,
+    Calendar, Edit2, AlertCircle, Eye,
+    CheckCircle2, History, ChevronDown,
 } from 'lucide-react';
 import { InvoiceModal } from '@/Components/InvoiceModal';
 
@@ -43,13 +42,13 @@ function ProfileCompletionBadge({ completion }) {
                 />
             </div>
             {!is_complete && missingFields.length > 0 && (
-                <div className="absolute bottom-full mb-2 hidden group-hover:block z-10 w-48 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded-xl p-3 shadow-xl pointer-events-none left-1/2 -translate-x-1/2">
-                    <p className="font-black uppercase tracking-widest mb-2 text-gray-300">Belum diisi:</p>
-                    <ul className="space-y-0.5">
+                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 hidden group-hover:block z-[999] w-56 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded-2xl p-4 shadow-xl pointer-events-none">
+                    <p className="font-black uppercase tracking-widest mb-3 text-gray-300 text-center">Belum diisi:</p>
+                    <ul className="space-y-1">
                         {missingFields.map((label, i) => (
-                            <li key={i} className="flex items-center gap-1.5">
-                                <AlertCircle className="w-3 h-3 text-rose-400 flex-shrink-0" />
-                                {label}
+                            <li key={i} className="flex items-start gap-2">
+                                <AlertCircle className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 mt-0.5" />
+                                <span className="font-bold leading-tight">{label}</span>
                             </li>
                         ))}
                     </ul>
@@ -59,7 +58,7 @@ function ProfileCompletionBadge({ completion }) {
     );
 }
 
-export default function GroupBookingsShow({ group, schedules = [], bookingPackages = [] }) {
+export default function GroupBookingsShow({ group, schedules = [], bookingPackages = [], sessionHistory = [] }) {
     const { flash } = usePage().props;
 
     const formatDate = (d) => d
@@ -68,9 +67,16 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
     const formatTime = (t) => t ? String(t).substring(0, 5) : '-';
 
     const [selectedInvoice, setSelectedInvoice] = React.useState(null);
-    const [isValidating, setIsValidating] = React.useState(null);
+    const [isValidating, setIsValidating]       = React.useState(null);
+    const [historyOpen, setHistoryOpen]         = React.useState(false);
 
     const memberCount = group.members?.length ?? 0;
+
+    // Cek apakah semua anggota sesi saat ini sudah completed
+    const allCompleted = memberCount > 0 && group.members.every(
+        m => m.booking?.status === 'completed'
+    );
+    const hasAnyBooking = group.members.some(m => m.booking_id);
 
     // ── Remove Member ──────────────────────────────────────────────────────────
     const handleRemoveMember = (memberId) => {
@@ -81,9 +87,9 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
         }));
     };
 
-    // ── Schedule for Group ─────────────────────────────────────────────────────
+    // ── Schedule / New Session form ────────────────────────────────────────────
     const { data: schedForm, setData: setSchedForm, post: postSched, processing: schedProcessing, errors: schedErrors } = useForm({
-        schedule_id:  group.schedule_id ?? '',
+        schedule_id:  '',
         package_type: group.package_type ?? '',
     });
 
@@ -96,9 +102,13 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
         return `${dateStr} · ${s.start_time?.slice(0, 5) ?? ''}–${s.end_time?.slice(0, 5) ?? ''} · ${s.therapist?.name ?? '—'} (${avail} slot)`;
     };
 
+    // Kirim ke route yang sesuai: add-session kalau sudah pernah ada sesi, update kalau belum
     const handleSaveSchedule = (e) => {
         e.preventDefault();
-        postSched(route('admin.group-bookings.schedule.update', group.id));
+        const routeName = allCompleted
+            ? 'admin.group-bookings.add-session'
+            : 'admin.group-bookings.schedule.update';
+        postSched(route(routeName, group.id));
     };
 
     const handleValidate = (txId) => {
@@ -216,14 +226,30 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                             </div>
                         </div>
 
-                        {/* Konfigurasi Jadwal */}
-                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        {/* Jadwal / Sesi Baru */}
+                        <div className={`bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 border shadow-sm ${allCompleted ? 'border-emerald-200 dark:border-emerald-800' : 'border-gray-100 dark:border-gray-800'}`}>
                             <div className="flex items-center gap-3 pb-3 border-b border-gray-100 dark:border-gray-800 mb-6">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                                <div className={`p-2 rounded-xl ${allCompleted ? 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400'}`}>
                                     <Calendar className="w-4 h-4" />
                                 </div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Konfirmasi Jadwal</p>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        {allCompleted ? 'Tambah Sesi Baru' : 'Konfirmasi Jadwal'}
+                                    </p>
+                                    {allCompleted && (
+                                        <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
+                                            Sesi sebelumnya selesai · Data lama tetap tersimpan
+                                        </p>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Sesi aktif info — tampil jika ada sesi berjalan dan belum semua selesai */}
+                            {hasAnyBooking && !allCompleted && group.schedule_id && (
+                                <div className="mb-5 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/40 text-xs text-blue-700 dark:text-blue-300 font-bold">
+                                    ✅ Jadwal aktif: {formatDate(group.schedule?.date)} {formatTime(group.schedule?.start_time)} — {group.schedule?.therapist?.name ?? '—'}
+                                </div>
+                            )}
 
                             <form onSubmit={handleSaveSchedule} className="space-y-5">
                                 {/* Pilih Paket */}
@@ -259,7 +285,7 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                             value={schedForm.schedule_id}
                                             onChange={(e) => setSchedForm('schedule_id', e.target.value)}
                                         >
-                                            <option value="">-- Belum Dipilih --</option>
+                                            <option value="">-- Pilih Jadwal --</option>
                                             {schedules.map((s) => (
                                                 <option key={s.id} value={s.id}>{scheduleLabel(s)}</option>
                                             ))}
@@ -268,22 +294,16 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                     {schedErrors.schedule_id && <p className="text-xs text-rose-500 font-bold mt-2">{schedErrors.schedule_id}</p>}
                                 </div>
 
-                                {group.schedule_id && (
-                                    <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-100 dark:border-blue-900/40 text-xs text-blue-700 dark:text-blue-300 font-bold">
-                                        ✅ Jadwal terkonfirmasi: {formatDate(group.schedule?.date)} {formatTime(group.schedule?.start_time)} — {group.schedule?.therapist?.name ?? '—'}
-                                    </div>
-                                )}
-
                                 <button
                                     type="submit"
                                     disabled={schedProcessing || !schedForm.schedule_id}
-                                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className={`w-full flex items-center justify-center gap-2 py-3.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${allCompleted ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'}`}
                                 >
                                     <Calendar className="w-4 h-4" />
-                                    {group.schedule_id ? 'Perbarui Jadwal' : 'Konfirmasi Jadwal'}
+                                    {allCompleted ? 'Buat Sesi Baru' : (hasAnyBooking ? 'Perbarui Jadwal' : 'Konfirmasi Jadwal')}
                                 </button>
 
-                                {memberCount > 0 && !group.schedule_id && (
+                                {memberCount > 0 && !hasAnyBooking && (
                                     <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-400 font-bold flex items-center gap-2">
                                         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                                         Pilih jadwal agar anggota bisa melanjutkan proses booking & pembayaran mandiri.
@@ -294,7 +314,7 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                     </div>
 
                     {/* Daftar Anggota */}
-                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
                         <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl">
@@ -325,7 +345,7 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                                 </Link>
                             </div>
                         ) : (
-                            <div className="w-full overflow-x-auto pb-4">
+                            <div className="w-full pb-6 rounded-b-[2.5rem]">
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
@@ -481,6 +501,105 @@ export default function GroupBookingsShow({ group, schedules = [], bookingPackag
                             </div>
                         )}
                     </div>
+
+                    {/* Riwayat Sesi */}
+                    {sessionHistory.length > 0 && (
+                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                            <button
+                                type="button"
+                                onClick={() => setHistoryOpen(o => !o)}
+                                className="w-full flex items-center justify-between p-8 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-xl">
+                                        <History className="w-5 h-5" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">Riwayat Sesi</h3>
+                                        <p className="text-[10px] text-gray-400 font-medium">{sessionHistory.length} sesi selesai</p>
+                                    </div>
+                                </div>
+                                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${historyOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {historyOpen && (
+                                <div className="border-t border-gray-100 dark:border-gray-800 divide-y divide-gray-50 dark:divide-gray-800/50">
+                                    {sessionHistory.map((session, i) => (
+                                        <div key={i} className="p-6 space-y-3">
+                                            <div className="flex items-center gap-3">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                <div>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white">
+                                                        Sesi {sessionHistory.length - i} — {formatDate(session.schedule?.date)}
+                                                    </p>
+                                                    <p className="text-[10px] text-gray-400 font-medium">
+                                                        {formatTime(session.schedule?.start_time)}–{formatTime(session.schedule?.end_time)} · {session.schedule?.therapist ?? '—'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="pl-7 mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {session.members.map((m, j) => (
+                                                    <div key={j} className="bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-3">
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">{m.name}</span>
+                                                            {m.status && (
+                                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                                                                    m.status === 'completed'
+                                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30'
+                                                                        : m.status === 'no_show' || m.status === 'cancelled'
+                                                                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30'
+                                                                            : 'bg-gray-100 text-gray-500 dark:bg-gray-800'
+                                                                }`}>
+                                                                    {m.status === 'completed' ? 'Selesai' : m.status}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {m.status === 'completed' && (
+                                                            <div className="flex flex-col gap-2">
+                                                                {m.outcome && (
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                                                                            m.outcome === 'Normal'
+                                                                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
+                                                                                : m.outcome === 'Abnormal/Emergency'
+                                                                                    ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20'
+                                                                                    : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20'
+                                                                        }`}>
+                                                                            Hasil: {m.outcome}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {m.session_checklist?.notes_internal && (
+                                                                    <div className="bg-amber-50 dark:bg-amber-950/20 rounded-xl p-3 border border-amber-100 dark:border-amber-900/30">
+                                                                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest block mb-1">Catatan Internal (Terapis):</span>
+                                                                        <p className="text-xs text-amber-800 dark:text-amber-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_internal}</p>
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {m.session_checklist?.notes_patient && (
+                                                                    <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-xl p-3 border border-indigo-100 dark:border-indigo-900/30">
+                                                                        <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest block mb-1">Catatan Pasien:</span>
+                                                                        <p className="text-xs text-indigo-800 dark:text-indigo-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_patient}</p>
+                                                                    </div>
+                                                                )}
+
+                                                                {!m.session_checklist?.notes_internal && !m.session_checklist?.notes_patient && !m.outcome && (
+                                                                    <p className="text-xs text-gray-400 italic">Tidak ada catatan atau hasil sesi.</p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </div>
             </div>
 

@@ -218,10 +218,38 @@ class GroupBookingController extends Controller
             'price' => $p->current_price,
         ]);
 
+        // Riwayat sesi: semua booking grup yang sudah selesai, dikelompokkan per jadwal
+        $sessionHistory = Booking::where('group_booking_id', $groupBooking->id)
+            ->whereIn('status', ['completed', 'cancelled', 'no_show'])
+            ->with(['schedule.therapist', 'patient:id,name', 'transaction:id,transactionable_id,transactionable_type,status'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('schedule_id')
+            ->map(fn($bookings) => [
+                'schedule'     => $bookings->first()?->schedule ? [
+                    'id'         => $bookings->first()->schedule->id,
+                    'date'       => $bookings->first()->schedule->date,
+                    'start_time' => $bookings->first()->schedule->start_time,
+                    'end_time'   => $bookings->first()->schedule->end_time,
+                    'therapist'  => $bookings->first()->schedule->therapist?->name,
+                ] : null,
+                'completed_at' => $bookings->max('ended_at'),
+                'members'      => $bookings->map(fn($b) => [
+                    'id'                => $b->id,
+                    'name'              => $b->patient?->name,
+                    'status'            => $b->status,
+                    'outcome'           => $b->completion_outcome,
+                    'session_checklist' => is_string($b->session_checklist) ? json_decode($b->session_checklist, true) : $b->session_checklist,
+                ])->values(),
+            ])
+            ->sortByDesc('completed_at')
+            ->values();
+
         return Inertia::render('Admin/GroupBookings/Show', [
-            'group'           => $groupBooking,
-            'schedules'       => $schedules,
-            'bookingPackages' => $bookingPackages,
+            'group'          => $groupBooking,
+            'schedules'      => $schedules,
+            'bookingPackages'=> $bookingPackages,
+            'sessionHistory' => $sessionHistory,
         ]);
     }
 
@@ -308,6 +336,67 @@ class GroupBookingController extends Controller
         });
 
         return redirect()->back()->with('success', 'Anggota berhasil dihapus dari grup.');
+    }
+
+    // ── ADD SESSION (sesi baru tanpa hapus data lama) ────────────────────────
+
+    public function addSession(Request $request, GroupBooking $groupBooking)
+    {
+        $packageValues = Package::pluck('slug')->toArray();
+
+        $request->validate([
+            'schedule_id'  => 'required|exists:schedules,id',
+            'package_type' => ['nullable', Rule::in($packageValues)],
+        ]);
+
+        return DB::transaction(function () use ($request, $groupBooking) {
+            $schedule    = Schedule::find($request->schedule_id);
+            $packageSlug = $request->package_type ?? $groupBooking->package_type ?? 'reguler';
+
+            // Update jadwal & paket grup
+            $groupBooking->update([
+                'schedule_id'  => $schedule->id,
+                'package_type' => $packageSlug,
+            ]);
+
+            $groupBooking->loadMissing('members');
+
+            $package      = Package::where('slug', $packageSlug)->first();
+            $basePrice    = $package?->current_price ?? 0;
+            $taxPercent   = config('clinic.tax_percentage', 11);
+            $priceWithTax = $basePrice * (1 + ($taxPercent / 100));
+
+            foreach ($groupBooking->members as $member) {
+                // Selalu buat booking BARU — data lama tetap ada di DB
+                $booking = Booking::create([
+                    'booking_code'     => $this->generateBookingCode(),
+                    'patient_id'       => $member->user_id,
+                    'group_booking_id' => $groupBooking->id,
+                    'schedule_id'      => $schedule->id,
+                    'therapist_id'     => $schedule->therapist_id,
+                    'package_type'     => $packageSlug,
+                    'session_type'     => $groupBooking->session_type,
+                    'status'           => 'pending_payment',
+                    'notes'            => $groupBooking->notes,
+                ]);
+
+                // Pointer anggota → booking terbaru
+                $member->update(['booking_id' => $booking->id]);
+
+                $uniqueCode = rand(101, 999);
+                $amount     = round($priceWithTax) + $uniqueCode;
+
+                $booking->transaction()->create([
+                    'user_id'        => $member->user_id,
+                    'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
+                    'amount'         => $amount,
+                    'status'         => 'pending',
+                ]);
+            }
+
+            return redirect()->route('admin.group-bookings.show', $groupBooking->id)
+                ->with('success', 'Sesi baru berhasil dibuat. Semua anggota dapat melanjutkan pembayaran mandiri.');
+        });
     }
 
     // ── HELPERS ───────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity, Building2, MapPin } from 'lucide-react';
+import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity, Building2, MapPin, History } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -144,6 +144,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [noShowBooking, setNoShowBooking] = useState(null);
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({ new_schedule_id: '', reschedule_reason: '' });
     const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({ no_show_party: 'therapist', no_show_reason: '' });
+    
+    // ─── Group History state ───
+    const [selectedGroupHistory, setSelectedGroupHistory] = useState(null);
 
     // ─── Transaction state ───
     const [selectedReject, setSelectedReject] = useState(null);
@@ -1192,6 +1195,16 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                             <Eye className="w-3 h-3" />
                                                                             Detail
                                                                         </Link>
+                                                                        {grp.sessions_count > 0 && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => setSelectedGroupHistory(grp)}
+                                                                                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-[10px] font-black uppercase rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
+                                                                            >
+                                                                                <History className="w-3 h-3" />
+                                                                                Riwayat
+                                                                            </button>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -2090,6 +2103,117 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                     bankAccounts={usePage().props.clinicInfo?.bankAccounts ?? []}
                 />
             )}
+
+            {/* Modal Riwayat Sesi Grup */}
+            <Modal show={!!selectedGroupHistory} onClose={() => setSelectedGroupHistory(null)} maxWidth="2xl">
+                <div className="p-8 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Riwayat Sesi Grup</h2>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                            {selectedGroupHistory?.group_name} · {selectedGroupHistory?.sessions_count} Sesi
+                        </p>
+                    </div>
+                </div>
+                <div className="p-8 bg-gray-50 dark:bg-gray-950/50 max-h-[60vh] overflow-y-auto">
+                    {selectedGroupHistory?.sessions?.length > 0 ? (
+                        <div className="flex flex-col gap-6">
+                            {selectedGroupHistory.sessions.map((session, i) => (
+                                <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-gray-50 dark:border-gray-800/80">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-xl">
+                                                <History className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">
+                                                    Sesi {selectedGroupHistory.sessions.length - i}
+                                                </p>
+                                                {session.schedule ? (
+                                                    <p className="text-[10px] font-bold text-gray-400 mt-1">
+                                                        📅 {new Date(session.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} · {session.schedule.start_time?.substring(0, 5)} - {session.schedule.end_time?.substring(0, 5)}
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-[10px] font-bold text-gray-400 mt-1 italic">
+                                                        Data jadwal tidak tersedia
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className={`inline-flex px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full ${
+                                                session.is_completed 
+                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30' 
+                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30'
+                                            }`}>
+                                                {session.is_completed ? 'Selesai Semua' : 'Sebagian/Pending'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {session.members.map((m, j) => (
+                                            <div key={j} className="flex flex-col gap-2 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">{m.name}</span>
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest border ${
+                                                        m.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                        m.status === 'no_show' || m.status === 'cancelled' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                                        'bg-gray-100 text-gray-500 border-gray-200'
+                                                    }`}>
+                                                        {m.status === 'completed' ? 'Selesai' : m.status}
+                                                    </span>
+                                                </div>
+
+                                                {m.status === 'completed' && (
+                                                    <div className="flex flex-col gap-2 mt-2">
+                                                        {m.outcome && (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                                                                    m.outcome === 'Normal'
+                                                                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
+                                                                        : m.outcome === 'Abnormal/Emergency'
+                                                                            ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20'
+                                                                            : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20'
+                                                                }`}>
+                                                                    Hasil: {m.outcome}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {m.session_checklist?.notes_internal && (
+                                                            <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-2.5 border border-amber-100 dark:border-amber-900/30">
+                                                                <span className="text-[8px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest block mb-0.5">Catatan Internal:</span>
+                                                                <p className="text-[10px] text-amber-800 dark:text-amber-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_internal}</p>
+                                                            </div>
+                                                        )}
+                                                        {m.session_checklist?.notes_patient && (
+                                                            <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-lg p-2.5 border border-indigo-100 dark:border-indigo-900/30">
+                                                                <span className="text-[8px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest block mb-0.5">Catatan Pasien:</span>
+                                                                <p className="text-[10px] text-indigo-800 dark:text-indigo-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_patient}</p>
+                                                            </div>
+                                                        )}
+                                                        {!m.session_checklist?.notes_internal && !m.session_checklist?.notes_patient && !m.outcome && (
+                                                            <p className="text-[10px] text-gray-400 italic">Tidak ada catatan atau hasil sesi.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <History className="w-12 h-12 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400">Belum ada riwayat sesi</p>
+                        </div>
+                    )}
+                </div>
+                <div className="p-6 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                    <SecondaryButton onClick={() => setSelectedGroupHistory(null)} className="rounded-xl font-black text-[10px] uppercase tracking-widest px-6 py-3">
+                        Tutup
+                    </SecondaryButton>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

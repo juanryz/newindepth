@@ -50,8 +50,9 @@ class OrderManagementController extends Controller
             return $data;
         })->toArray(); // Ensure the final result is an array
 
-        // Bookings
+        // Bookings (Hanya Individu)
         $bookings = Booking::with(['patient.screeningResults', 'patient.roles', 'schedule', 'therapist'])
+            ->whereNull('group_booking_id')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($booking) {
@@ -87,53 +88,88 @@ class OrderManagementController extends Controller
                 return $data;
             })->toArray();
 
-        // Group Bookings — shown as 1 row per group (institution name + member count)
-        $groupBookings = GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.schedule.therapist', 'members.booking.transaction.validatedBy'])
+        // Group Bookings — 1 baris per grup dengan riwayat semua sesi
+        $groupBookings = GroupBooking::with([
+                'schedule.therapist',
+                'createdBy',
+                'members.user',
+                'members.booking.schedule.therapist',
+                'members.booking.transaction.validatedBy',
+                // Semua booking grup (lintas sesi) untuk riwayat
+                'bookings.schedule.therapist',
+                'bookings.transaction',
+                'bookings.patient:id,name',
+            ])
             ->withCount('members')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($group) {
+                // Sesi aktif saat ini (dari pointer GroupBookingMember.booking_id)
+                $currentMembers = $group->members->map(fn($m) => [
+                    'name'         => $m->user?->name ?? 'Anggota',
+                    'package_type' => $m->package_type,
+                    'price'        => $m->price,
+                    'transaction'  => $m->booking?->transaction ? [
+                        'id'             => $m->booking->transaction->id,
+                        'status'         => $m->booking->transaction->status,
+                        'invoice_number' => $m->booking->transaction->invoice_number,
+                        'amount'         => $m->booking->transaction->amount,
+                        'paid_at'        => $m->booking->transaction->paid_at,
+                    ] : null,
+                    'booking_status' => $m->booking?->status,
+                    'schedule'       => $m->booking?->schedule ? [
+                        'date'       => $m->booking->schedule->date,
+                        'start_time' => $m->booking->schedule->start_time,
+                        'therapist'  => $m->booking->schedule->therapist?->name ?? 'InDepth',
+                    ] : null,
+                ])->toArray();
+
+                // Semua sesi historis yang sudah berakhir
+                $allSessions = $group->bookings
+                    ->whereIn('status', ['completed', 'cancelled', 'no_show'])
+                    ->sortByDesc('created_at')
+                    ->groupBy('schedule_id')
+                    ->map(fn($bookings) => [
+                        'schedule'     => $bookings->first()?->schedule ? [
+                            'date'       => $bookings->first()->schedule->date,
+                            'start_time' => $bookings->first()->schedule->start_time,
+                            'end_time'   => $bookings->first()->schedule->end_time,
+                            'therapist'  => $bookings->first()->schedule->therapist?->name,
+                        ] : null,
+                        'is_completed' => $bookings->every(fn($b) => $b->status === 'completed'),
+                        'members'      => $bookings->map(fn($b) => [
+                            'name'              => $b->patient?->name,
+                            'status'            => $b->status,
+                            'tx_status'         => $b->transaction?->status,
+                            'outcome'           => $b->completion_outcome,
+                            'session_checklist' => is_string($b->session_checklist) ? json_decode($b->session_checklist, true) : $b->session_checklist,
+                        ])->values(),
+                    ])
+                    ->values();
+
                 return [
                     'id'               => $group->id,
                     'invoice_number'   => $group->invoice_number,
                     'group_name'       => $group->group_name,
-                    'institution_name' => $group->institution_name ?? $group->group_name,
+                    'institution_name' => $group->group_name,
                     'pic_name'         => $group->user?->name ?? 'PIC Grup',
                     'pic_phone'        => $group->phone,
                     'pic_email'        => $group->email,
-                    'payment_method'   => $group->payment_method ?? 'N/A',
-
-                    'total_amount'     => $group->total_amount,
                     'members_count'    => $group->members_count,
                     'package_type'     => $group->package_type,
                     'session_type'     => $group->session_type,
                     'created_at'       => $group->created_at,
-                    'paid_at'          => $group->paid_at,
                     'schedule'         => $group->schedule ? [
                         'id'         => $group->schedule->id,
                         'date'       => $group->schedule->date,
                         'start_time' => $group->schedule->start_time,
                         'end_time'   => $group->schedule->end_time,
-                        'therapist'  => $group->schedule->therapist ? ['id' => $group->schedule->therapist->id, 'name' => $group->schedule->therapist->name] : null,
+                        'therapist'  => $group->schedule->therapist?->name,
                     ] : null,
                     'created_by_name' => $group->createdBy?->name,
-                    'members' => $group->members->map(fn($m) => [
-                        'name' => $m->user?->name ?? 'Anggota',
-                        'package_type' => $m->package_type,
-                        'price' => $m->price,
-                        'transaction' => $m->booking?->transaction ? [
-                            'id' => $m->booking->transaction->id,
-                            'status' => $m->booking->transaction->status,
-                            'invoice_number' => $m->booking->transaction->invoice_number,
-                            'amount' => $m->booking->transaction->amount,
-                            'paid_at' => $m->booking->transaction->paid_at,
-                        ] : null,
-                        'schedule' => ($m->booking && $m->booking->schedule) ? [
-                            'date' => $m->booking->schedule->date,
-                            'start_time' => $m->booking->schedule->start_time,
-                            'therapist' => ($m->booking->schedule->therapist) ? $m->booking->schedule->therapist->name : 'InDepth',
-                        ] : null,
-                    ])->toArray(),
+                    'members'         => $currentMembers,
+                    'sessions'        => $allSessions,
+                    'sessions_count'  => $allSessions->count(),
                 ];
             })->toArray();
 
