@@ -241,7 +241,7 @@ export default function UsersForm({
                     </Link>
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">
-                            {isEditing ? 'Lengkapi / Edit Profil Pasien' : 'Tambah Pengguna Baru'}
+                            {isEditing ? 'Lengkapi / Edit Profil Pengguna' : 'Tambah Pengguna Baru'}
                         </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
                             {isEditing ? `Mengelola: ${userModel.name}` : 'Daftarkan pengguna baru ke sistem'}
@@ -273,24 +273,24 @@ export default function UsersForm({
                                 Pernyataan &amp; Disclaimer Penting
                             </h3>
                             <p className="text-xs text-gray-600 dark:text-gray-400 font-medium pb-2 border-b border-gray-100 dark:border-gray-800">
-                                Fitur ini digunakan untuk mendaftarkan pasien yang datang secara langsung (walk-in/offline). Admin wajib memastikan:
+                                Fitur ini digunakan untuk mendaftarkan pengguna (pasien, admin, atau staf) yang dilakukan secara manual oleh Admin. Admin wajib memastikan:
                             </p>
                             <ul className="space-y-4">
                                 <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
                                     <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">1</div>
-                                    <p>Data yang dimasukkan adalah <strong className="text-gray-900 dark:text-white">data asli pasien</strong> — bukan data fiktif, palsu, atau percobaan.</p>
+                                    <p>Data yang dimasukkan adalah <strong className="text-gray-900 dark:text-white">data asli</strong> — bukan data fiktif, palsu, atau percobaan.</p>
                                 </li>
                                 <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
                                     <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">2</div>
-                                    <p>Nama, email, dan nomor telepon <strong className="text-gray-900 dark:text-white">sesuai identitas resmi</strong> pasien (KTP/SIM).</p>
+                                    <p>Nama, email, dan nomor telepon <strong className="text-gray-900 dark:text-white">sesuai identitas resmi</strong> (KTP/SIM).</p>
                                 </li>
                                 <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
                                     <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">3</div>
-                                    <p>Pasien telah memberikan <strong className="text-gray-900 dark:text-white">persetujuan</strong> atas pendaftaran dan penggunaan datanya.</p>
+                                    <p><strong className="text-gray-900 dark:text-white">Pengguna</strong> telah memberikan <strong className="text-gray-900 dark:text-white">persetujuan</strong> atas pendaftaran dan penggunaan datanya.</p>
                                 </li>
                                 <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
                                     <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">4</div>
-                                    <p>Password yang dibuat harus diberitahukan kepada pasien dan <strong className="text-gray-900 dark:text-white">segera diubah</strong> saat pertama login.</p>
+                                    <p>Password yang dibuat harus diberitahukan kepada <strong className="text-gray-900 dark:text-white">pengguna</strong> dan <strong className="text-gray-900 dark:text-white">segera diubah</strong> saat pertama login.</p>
                                 </li>
                                 <li className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300 font-medium">
                                     <div className="w-5 h-5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0 font-black">5</div>
@@ -301,14 +301,14 @@ export default function UsersForm({
                                 <label className="flex items-start gap-4 cursor-pointer p-4 bg-rose-50/50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-900/30 hover:bg-rose-50 transition-colors">
                                     <input type="checkbox" className="mt-1 rounded border-gray-300 text-rose-600 shadow-sm focus:ring-rose-500" />
                                     <span className="text-xs font-bold text-rose-700 dark:text-rose-400 leading-snug">
-                                        Saya menyatakan bahwa data yang akan dimasukkan adalah data pasien asli dan telah mendapat persetujuannya.
+                                    Saya menyatakan bahwa data yang akan dimasukkan adalah data asli dan telah mendapat persetujuan dari yang bersangkutan.
                                     </span>
                                 </label>
                             </div>
                         </div>
 
                         {/* ── STEP 1: Identitas ──────────────────────────── */}
-                        <Section icon={User} iconBg="bg-indigo-50 dark:bg-indigo-900/40" iconColor="text-indigo-600 dark:text-indigo-400" title="Identitas Pasien" subtitle="Step 1 — Data diri utama">
+                        <Section icon={User} iconBg="bg-indigo-50 dark:bg-indigo-900/40" iconColor="text-indigo-600 dark:text-indigo-400" title="Identitas Pengguna" subtitle="Step 1 — Data diri utama">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {[
                                     { id: 'name',  label: 'Nama Lengkap *',            placeholder: 'Sesuai KTP/SIM', icon: User,  type: 'text',  required: true },
@@ -364,7 +364,7 @@ export default function UsersForm({
                         {/* ── STEP 2: Foto KTP ───────────────────────────── */}
                         <Section icon={Camera} iconBg="bg-sky-50 dark:bg-sky-900/40" iconColor="text-sky-600 dark:text-sky-400" title="Foto KTP / Identitas" subtitle="Step 2 — Dokumen resmi (opsional)">
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed mb-4">
-                                Unggah foto KTP atau identitas resmi pasien. Format JPG/PNG, maks. 5 MB.
+                                Unggah foto KTP atau identitas resmi pengguna. Format JPG/PNG, maks. 5 MB.
                                 {isEditing && ktpUrl && ' (Foto KTP sudah ada — unggah ulang untuk mengganti)'}
                             </p>
                             <FileUploadField
@@ -462,7 +462,7 @@ export default function UsersForm({
                                             {data.is_high_risk && <div className="w-3 h-3 rounded-sm bg-rose-600" />}
                                         </div>
                                         <div>
-                                            <p className={`text-[10px] font-black uppercase tracking-widest ${data.is_high_risk ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>Pasien Berisiko Tinggi</p>
+                                            <p className={`text-[10px] font-black uppercase tracking-widest ${data.is_high_risk ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>Berisiko Tinggi</p>
                                             <p className={`text-[10px] font-medium mt-0.5 ${data.is_high_risk ? 'text-white/80' : 'text-gray-400'}`}>Tandai jika memerlukan penanganan prioritas</p>
                                         </div>
                                     </label>
@@ -473,7 +473,7 @@ export default function UsersForm({
                         {/* ── STEP 5: Perjanjian ─────────────────────────── */}
                         <Section icon={FileImage} iconBg="bg-emerald-50 dark:bg-emerald-900/40" iconColor="text-emerald-600 dark:text-emerald-400" title="Perjanjian & Persetujuan" subtitle="Step 5 — Tandatangan S&K">
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed mb-4">
-                                Jika pasien telah menandatangani perjanjian layanan secara fisik/offline, centang di bawah ini.
+                                Jika pengguna telah menandatangani perjanjian layanan secara fisik/offline, centang di bawah ini.
                             </p>
                             <label className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.agreement_signed_offline ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-emerald-300'}`}>
                                 <input type="checkbox" className="hidden" checked={data.agreement_signed_offline} onChange={(e) => setData('agreement_signed_offline', e.target.checked)} />
@@ -482,7 +482,7 @@ export default function UsersForm({
                                 </div>
                                 <div>
                                     <p className={`text-[10px] font-black uppercase tracking-widest ${data.agreement_signed_offline ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>Perjanjian Sudah Ditandatangani Offline</p>
-                                    <p className={`text-[10px] font-medium mt-0.5 ${data.agreement_signed_offline ? 'text-white/80' : 'text-gray-400'}`}>Pasien telah membaca dan menyetujui S&K layanan secara fisik</p>
+                                    <p className={`text-[10px] font-medium mt-0.5 ${data.agreement_signed_offline ? 'text-white/80' : 'text-gray-400'}`}>Pihak yang bersangkutan telah membaca dan menyetujui S&K layanan secara fisik</p>
                                 </div>
                             </label>
                         </Section>
@@ -503,7 +503,7 @@ export default function UsersForm({
                                         </div>
                                     ) : (
                                         <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                            Isi bagian ini jika pasien sudah memilih jadwal dan paket. Kosongkan jika belum.
+                                            Isi bagian ini jika pengguna sudah memilih jadwal dan paket. Kosongkan jika belum.
                                         </p>
                                     )}
 
@@ -559,7 +559,7 @@ export default function UsersForm({
                             <Section icon={Save} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Informasi Pembayaran" subtitle="Step 7 — Metode pembayaran anggota">
                                 <div className="space-y-8">
                                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        {isGroupMember ? 'Anggota grup melakukan pembayaran secara mandiri. Tentukan metode pembayaran yang akan digunakan.' : 'Pilih metode pembayaran pasien.'}
+                                        {isGroupMember ? 'Anggota grup melakukan pembayaran secara mandiri. Tentukan metode pembayaran yang akan digunakan.' : 'Pilih metode pembayaran pengguna.'}
                                     </p>
 
                                     {/* Preview Invoice */}
