@@ -111,7 +111,7 @@ class UserController extends Controller
         $transactions = [];
 
         if ($user->hasRole('patient')) {
-            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist', 'groupBookingMember.groupBooking'])
+            $bookings = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist', 'groupBooking', 'patient'])
                 ->where('patient_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -142,7 +142,7 @@ class UserController extends Controller
                 ->get();
 
             // Bookings where they are the therapist
-            $bookings = \App\Models\Booking::with(['patient', 'schedule', 'therapist', 'groupBookingMember.groupBooking'])
+            $bookings = \App\Models\Booking::with(['patient', 'schedule', 'therapist', 'groupBooking'])
                 ->where('therapist_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();

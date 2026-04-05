@@ -648,9 +648,9 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                         <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                                                             {isPatient ? (booking.therapist?.name || '-') : (booking.patient?.name || '-')}
                                                                         </p>
-                                                                        {booking.group_booking_member?.group_booking && (
+                                                                        {booking.group_booking && (
                                                                             <p className="text-[10px] text-blue-500 font-bold uppercase mt-0.5">
-                                                                                Grup: {booking.group_booking_member.group_booking.group_name}
+                                                                                Grup: {booking.group_booking.group_name}
                                                                             </p>
                                                                         )}
                                                                         <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${booking.status === 'completed' ? 'text-emerald-600 bg-emerald-50' : 'text-indigo-600 bg-indigo-50'}`}>
@@ -867,11 +867,13 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
 
                                 <div className="grid grid-cols-2 gap-8 pb-8 border-b border-gray-100 dark:border-gray-700/50">
                                     {[
-                                        { label: isTherapist ? 'Pasien' : 'Praktisi', value: isTherapist ? selectedBooking.patient?.name : selectedBooking.therapist?.name },
+                                        { label: 'Pasien', value: selectedBooking.patient?.name || (isPatient ? userModel.name : '-') },
+                                        { label: 'Praktisi', value: selectedBooking.therapist?.name || selectedBooking.schedule?.therapist?.name || (isTherapist ? userModel.name : '-') },
                                         { label: 'Paket Layanan', value: { reguler: 'Reguler', hipnoterapi: 'Hipnoterapi', premium: 'Premium', vip: 'VIP' }[selectedBooking.package_type] || selectedBooking.package_type || 'Hipnoterapi', capitalize: true },
                                         { label: 'Status Sesi', value: selectedBooking.status, badge: true },
-                                        { label: 'Waktu Sesi', value: selectedBooking.schedule ? `${new Date(selectedBooking.schedule.date).toLocaleDateString('id-ID', { dateStyle: 'medium' })} ${selectedBooking.schedule.start_time.substring(0, 5)} WIB` : '-' }
-                                    ].map((item, i) => (
+                                        { label: 'Waktu Sesi', value: selectedBooking.schedule ? `${new Date(selectedBooking.schedule.date.replace(/-/g, '/')).toLocaleDateString('id-ID', { dateStyle: 'medium' })} ${selectedBooking.schedule.start_time.substring(0, 5)} WIB` : '-' },
+                                        selectedBooking.group_booking && { label: 'Grup', value: selectedBooking.group_booking.group_name }
+                                    ].filter(Boolean).map((item, i) => (
                                         <div key={i} className="space-y-1">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
                                             {item.badge ? (
@@ -939,16 +941,26 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.problem_name}</p>
                                                     </div>
                                                 )}
-                                                {selectedBooking.session_checklist.problem_score && (
+                                                {selectedBooking.session_checklist.problem_score !== undefined && selectedBooking.session_checklist.problem_score !== null && (
                                                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                                         <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Awal</p>
-                                                        <p className="text-sm font-black text-indigo-600">{selectedBooking.session_checklist.problem_score}/10</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-sm font-black text-indigo-600">{selectedBooking.session_checklist.problem_score}/10</p>
+                                                            <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-indigo-500" style={{ width: `${selectedBooking.session_checklist.problem_score * 10}%` }} />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 )}
-                                                {selectedBooking.session_checklist.final_problem_score && (
+                                                {selectedBooking.session_checklist.final_problem_score !== undefined && selectedBooking.session_checklist.final_problem_score !== null && (
                                                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                                         <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Angka Akhir</p>
-                                                        <p className="text-sm font-black text-emerald-600">{selectedBooking.session_checklist.final_problem_score}/10</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-sm font-black text-emerald-600">{selectedBooking.session_checklist.final_problem_score}/10</p>
+                                                            <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-emerald-500" style={{ width: `${selectedBooking.session_checklist.final_problem_score * 10}%` }} />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 )}
                                                 {selectedBooking.session_checklist.induction_type?.length > 0 && (
@@ -989,15 +1001,21 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                 )}
                                                 <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Abreaksi</p>
-                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_abreaction ? 'Ya' : 'Tidak'}</p>
+                                                    <p className={`text-xs font-bold ${selectedBooking.session_checklist.has_abreaction ? 'text-rose-500' : 'text-gray-400'}`}>
+                                                        {selectedBooking.session_checklist.has_abreaction ? 'ADA ABREAKSI' : 'TIDAK ADA'}
+                                                    </p>
                                                 </div>
                                                 <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
                                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Segel Hipnotis</p>
-                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_seal ? 'Ya' : 'Tidak'}</p>
+                                                    <p className={`text-xs font-bold ${selectedBooking.session_checklist.has_seal ? 'text-emerald-500' : 'text-gray-400'}`}>
+                                                        {selectedBooking.session_checklist.has_seal ? 'TERSEGEL' : 'TIDAK'}
+                                                    </p>
                                                 </div>
                                                 <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Pengujian Hasil</p>
-                                                    <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{selectedBooking.session_checklist.has_result_test ? 'Ya' : 'Tidak'}</p>
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Uji Hasil</p>
+                                                    <p className={`text-xs font-bold ${selectedBooking.session_checklist.has_result_test ? 'text-emerald-500' : 'text-gray-400'}`}>
+                                                        {selectedBooking.session_checklist.has_result_test ? 'LOLOS UJI' : 'TIDAK'}
+                                                    </p>
                                                 </div>
                                                 {selectedBooking.session_checklist.desired_outcome && (
                                                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800 col-span-2">
