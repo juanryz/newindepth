@@ -247,7 +247,7 @@ class AdminBookingController extends Controller
             'invoice_number'  => $invoiceNumber,
             'amount'          => $totalAmount,
             'payment_method'  => $request->payment_status === 'paid' ? 'manual' : null,
-            'status'          => $request->payment_status === 'paid' ? 'completed' : 'pending',
+            'status'          => $request->payment_status === 'paid' ? 'paid' : 'pending',
             'paid_at'         => $request->payment_status === 'paid' ? now() : null,
             'validation_note' => $request->payment_status === 'paid' ? 'Confirmed by Admin during registration' : null,
         ]);

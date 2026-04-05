@@ -15,6 +15,7 @@ class Booking extends Model
     protected $fillable = [
         'booking_code',
         'patient_id',
+        'group_booking_id',
         'schedule_id',
         'therapist_id',
         'screening_form_id',
@@ -94,5 +95,10 @@ class Booking extends Model
     public function groupBookingMember()
     {
         return $this->hasOne(GroupBookingMember::class, 'booking_id');
+    }
+
+    public function groupBooking()
+    {
+        return $this->belongsTo(GroupBooking::class, 'group_booking_id');
     }
 }

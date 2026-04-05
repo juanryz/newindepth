@@ -22,6 +22,8 @@ class GroupBooking extends Model
         'created_by',
         'schedule_id',
         'package_type',
+        'payment_status',
+        'video_link',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────────
@@ -52,6 +54,12 @@ class GroupBooking extends Model
     public function schedule()
     {
         return $this->belongsTo(Schedule::class);
+    }
+
+    /** Semua booking anggota yang di-tag ke grup ini */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'group_booking_id');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -699,8 +699,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             }`}>
                                                         <div className="flex items-start justify-between mb-4">
                                                             <div>
-                                                                <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">{booking.patient?.name || 'Pasien Tidak Dikenal'}</h4>
-                                                                <p className="text-xs text-gray-400 font-bold italic">{booking.patient?.email || '-'}</p>
+                                                                <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">
+                                                                    {booking.is_group 
+                                                                        ? `🏢 GRUP: ${booking.group_booking?.group_name || 'Grup'}` 
+                                                                        : (booking.patient?.name || 'Pasien Tidak Dikenal')}
+                                                                </h4>
+                                                                <p className="text-xs text-gray-400 font-bold italic">
+                                                                    {booking.is_group 
+                                                                        ? `Instansi: ${booking.group_booking?.institution_name || booking.group_booking?.group_name}` 
+                                                                        : (booking.patient?.email || '-')}
+                                                                </p>
                                                             </div>
                                                             <div className="flex flex-col items-end gap-1">
                                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${isPast ? 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400' :

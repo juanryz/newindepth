@@ -70,7 +70,7 @@ class UserController extends Controller
 
         // Group bookings for the groups tab
         $groupSearch = $request->get('group_search');
-        $groupsQuery = GroupBooking::withCount('members')->latest();
+        $groupsQuery = GroupBooking::with(['members.booking.transaction'])->withCount('members')->latest();
         if ($groupSearch) {
             $groupsQuery->where(function ($q) use ($groupSearch) {
                 $q->where('group_name', 'like', '%' . $groupSearch . '%')

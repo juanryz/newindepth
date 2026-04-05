@@ -631,6 +631,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/schedules/sessions/{booking}/start', [\App\Http\Controllers\Clinic\ScheduleController::class, 'startSession'])->name('schedules.start');
             Route::get('/schedules/sessions/{booking}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'activeSession'])->name('schedules.active-session');
             Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeSession'])->name('schedules.complete');
+            Route::post('/schedules/sessions/{booking}/save-member', [\App\Http\Controllers\Clinic\ScheduleController::class, 'saveMemberSession'])->name('schedules.save-member');
+            Route::post('/schedules/group-sessions/{groupBooking}/video-link', [\App\Http\Controllers\Clinic\ScheduleController::class, 'updateGroupVideoLink'])->name('schedules.group-video-link');
+            Route::post('/schedules/group-sessions/{groupBooking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeGroupSession'])->name('schedules.group-complete');
             Route::post('/schedules/sessions/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class, 'rescheduleSession'])->name('schedules.reschedule');
             Route::post('/schedules/sessions/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])->name('schedules.no-show');
             Route::get('/patients/{user}/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'patientAgreement'])->name('agreement.patient');

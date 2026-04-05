@@ -594,8 +594,8 @@ export default function UsersIndex({ users, roles, permissions, groups, filters 
                                                                                 // Calculate synchronized status based on members' transactions
                                                                                 const members = g.members || [];
                                                                                 const hasMembers = members.length > 0;
-                                                                                const allPaid = hasMembers && members.every(m => m.booking?.transaction?.status === 'paid');
-                                                                                const anyPaidOrPending = hasMembers && members.some(m => ['paid', 'pending'].includes(m.booking?.transaction?.status));
+                                                                                const allPaid = hasMembers && members.every(m => ['paid', 'completed'].includes(m.booking?.transaction?.status));
+                                                                                const anyPaidOrPending = hasMembers && members.some(m => ['paid', 'completed', 'pending'].includes(m.booking?.transaction?.status));
 
                                                                                 let statusData = { label: 'Belum Bayar', cls: 'bg-rose-50 text-rose-700 border border-rose-100' };
                                                                                 if (allPaid) statusData = { label: '✓ Lunas Semua', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };

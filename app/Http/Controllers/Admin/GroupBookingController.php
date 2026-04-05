@@ -338,14 +338,15 @@ class GroupBookingController extends Controller
             if (!$member->booking_id) {
                 // Buat booking individual untuk anggota — anggota bayar sendiri
                 $booking = Booking::create([
-                    'booking_code' => $this->generateBookingCode(),
-                    'patient_id'   => $member->user_id,
-                    'schedule_id'  => $schedule->id,
-                    'therapist_id' => $schedule->therapist_id,
-                    'package_type' => $packageSlug,
-                    'session_type' => $groupBooking->session_type,
-                    'status'       => 'pending_payment',
-                    'notes'        => $groupBooking->notes,
+                    'booking_code'     => $this->generateBookingCode(),
+                    'patient_id'       => $member->user_id,
+                    'group_booking_id' => $groupBooking->id,
+                    'schedule_id'      => $schedule->id,
+                    'therapist_id'     => $schedule->therapist_id,
+                    'package_type'     => $packageSlug,
+                    'session_type'     => $groupBooking->session_type,
+                    'status'           => 'pending_payment',
+                    'notes'            => $groupBooking->notes,
                 ]);
 
                 $member->update(['booking_id' => $booking->id]);
