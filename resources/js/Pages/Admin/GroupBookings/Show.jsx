@@ -31,7 +31,7 @@ function ProfileCompletionBadge({ completion }) {
             : 'bg-rose-500';
 
     return (
-        <div className="flex flex-col items-center gap-1.5 group relative min-w-[60px]">
+        <div className="flex flex-col items-center gap-1.5 group/badge relative min-w-[60px] cursor-help">
             <span className={`text-sm font-black tabular-nums ${colorClass}`}>
                 {percentage}%
             </span>
@@ -42,7 +42,7 @@ function ProfileCompletionBadge({ completion }) {
                 />
             </div>
             {!is_complete && missingFields.length > 0 && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 hidden group-hover:block z-[999] w-56 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded-2xl p-4 shadow-xl pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 hidden group-hover/badge:block z-[999] w-56 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded-2xl p-4 shadow-xl pointer-events-none">
                     <p className="font-black uppercase tracking-widest mb-3 text-gray-300 text-center">Belum diisi:</p>
                     <ul className="space-y-1">
                         {missingFields.map((label, i) => (
