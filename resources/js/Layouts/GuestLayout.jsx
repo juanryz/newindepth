@@ -48,7 +48,7 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                         <div className="flex justify-center mb-8">
                             <Link href="/">
                                 <img
-                                    src="/images/logo-color.png"
+                                    src="/images/Logo-Indepth-Lingkaran-hitam.png"
                                     alt="InDepth Mental Wellness"
                                     className="h-20 w-auto object-contain"
                                 />

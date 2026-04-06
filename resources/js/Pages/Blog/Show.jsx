@@ -34,7 +34,7 @@ export default function PublicBlogShow({ post, auth }) {
             "name": "InDepth Mental Wellness",
             "logo": {
                 "@type": "ImageObject",
-                "url": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : ''
+                "url": typeof window !== 'undefined' ? `${window.location.origin}/images/Logo-Indepth-Lingkaran-hitam.png` : ''
             }
         },
         "description": meta_description || excerpt || (body ? body.replace(/(<([^>]+)>)/gi, "").substring(0, 160) : '')

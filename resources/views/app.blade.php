@@ -62,8 +62,8 @@
       "name": "InDepth Mental Wellness — Klinik Hipnoterapi Semarang",
       "alternateName": "InDepth Hipnoterapi Semarang",
       "url": "https://indepth.co.id",
-      "logo": "https://indepth.co.id/images/logo-color.png",
-      "image": "https://indepth.co.id/images/logo-color.png",
+      "logo": "https://indepth.co.id/images/Logo-Indepth-Lingkaran-hitam.png",
+      "image": "https://indepth.co.id/images/Logo-Indepth-Lingkaran-hitam.png",
       "description": "Klinik Hipnoterapi dan Psikoterapi premium di Semarang, Jawa Tengah. Kami menyediakan layanan hipnoterapi privat untuk menangani kecemasan, trauma, insomnia, kebiasaan buruk, dan pengembangan diri dengan terapis bersertifikat.",
       "priceRange": "Rp 500.000 - Rp 2.500.000",
       "currenciesAccepted": "IDR",
@@ -181,8 +181,8 @@
     <!-- TITLE & FAVICON                                     -->
     <!-- ═══════════════════════════════════════════════════ -->
     <title inertia>{{ config('app.name', 'InDepth Mental Wellness') }}</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo-color.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logo-color.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/Logo-Indepth-Lingkaran-hitam.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/Logo-Indepth-Lingkaran-hitam.png') }}">
     <meta name="theme-color" content="#b8960c">
 
     <!-- ═══════════════════════════════════════════════════ -->

@@ -46,7 +46,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Link href="/" className="inline-flex items-center group relative p-1">
                                     <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-xl blur-md group-hover:bg-white/40 transition-all duration-300"></div>
                                     <img
-                                        src="/images/logo-color.png"
+                                        src="/images/Logo-Indepth-Lingkaran-hitam.png"
                                         alt="InDepth Mental Wellness"
                                         className="h-20 w-auto object-contain relative z-10"
                                     />

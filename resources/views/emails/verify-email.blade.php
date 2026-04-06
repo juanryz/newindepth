@@ -1,6 +1,6 @@
 @component('mail::message')
 <div style="text-align: center; margin-bottom: 2rem;">
-    <img src="https://indepth.co.id/images/logo-color.png" alt="InDepth" style="height: 50px;">
+    <img src="https://indepth.co.id/images/Logo-Indepth-Lingkaran-hitam.png" alt="InDepth" style="height: 50px;">
 </div>
 
 # Halo, {{ $name }}

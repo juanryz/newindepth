@@ -52,7 +52,7 @@ export default function TentangKami({ auth }) {
                     "alternateName": "InDepth Clinic",
                     "description": "Klinik hipnoterapi profesional di Semarang menyediakan layanan kesehatan mental berbasis ilmu pengetahuan dengan pendekatan holistik dan privat.",
                     "url": typeof window !== 'undefined' ? window.location.origin : '',
-                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '',
+                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/Logo-Indepth-Lingkaran-hitam.png` : '',
                     "telephone": "+6282220800034",
                     "address": {
                         "@type": "PostalAddress",

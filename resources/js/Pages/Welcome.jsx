@@ -109,7 +109,7 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                     "alternateName": "InDepth Clinic",
                     "description": "Klinik hipnoterapi profesional di Semarang menyediakan sesi privat untuk mengatasi kecemasan, trauma, overthinking, dan masalah psikosomatis.",
                     "url": typeof window !== 'undefined' ? window.location.origin : '',
-                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '',
+                    "logo": typeof window !== 'undefined' ? `${window.location.origin}/images/Logo-Indepth-Lingkaran-hitam.png` : '',
                     "image": typeof window !== 'undefined' ? `${window.location.origin}/images/og-dark.jpg` : '',
                     "telephone": "+6282220800034",
                     "address": {

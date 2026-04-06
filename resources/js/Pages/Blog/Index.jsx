@@ -63,7 +63,7 @@ export default function BlogIndex({ posts, auth }) {
                         "@type": "Organization",
                         "name": "InDepth Mental Wellness",
                         "url": typeof window !== 'undefined' ? window.location.origin : '',
-                        "logo": { "@type": "ImageObject", "url": typeof window !== 'undefined' ? `${window.location.origin}/images/logo-color.png` : '' }
+                        "logo": { "@type": "ImageObject", "url": typeof window !== 'undefined' ? `${window.location.origin}/images/Logo-Indepth-Lingkaran-hitam.png` : '' }
                     }
                 }) }} />
             </Head>
