@@ -44,6 +44,7 @@ class PaymentController extends Controller
             'booking'        => $booking->load(['schedule.therapist', 'userVoucher.voucher']),
             'transaction'    => $transaction,
             'paymentMethods' => config('clinic.payment_methods'),
+            'bankAccounts'   => config('clinic.bank_accounts', []),
         ]);
     }
 
@@ -104,6 +105,8 @@ class PaymentController extends Controller
                 $updateData['amount'] = $transaction->amount - $uniqueCode;
             } else {
                 $updateData['payment_bank']               = $request->payment_bank;
+                $updateData['payment_account_number']     = $request->payment_account_number;
+                $updateData['payment_account_name']       = $request->payment_account_name;
                 $updateData['payment_proof']              = $path;
                 $updateData['payment_proof_uploaded_at']  = now();
             }
@@ -124,6 +127,8 @@ class PaymentController extends Controller
                 'payment_method'         => $request->payment_method,
                 'status'                 => 'pending',
                 'ip_address'             => request()->ip(),
+                'payment_account_number' => $request->payment_account_number,
+                'payment_account_name'   => $request->payment_account_name,
                 'payment_agreement_data' => array_merge([
                     'agreed_to_refund_policy' => (bool) $request->agree_refund,
                     'agreed_to_final_payment' => (bool) $request->agree_final,

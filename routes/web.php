@@ -572,10 +572,10 @@ Route::get('/auth/google', [\App\Http\Controllers\Auth\SocialiteController::clas
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
 
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/documents', [ProfileController::class, 'documents'])->name('profile.documents');
@@ -631,6 +631,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/schedules/sessions/{booking}/start', [\App\Http\Controllers\Clinic\ScheduleController::class, 'startSession'])->name('schedules.start');
             Route::get('/schedules/sessions/{booking}', [\App\Http\Controllers\Clinic\ScheduleController::class, 'activeSession'])->name('schedules.active-session');
             Route::post('/schedules/sessions/{booking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeSession'])->name('schedules.complete');
+            Route::post('/schedules/sessions/{booking}/save-member', [\App\Http\Controllers\Clinic\ScheduleController::class, 'saveMemberSession'])->name('schedules.save-member');
+            Route::post('/schedules/group-sessions/{groupBooking}/video-link', [\App\Http\Controllers\Clinic\ScheduleController::class, 'updateGroupVideoLink'])->name('schedules.group-video-link');
+            Route::post('/schedules/group-sessions/{groupBooking}/complete', [\App\Http\Controllers\Clinic\ScheduleController::class, 'completeGroupSession'])->name('schedules.group-complete');
             Route::post('/schedules/sessions/{booking}/reschedule', [\App\Http\Controllers\Clinic\ScheduleController::class, 'rescheduleSession'])->name('schedules.reschedule');
             Route::post('/schedules/sessions/{booking}/no-show', [\App\Http\Controllers\Clinic\ScheduleController::class, 'markNoShow'])->name('schedules.no-show');
             Route::get('/patients/{user}/agreement', [\App\Http\Controllers\Clinic\AgreementController::class, 'patientAgreement'])->name('agreement.patient');
@@ -832,6 +835,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])
                 ->middleware('permission:delete users')
                 ->name('users.destroy');
+
+            // Group Bookings (Daftar Pengguna Grup)
+            Route::prefix('group-bookings')->name('group-bookings.')->middleware('permission:create users')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\GroupBookingController::class, 'index'])->name('index');
+                Route::get('/create', [\App\Http\Controllers\Admin\GroupBookingController::class, 'create'])->name('create');
+                Route::post('/', [\App\Http\Controllers\Admin\GroupBookingController::class, 'store'])->name('store');
+                Route::get('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'show'])->name('show');
+                Route::get('/{groupBooking}/edit', [\App\Http\Controllers\Admin\GroupBookingController::class, 'edit'])->name('edit');
+                Route::put('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'update'])->name('update');
+                Route::delete('/{groupBooking}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'destroy'])->name('destroy');
+                Route::get('/{groupBooking}/members/add', [\App\Http\Controllers\Admin\GroupBookingController::class, 'addMember'])->name('members.add');
+                Route::post('/{groupBooking}/members', [\App\Http\Controllers\Admin\GroupBookingController::class, 'storeMember'])->name('members.store');
+                Route::delete('/{groupBooking}/members/{group_booking_member}', [\App\Http\Controllers\Admin\GroupBookingController::class, 'removeMember'])->name('members.remove');
+                Route::post('/{groupBooking}/schedule', [\App\Http\Controllers\Admin\GroupBookingController::class, 'updateSchedule'])->name('schedule.update');
+                Route::post('/{groupBooking}/add-session', [\App\Http\Controllers\Admin\GroupBookingController::class, 'addSession'])->name('add-session');
+            });
 
             Route::get('roles', [\App\Http\Controllers\Admin\RoleController::class, 'index'])
                 ->middleware('permission:view roles')

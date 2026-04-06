@@ -68,6 +68,17 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn() => $request->session()->get('error'),
                 'message' => fn() => $request->session()->get('message'),
             ],
+            'clinicInfo' => [
+                'name'         => config('clinic.name'),
+                'tagline'      => config('clinic.tagline'),
+                'address'      => config('clinic.address'),
+                'phone'        => config('clinic.phone'),
+                'whatsapp'     => config('clinic.whatsapp'),
+                'email'        => config('clinic.email'),
+                'website'      => config('clinic.website'),
+                'mapsUrl'      => config('clinic.maps_url'),
+                'bankAccounts' => config('clinic.bank_accounts', []),
+            ],
         ];
     }
 }

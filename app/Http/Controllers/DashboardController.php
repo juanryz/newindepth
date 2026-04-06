@@ -39,7 +39,7 @@ class DashboardController extends Controller
 
         if ($user->hasRole('patient')) {
             // Fetch active booking: including pending ones requiring action
-            $activeBooking = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist'])
+            $activeBooking = \App\Models\Booking::with(['schedule.therapist', 'transaction', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('patient_id', $user->id)
                 ->where(function ($q) {
                     $q->whereIn('status', ['pending_payment', 'pending_validation', 'confirmed'])
@@ -51,7 +51,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->first();
 
-            $latestCompletedBooking = \App\Models\Booking::with(['schedule.therapist', 'therapist'])
+            $latestCompletedBooking = \App\Models\Booking::with(['schedule.therapist', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('patient_id', $user->id)
                 ->where('status', 'completed')
                 ->latest('updated_at')
@@ -85,7 +85,7 @@ class DashboardController extends Controller
             $therapistUpcomingSessions = (clone $baseBookingQuery)
                 ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
                 ->select('bookings.*')
-                ->with(['patient', 'schedule.therapist', 'therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist', 'groupBookingMember.groupBooking'])
                 ->whereIn('bookings.status', ['confirmed'])
                 ->where(function ($q) {
                     // Show upcoming sessions AND past sessions within 30 days back that still need action
@@ -99,7 +99,7 @@ class DashboardController extends Controller
 
             // Ongoing sessions (in_progress)
             $therapistActiveSessions = (clone $baseBookingQuery)
-                ->with(['patient', 'schedule.therapist', 'therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('status', 'in_progress')
                 ->get();
 
@@ -107,7 +107,7 @@ class DashboardController extends Controller
             $therapistPastSessions = (clone $baseBookingQuery)
                 ->join('schedules', 'bookings.schedule_id', '=', 'schedules.id')
                 ->select('bookings.*')
-                ->with(['patient', 'schedule.therapist', 'therapist'])
+                ->with(['patient', 'schedule.therapist', 'therapist', 'groupBookingMember.groupBooking'])
                 ->where('bookings.status', 'completed')
                 ->orderBy('schedules.date', 'desc')
                 ->orderBy('schedules.start_time', 'desc')

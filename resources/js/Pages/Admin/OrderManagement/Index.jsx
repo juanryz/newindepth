@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity } from 'lucide-react';
+import { Calendar, Users, CreditCard, ChevronRight, AlertTriangle, CheckCircle2, Clock, FileText, Eye, Activity, Building2, MapPin, History } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -10,6 +10,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { createPortal } from 'react-dom';
 
 import Modal from '@/Components/Modal';
+import { InvoiceModal } from '@/Components/InvoiceModal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -101,7 +102,7 @@ const calendarStyles = `
     }
 `;
 
-export default function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], therapists = [], availableSchedules = [], filters = {}, clinicSettings = {} }) {
+export default function OrderManagementIndex({ schedules = [], bookings = [], transactions = [], groupBookings = [], therapists = [], availableSchedules = [], filters = {}, clinicSettings = {} }) {
     const [activeTab, setActiveTab] = useState('schedules');
     const { flash, errors: pageErrors, auth } = usePage().props;
     const { user } = auth;
@@ -109,6 +110,10 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     // ── Dynamic clinic settings (from DB, not hardcoded) ──
     const calendarOpenTime = clinicSettings.open_time || '08:00';
     const calendarCloseTime = clinicSettings.close_time || '22:00';
+
+    const [showInvoice, setShowInvoice] = useState(false);
+    const [invoiceData, setInvoiceData] = useState(null);
+    const [invoiceType, setInvoiceType] = useState('individual');
 
     // Permission checks — roles dapat berupa array of strings atau array of objects
     const hasPermission = (permissionName) => {
@@ -139,6 +144,9 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [noShowBooking, setNoShowBooking] = useState(null);
     const { data: rescheduleData, setData: setRescheduleData, post: postReschedule, processing: rescheduling, reset: resetReschedule } = useForm({ new_schedule_id: '', reschedule_reason: '' });
     const { data: noShowData, setData: setNoShowData, post: postNoShow, processing: markingNoShow, reset: resetNoShow } = useForm({ no_show_party: 'therapist', no_show_reason: '' });
+    
+    // ─── Group History state ───
+    const [selectedGroupHistory, setSelectedGroupHistory] = useState(null);
 
     // ─── Transaction state ───
     const [selectedReject, setSelectedReject] = useState(null);
@@ -172,11 +180,54 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     const [txFilterDateFrom, setTxFilterDateFrom] = useState('');
     const [txFilterDateTo, setTxFilterDateTo] = useState('');
 
-    const filteredTransactions = (transactions || []).filter(tx => {
-        // Only show transactions that have payment proof, are cash/Tunai, have no payment method yet (offline pending), or are already processed
-        const isCash = tx.payment_method === 'cash' || tx.payment_method === 'Tunai' || !tx.payment_method;
-        if (!tx.payment_proof && !isCash && tx.status === 'pending') return false;
+    // ─── Group Booking filters ───
+    const [grpFilterSearch, setGrpFilterSearch] = useState('');
+    const [grpFilterStatus, setGrpFilterStatus] = useState('');
 
+    const handleViewInvoice = (tx) => {
+        const isBooking = tx.transactionable_type?.includes('Booking');
+        const booking = tx.transactionable;
+
+        const data = {
+            id: tx.id,
+            invoice_number: tx.invoice_number,
+            created_at: tx.created_at,
+            payment_status: tx.status,
+            patient_name: tx.user?.name,
+            patient_email: tx.user?.email,
+            patient_phone: tx.user?.phone,
+            booking_code: isBooking ? booking?.booking_code : '-',
+            amount: tx.amount,
+            session_type: isBooking ? booking?.session_type : 'offline',
+            package_name: isBooking ? booking?.package_type : 'Layanan',
+            schedule: isBooking && booking?.schedule ? {
+                date: booking.schedule.date,
+                start_time: booking.schedule.start_time,
+                therapist: booking.therapist?.name || booking.schedule?.therapist?.name || 'InDepth'
+            } : null,
+            // Group details if any
+            group_name: isBooking && booking?.group_booking_member?.group_booking ? booking.group_booking_member.group_booking.group_name : null,
+        };
+
+        setInvoiceData(data);
+        setInvoiceType('individual');
+        setShowInvoice(true);
+    };
+
+    const filteredGroups = (groupBookings || []).filter(grp => {
+        if (grpFilterStatus && grp.payment_status !== grpFilterStatus) return false;
+        if (grpFilterSearch) {
+            const q = grpFilterSearch.toLowerCase();
+            if (!(grp.institution_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.group_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.pic_name?.toLowerCase() ?? '').includes(q) &&
+                !(grp.invoice_number?.toLowerCase() ?? '').includes(q)) return false;
+        }
+        return true;
+    });
+
+    const filteredTransactions = (transactions || []).filter(tx => {
+        // Show all transactions so admin can track pending payments, both online and offline
         if (txFilterStatus && tx.status !== txFilterStatus) return false;
         if (txFilterSearch) {
             const q = txFilterSearch.toLowerCase();
@@ -400,7 +451,8 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
     // ─── Tabs ───
     const tabs = [
         { id: 'schedules', label: 'Jadwal', icon: Calendar, count: filteredSchedules.length, total: schedules?.length || 0 },
-        { id: 'bookings', label: 'Booking', icon: Users, count: filteredBookings.length, total: bookings?.length || 0 },
+        { id: 'bookings', label: 'Booking Individu', icon: Users, count: filteredBookings.length, total: bookings?.length || 0 },
+        { id: 'groups', label: 'Booking Grup', icon: Building2, count: filteredGroups.length, total: groupBookings?.length || 0 },
         { id: 'transactions', label: 'Pembayaran', icon: CreditCard, count: filteredTransactions.length, total: transactions?.length || 0 },
         { id: 'activity', label: 'Log Kegiatan', icon: Activity, count: filteredLog.length, total: activityLog.length },
     ];
@@ -574,8 +626,12 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                         <p className="text-xl font-black text-gray-900 dark:text-white">{schedules?.length || 0}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Total Booking</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Booking Individu</p>
                                         <p className="text-xl font-black text-gray-900 dark:text-white">{bookings?.length || 0}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Booking Grup</p>
+                                        <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">{groupBookings?.length || 0}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-gray-400 uppercase">Transaksi Pending</p>
@@ -836,7 +892,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                 <td className="px-6 py-5">
                                                                     <div className="flex flex-col">
                                                                         <span className="text-sm font-black text-gray-900 dark:text-white mb-1">{booking.booking_code}</span>
-                                                                        <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">{booking.package_type?.toUpperCase() || 'KONSULTASI'}</span>
+                                                                        <div className="flex flex-wrap items-center gap-2">
+                                                                            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">
+                                                                                {booking.package_type?.toUpperCase() || 'KONSULTASI'}
+                                                                            </span>
+                                                                            <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md w-fit ${booking.session_type === 'online' ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30'}`}>
+                                                                                {booking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-5">
@@ -964,7 +1027,204 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                     </motion.div>
                                 )}
 
-                                {/* ═══════════ TAB: PEMBAYARAN ═══════════ */}
+                                {/* ═══════════ TAB: BOOKING GRUP ═══════════ */}
+                                {activeTab === 'groups' && (
+                                    <motion.div key="groups" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                                        <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 overflow-hidden shadow-sm">
+
+                                            {/* Header */}
+                                            <div className="p-8 border-b border-gray-50 dark:border-gray-700/50 bg-violet-50/30 dark:bg-violet-950/20">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                                                        <div className="w-1.5 h-6 bg-violet-600 rounded-full"></div>
+                                                        Booking Grup / Institusi
+                                                    </h3>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="px-4 py-1.5 bg-violet-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+                                                            {filteredGroups.length} / {groupBookings?.length || 0} Grup
+                                                        </span>
+                                                        <Link
+                                                            href={route('admin.users.index', { tab: 'groups' })}
+                                                            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-violet-200 dark:border-violet-800/50 text-violet-700 dark:text-violet-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all shadow-sm"
+                                                        >
+                                                            <Building2 className="w-4 h-4" />
+                                                            Kelola Grup
+                                                        </Link>
+                                                    </div>
+                                                </div>
+
+                                                {/* Filter Bar */}
+                                                <div className="flex flex-col sm:flex-row gap-3 items-end">
+                                                    <div className="flex flex-col gap-1.5 flex-1 text-left">
+                                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Cari Grup / Instansi</label>
+                                                        <div className="relative">
+                                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                                            <input
+                                                                type="text" placeholder="Nama instansi / PIC / invoice..."
+                                                                value={grpFilterSearch} onChange={e => setGrpFilterSearch(e.target.value)}
+                                                                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-white placeholder-gray-300 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 text-left">Status Bayar</label>
+                                                        <select value={grpFilterStatus} onChange={e => setGrpFilterStatus(e.target.value)} className="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-white focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition-all">
+                                                            <option value="">Semua Status</option>
+                                                            <option value="pending">Pending</option>
+                                                            <option value="paid">Lunas</option>
+                                                        </select>
+                                                    </div>
+                                                    {(grpFilterSearch || grpFilterStatus) && (
+                                                        <button onClick={() => { setGrpFilterSearch(''); setGrpFilterStatus(''); }} className="px-3 py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-xl text-xs font-black hover:bg-rose-100 hover:text-rose-500 transition-all" title="Reset filter">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-white/40 dark:border-gray-700/30">
+                                                            <th className="px-6 py-5">Instansi / Grup & PIC</th>
+                                                            <th className="px-6 py-5 text-center">Anggota</th>
+                                                            <th className="px-6 py-5">Jadwal & Paket</th>
+                                                            <th className="px-6 py-5">Status Anggota</th>
+                                                            <th className="px-6 py-5 text-center">Status Pembayaran</th>
+                                                            <th className="px-6 py-5 text-center">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                                                        {filteredGroups.map((grp) => (
+                                                            <tr key={grp.id} className="group hover:bg-violet-50/30 dark:hover:bg-violet-900/10 transition-all">
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                                                <Building2 className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="text-sm font-black text-gray-900 dark:text-white">{grp.institution_name || grp.group_name}</div>
+                                                                                {grp.institution_name && grp.group_name !== grp.institution_name && (
+                                                                                    <div className="text-[10px] text-gray-400">{grp.group_name}</div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                        <div className="flex flex-col gap-0.5 ml-10 mt-1">
+                                                                            <div className="text-[10px] font-bold text-gray-700 dark:text-gray-300">👨‍💼 {grp.pic_name || '-'}</div>
+                                                                            {grp.pic_phone && <div className="text-[9px] text-gray-500">📞 {grp.pic_phone}</div>}
+                                                                        </div>
+
+                                                                        <div className="text-[9px] text-gray-400 ml-10 mt-1">{grp.created_at ? new Date(grp.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <div className="inline-flex flex-col items-center justify-center gap-1 bg-violet-100 dark:bg-violet-900/30 rounded-2xl px-4 py-2">
+                                                                        <span className="text-2xl font-black text-violet-700 dark:text-violet-300">{grp.members_count ?? 0}</span>
+                                                                        <span className="text-[9px] font-black text-violet-500 uppercase tracking-widest">Anggota</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1">
+                                                                        {grp.package_type && (
+                                                                            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md w-fit">{grp.package_type}</span>
+                                                                        )}
+                                                                        {grp.schedule ? (
+                                                                            <div className="flex flex-col mt-1">
+                                                                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{new Date(grp.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                                                                                <span className="text-xs text-gray-500">{grp.schedule.start_time?.substring(0, 5)} - {grp.schedule.end_time?.substring(0, 5)} WIB</span>
+                                                                                {grp.schedule.therapist && <span className="text-[10px] text-gray-400">{grp.schedule.therapist.name}</span>}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-xs text-gray-400 italic">Jadwal belum diatur</span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5">
+                                                                    <div className="flex flex-col gap-1.5">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Status Anggota</span>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                            {(() => {
+                                                                                const pending = (grp.members || []).filter(m => m.transaction?.status === 'pending').length;
+                                                                                const paid = (grp.members || []).filter(m => m.transaction?.status === 'paid').length;
+                                                                                const unpaid = (grp.members || []).filter(m => !m.transaction).length;
+
+                                                                                return (
+                                                                                    <>
+                                                                                        {paid > 0 && <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase tracking-widest border border-emerald-100">{paid} Lunas</span>}
+                                                                                        {pending > 0 && <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-md text-[9px] font-black uppercase tracking-widest border border-amber-100 animate-pulse">{pending} Perlu Validasi</span>}
+                                                                                        {unpaid > 0 && <span className="px-2 py-0.5 bg-gray-50 text-gray-400 rounded-md text-[9px] font-black uppercase tracking-widest border border-gray-100">{unpaid} Belum Bayar</span>}
+                                                                                    </>
+                                                                                );
+                                                                            })()}
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <div className="flex flex-col items-center gap-2">
+                                                                        {(() => {
+                                                                            const totalMembers = (grp.members || []).length;
+                                                                            if (totalMembers === 0) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">Belum Ada Anggota</span>;
+                                                                            }
+                                                                            
+                                                                            const paid = (grp.members || []).filter(m => m.transaction?.status === 'paid').length;
+                                                                            const pending = (grp.members || []).filter(m => m.transaction?.status === 'pending').length;
+                                                                            
+                                                                            if (paid === totalMembers) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">✓ Lunas Semua</span>;
+                                                                            }
+                                                                            
+                                                                            if (paid > 0 || pending > 0) {
+                                                                                return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">⏳ Sebagian</span>;
+                                                                            }
+                                                                            
+                                                                            return <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">Belum Bayar</span>;
+                                                                        })()}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-5 text-center">
+                                                                    <div className="flex flex-col gap-1.5 items-center">
+                                                                        <Link
+                                                                            href={route('admin.group-bookings.show', grp.id)}
+                                                                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-[10px] font-black uppercase rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20"
+                                                                        >
+                                                                            <Eye className="w-3 h-3" />
+                                                                            Detail
+                                                                        </Link>
+                                                                        {grp.sessions_count > 0 && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => setSelectedGroupHistory(grp)}
+                                                                                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 text-[10px] font-black uppercase rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
+                                                                            >
+                                                                                <History className="w-3 h-3" />
+                                                                                Riwayat
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        {filteredGroups.length === 0 && (
+                                                            <tr><td colSpan="7" className="px-8 py-20 text-center">
+                                                                <Building2 className="w-10 h-10 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
+                                                                <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-xs">Tidak ada data grup yang cocok.</p>
+                                                                {(grpFilterSearch || grpFilterStatus) && (
+                                                                    <button onClick={() => { setGrpFilterSearch(''); setGrpFilterStatus(''); }} className="mt-4 text-[10px] font-black text-violet-600 uppercase underline">Reset Filter</button>
+                                                                )}
+                                                            </td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
                                 {activeTab === 'transactions' && (
                                     <motion.div key="transactions" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                         <div className="bg-white dark:bg-gray-800/80 rounded-[2.5rem] border border-gray-100 dark:border-gray-700/50 overflow-hidden shadow-sm">
@@ -1112,14 +1372,22 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                         <div className="flex flex-col gap-1 items-start">
                                                                             <span className="text-sm font-black text-gray-900 dark:text-white mb-1">{tx.invoice_number}</span>
                                                                             <span className="text-[9px] text-gray-400">{tx.created_at ? new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}</span>
-                                                                            {tx.payment_proof && (
-                                                                                <div className="mt-2 text-left bg-gray-50 dark:bg-gray-800/50 p-2 border border-gray-100 dark:border-gray-700/50 rounded-lg">
-                                                                                    <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{tx.payment_bank}</div>
-                                                                                    {tx.payment_agreement_data?.payment_account_number && (
-                                                                                        <div className="text-[10px] text-gray-800 dark:text-gray-300 font-bold">{tx.payment_agreement_data.payment_account_number}</div>
-                                                                                    )}
-                                                                                    {tx.payment_agreement_data?.payment_account_name && (
-                                                                                        <div className="text-[9px] text-gray-400 capitalize">{tx.payment_agreement_data.payment_account_name}</div>
+                                                                             {tx.payment_proof && (
+                                                                                <div className="mt-2 text-left bg-gray-50 dark:bg-gray-800/10 p-2.5 border border-indigo-100 dark:border-indigo-900/30 rounded-xl">
+                                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                                        <span className="text-[8px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm border border-indigo-100/50">
+                                                                                            {tx.payment_bank || tx.payment_method || '-'}
+                                                                                        </span>
+                                                                                        {(tx.payment_account_number || tx.payment_agreement_data?.payment_account_number) && (
+                                                                                            <span className="text-[10px] text-gray-900 dark:text-gray-300 font-black tracking-wider leading-none">
+                                                                                                {tx.payment_account_number || tx.payment_agreement_data?.payment_account_number}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    {(tx.payment_account_name || tx.payment_agreement_data?.payment_account_name) && (
+                                                                                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter truncate max-w-[120px]">
+                                                                                            A.N. {tx.payment_account_name || tx.payment_agreement_data?.payment_account_name}
+                                                                                        </div>
                                                                                     )}
                                                                                 </div>
                                                                             )}
@@ -1236,6 +1504,14 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                                                                                     )}
                                                                                 </div>
                                                                             )}
+                                                                            {/* View Invoice Button */}
+                                                                            <button
+                                                                                onClick={() => handleViewInvoice(tx)}
+                                                                                className="px-3 py-1 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-50 transition-all flex items-center gap-1"
+                                                                            >
+                                                                                <FileText className="w-3 h-3" />
+                                                                                Invoice
+                                                                            </button>
                                                                             {/* Admin Voucher Button */}
                                                                             {tx.status === 'pending' && !tx.payment_agreement_data?.applied_voucher_id && (
                                                                                 <>
@@ -1812,6 +2088,130 @@ export default function OrderManagementIndex({ schedules = [], bookings = [], tr
                             </PrimaryButton>
                         </div>
                     </form>
+                </div>
+            </Modal>
+
+            {/* Invoice Modal — muncul saat klik tombol Invoice / otomatis dari flash */}
+            {showInvoice && invoiceData && (
+                <InvoiceModal
+                    invoice={invoiceData}
+                    type={invoiceType}
+                    onClose={() => {
+                        setShowInvoice(false);
+                        setInvoiceData(null);
+                    }}
+                    bankAccounts={usePage().props.clinicInfo?.bankAccounts ?? []}
+                />
+            )}
+
+            {/* Modal Riwayat Sesi Grup */}
+            <Modal show={!!selectedGroupHistory} onClose={() => setSelectedGroupHistory(null)} maxWidth="2xl">
+                <div className="p-8 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Riwayat Sesi Grup</h2>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                            {selectedGroupHistory?.group_name} · {selectedGroupHistory?.sessions_count} Sesi
+                        </p>
+                    </div>
+                </div>
+                <div className="p-8 bg-gray-50 dark:bg-gray-950/50 max-h-[60vh] overflow-y-auto">
+                    {selectedGroupHistory?.sessions?.length > 0 ? (
+                        <div className="flex flex-col gap-6">
+                            {selectedGroupHistory.sessions.map((session, i) => (
+                                <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-gray-50 dark:border-gray-800/80">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 rounded-xl">
+                                                <History className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">
+                                                    Sesi {selectedGroupHistory.sessions.length - i}
+                                                </p>
+                                                {session.schedule ? (
+                                                    <p className="text-[10px] font-bold text-gray-400 mt-1">
+                                                        📅 {new Date(session.schedule.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} · {session.schedule.start_time?.substring(0, 5)} - {session.schedule.end_time?.substring(0, 5)}
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-[10px] font-bold text-gray-400 mt-1 italic">
+                                                        Data jadwal tidak tersedia
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className={`inline-flex px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full ${
+                                                session.is_completed 
+                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30' 
+                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30'
+                                            }`}>
+                                                {session.is_completed ? 'Selesai Semua' : 'Sebagian/Pending'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {session.members.map((m, j) => (
+                                            <div key={j} className="flex flex-col gap-2 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">{m.name}</span>
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest border ${
+                                                        m.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                        m.status === 'no_show' || m.status === 'cancelled' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                                        'bg-gray-100 text-gray-500 border-gray-200'
+                                                    }`}>
+                                                        {m.status === 'completed' ? 'Selesai' : m.status}
+                                                    </span>
+                                                </div>
+
+                                                {m.status === 'completed' && (
+                                                    <div className="flex flex-col gap-2 mt-2">
+                                                        {m.outcome && (
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                                                                    m.outcome === 'Normal'
+                                                                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'
+                                                                        : m.outcome === 'Abnormal/Emergency'
+                                                                            ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20'
+                                                                            : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20'
+                                                                }`}>
+                                                                    Hasil: {m.outcome}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {m.session_checklist?.notes_internal && (
+                                                            <div className="bg-amber-50 dark:bg-amber-950/20 rounded-lg p-2.5 border border-amber-100 dark:border-amber-900/30">
+                                                                <span className="text-[8px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest block mb-0.5">Catatan Internal:</span>
+                                                                <p className="text-[10px] text-amber-800 dark:text-amber-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_internal}</p>
+                                                            </div>
+                                                        )}
+                                                        {m.session_checklist?.notes_patient && (
+                                                            <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-lg p-2.5 border border-indigo-100 dark:border-indigo-900/30">
+                                                                <span className="text-[8px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest block mb-0.5">Catatan Pasien:</span>
+                                                                <p className="text-[10px] text-indigo-800 dark:text-indigo-300/80 leading-relaxed whitespace-pre-wrap">{m.session_checklist.notes_patient}</p>
+                                                            </div>
+                                                        )}
+                                                        {!m.session_checklist?.notes_internal && !m.session_checklist?.notes_patient && !m.outcome && (
+                                                            <p className="text-[10px] text-gray-400 italic">Tidak ada catatan atau hasil sesi.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <History className="w-12 h-12 text-gray-200 dark:text-gray-700 mx-auto mb-3" />
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400">Belum ada riwayat sesi</p>
+                        </div>
+                    )}
+                </div>
+                <div className="p-6 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                    <SecondaryButton onClick={() => setSelectedGroupHistory(null)} className="rounded-xl font-black text-[10px] uppercase tracking-widest px-6 py-3">
+                        Tutup
+                    </SecondaryButton>
                 </div>
             </Modal>
         </AuthenticatedLayout>

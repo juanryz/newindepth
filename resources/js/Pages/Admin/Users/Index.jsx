@@ -17,7 +17,10 @@ import {
     CheckCircle,
     UserCircle,
     Key,
-    AlertCircle
+    AlertCircle,
+    Building2,
+    ChevronLeft,
+    FileText,
 } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -72,7 +75,12 @@ function ProfileCompletionBadge({ completion }) {
     );
 }
 
-export default function UsersIndex({ users, roles, permissions, filters }) {
+const statusConfig = {
+    paid:    { label: 'Lunas', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+    pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+};
+
+export default function UsersIndex({ users, roles, permissions, groups, filters }) {
     const { auth, flash } = usePage().props;
     const { user } = auth;
 
@@ -84,6 +92,13 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     const initialTab = queryParams.get('tab') || 'users';
     const [activeTab, setActiveTab] = useState(initialTab);
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [groupSearchQuery, setGroupSearchQuery] = useState(filters.group_search || '');
+
+    const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+    const formatDate = (d) => {
+        if (!d) return '-';
+        return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
 
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);
@@ -93,13 +108,14 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
     };
 
     const tabs = [
-        { id: 'users', label: 'Daftar Pengguna', icon: Users, count: users.total },
+        { id: 'users', label: 'Daftar Pengguna Individu', icon: Users, count: users.total },
         { id: 'roles', label: 'Akses & Role', icon: ShieldCheck, count: roles.length },
+        { id: 'groups', label: 'Daftar Grup', icon: Building2, count: groups?.total || 0 },
     ];
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get(route('admin.users.index'), { search: searchQuery }, {
+        router.get(route('admin.users.index'), { search: searchQuery, group_search: groupSearchQuery, tab: activeTab }, {
             preserveState: true,
             preserveScroll: true,
             replace: true
@@ -136,6 +152,12 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
         }
     };
 
+    const handleGroupDelete = (id) => {
+        if (confirm('Hapus grup ini? Seluruh data anggota dan booking di dalamnya akan dihapus.')) {
+            router.delete(route('admin.group-bookings.destroy', id));
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -169,6 +191,14 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                             >
                                 <ShieldCheck className="w-4 h-4 mr-2" />
                                 Tambah Role Baru
+                            </Link>
+                        ) : activeTab === 'groups' ? (
+                            <Link
+                                href={route('admin.group-bookings.create')}
+                                className="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                            >
+                                <Plus className="w-4 h-4 mr-2" />
+                                Buat Grup
                             </Link>
                         ) : null}
                     </div>
@@ -213,30 +243,46 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500 sticky top-24">
                                 <div className="space-y-2">
                                     {tabs.map((tab) => (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => handleTabChange(tab.id)}
-                                            className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id
-                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                                                : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
-                                                }`}
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-2 rounded-xl transition-colors ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-white dark:group-hover:bg-gray-700'
-                                                    }`}>
-                                                    <tab.icon className="w-5 h-5" />
+                                        tab.href ? (
+                                            <Link
+                                                key={tab.id}
+                                                href={tab.href}
+                                                className="w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-2 rounded-xl transition-colors bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30">
+                                                        <tab.icon className="w-5 h-5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest text-left text-wrap leading-tight max-w-[120px] sm:max-w-none">{tab.label}</span>
                                                 </div>
-                                                <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'
-                                                    }`}>
-                                                    {tab.count}
-                                                </span>
-                                                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
-                                                    }`} />
-                                            </div>
-                                        </button>
+                                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-300" />
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => handleTabChange(tab.id)}
+                                                className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id
+                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-2 rounded-xl transition-colors ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-white dark:group-hover:bg-gray-700'
+                                                        }`}>
+                                                        <tab.icon className="w-5 h-5" />
+                                                    </div>
+                                                    <span className="text-sm font-black uppercase tracking-widest text-left text-wrap leading-tight max-w-[120px] sm:max-w-none">{tab.label}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'
+                                                        }`}>
+                                                        {tab.count}
+                                                    </span>
+                                                    <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${activeTab === tab.id ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
+                                                        }`} />
+                                                </div>
+                                            </button>
+                                        )
                                     ))}
                                 </div>
 
@@ -280,9 +326,8 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                             </form>
                                         </div>
 
-                                        {/* Users Table */}
-                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
-                                            <div className="overflow-x-auto">
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-white dark:border-gray-800 transition-all duration-500 flex flex-col min-w-0">
+                                            <div className="w-full overflow-x-auto pb-6 rounded-t-[2.5rem]">
                                                 <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                                                     <thead>
                                                         <tr className="bg-gray-50/50 dark:bg-gray-800/50">
@@ -298,21 +343,21 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                             <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all group">
                                                                 <td className="px-8 py-6">
                                                                     <div className="flex items-center gap-4">
-                                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
                                                                             {user.profile_photo_url ? (
                                                                                 <img src={user.profile_photo_url} alt="" className="w-full h-full rounded-2xl object-cover" />
                                                                             ) : (
                                                                                 <UserCircle className="w-6 h-6" />
                                                                             )}
                                                                         </div>
-                                                                        <div>
+                                                                        <div className="min-w-[150px]">
                                                                             <div className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{user.name}</div>
                                                                             <div className="text-[10px] text-gray-400 font-bold tracking-widest">{user.email}</div>
                                                                         </div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-8 py-6">
-                                                                    <div className="flex flex-wrap gap-2">
+                                                                    <div className="flex flex-wrap gap-2 min-w-[150px]">
                                                                         {user.roles.map((role, i) => {
                                                                             const roleName = typeof role === 'string' ? role : role.name;
                                                                             const roleId = typeof role === 'string' ? `${role}-${i}` : role.id;
@@ -330,10 +375,10 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                         {user.roles.length === 0 && <span className="text-[10px] text-gray-400 italic font-medium px-2 py-1">Belum ada role</span>}
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-8 py-6 text-center">
+                                                                <td className="px-8 py-6 text-center min-w-[120px]">
                                                                     <ProfileCompletionBadge completion={user.profile_completion} />
                                                                 </td>
-                                                                <td className="px-8 py-6 text-center">
+                                                                <td className="px-8 py-6 text-center min-w-[120px]">
                                                                     {user.email_verified_at ? (
                                                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-800">
                                                                             <CheckCircle className="w-3 h-3" />
@@ -345,7 +390,7 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                                         </div>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-8 py-6 text-right whitespace-nowrap">
+                                                                <td className="px-8 py-6 text-right whitespace-nowrap min-w-[150px]">
                                                                     <div className="flex justify-end gap-2 transition-all">
                                                                         <Link
                                                                             href={route('admin.users.show', user.id)}
@@ -381,11 +426,11 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                             </div>
 
                                             {/* Pagination */}
-                                            <div className="px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            <div className="px-4 sm:px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col xl:flex-row justify-between items-center gap-6 rounded-b-[2.5rem] w-full overflow-x-auto">
+                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center xl:text-left whitespace-nowrap">
                                                     Menampilkan {users.from || 0} sampai {users.to || 0} dari {users.total} pengguna
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-wrap justify-center gap-2 max-w-full">
                                                     {users.links.map((link, i) => (
                                                         <Link
                                                             key={i}
@@ -481,6 +526,141 @@ export default function UsersIndex({ users, roles, permissions, filters }) {
                                                     </tbody>
                                                 </table>
                                             </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {activeTab === 'groups' && (
+                                    <motion.div
+                                        key="groups"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="space-y-6"
+                                    >
+                                        {/* Search Filter for Groups */}
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-4 shadow-xl border border-white dark:border-gray-800 transition-all duration-500">
+                                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+                                                <div className="flex-1 relative">
+                                                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Cari nama grup, institusi, atau PIC..."
+                                                        className="w-full bg-gray-50 dark:bg-gray-950 border-transparent focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-[1.5rem] pl-14 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all"
+                                                        value={groupSearchQuery}
+                                                        onChange={(e) => setGroupSearchQuery(e.target.value)}
+                                                    />
+                                                </div>
+                                                <button type="submit" className="px-8 py-4 bg-indigo-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                                                    Cari Grup
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                                            {groups?.data?.length === 0 ? (
+                                                <div className="text-center py-20">
+                                                    <Users className="w-16 h-16 text-gray-200 dark:text-gray-700 mx-auto mb-4" />
+                                                    <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Belum ada grup</p>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full overflow-x-auto md:overflow-visible pb-12">
+                                                    <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                                                        <thead>
+                                                            <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                                                {['Grup / Institusi', 'Anggota', 'Status', 'Aksi'].map((h) => (
+                                                                    <th key={h} className="text-left text-[10px] font-black uppercase tracking-widest text-gray-400 px-6 py-4">{h}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                                                            {groups?.data?.map((g) => {
+                                                                const st = statusConfig[g.payment_status] ?? statusConfig.pending;
+                                                                return (
+                                                                    <tr key={g.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                                                                        <td className="px-6 py-4">
+                                                                            <p className="font-bold text-gray-900 dark:text-white uppercase tracking-tight">{g.group_name}</p>
+                                                                            {g.institution_name && <p className="text-[10px] font-bold tracking-widest text-gray-400">{g.institution_name}</p>}
+                                                                            <p className="text-[10px] font-black tracking-widest text-indigo-500 mt-1">{g.invoice_number}</p>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-xs font-black rounded-full">
+                                                                                <Users className="w-3 h-3" />
+                                                                                {g.members_count ?? 0}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            {(() => {
+                                                                                // Calculate synchronized status based on members' transactions
+                                                                                const members = g.members || [];
+                                                                                const hasMembers = members.length > 0;
+                                                                                const allPaid = (g.payment_status === 'paid') || (hasMembers && members.every(m => ['paid', 'completed'].includes(m.booking?.transaction?.status)));
+                                                                                const anyPaidOrPending = (g.payment_status === 'paid') || (hasMembers && members.some(m => ['paid', 'completed', 'pending'].includes(m.booking?.transaction?.status)));
+
+                                                                                let statusData = { label: 'Belum Lunas', cls: 'bg-rose-50 text-rose-700 border border-rose-100' };
+                                                                                if (allPaid) statusData = { label: '✓ Lunas', cls: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
+                                                                                else if (anyPaidOrPending) statusData = { label: '⏳ Proses', cls: 'bg-amber-50 text-amber-700 border border-amber-100' };
+                                                                                
+                                                                                return <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusData.cls}`}>{statusData.label}</span>;
+                                                                            })()}
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Link
+                                                                                    href={route('admin.group-bookings.show', g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Detail"
+                                                                                >
+                                                                                    <Eye className="w-4 h-4" />
+                                                                                </Link>
+                                                                                <Link
+                                                                                    href={route('admin.group-bookings.edit', g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Edit"
+                                                                                >
+                                                                                    <FileText className="w-4 h-4" />
+                                                                                </Link>
+                                                                                <button
+                                                                                    onClick={() => handleGroupDelete(g.id)}
+                                                                                    className="p-2.5 bg-white dark:bg-gray-800 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:scale-110 active:scale-95 transition-all"
+                                                                                    title="Hapus"
+                                                                                >
+                                                                                    <Trash2 className="w-4 h-4" />
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+
+                                            {/* Pagination for Groups */}
+                                            {groups?.last_page > 1 && (
+                                                <div className="px-8 py-6 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                        Menampilkan {groups.from || 0} sampai {groups.to || 0} dari {groups.total} grup
+                                                    </div>
+                                                    <div className="flex justify-center gap-2">
+                                                        {groups.links.map((link, i) => (
+                                                            <Link
+                                                                key={i}
+                                                                href={link.url || '#'}
+                                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                                    link.active
+                                                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                                        : link.url
+                                                                            ? 'bg-white dark:bg-gray-900 text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                                                            : 'opacity-30 cursor-not-allowed'
+                                                                }`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

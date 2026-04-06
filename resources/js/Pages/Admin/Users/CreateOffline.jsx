@@ -1,15 +1,215 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
     ChevronLeft, Save, User, Mail, Phone, Lock, Shield, AlertCircle,
     Contact, Eye, EyeOff, ClipboardList, Wifi, WifiOff, AlertTriangle,
     CheckSquare, Camera, FileImage, Calendar, Package as PackageIcon,
-    CreditCard, Upload, CheckCircle, Clock, Banknote, Trash2,
+    CreditCard, Upload, CheckCircle, Clock, Banknote, Trash2, Users,
+    Monitor, MapPin, ArrowRight, Printer, Download, X,
 } from 'lucide-react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import { InvoiceModal } from '@/Components/InvoiceModal';
+
+// ─── Invoice Preview Modal (client-side, sebelum submit) ──────────────────────
+function InvoicePreviewModal({ data, pkg, price, bankAccounts: bankAccountsProp = [], onClose }) {
+    const printRef = useRef();
+    const { clinicInfo } = usePage().props;
+    const bankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccountsProp;
+    const isOnline = data.session_type === 'online';
+    const isCash   = ['Cash', 'Tunai'].includes(data.payment_method);
+    const fmt = (n) => `Rp ${Number(n || 0).toLocaleString('id-ID')}`;
+
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const downloadPDF = () => {
+        setIsDownloading(true);
+        const element = printRef.current;
+        
+        const doDownload = () => {
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Draft_Invoice_${data.name || 'Pasien'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, windowWidth: document.documentElement.offsetWidth },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                setIsDownloading(false);
+            }).catch(err => {
+                console.error("PDF generation failed:", err);
+                setIsDownloading(false);
+            });
+        };
+
+        if (window.html2pdf) {
+            doDownload();
+        } else {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.body.appendChild(script);
+            script.onload = doDownload;
+        }
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                {/* Tombol tutup + print */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Preview Invoice</p>
+                        <p className="text-lg font-black text-gray-900 dark:text-white">Draft — Belum Final</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button onClick={downloadPDF} disabled={isDownloading}
+                            className={`flex items-center gap-2 px-5 py-2.5 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 ${isDownloading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+                            <Download className="w-4 h-4" /> {isDownloading ? 'Memproses PDF...' : 'Download PDF'}
+                        </button>
+                        <button onClick={onClose} className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Print area */}
+                <div ref={printRef} className="p-8 space-y-6">
+                    {/* Header klinik */}
+                    <div className="flex items-start justify-between pb-6 border-b-2 border-indigo-100">
+                        <div>
+                            <img src="/images/logo-color.png" alt="Logo" className="h-12 w-auto mb-2" />
+                            <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">
+                                {clinicInfo?.name || 'InDepth Mental Wellness'}
+                            </h1>
+                            <p className="text-xs text-indigo-600/70 font-semibold mt-0.5">
+                                {clinicInfo?.tagline || 'Hipnoterapi & Kesehatan Mental Profesional'}
+                            </p>
+                            <div className="mt-2 space-y-0.5">
+                                {clinicInfo?.address && (
+                                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                                        <MapPin className="w-3 h-3 flex-shrink-0" />{clinicInfo.address}
+                                    </p>
+                                )}
+                                <div className="flex flex-wrap gap-x-4">
+                                    {clinicInfo?.phone && <p className="text-[10px] text-gray-400">{clinicInfo.phone}</p>}
+                                    {clinicInfo?.email && <p className="text-[10px] text-gray-400">{clinicInfo.email}</p>}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Invoice (Draft)</p>
+                            <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+                            <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border mt-2 ${
+                                data.payment_status === 'paid' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-amber-50 border-amber-200 text-amber-700'
+                            }`}>
+                                {data.payment_status === 'paid' ? '✓ Lunas' : '⏳ Belum Dibayar'}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Data pasien */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Data Pasien</p>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            {[
+                                { label: 'Nama', value: data.name || '—' },
+                                { label: 'Email', value: data.email || '—' },
+                                { label: 'Telepon', value: data.phone || '—' },
+                                { label: 'Tipe Sesi', value: isOnline ? '💻 Online' : '🏥 Offline' },
+                            ].map(({ label, value }) => (
+                                <div key={label} className="mb-2">
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-1">{label}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white">{value}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Detail layanan */}
+                    <div className="border border-gray-100 dark:border-gray-700 rounded-2xl p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Detail Layanan</p>
+                        <div className="flex justify-between py-2 border-b border-gray-50 dark:border-gray-800 text-sm">
+                            <span className="text-gray-500">{pkg?.name ?? data.package_type ?? '—'}</span>
+                            <span className="font-black text-gray-900 dark:text-white">{fmt(price)}</span>
+                        </div>
+                        <div className="flex justify-between items-center mt-3 pt-3 border-t-2 border-indigo-600">
+                            <span className="text-sm font-black uppercase tracking-wide text-indigo-600">Total</span>
+                            <span className="text-2xl font-black text-indigo-600">{fmt(price)}</span>
+                        </div>
+                    </div>
+
+                    {/* Info pembayaran + rekening tujuan */}
+                    <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-3">Informasi Pembayaran</p>
+                        <div className="flex justify-between text-sm mb-4">
+                            <span className="text-gray-500">Metode</span>
+                            <span className="font-black text-gray-900 dark:text-white">{data.payment_method || '—'}</span>
+                        </div>
+
+                        {/* Rekening tujuan — hanya jika Transfer Bank */}
+                        {!isCash && bankAccounts.length > 0 && (
+                            <>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-blue-500 mb-2">Rekening Tujuan Transfer</p>
+                                {bankAccounts.map((b) => (
+                                    <div key={b.bank} className="mb-2 flex items-center justify-between bg-white rounded-xl p-4 border border-blue-100 shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                <span className="text-white font-black text-[10px]">{b.bank}</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-black text-gray-900 uppercase">{b.holder}</p>
+                                                <p className="text-sm font-mono font-black text-indigo-600 tracking-wider">{b.account}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)}
+                                            className="text-[9px] font-black uppercase text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg hover:bg-blue-200 transition-colors">
+                                            Salin
+                                        </button>
+                                    </div>
+                                ))}
+                                <p className="text-[9px] text-amber-600 font-bold mt-2">
+                                    ⚠️ Harap transfer tepat sesuai nominal. Pembayaran akan dikonfirmasi oleh admin.
+                                </p>
+                            </>
+                        )}
+                        {!isCash && bankAccounts.length === 0 && (
+                            <p className="text-xs text-blue-600 font-medium">Silakan transfer ke rekening resmi {clinicInfo?.name || 'InDepth Mental Wellness'}.</p>
+                        )}
+                        {isCash && (
+                            <p className="text-xs text-emerald-600 font-bold">✅ Bayar tunai langsung di klinik saat sesi berlangsung.</p>
+                        )}
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 text-center">
+                        <p className="text-[9px] text-gray-400 leading-relaxed">
+                            Invoice ini merupakan draft yang dibuat oleh admin.
+                            Nomor invoice final akan diterbitkan setelah booking dikonfirmasi.
+                        </p>
+                        {(clinicInfo?.phone || clinicInfo?.email) && (
+                            <p className="text-[9px] text-gray-400 mt-1">
+                                {clinicInfo?.name || 'InDepth Mental Wellness'} · {[clinicInfo?.phone, clinicInfo?.email].filter(Boolean).join(' · ')}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Footer actions */}
+                <div className="flex items-center justify-between p-6 border-t border-gray-100 dark:border-gray-800">
+                    <button onClick={onClose} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors">Tutup</button>
+                    <button onClick={downloadPDF}
+                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
+                        <Download className="w-4 h-4" /> Download / Print Invoice
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+}
+
 
 // ─── Reusable Section Card ────────────────────────────────────────────────────
 function Section({ icon: Icon, iconBg, iconColor, title, children }) {
@@ -76,8 +276,23 @@ function scheduleLabel(s) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CreateOffline({
-    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages, paymentMethods,
+    roles, severityOptions, packageOptions, genderOptions, schedules, bookingPackages,
+    paymentMethodsBySession = { online: ['Transfer Bank'], offline: ['Transfer Bank', 'Cash'] },
+    sessionTypeOptions = [],
+    bankAccounts = [],
 }) {
+    // Invoice modal state setelah submit individu berhasil
+    const [invoiceData, setInvoiceData] = useState(null);
+    const { flash, clinicInfo } = usePage().props;
+
+    // Gunakan bankAccounts dari clinicInfo (shared props) jika tersedia, fallback ke prop
+    const effectiveBankAccounts = clinicInfo?.bankAccounts?.length ? clinicInfo.bankAccounts : bankAccounts;
+
+    // Tampilkan invoice dari flash session jika ada
+    React.useEffect(() => {
+        if (flash?.invoiceData) setInvoiceData(flash.invoiceData);
+    }, [flash]);
+
     const { data, setData, post, processing, errors } = useForm({
         disclaimer_confirmed: false,
         // Identitas
@@ -91,6 +306,8 @@ export default function CreateOffline({
         severity_label: '', recommended_package: '', admin_notes: '', is_high_risk: false,
         // Perjanjian
         agreement_signed_offline: false,
+        // Mode Sesi
+        session_type: 'offline',
         // Booking
         schedule_id: '', package_type: '', booking_notes: '',
         // Pembayaran
@@ -106,6 +323,7 @@ export default function CreateOffline({
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [ktpPreview, setKtpPreview] = useState(null);
     const [proofPreview, setProofPreview] = useState(null);
+    const [showPreview, setShowPreview] = useState(false);
 
     const handleFile = (field, previewSetter) => (e) => {
         const file = e.target.files[0];
@@ -124,6 +342,18 @@ export default function CreateOffline({
         setData('roles', checked ? [...data.roles, value] : data.roles.filter(r => r !== value));
     };
 
+    // Payment methods filtered by session type
+    const availablePaymentMethods = paymentMethodsBySession[data.session_type] ?? ['Transfer Bank'];
+
+    // When session_type changes, reset payment_method to first allowed
+    const handleSessionTypeChange = (val) => {
+        setData(prev => ({
+            ...prev,
+            session_type: val,
+            payment_method: (paymentMethodsBySession[val] ?? ['Transfer Bank'])[0],
+        }));
+    };
+
     const submit = (e) => {
         e.preventDefault();
         post(route('admin.users.store-offline'));
@@ -131,7 +361,15 @@ export default function CreateOffline({
 
     const hasSchedule = !!data.schedule_id;
     const isPaid      = data.payment_status === 'paid';
+    const isOnline    = data.session_type === 'online';
 
+    // Kalkulasi harga paket terpilih
+    const selectedPkg = bookingPackages.find(p => p.slug === data.package_type);
+    const packagePrice = isOnline
+        ? (selectedPkg?.online_price ?? selectedPkg?.price ?? 0)
+        : (selectedPkg?.price ?? 0);
+
+    // ── Form Individual ────────────────────────────────────────────────────────
     return (
         <AuthenticatedLayout
             header={
@@ -144,16 +382,26 @@ export default function CreateOffline({
                     </Link>
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 dark:text-white uppercase tracking-tight">
-                            Tambah User Offline
+                            Tambah User Individual
                         </h2>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1">
-                            Pendaftaran Pasien yang Datang Langsung (Walk-in)
+                            Pendaftaran Pasien (Walk-in / Individual)
                         </p>
                     </div>
                 </div>
             }
         >
-            <Head title="Tambah User Offline" />
+            <Head title="Tambah User Individual" />
+
+            {/* Invoice Modal */}
+            {invoiceData && (
+                <InvoiceModal
+                    invoice={invoiceData}
+                    type="individual"
+                    onClose={() => setInvoiceData(null)}
+                    bankAccounts={effectiveBankAccounts}
+                />
+)}
 
             <div className="py-12 bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-64px)]">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
@@ -387,6 +635,34 @@ export default function CreateOffline({
                             </div>
                         </Section>
 
+                        <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Mode Sesi">
+                            <div className="mb-2">
+                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Pilih Mode Sesi *</InputLabel>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {sessionTypeOptions.map(({ value, label, desc }) => {
+                                        const isOnline = value === 'online';
+                                        const color = isOnline ? 'blue' : 'emerald';
+                                        const emoji = isOnline ? '💻' : '🏥';
+                                        return (
+                                            <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                data.session_type === value
+                                                    ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20`
+                                                    : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'
+                                            }`}>
+                                                <input type="radio" className="hidden" name="session_type" value={value} checked={data.session_type === value} onChange={() => handleSessionTypeChange(value)} />
+                                                <span className="text-2xl flex-shrink-0">{emoji}</span>
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+                                                    <p className={`text-[10px] font-medium leading-relaxed ${data.session_type === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <InputError message={errors.session_type} className="mt-3" />
+                            </div>
+                        </Section>
+
                         {/* ── JADWAL & PAKET ───────────────────────────────── */}
                         <Section icon={Calendar} iconBg="bg-blue-50 dark:bg-blue-900/40" iconColor="text-blue-600 dark:text-blue-400" title="Jadwal & Paket Sesi (Opsional)">
                             <div className="space-y-6">
@@ -457,83 +733,210 @@ export default function CreateOffline({
                             </div>
                         </Section>
 
-                        {/* ── PEMBAYARAN ───────────────────────────────────── */}
+                        {/* ── INVOICE & PEMBAYARAN ─────────────────────────── */}
                         {hasSchedule && (
-                            <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Status & Bukti Pembayaran">
-                                <div className="space-y-6">
-                                    <div>
-                                        <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran <span className="text-rose-500">*</span></InputLabel>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {[
-                                                { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Pasien akan melakukan pembayaran nanti. Booking menunggu konfirmasi bayar.' },
-                                                { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima secara offline. Booking langsung dikonfirmasi.' },
-                                            ].map(({ value, Icon, color, label, desc }) => (
-                                                <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${data.payment_status === value ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20` : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'}`}>
-                                                    <input type="radio" className="hidden" name="payment_status" value={value} checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
-                                                    <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${data.payment_status === value ? 'text-white' : `text-${color}-500`}`} />
-                                                    <div>
-                                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
-                                                        <p className={`text-[10px] font-medium leading-relaxed ${data.payment_status === value ? 'text-white/80' : 'text-gray-400'}`}>{desc}</p>
+                            <>
+                                <Section icon={CreditCard} iconBg="bg-orange-50 dark:bg-orange-900/40" iconColor="text-orange-600 dark:text-orange-400" title="Invoice & Pembayaran">
+                                    <div className="space-y-6">
+
+                                        {/* Preview Invoice */}
+                                        {data.package_type && (
+                                            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-950/30 dark:to-indigo-900/10 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900/40">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-4">Preview Invoice</p>
+                                                <div className="space-y-2 text-sm">
+                                                    {[
+                                                        { label: 'Paket', value: selectedPkg?.name ?? data.package_type },
+                                                        { label: 'Tipe Sesi', value: isOnline ? '💻 Online' : '🏥 Offline' },
+                                                    ].map(({ label, value }) => (
+                                                        <div key={label} className="flex justify-between">
+                                                            <span className="text-gray-500 font-medium">{label}</span>
+                                                            <span className="font-black text-gray-900 dark:text-white">{value}</span>
+                                                        </div>
+                                                    ))}
+                                                    <div className="h-px bg-indigo-200 dark:bg-indigo-800 my-1" />
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide text-xs">Total</span>
+                                                        <span className="font-black text-xl text-indigo-700 dark:text-indigo-300">
+                                                            Rp {packagePrice.toLocaleString('id-ID')}
+
+                                                        </span>
                                                     </div>
-                                                </label>
-                                            ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Pilih Metode Pembayaran */}
+                                        <div>
+                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">
+                                                Metode Pembayaran <span className="text-rose-500">*</span>
+                                            </InputLabel>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {availablePaymentMethods.map((method) => {
+                                                    const isCash = ['Cash', 'Tunai'].includes(method);
+                                                    const Icon = isCash ? Banknote : CreditCard;
+                                                    const sel = data.payment_method === method;
+                                                    return (
+                                                        <label key={method} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                            sel ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                                                : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-indigo-300'
+                                                        }`}>
+                                                            <input type="radio" className="hidden" name="payment_method" value={method}
+                                                                checked={sel} onChange={() => setData('payment_method', method)} />
+                                                            <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${sel ? 'text-white' : 'text-indigo-500'}`} />
+                                                            <div>
+                                                                <p className={`text-sm font-black uppercase tracking-widest ${sel ? 'text-white' : 'text-gray-800 dark:text-gray-200'}`}>{method}</p>
+                                                                <p className={`text-[10px] font-medium mt-0.5 ${sel ? 'text-white/80' : 'text-gray-400'}`}>
+                                                                    {isCash ? 'Bayar tunai langsung di klinik.' : 'Transfer ke rekening klinik.'}
+                                                                </p>
+                                                            </div>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                            {isOnline && (
+                                                <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold ml-1 mt-2">💻 Sesi online hanya mendukung Transfer Bank</p>
+                                            )}
+                                            <InputError message={errors.payment_method} className="mt-2" />
                                         </div>
-                                        <InputError message={errors.payment_status} className="mt-3" />
+
+                                        {/* Info Transfer */}
+                                        {data.payment_method === 'Transfer Bank' && (
+                                            <div className="bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-5">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-3">Rekening Tujuan Transfer</p>
+                                                {effectiveBankAccounts.length > 0 ? (
+                                                    <div className="space-y-3">
+                                                        {effectiveBankAccounts.map((b) => (
+                                                            <div key={b.bank} className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                                        <span className="text-white font-black text-[10px]">{b.bank}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-xs font-black text-gray-900 dark:text-white">{b.holder}</p>
+                                                                        <p className="text-sm font-mono font-black text-indigo-600 dark:text-indigo-400 tracking-wider">{b.account}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <button type="button" onClick={() => navigator.clipboard?.writeText(b.account)}
+                                                                    className="text-[9px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-800 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg transition-colors flex-shrink-0">
+                                                                    Salin
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Silakan transfer ke rekening resmi {clinicInfo?.name || 'InDepth Mental Wellness'}.</p>
+                                                )}
+                                                <p className="text-[9px] text-amber-600 dark:text-amber-400 font-bold mt-2">
+                                                    ⚠️ Harap transfer tepat sesuai nominal. Pembayaran akan dikonfirmasi oleh admin.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Status Pembayaran */}
+                                        <div>
+                                            <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-3">Status Pembayaran <span className="text-rose-500">*</span></InputLabel>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {[
+                                                    { value: 'pending', Icon: Clock, color: 'amber', label: 'Belum Dibayar', desc: 'Menunggu konfirmasi transfer atau akan dibayar nanti.' },
+                                                    { value: 'paid', Icon: CheckCircle, color: 'emerald', label: 'Sudah Dibayar', desc: 'Pembayaran sudah diterima. Booking langsung dikonfirmasi.' },
+                                                ].map(({ value, Icon: StatusIcon, color, label, desc }) => (
+                                                    <label key={value} className={`flex items-start gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                        data.payment_status === value
+                                                            ? `bg-${color}-600 border-${color}-600 text-white shadow-lg shadow-${color}-600/20`
+                                                            : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-300'
+                                                    }`}>
+                                                        <input type="radio" className="hidden" name="payment_status" value={value}
+                                                            checked={data.payment_status === value} onChange={() => setData('payment_status', value)} />
+                                                        <StatusIcon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                                                            data.payment_status === value ? 'text-white' : `text-${color}-500`
+                                                        }`} />
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
+                                                            <p className={`text-[10px] font-medium leading-relaxed ${
+                                                                data.payment_status === value ? 'text-white/80' : 'text-gray-400'
+                                                            }`}>{desc}</p>
+                                                        </div>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            <InputError message={errors.payment_status} className="mt-3" />
+                                        </div>
+
+                                        {/* Detail bukti — hanya jika sudah bayar */}
+                                        {isPaid && (
+                                            <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {!['Cash', 'Tunai'].includes(data.payment_method) && (
+                                                        <>
+                                                            <div className="space-y-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
+                                                                <div className="relative">
+                                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_bank} onChange={(e) => setData('payment_bank', e.target.value)} placeholder="Contoh: BCA / Mandiri / OVO" />
+                                                                    <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                                </div>
+                                                                <InputError message={errors.payment_bank} className="mt-2" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening Pengirim (Opsional)</InputLabel>
+                                                                <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} />
+                                                                <InputError message={errors.payment_account_number} className="mt-2" />
+                                                            </div>
+                                                            <div className="space-y-2 lg:col-span-2">
+                                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
+                                                                <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} />
+                                                                <InputError message={errors.payment_account_name} className="mt-2" />
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Bukti Transfer (Opsional)</InputLabel>
+                                                    <FileUploadField
+                                                        hint="Foto struk transfer · JPG/PNG · Maks 5 MB"
+                                                        preview={proofPreview}
+                                                        onChange={handleFile('payment_proof', setProofPreview)}
+                                                        onClear={() => clearFile('payment_proof', setProofPreview)}
+                                                        error={errors.payment_proof}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Tombol Preview & Download Invoice */}
+                                        {data.package_type && data.payment_method && (
+                                            <div className="pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPreview(true)}
+                                                    className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                    Preview &amp; Download Invoice
+                                                </button>
+                                                <p className="text-[9px] text-gray-400 text-center mt-2">
+                                                    Invoice draft berisi rekening tujuan transfer dan ringkasan layanan
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
+                                </Section>
 
-                                    {isPaid && (
-                                        <div className="space-y-6 p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Metode Pembayaran</InputLabel>
-                                                    <div className="relative">
-                                                        <select
-                                                            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all appearance-none"
-                                                            value={data.payment_method}
-                                                            onChange={(e) => setData('payment_method', e.target.value)}
-                                                        >
-                                                            {paymentMethods.map((m) => (
-                                                                <option key={m} value={m}>{m}</option>
-                                                            ))}
-                                                        </select>
-                                                        <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                    </div>
-                                                    <InputError message={errors.payment_method} className="mt-2" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Bank / Dompet Digital</InputLabel>
-                                                    <div className="relative">
-                                                        <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_bank} onChange={(e) => setData('payment_bank', e.target.value)} placeholder="BCA / BRI / OVO / dll" />
-                                                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                    </div>
-                                                    <InputError message={errors.payment_bank} className="mt-2" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nomor Rekening Pengirim</InputLabel>
-                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_number} onChange={(e) => setData('payment_account_number', e.target.value)} placeholder="123456789" />
-                                                    <InputError message={errors.payment_account_number} className="mt-2" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Pemilik Rekening</InputLabel>
-                                                    <TextInput className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white transition-all" value={data.payment_account_name} onChange={(e) => setData('payment_account_name', e.target.value)} placeholder="Nama sesuai rekening" />
-                                                    <InputError message={errors.payment_account_name} className="mt-2" />
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <InputLabel className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Bukti Transfer (Opsional)</InputLabel>
-                                                <FileUploadField
-                                                    hint="Foto struk transfer · JPG/PNG · Maks 5 MB"
-                                                    preview={proofPreview}
-                                                    onChange={handleFile('payment_proof', setProofPreview)}
-                                                    onClear={() => clearFile('payment_proof', setProofPreview)}
-                                                    error={errors.payment_proof}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </Section>
+                                {/* Invoice Preview Modal — sibling dari Section */}
+                                {showPreview && (
+                                    <InvoicePreviewModal
+                                        data={data}
+                                        pkg={bookingPackages.find(p => p.slug === data.package_type)}
+                                        price={(() => {
+                                            const pkg2 = bookingPackages.find(p => p.slug === data.package_type);
+                                            return isOnline
+                                                ? (pkg2?.online_price ?? pkg2?.price ?? 0)
+                                                : (pkg2?.price ?? 0);
+                                        })()}
+                                        bankAccounts={effectiveBankAccounts}
+                                        onClose={() => setShowPreview(false)}
+                                    />
+                                )}
+                            </>
                         )}
 
                         {/* ── AKUN & KEAMANAN ──────────────────────────────── */}

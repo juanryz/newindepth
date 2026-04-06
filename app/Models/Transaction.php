@@ -15,12 +15,19 @@ class Transaction extends Model
         'payment_agreement_data' => 'json',
     ];
 
+    protected $appends = ['payment_proof_url'];
+
     /**
      * Ambil nominal efektif (setelah koreksi jika ada).
      */
     public function getEffectiveAmountAttribute(): float
     {
         return $this->corrected_amount !== null ? (float) $this->corrected_amount : (float) $this->amount;
+    }
+
+    public function getPaymentProofUrlAttribute(): ?string
+    {
+        return $this->payment_proof ? asset('storage/' . $this->payment_proof) : null;
     }
 
     public function user()

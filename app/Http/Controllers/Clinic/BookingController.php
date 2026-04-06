@@ -158,6 +158,7 @@ class BookingController extends Controller
                 'id' => $pkg->slug,
                 'name' => $pkg->name,
                 'price' => $pkg->current_price,
+                'online_price' => $pkg->online_current_price,
                 'original_price' => $pkg->discount_percentage > 0 ? $pkg->base_price : null,
                 'description' => $pkg->description,
             ];
@@ -189,12 +190,18 @@ class BookingController extends Controller
         $validated = $request->validate([
             'schedule_id' => 'required|exists:schedules,id',
             'package_type' => 'required|in:reguler,hipnoterapi,premium,vip',
+            'session_type' => 'required|in:online,offline',
             'payment_method' => 'required|in:transfer,cash',
             'agree_refund' => 'required|accepted',
             'agree_final' => 'required|accepted',
             'agree_access' => 'required|accepted',
             'agree_chargeback' => 'required|accepted',
         ]);
+
+        // Session online hanya boleh transfer bank
+        if ($validated['session_type'] === 'online' && $validated['payment_method'] === 'cash') {
+            return redirect()->back()->withErrors(['payment_method' => 'Sesi online hanya dapat dibayar via Transfer Bank.']);
+        }
 
         $user = $request->user();
 
@@ -222,7 +229,8 @@ class BookingController extends Controller
 
         try {
             $paymentMethod = $validated['payment_method'] ?? 'transfer';
-            $booking = $bookingService->createBooking($validated, $user->id, $paymentMethod);
+            $sessionType = $validated['session_type'] ?? 'offline';
+            $booking = $bookingService->createBooking($validated, $user->id, $paymentMethod, $sessionType);
 
             if ($paymentMethod === 'cash') {
                 // Cash: langsung arahkan ke halaman detail booking, admin yang konfirmasi

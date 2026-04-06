@@ -28,6 +28,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
     const { data, setData, post, processing, errors } = useForm({
         schedule_id: '',
         package_type: packageOptions.recommended,
+        session_type: 'offline',
         payment_method: 'transfer',
         agree_privacy: false,
         agree_refund: false,
@@ -35,6 +36,21 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
         agree_access: false,
         agree_chargeback: false,
     });
+
+    const ALL_PAYMENT_METHODS = [
+        { id: 'transfer', label: 'Transfer Bank', icon: '🏦', desc: 'Transfer antar bank' },
+        { id: 'cash', label: 'Bayar di Klinik', icon: '💵', desc: 'Tunai langsung / EDC' },
+    ];
+    const availablePaymentMethods = data.session_type === 'online'
+        ? ALL_PAYMENT_METHODS.filter(m => m.id === 'transfer')
+        : ALL_PAYMENT_METHODS;
+
+    // Reset payment_method ke transfer jika session online dan payment adalah cash
+    useEffect(() => {
+        if (data.session_type === 'online' && data.payment_method === 'cash') {
+            setData('payment_method', 'transfer');
+        }
+    }, [data.session_type]);
 
     const goToStep2 = () => {
         if (!data.agree_privacy) {
@@ -186,16 +202,23 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                                         </div>
 
                                                         <div className="mb-2">
-                                                            {pkg.original_price && (
-                                                                <div className="text-[11px] text-gray-400 dark:text-gray-500 line-through">
-                                                                    Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
-                                                                </div>
-                                                            )}
-                                                            <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
-                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.price)}
-                                                            </p>
+                                                            {(() => {
+                                                                const finalPrice = data.session_type === 'online' ? (pkg.online_price || pkg.price) : pkg.price;
+                                                                return (
+                                                                    <>
+                                                                        {pkg.original_price && pkg.original_price > finalPrice && (
+                                                                            <div className="text-[11px] text-gray-400 dark:text-gray-500 line-through">
+                                                                                Rp {new Intl.NumberFormat('id-ID').format(pkg.original_price)}
+                                                                            </div>
+                                                                        )}
+                                                                        <p className="text-2xl sm:text-3xl font-black text-gold-600 dark:text-gold-400 leading-tight">
+                                                                            Rp {new Intl.NumberFormat('id-ID').format(finalPrice)}
+                                                                        </p>
+                                                                    </>
+                                                                );
+                                                            })()}
                                                             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                                                                *Sudah Termasuk Konsultasi
+                                                                *Sudah Termasuk Konsultasi {data.session_type === 'online' ? '(Online)' : '(Offline)'}
                                                             </p>
                                                         </div>
 
@@ -214,6 +237,44 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                         })}
                                     </div>
                                     {errors.package_type && <p className="text-xs font-bold text-red-600 mt-4 uppercase tracking-widest">{errors.package_type}</p>}
+
+                                    {/* Pilihan Session Type: Online / Offline */}
+                                    {data.package_type && (
+                                        <div className="mt-6 p-5 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+                                            <h4 className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                Mode Sesi
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {[
+                                                    { id: 'offline', label: 'Offline', icon: '🏥', desc: 'Datang ke klinik' },
+                                                    { id: 'online', label: 'Online', icon: '💻', desc: 'Via video call' },
+                                                ].map((mode) => (
+                                                    <button
+                                                        key={mode.id}
+                                                        type="button"
+                                                        onClick={() => setData('session_type', mode.id)}
+                                                        className={`flex flex-col items-center gap-1.5 p-4 rounded-2xl border-2 transition-all ${
+                                                            data.session_type === mode.id
+                                                                ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md'
+                                                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 hover:border-indigo-300'
+                                                        }`}
+                                                    >
+                                                        <span className="text-xl">{mode.icon}</span>
+                                                        <span className={`text-[10px] font-black uppercase tracking-wider ${
+                                                            data.session_type === mode.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'
+                                                        }`}>{mode.label}</span>
+                                                        <span className="text-[9px] font-bold text-gray-400 uppercase">{mode.desc}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {data.session_type === 'online' && (
+                                                <p className="mt-3 text-[10px] font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-2">
+                                                    💻 Sesi online hanya dapat dibayar via <strong>Transfer Bank</strong>.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
 
                                     {/* Indikator scroll untuk lansia */}
                                     <AnimatePresence>
@@ -304,10 +365,7 @@ export default function BookingCreate({ schedules, packageOptions, screeningResu
                                             Metode Pembayaran
                                         </h4>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {[
-                                                { id: 'transfer', label: 'Transfer Bank', icon: '🏦', desc: 'BCA / Mandiri / BNI' },
-                                                { id: 'cash', label: 'Bayar di Klinik', icon: '💵', desc: 'Tunai langsung' },
-                                            ].map((method) => (
+                                            {availablePaymentMethods.map((method) => (
                                                 <button
                                                     key={method.id}
                                                     type="button"

@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 use App\Models\Booking;
+use App\Models\GroupBooking;
+use App\Models\GroupBookingMember;
 
 class ScheduleController extends Controller
 {
@@ -20,7 +22,8 @@ class ScheduleController extends Controller
         $bookingsQuery = Booking::with([
             'schedule.therapist',
             'patient.screeningResults',
-
+            'transaction',
+            'groupBooking.members.user',
             'patient.bookings' => function ($query) {
                 $query->with('schedule.therapist')->whereIn('status', ['confirmed', 'completed'])->orderBy('created_at', 'desc');
             }
@@ -30,14 +33,85 @@ class ScheduleController extends Controller
             $bookingsQuery->where('therapist_id', $user->id);
         }
 
-        $bookings = $bookingsQuery->whereIn('status', ['confirmed', 'in_progress', 'completed'])
-            ->get()
-            ->map(function ($booking) {
-                if ($booking->patient) {
-                    $booking->patient_profile_stats = $booking->patient->getProfileCompletionStats();
+        $rawBookings = $bookingsQuery->whereIn('status', ['confirmed', 'in_progress', 'completed', 'rescheduled'])
+            ->get();
+
+        $groupedBookings = collect();
+        $processedGroupIds = [];
+
+        foreach ($rawBookings as $b) {
+            // Primary: via group_booking_id FK on bookings table
+            $gb = $b->groupBooking;
+
+            // Fallback: untuk booking lama yang belum punya group_booking_id FK,
+            // cek via tabel group_booking_members dan backfill FK-nya
+            if (!$gb) {
+                $member = GroupBookingMember::where('booking_id', $b->id)->first();
+                if ($member) {
+                    $gb = GroupBooking::find($member->group_booking_id);
+                    if ($gb) {
+                        // Backfill FK supaya query berikutnya langsung pakai kolom
+                        $b->updateQuietly(['group_booking_id' => $gb->id]);
+                        $b->setRelation('groupBooking', $gb);
+                    }
                 }
-                return $booking;
-            })
+            }
+
+            if ($gb) {
+                if (in_array($gb->id, $processedGroupIds)) {
+                    continue; // satu kartu per grup
+                }
+                $processedGroupIds[] = $gb->id;
+
+                // Pakai group_booking_members sebagai sumber kebenaran (covers data lama tanpa FK)
+                $memberBookingIds = GroupBookingMember::where('group_booking_id', $gb->id)
+                    ->whereNotNull('booking_id')
+                    ->pluck('booking_id');
+
+                $memberBookings = Booking::whereIn('id', $memberBookingIds)
+                    ->with(['patient', 'transaction'])
+                    ->get();
+
+                // Backfill group_booking_id untuk semua anggota sekaligus
+                if ($memberBookingIds->isNotEmpty()) {
+                    Booking::whereIn('id', $memberBookingIds)
+                        ->whereNull('group_booking_id')
+                        ->update(['group_booking_id' => $gb->id]);
+                }
+
+                $b->is_group      = true;
+                $b->group_booking = $gb;
+                $b->group_members = $memberBookings->map(fn($mb) => [
+                    'id'                    => $mb->patient_id,
+                    'name'                  => $mb->patient?->name,
+                    'booking_id'            => $mb->id,
+                    'status'                => $mb->status,
+                    'transaction_status'    => $mb->transaction?->status,
+                    'therapist_notes'       => $mb->therapist_notes,
+                    'patient_visible_notes' => $mb->patient_visible_notes,
+                    'completion_outcome'    => $mb->completion_outcome,
+                ]);
+
+                // Fake patient untuk display di kartu sesi
+                $memberCount = $memberBookings->count();
+                $gp = new \App\Models\User();
+                $gp->forceFill([
+                    'id'    => null,
+                    'name'  => 'GRUP: ' . $gb->group_name,
+                    'email' => $memberCount . ' anggota',
+                ]);
+                $b->setRelation('patient', $gp);
+
+                $groupedBookings->push($b);
+            } else {
+                if ($b->patient) {
+                    $b->patient_profile_stats = $b->patient->getProfileCompletionStats();
+                }
+                $groupedBookings->push($b);
+            }
+        }
+
+        $bookings = $groupedBookings
             ->sortBy(function ($booking) {
                 return $booking->schedule?->date . ' ' . $booking->schedule?->start_time;
             })
@@ -76,33 +150,57 @@ class ScheduleController extends Controller
 
         $allSchedules = $allSchedulesQuery->get();
 
-        $calendarSchedules = $allSchedules->map(function ($schedule) use ($user, $isAdmin) {
+        $calendarSchedules = collect();
+        $calendarProcessedSchedules = [];
+
+        foreach ($allSchedules as $schedule) {
             $date = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d');
             $startTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i:s');
             $endTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i:s');
 
             $myBooking = null;
             if (!$isAdmin) {
-                $myBooking = $schedule->bookings->where('therapist_id', $user->id)->first();
+                $myBooking = $schedule->bookings->firstWhere('therapist_id', $user->id);
             }
 
             $isMine = $isAdmin ? true : ($schedule->therapist_id === $user->id || $myBooking !== null);
 
-            return [
+            // Group Booking Hijack for Calendar
+            $gBooking = \App\Models\GroupBooking::where('schedule_id', $schedule->id)->withCount('members')->first();
+            
+            $title = 'Tugas Sesi';
+            if ($gBooking) {
+                $title = '🏢 GRUP: ' . $gBooking->group_name . ' (' . $gBooking->members_count . ' org)';
+            } elseif ($myBooking && $myBooking->patient) {
+                $title = $myBooking->patient->name;
+            } elseif ($schedule->therapist) {
+                $title = $schedule->therapist->name;
+            }
+
+            // Only pass 1 booking to calendar if it's a group, so we don't duplicate events for N members
+            $calBookings = $schedule->bookings->values();
+            if ($gBooking) {
+                $calBookings = collect([$schedule->bookings->first()]);
+            }
+            if (!$isAdmin) {
+                $calBookings = clone $calBookings->where('therapist_id', $user->id)->values();
+            }
+
+            $calendarSchedules->push([
                 'id' => $schedule->id,
-                'title' => ($myBooking && $myBooking->patient) ? $myBooking->patient->name : ($schedule->therapist ? $schedule->therapist->name : 'Tugas Sesi'),
+                'title' => $title,
                 'start' => $date . 'T' . $startTime,
                 'end' => $date . 'T' . $endTime,
                 'backgroundColor' => null, // Use default or component colors
                 'extendedProps' => [
-                    'bookings' => $isAdmin ? $schedule->bookings->values() : $schedule->bookings->where('therapist_id', $user->id)->values(),
+                    'bookings' => $calBookings,
                     'therapist' => $schedule->therapist,
                     'schedule_type' => $schedule->schedule_type,
                     'status' => $schedule->status,
                     'is_mine' => $isMine,
                 ]
-            ];
-        });
+            ]);
+        }
 
         $mySchedules = [];
         if (!$isAdmin) {
@@ -139,6 +237,52 @@ class ScheduleController extends Controller
                     ];
                 });
         }
+
+        // --- GROUP BOOKINGS ---
+        $groupBookingsQuery = \App\Models\GroupBooking::with(['schedule.therapist', 'createdBy', 'members.user', 'members.booking.transaction'])
+            ->withCount('members')
+            ->orderBy('created_at', 'desc');
+
+        if (!$isAdmin) {
+            $groupBookingsQuery->whereHas('schedule', function ($q) use ($user) {
+                $q->where('therapist_id', $user->id);
+            });
+        }
+
+        $groupBookings = $groupBookingsQuery->get()->map(function ($group) {
+            return [
+                'id'               => $group->id,
+                'invoice_number'   => $group->invoice_number,
+                'group_name'       => $group->group_name,
+                'institution_name' => $group->institution_name ?? $group->group_name,
+                'pic_name'         => $group->user?->name ?? 'PIC Grup',
+                'pic_phone'        => $group->phone ?? $group->pic_phone,
+                'pic_email'        => $group->email,
+                'payment_method'   => $group->payment_method,
+                'payment_status'   => $group->payment_status,
+                'total_amount'     => $group->total_amount,
+                'members_count'    => $group->members_count,
+                'members'          => $group->members->map(fn($m) => [
+                    'id'                 => $m->user_id,
+                    'name'               => $m->user?->name,
+                    'booking_id'         => $m->booking_id,
+                    'transaction_status' => $m->booking?->transaction?->status,
+                ]),
+                'package_type'     => $group->package_type,
+                'session_type'     => $group->session_type,
+                'created_at'       => $group->created_at,
+                'paid_at'          => $group->paid_at,
+                'schedule'         => $group->schedule ? [
+                    'id'         => $group->schedule->id,
+                    'date'       => $group->schedule->date,
+                    'start_time' => $group->schedule->start_time,
+                    'end_time'   => $group->schedule->end_time,
+                    'therapist'  => $group->schedule->therapist ? ['id' => $group->schedule->therapist->id, 'name' => $group->schedule->therapist->name] : null,
+                ] : null,
+                'created_by_name' => $group->createdBy?->name,
+            ];
+        })->toArray();
+        // --- END GROUP BOOKINGS ---
 
         // Load clinic settings with graceful fallback if table doesn't exist yet
         try {
@@ -181,9 +325,9 @@ class ScheduleController extends Controller
 
         $user->load([
             'screeningResults' => fn($q) => $q->latest(),
-            'bookings' => fn($q) => $q->with(['schedule.therapist', 'therapist'])->latest(),
-
+            'bookings'         => fn($q) => $q->with(['schedule.therapist', 'therapist'])->latest(),
         ]);
+
 
         $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
 
@@ -195,11 +339,11 @@ class ScheduleController extends Controller
             ->get();
 
         return Inertia::render('Clinic/Schedules/PatientDetail', [
-            'patient' => $user,
-            'profileProgress' => $user->getProfileCompletionStats(),
-            'availableSchedules' => $availableSchedules,
-            'fromBookingId' => $request->query('from_booking_id'),
-            'isAdmin' => $isAdmin,
+            'patient'           => $user,
+            'profileProgress'   => $user->getProfileCompletionStats(),
+            'availableSchedules'=> $availableSchedules,
+            'fromBookingId'     => $request->query('from_booking_id'),
+            'isAdmin'           => $isAdmin,
         ]);
     }
 
@@ -233,7 +377,7 @@ class ScheduleController extends Controller
             }
         }
 
-        $booking->update([
+        Booking::where('schedule_id', $booking->schedule_id)->update([
             'status' => 'in_progress',
             'started_at' => now(),
         ]);
@@ -263,14 +407,64 @@ class ScheduleController extends Controller
             return redirect()->route('schedules.index')->with('error', 'Sesi belum dimulai atau tidak aktif.');
         }
 
-        $booking->load(['patient', 'schedule.therapist']);
+        $booking->load(['patient.screeningResults', 'schedule.therapist', 'groupBooking.members.user']);
 
-        $isAdmin = $request->user()->hasAnyRole(['admin', 'super_admin']);
+        $isAdmin      = $request->user()->hasAnyRole(['admin', 'super_admin']);
+        $groupBooking = $booking->groupBooking;
+
+        // Fallback untuk booking lama tanpa group_booking_id FK
+        if (!$groupBooking) {
+            $member = GroupBookingMember::where('booking_id', $booking->id)->first();
+            if ($member) {
+                $groupBooking = GroupBooking::with('members.user')->find($member->group_booking_id);
+                if ($groupBooking) {
+                    $booking->updateQuietly(['group_booking_id' => $groupBooking->id]);
+                }
+            }
+        }
+
+        $isGroupSession = $groupBooking !== null;
+
+        $groupSessionData = null;
+        if ($isGroupSession) {
+            // Load semua booking anggota grup sekaligus — tidak perlu navigasi antar anggota
+            $memberBookings = Booking::where('group_booking_id', $groupBooking->id)
+                ->with(['patient.screeningResults', 'transaction'])
+                ->get();
+
+            $groupSessionData = [
+                'id'         => $groupBooking->id,
+                'group_name' => $groupBooking->group_name,
+                'video_link' => $groupBooking->video_link,
+                'session_type' => $groupBooking->session_type,
+                'members'    => $memberBookings->map(fn($mb) => [
+                    'booking_id'            => $mb->id,
+                    'patient_id'            => $mb->patient_id,
+                    'name'                  => $mb->patient?->name,
+                    'status'                => $mb->status,
+                    'therapist_notes'       => $mb->therapist_notes       ?? '',
+                    'patient_visible_notes' => $mb->patient_visible_notes ?? '',
+                    'completion_outcome'    => $mb->completion_outcome    ?? '',
+                    'session_checklist'     => $mb->session_checklist     ?? [],
+                    'transaction_status'    => $mb->transaction?->status,
+                    'screening'             => $mb->patient?->screeningResults?->first(),
+                ])->values(),
+            ];
+        }
+
+        try {
+            $sessionAutoCloseMin = ClinicSetting::getSessionAutoCloseMins();
+        } catch (\Throwable $e) {
+            $sessionAutoCloseMin = 95;
+        }
 
         return Inertia::render('Clinic/Schedules/ActiveSession', [
-            'booking' => $booking,
-            'patient' => $booking->patient->load('screeningResults'),
-            'isAdmin' => $isAdmin,
+            'booking'             => $booking,
+            'patient'             => $booking->patient,
+            'isGroupSession'      => $isGroupSession,
+            'groupSessionData'    => $groupSessionData,
+            'isAdmin'             => $isAdmin,
+            'sessionAutoCloseMin' => $sessionAutoCloseMin,
         ]);
     }
 
@@ -302,7 +496,13 @@ class ScheduleController extends Controller
             $patientNotes = ($patientNotes ? $patientNotes . "\n\n" : "") . "Sesi telah berakhir otomatis sesuai durasi standar.";
         }
 
-        $booking->update([
+        $targetBookingIds = [$booking->id];
+        // If it's a group booking, we might want to update all members with the same recording link
+        // but therapist notes might be individual. For now, the "Update All" logic is handled by the frontend
+        // sending multiple requests or we can handle it here if requested.
+        // Actually, the user wants to fill "1 by 1", so we only update the specific booking.
+        
+        Booking::where('id', $booking->id)->update([
             'status' => 'completed',
             'ended_at' => now(),
             'recording_link' => $request->recording_link,
@@ -319,6 +519,87 @@ class ScheduleController extends Controller
         }
 
         return redirect()->route('schedules.patient-detail', $booking->patient_id)->with('success', $isAuto ? 'Sesi ditutup otomatis oleh sistem.' : 'Sesi berhasil diselesaikan dan link rekaman serta catatan telah disimpan.');
+    }
+
+    /**
+     * Simpan catatan per-anggota saat sesi grup berlangsung (auto-save tanpa navigasi).
+     */
+    public function saveMemberSession(Request $request, Booking $booking)
+    {
+        $actualTherapistId = $booking->therapist_id ?? $booking->schedule?->therapist_id;
+        if ($actualTherapistId != $request->user()->id && !$request->user()->hasAnyRole(['admin', 'super_admin', 'cs'])) {
+            abort(403);
+        }
+
+        $request->validate([
+            'therapist_notes'       => 'nullable|string',
+            'patient_visible_notes' => 'nullable|string',
+            'completion_outcome'    => 'nullable|string|in:Normal,Abnormal/Emergency',
+            'session_checklist'     => 'nullable|array',
+        ]);
+
+        $booking->update([
+            'therapist_notes'       => $request->therapist_notes,
+            'patient_visible_notes' => $request->patient_visible_notes,
+            'completion_outcome'    => $request->completion_outcome,
+            'session_checklist'     => $request->session_checklist,
+        ]);
+
+        return back()->with('success', 'Catatan anggota disimpan.');
+    }
+
+    /**
+     * Update link video bersama untuk sesi grup.
+     */
+    public function updateGroupVideoLink(Request $request, \App\Models\GroupBooking $groupBooking)
+    {
+        $request->validate(['video_link' => 'nullable|url']);
+        $groupBooking->update(['video_link' => $request->video_link]);
+        return back()->with('success', 'Link video sesi grup disimpan.');
+    }
+
+    /**
+     * Selesaikan semua anggota grup sekaligus.
+     */
+    public function completeGroupSession(Request $request, \App\Models\GroupBooking $groupBooking)
+    {
+        $request->validate([
+            'video_link'  => 'required|url',
+            'members'     => 'required|array',
+            'members.*.booking_id'            => 'required|exists:bookings,id',
+            'members.*.therapist_notes'       => 'nullable|string',
+            'members.*.patient_visible_notes' => 'nullable|string',
+            'members.*.completion_outcome'    => 'nullable|string|in:Normal,Abnormal/Emergency',
+            'members.*.session_checklist'     => 'nullable|array',
+        ]);
+
+        // Simpan video_link di level grup
+        $groupBooking->update(['video_link' => $request->video_link]);
+
+        foreach ($request->members as $memberData) {
+            $booking = Booking::find($memberData['booking_id']);
+            if (!$booking || $booking->group_booking_id !== $groupBooking->id) continue;
+
+            $booking->update([
+                'status'                => 'completed',
+                'ended_at'              => now(),
+                'recording_link'        => $request->video_link,
+                'therapist_notes'       => $memberData['therapist_notes']       ?? null,
+                'patient_visible_notes' => $memberData['patient_visible_notes'] ?? null,
+                'completion_outcome'    => $memberData['completion_outcome']    ?? 'Normal',
+                'session_checklist'     => $memberData['session_checklist']     ?? null,
+            ]);
+
+            // Kirim email ke tiap anggota
+            try {
+                \Illuminate\Support\Facades\Mail::to($booking->patient->email)
+                    ->send(new \App\Mail\SessionCompleted($booking));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Group session email error: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('schedules.index')->with('success', 'Sesi grup berhasil diselesaikan.');
     }
 
     public function rescheduleSession(Request $request, Booking $booking)
@@ -403,7 +684,7 @@ class ScheduleController extends Controller
             $updateData['completion_outcome'] = $request->completion_outcome;
         }
 
-        $booking->update($updateData);
+        Booking::where('schedule_id', $oldScheduleId)->update($updateData);
 
         // Notify patient
         if ($booking->patient) {
@@ -430,7 +711,7 @@ class ScheduleController extends Controller
             'no_show_reason' => 'nullable|string|max:500',
         ]);
 
-        $booking->update([
+        Booking::where('schedule_id', $booking->schedule_id)->update([
             'status' => 'completed',
             'completion_outcome' => $request->no_show_party === 'patient' ? 'No-Show (Pasien)' : 'No-Show (Praktisi)',
             'therapist_notes' => $request->no_show_reason ?? ($request->no_show_party === 'patient'
@@ -541,6 +822,7 @@ class ScheduleController extends Controller
         $count = 0;
         $failed = 0;
 
+        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Schedule[] $schedulesToDelete */
         foreach ($schedulesToDelete as $sc) {
             try {
                 $sc->delete();

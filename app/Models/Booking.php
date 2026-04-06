@@ -15,6 +15,7 @@ class Booking extends Model
     protected $fillable = [
         'booking_code',
         'patient_id',
+        'group_booking_id',
         'schedule_id',
         'therapist_id',
         'screening_form_id',
@@ -34,6 +35,7 @@ class Booking extends Model
         'rescheduled_at',
         'original_schedule_id',
         'package_type',
+        'session_type',
         'ended_at',
         'last_reminder_sent_at',
         'last_reminder_label',
@@ -88,5 +90,15 @@ class Booking extends Model
     public function rescheduledByUser()
     {
         return $this->belongsTo(User::class, 'rescheduled_by');
+    }
+
+    public function groupBookingMember()
+    {
+        return $this->hasOne(GroupBookingMember::class, 'booking_id');
+    }
+
+    public function groupBooking()
+    {
+        return $this->belongsTo(GroupBooking::class, 'group_booking_id');
     }
 }

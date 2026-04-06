@@ -153,6 +153,24 @@ class TransactionValidationController extends Controller
                     } catch (\Throwable $m) {
                         \Illuminate\Support\Facades\Log::error('Notification Failure during validation: ' . $m->getMessage());
                     }
+
+                    // ── Sync Group Booking Payment Status ────────────────────────────
+                    $memberInfo = \App\Models\GroupBookingMember::where('booking_id', $booking->id)->first();
+                    if ($memberInfo && $memberInfo->group_booking_id) {
+                        $group = $memberInfo->groupBooking;
+                        if ($group) {
+                            $totalMembersCount = $group->members()->count();
+                            $paidMembersCount = $group->members()->whereHas('booking.transaction', function($q) {
+                                $q->whereIn('status', ['paid', 'completed']);
+                            })->count();
+
+                            if ($paidMembersCount >= $totalMembersCount && $totalMembersCount > 0) {
+                                $group->update(['payment_status' => 'paid']);
+                            } else if ($paidMembersCount > 0) {
+                                $group->update(['payment_status' => 'pending']);
+                            }
+                        }
+                    }
                 }
 
                 event(new TransactionPaid($transaction));

@@ -17,9 +17,9 @@ class BookingService
      * @return Booking
      * @throws Exception
      */
-    public function createBooking(array $data, int $patientId, string $paymentMethod = 'transfer'): Booking
+    public function createBooking(array $data, int $patientId, string $paymentMethod = 'transfer', string $sessionType = 'offline'): Booking
     {
-        return DB::transaction(function () use ($data, $patientId, $paymentMethod) {
+        return DB::transaction(function () use ($data, $patientId, $paymentMethod, $sessionType) {
             // Lock the specific schedule row to prevent parallel bookings
             $schedule = Schedule::where('id', $data['schedule_id'])
                 ->lockForUpdate()
@@ -44,12 +44,16 @@ class BookingService
                 'schedule_id' => $schedule->id,
                 'therapist_id' => $schedule->therapist_id,
                 'package_type' => $data['package_type'],
+                'session_type' => $sessionType,
                 'affiliate_ref_code' => cookie('ref_code'),
                 'status' => 'pending_payment',
             ]);
 
             $package = \App\Models\Package::where('slug', $data['package_type'])->first();
-            $basePrice = $package ? $package->current_price : 1000000;
+            // Gunakan harga online jika session_type online, fallback ke offline
+            $basePrice = $package
+                ? ($sessionType === 'online' ? $package->online_current_price : $package->current_price)
+                : 1000000;
 
             // Calculate PPN 11%
             $taxAmount = $basePrice * 0.11;

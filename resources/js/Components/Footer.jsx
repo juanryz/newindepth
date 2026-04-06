@@ -1,6 +1,12 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function Footer() {
+    const { clinicInfo } = usePage().props;
+    const address  = clinicInfo?.address  || 'Jl. Kelud Raya No. 34B, Petompon, Gajah Mungkur, Semarang';
+    const phone    = clinicInfo?.phone    || '+62 822-2080-0034';
+    const whatsapp = clinicInfo?.whatsapp || '6282220800034';
+    const mapsUrl  = clinicInfo?.mapsUrl  || 'https://maps.app.goo.gl/KUmgnva1hi9vvrNP7';
+
     return (
         <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white/40 dark:bg-gray-950/40 backdrop-blur-md md:backdrop-blur-lg pt-20 pb-10 mt-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,20 +43,20 @@ export default function Footer() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
                                 <a
-                                    href="https://maps.app.goo.gl/KUmgnva1hi9vvrNP7"
+                                    href={mapsUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="hover:text-gold-500 transition-colors leading-relaxed"
                                 >
-                                    Gajah Mungkur, Jl. Kelud Raya No.34b, Petompon, Kota Semarang, Jawa Tengah 50237
+                                    {address}
                                 </a>
                             </li>
                             <li className="flex items-center gap-3">
                                 <svg className="w-5 h-5 text-gold-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                                 </svg>
-                                <a href="https://wa.me/6282220800034" target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors">
-                                    +62 822 2080 0034
+                                <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="hover:text-gold-500 transition-colors">
+                                    {phone}
                                 </a>
                             </li>
                         </ul>

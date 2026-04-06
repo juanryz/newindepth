@@ -38,8 +38,20 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
     // Bulk delete state
     const [selectedScheduleIds, setSelectedScheduleIds] = useState([]);
     const [scheduleFilter, setScheduleFilter] = useState('all'); // all | available | booked
+    const [groupSearchQuery, setGroupSearchQuery] = useState('');
     const [showBulkConfirm, setShowBulkConfirm] = useState(false);
     const [bulkDeleteAll, setBulkDeleteAll] = useState(false);
+
+    const formatCurrency = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    const statusConfig = {
+        paid:     { label: 'Lunas',      cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+        pending:  { label: 'Menunggu',   cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+        verified: { label: 'Terverifikasi', cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
+        rejected: { label: 'Ditolak',    cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' },
+        expired:  { label: 'Kadaluarsa', cls: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' },
+        cancelled:{ label: 'Dibatalkan', cls: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' },
+    };
 
     // Server "now" for determining past sessions
     const nowDt = serverNow ? new Date(serverNow.replace(' ', 'T')) : new Date();
@@ -687,8 +699,16 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             }`}>
                                                         <div className="flex items-start justify-between mb-4">
                                                             <div>
-                                                                <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">{booking.patient?.name || 'Pasien Tidak Dikenal'}</h4>
-                                                                <p className="text-xs text-gray-400 font-bold italic">{booking.patient?.email || '-'}</p>
+                                                                <h4 className="font-black text-lg text-gray-900 dark:text-white uppercase tracking-tight">
+                                                                    {booking.is_group 
+                                                                        ? `🏢 GRUP: ${booking.group_booking?.group_name || 'Grup'}` 
+                                                                        : (booking.patient?.name || 'Pasien Tidak Dikenal')}
+                                                                </h4>
+                                                                <p className="text-xs text-gray-400 font-bold italic">
+                                                                    {booking.is_group 
+                                                                        ? `Instansi: ${booking.group_booking?.institution_name || booking.group_booking?.group_name}` 
+                                                                        : (booking.patient?.email || '-')}
+                                                                </p>
                                                             </div>
                                                             <div className="flex flex-col items-end gap-1">
                                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${isPast ? 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400' :
@@ -706,11 +726,54 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                             <p>📅 {booking.schedule ? new Date(String(booking.schedule.date).substring(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'No Date'}</p>
                                                             <p>🕐 {booking.schedule?.start_time?.substring(0, 5)} – {booking.schedule?.end_time?.substring(0, 5)} WIB</p>
                                                             <p className="text-[10px] uppercase tracking-widest text-indigo-600/70 pt-1">Paket: {booking.package_type || 'REGULER'}</p>
+                                                            {booking.session_type && (
+                                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                                                                    booking.session_type === 'online'
+                                                                        ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
+                                                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
+                                                                }`}>
+                                                                    {booking.session_type === 'online' ? '💻 Online' : '🏥 Offline'}
+                                                                </span>
+                                                            )}
                                                         </div>
+                                                        
+                                                        {/* Group Member List — masing-masing punya link laporan sendiri */}
+                                                        {booking.is_group && booking.group_members?.length > 0 && (
+                                                            <div className="mb-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/40">
+                                                                <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-3 flex items-center justify-between">
+                                                                    <span>👥 Anggota Grup — Laporan 1/1</span>
+                                                                    <span className="bg-indigo-500 text-white px-2 py-0.5 rounded-full text-[8px]">{booking.group_members.length} org</span>
+                                                                </p>
+                                                                <div className="space-y-2">
+                                                                    {booking.group_members.map(m => (
+                                                                        <div key={m.id} className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-xl px-3 py-2 border border-indigo-100/50 dark:border-indigo-800/30">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 text-[9px] font-black flex items-center justify-center uppercase shrink-0">
+                                                                                    {m.name?.charAt(0)}
+                                                                                </div>
+                                                                                <span className="text-[10px] font-black text-gray-800 dark:text-gray-200 uppercase">{m.name}</span>
+                                                                            </div>
+                                                                            {m.booking_id && !isPastBooking(booking) && ['confirmed', 'in_progress'].includes(booking.status) && (
+                                                                                <Link
+                                                                                    href={route('schedules.active-session', m.booking_id)}
+                                                                                    className="text-[9px] font-black text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 dark:bg-indigo-900/40 dark:border-indigo-700 px-2 py-1 rounded-lg uppercase tracking-wide"
+                                                                                >
+                                                                                    Isi Laporan
+                                                                                </Link>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         <div className="flex flex-col gap-2 mt-auto">
-                                                            <Link href={booking.patient ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                                Rekam Medis & Detail
-                                                            </Link>
+                                                            {/* Individual patient link — hanya untuk non-grup */}
+                                                            {!booking.is_group && (
+                                                                <Link href={booking.patient?.id ? route('schedules.patient-detail', booking.patient.id) : '#'} className={`w-full text-center text-[10px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 py-3 rounded-2xl uppercase tracking-widest ${!booking.patient?.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                                    Rekam Medis & Detail
+                                                                </Link>
+                                                            )}
                                                             {isPast && booking.status === 'confirmed' && (
                                                                 <div className="space-y-1.5">
                                                                     <p className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-center">⏰ Jadwal Sudah Berlalu</p>
@@ -726,9 +789,11 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                                                 </div>
                                                             )} */}
                                                             {booking.status === 'confirmed' && !isPast && (
-                                                                <button onClick={() => handleStartSession(booking.id)} className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl shadow-lg uppercase">Mulai Sesi</button>
+                                                                <button onClick={() => handleStartSession(booking.id)} className="w-full text-center text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 py-3 rounded-2xl shadow-lg uppercase">
+                                                                    {booking.is_group ? 'Mulai Sesi Grup' : 'Mulai Sesi'}
+                                                                </button>
                                                             )}
-                                                            {booking.status === 'in_progress' && (
+                                                            {booking.status === 'in_progress' && !booking.is_group && (
                                                                 <Link href={route('schedules.active-session', booking.id)} className="w-full text-center text-xs font-black text-white bg-red-600 hover:bg-red-700 py-3 rounded-2xl uppercase">Selesaikan Sesi</Link>
                                                             )}
                                                             {booking.status === 'completed' && (
@@ -999,6 +1064,27 @@ export default function TherapistScheduleIndex({ bookings, availableSchedules = 
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">
                                         Terapis: <span className="text-emerald-600">{hist.schedule?.therapist?.name}</span>
                                     </p>
+
+                                    {/* Group Members List for Group Session */}
+                                    {hist.group_booking_member?.group_booking && (
+                                        <div className="mt-4 p-4 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                                                    <span>👥 Anggota Grup</span>
+                                                    <span className="w-1 h-3 bg-indigo-200 rounded-full"></span>
+                                                    <span className="truncate max-w-[150px]">{hist.group_booking_member.group_booking.group_name}</span>
+                                                </p>
+                                                <span className="px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded text-[8px] font-black uppercase">GROUP</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {hist.group_booking_member.group_booking.members?.map(m => (
+                                                    <div key={m.id} className="px-3 py-1 bg-white dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-lg border border-indigo-100/30 dark:border-indigo-800/30 shadow-sm">
+                                                        {m.user?.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                     {hist.started_at && (
                                         <div className="mt-2 text-[10px] font-bold text-gray-500 uppercase flex flex-wrap gap-x-4 gap-y-1">
                                             <span>Mulai: <span className="text-emerald-600 font-black">{new Date(hist.started_at).toLocaleTimeString('id-id', { hour: '2-digit', minute: '2-digit' })} WIB</span></span>
