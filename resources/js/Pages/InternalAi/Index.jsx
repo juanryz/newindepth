@@ -18,7 +18,7 @@ function getColor(value) {
 export default function InternalAiIndexPage({ agents, isAdmin }) {
     return (
         <AuthenticatedLayout
-            header={<h2 className="text-2xl font-black text-gray-900 dark:text-white">🤖 AI Internal Indepth</h2>}
+            header={<h2 className="text-2xl font-black text-gray-900 dark:text-white">🤖 AI Internal InDepth</h2>}
         >
             <Head title="AI Internal" />
 

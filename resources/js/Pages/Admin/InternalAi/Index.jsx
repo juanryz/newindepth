@@ -75,7 +75,7 @@ function CreateAgentModal({ onClose }) {
                             value={data.system_prompt}
                             onChange={e => setData('system_prompt', e.target.value)}
                             rows={4}
-                            placeholder="Deskripsikan kepribadian dan tugas utama agent ini. Contoh: Kamu adalah asisten HR Indepth yang membantu karyawan soal kebijakan perusahaan, cuti, dan prosedur kerja."
+                            placeholder="Deskripsikan kepribadian dan tugas utama agent ini. Contoh: Kamu adalah asisten HR InDepth yang membantu karyawan soal kebijakan perusahaan, cuti, dan prosedur kerja."
                             className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm dark:text-gray-300 focus:ring-2 focus:ring-indigo-500/20 resize-none"
                         />
                         <p className="text-[10px] text-gray-400 mt-1">Kosongkan untuk menggunakan prompt default.</p>
@@ -198,7 +198,7 @@ export default function InternalAiIndex({ agents }) {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                     <div>
                         <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
-                            Buat dan kelola agent AI yang bisa ditraining khusus untuk kebutuhan internal Indepth.
+                            Buat dan kelola agent AI yang bisa ditraining khusus untuk kebutuhan internal InDepth.
                         </p>
                     </div>
                     <button

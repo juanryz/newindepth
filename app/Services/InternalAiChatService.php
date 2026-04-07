@@ -70,7 +70,7 @@ class InternalAiChatService
     private function buildSystemPrompt(InternalAiAgent $agent): string
     {
         $base = $agent->system_prompt
-            ?? "Kamu adalah {$agent->name}, asisten AI internal Indepth. Jawab pertanyaan karyawan dengan akurat, ramah, dan profesional dalam Bahasa Indonesia.";
+            ?? "Kamu adalah {$agent->name}, asisten AI internal InDepth. Jawab pertanyaan karyawan dengan akurat, ramah, dan profesional dalam Bahasa Indonesia.";
 
         $trainingInstructions = $agent->buildPrompt();
 
