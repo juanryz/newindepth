@@ -48,7 +48,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <img
                                         src="/images/Logo-Indepth-Lingkaran-hitam.png"
                                         alt="InDepth Mental Wellness"
-                                        className="h-20 w-auto object-contain relative z-10"
+                                        className="h-12 w-auto object-contain relative z-10"
                                     />
                                 </Link>
                             </div>

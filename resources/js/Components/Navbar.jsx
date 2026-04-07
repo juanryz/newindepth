@@ -49,7 +49,7 @@ export default function Navbar({ auth, active = 'home', isAuthPage = false, titl
                         {/* Logo */}
                         <div className="flex-shrink-0 flex items-center cursor-pointer group relative z-50" onClick={() => window.scrollTo(0, 0)}>
                             <Link href="/">
-                                <img src="/images/Logo-Indepth-Lingkaran-hitam.png" alt="InDepth" width="160" height="80" className="h-20 w-auto object-contain relative z-10" />
+                                <img src="/images/Logo-Indepth-Lingkaran-hitam.png" alt="InDepth" className="h-12 w-auto object-contain relative z-10" />
                             </Link>
                         </div>
 

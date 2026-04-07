@@ -50,7 +50,7 @@ export default function GuestLayout({ children, title, backLink = '/', backText 
                                 <img
                                     src="/images/Logo-Indepth-Lingkaran-hitam.png"
                                     alt="InDepth Mental Wellness"
-                                    className="h-20 w-auto object-contain"
+                                    className="h-32 w-auto object-contain"
                                 />
                             </Link>
                         </div>
