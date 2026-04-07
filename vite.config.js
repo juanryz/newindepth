@@ -11,7 +11,7 @@ export default defineConfig({
         }),
         react(),
     ],
-    build: {
-        manifest: 'manifest.json',
-    },
+    // build: {
+    //     manifest: 'manifest.json',
+    // },
 });
