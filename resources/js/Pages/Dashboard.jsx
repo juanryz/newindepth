@@ -732,7 +732,7 @@ export default function Dashboard() {
                                         />
                                     )}
 
-                                    {(isSuperAdmin || permissions.includes('view transactions')) && (
+                                    {(!isSuperAdmin && permissions.includes('view transactions')) && (
                                         <QuickCard
                                             href={route('admin.transactions.index')}
                                             title="Validasi Transaksi"
