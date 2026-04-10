@@ -14,7 +14,7 @@ import {
     Phone, Mail, CheckCircle2, ChevronLeft, ExternalLink,
     Fingerprint, MapPin, Clipboard, Download, X, Printer,
     Banknote, CheckCircle, Package as PackageIcon, Wifi, WifiOff,
-    Save
+    Save, Eye, EyeOff, Upload, Lock,
 } from 'lucide-react';
 import { InvoiceModal } from '@/Components/InvoiceModal';
 
@@ -27,12 +27,35 @@ function scheduleLabel(s) {
 }
 
 // Use shared InvoiceModal components
-function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], availableSchedules = [], bookingPackages = [], screeningResults = [], profileCompletion, bankAccounts = [], group = null, clinicConfig = {} }) {
+function InnerUserShow({ userModel, bookings = [], transactions = [], schedules = [], availableSchedules = [], bookingPackages = [], screeningResults = [], profileCompletion, bankAccounts = [], group = null, clinicConfig = {}, tempPassword = null }) {
     const [activeTab, setActiveTab] = useState('summary');
     const [selectedBooking, setSelectedBooking] = useState(null);
     const { flash } = usePage().props;
     const [showInvoice, setShowInvoice] = useState(!!flash?.invoiceData);
     const [showNewBookingModal, setShowNewBookingModal] = useState(false);
+
+    // Lihat password sementara (admin_temp_password)
+    const [showTempPassword, setShowTempPassword] = useState(false);
+
+    // Upload bukti transfer untuk transaksi pending
+    const [uploadProofTx, setUploadProofTx] = useState(null); // Transaction object yang dipilih
+    const { data: proofData, setData: setProofData, post: postProof, processing: proofProcessing, errors: proofErrors, reset: resetProof } = useForm({ payment_proof: null });
+
+    const handleProofFile = (e) => {
+        const file = e.target.files[0];
+        if (file) setProofData('payment_proof', file);
+    };
+
+    const submitProof = (e) => {
+        e.preventDefault();
+        postProof(route('admin.transactions.upload-proof', uploadProofTx.id), {
+            forceFormData: true,
+            onSuccess: () => {
+                setUploadProofTx(null);
+                resetProof();
+            },
+        });
+    };
 
     const isPatient = (userModel.roles || []).includes('patient');
     const isTherapist = (userModel.roles || []).includes('therapist');
@@ -230,6 +253,34 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                     <p className="text-xs font-bold text-gray-400 italic">Belum tersedia.</p>
                                 )}
                             </div>
+
+                            {/* Temp Password (Admin Set) */}
+                            {tempPassword && (
+                                <div className="bg-amber-50/80 dark:bg-amber-950/20 rounded-[2rem] border border-amber-200 dark:border-amber-800/50 p-6">
+                                    <h4 className="flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-amber-600 dark:text-amber-400 uppercase mb-4">
+                                        <Lock className="w-4 h-4" /> Password Sementara
+                                    </h4>
+                                    <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium mb-3 leading-relaxed">
+                                        Password yang diset admin. Beritahukan ke pasien agar segera diganti saat login.
+                                    </p>
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 border border-amber-200 dark:border-amber-800/40">
+                                        <span className="flex-1 text-sm font-mono font-black text-gray-900 dark:text-white tracking-wider">
+                                            {showTempPassword ? tempPassword : '••••••••'}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowTempPassword(v => !v)}
+                                            className="p-1.5 text-amber-500 hover:text-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                                            title={showTempPassword ? 'Sembunyikan' : 'Tampilkan'}
+                                        >
+                                            {showTempPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    <p className="text-[9px] text-amber-500 font-bold mt-2">
+                                        ⚠️ Akan otomatis dihapus jika password diubah.
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Action Buttons */}
                             <div className="flex flex-col gap-3 pt-2">
@@ -754,19 +805,34 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-6 py-5 text-center">
-                                                                        {tx.payment_proof ? (
-                                                                            <a
-                                                                                href={tx.payment_proof_url || `/storage/${tx.payment_proof}`}
-                                                                                target="_blank"
-                                                                                rel="noreferrer"
-                                                                                className="inline-flex items-center justify-center gap-2 group/proof"
-                                                                            >
-                                                                                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-gold-500 group-hover/proof:text-white transition-all duration-300">
-                                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                                                </div>
-                                                                                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-gold-600 uppercase tracking-tighter">Lihat</span>
-                                                                            </a>
-                                                                        ) : <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Kosong</span>}
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            {tx.payment_proof ? (
+                                                                                <a
+                                                                                    href={tx.payment_proof_url || `/storage/${tx.payment_proof}`}
+                                                                                    target="_blank"
+                                                                                    rel="noreferrer"
+                                                                                    className="inline-flex items-center justify-center gap-2 group/proof"
+                                                                                >
+                                                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/proof:bg-indigo-500 group-hover/proof:text-white transition-all duration-300">
+                                                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                                                    </div>
+                                                                                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 group-hover/proof:text-indigo-600 uppercase tracking-tighter">Lihat</span>
+                                                                                </a>
+                                                                            ) : (
+                                                                                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest italic">Kosong</span>
+                                                                            )}
+                                                                            {/* Tombol upload bukti — hanya untuk transaksi Transfer Bank yang belum lunas */}
+                                                                            {tx.status === 'pending' && tx.payment_method === 'Transfer Bank' && (
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => setUploadProofTx(tx)}
+                                                                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                                                                >
+                                                                                    <Upload className="w-3 h-3" />
+                                                                                    {tx.payment_proof ? 'Ganti' : 'Upload'}
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
                                                                     </td>
                                                                     <td className="px-6 py-5 text-center">
                                                                         <div className="flex flex-col items-center gap-2">
@@ -850,6 +916,75 @@ function InnerUserShow({ userModel, bookings = [], transactions = [], schedules 
                             </AnimatePresence>
                         </div>
                     </div>
+
+                    {/* Modal Upload Bukti Transfer */}
+                    <Modal show={!!uploadProofTx} onClose={() => { setUploadProofTx(null); resetProof(); }} maxWidth="md">
+                        {uploadProofTx && (
+                            <div className="p-8 space-y-6">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                                            <Upload className="w-5 h-5 text-blue-600" /> Upload Bukti Transfer
+                                        </h3>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
+                                            Invoice: {uploadProofTx.invoice_number}
+                                        </p>
+                                        <p className="text-xs font-bold text-gray-500 mt-1">
+                                            Pasien: <span className="text-gray-900 dark:text-white">{uploadProofTx.user?.name || userModel.name}</span>
+                                        </p>
+                                    </div>
+                                    <button onClick={() => { setUploadProofTx(null); resetProof(); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+                                        <X className="w-5 h-5 text-gray-400" />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={submitProof} className="space-y-5">
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+                                            Foto Bukti Transfer <span className="text-rose-500">*</span>
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/jpg,image/jpeg,image/png"
+                                            onChange={handleProofFile}
+                                            className="w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-900/40 dark:file:text-blue-400 transition-all cursor-pointer bg-gray-50 dark:bg-gray-900 rounded-2xl p-3 border border-gray-200 dark:border-gray-700"
+                                        />
+                                        {proofData.payment_proof && (
+                                            <div className="mt-3 rounded-2xl overflow-hidden border border-blue-200 dark:border-blue-800">
+                                                <img
+                                                    src={URL.createObjectURL(proofData.payment_proof)}
+                                                    alt="Preview bukti transfer"
+                                                    className="w-full max-h-52 object-contain bg-gray-50"
+                                                />
+                                            </div>
+                                        )}
+                                        {proofErrors.payment_proof && (
+                                            <p className="text-xs text-rose-500 font-bold mt-2">{proofErrors.payment_proof}</p>
+                                        )}
+                                        <p className="text-[9px] text-gray-400 font-medium mt-2">Format: JPG / PNG · Maks 5 MB</p>
+                                    </div>
+
+                                    <div className="flex gap-3 pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => { setUploadProofTx(null); resetProof(); }}
+                                            className="flex-1 py-3.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-colors"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={proofProcessing || !proofData.payment_proof}
+                                            className="flex-[2] py-3.5 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Upload className="w-4 h-4" />
+                                            {proofProcessing ? 'Mengupload...' : 'Upload Bukti Transfer'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+                    </Modal>
 
                     {/* Booking Detail Modal */}
                     <Modal show={!!selectedBooking} onClose={() => setSelectedBooking(null)} maxWidth="2xl">

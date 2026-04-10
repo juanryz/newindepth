@@ -113,6 +113,7 @@ class User extends Authenticatable
         'affiliate_agreement_signed_at',
         'affiliate_signature',
         'profile_reminder_sent_at',
+        'admin_temp_password',
     ];
 
     /**

@@ -663,6 +663,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'rejectPayment'])
                 ->middleware('permission:reject transactions')
                 ->name('transactions.reject');
+            Route::post('/transactions/{transaction}/upload-proof', [\App\Http\Controllers\Admin\TransactionValidationController::class, 'uploadProof'])
+                ->middleware('permission:validate transactions')
+                ->name('transactions.upload-proof');
 
             // Petty Cash
             Route::get('/petty-cash', [\App\Http\Controllers\Admin\PettyCashController::class, 'index'])

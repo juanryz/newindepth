@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
-import { Search, Filter, Clock, CheckCircle2, XCircle, AlertTriangle, LayoutList } from 'lucide-react';
+import { Search, Filter, Clock, CheckCircle2, XCircle, AlertTriangle, LayoutList, Upload, X } from 'lucide-react';
 
 export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { flash, errors: pageErrors, auth } = usePage().props;
@@ -26,6 +26,21 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
     const { data: validateData, setData: setValidateData, post: validatePost, reset: resetValidate, processing: validating } = useForm({
         new_schedule_id: '',
     });
+
+    // Upload bukti transfer oleh admin
+    const [selectedUploadProof, setSelectedUploadProof] = useState(null);
+    const { data: proofData, setData: setProofData, post: postProof, processing: uploadingProof, errors: proofErrors, reset: resetProof } = useForm({ payment_proof: null });
+
+    const submitUploadProof = (e) => {
+        e.preventDefault();
+        postProof(route('admin.transactions.upload-proof', selectedUploadProof.id), {
+            forceFormData: true,
+            onSuccess: () => {
+                setSelectedUploadProof(null);
+                resetProof();
+            },
+        });
+    };
 
     const handleValidate = (tx) => {
         setSelectedValidate(tx);
@@ -317,28 +332,37 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
                                                     {tx.status === 'pending' && hasPermission('edit transactions') && (
-                                                        <div className="flex justify-center gap-2">
-                                                            {(tx.payment_proof || tx.payment_method === 'cash' || tx.payment_method === 'Tunai') ? (
-                                                                hasPermission('validate transactions') && (
+                                                        <div className="flex flex-col justify-center gap-2">
+                                                            <div className="flex justify-center gap-2 flex-wrap">
+                                                                {(tx.payment_proof || tx.payment_method === 'cash' || tx.payment_method === 'Tunai') ? (
+                                                                    hasPermission('validate transactions') && (
+                                                                        <button
+                                                                            disabled={validating}
+                                                                            onClick={() => handleValidate(tx)}
+                                                                            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
+                                                                        >
+                                                                            {validating ? '...' : 'Validasi'}
+                                                                        </button>
+                                                                    )
+                                                                ) : null}
+                                                                {/* Tombol upload bukti untuk Transfer Bank yang belum punya bukti */}
+                                                                {!tx.payment_proof && tx.payment_method === 'Transfer Bank' && hasPermission('validate transactions') && (
                                                                     <button
-                                                                        disabled={validating}
-                                                                        onClick={() => handleValidate(tx)}
-                                                                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 text-center"
+                                                                        onClick={() => { setSelectedUploadProof(tx); setProofData('payment_proof', null); }}
+                                                                        className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-1.5"
                                                                     >
-                                                                        {validating ? '...' : 'Validasi'}
+                                                                        <Upload className="w-3 h-3" /> Upload Bukti
                                                                     </button>
-                                                                )
-                                                            ) : (
-                                                                <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase rounded-xl border border-slate-200 dark:border-slate-700 cursor-not-allowed">Bukti Belum Ada</span>
-                                                            )}
-                                                            {hasPermission('reject transactions') && (
-                                                                <button
-                                                                    onClick={() => setSelectedReject(tx)}
-                                                                    className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all"
-                                                                >
-                                                                    Tolak
-                                                                </button>
-                                                            )}
+                                                                )}
+                                                                {hasPermission('reject transactions') && (
+                                                                    <button
+                                                                        onClick={() => setSelectedReject(tx)}
+                                                                        className="px-5 py-2.5 bg-rose-600/10 hover:bg-rose-600 text-rose-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-rose-600/20 transition-all"
+                                                                    >
+                                                                        Tolak
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     )}
                                                     {tx.status === 'paid' && tx.validated_at && (
@@ -415,6 +439,77 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                 </div>
             </div>
 
+            {/* Modal Upload Bukti Transfer oleh Admin */}
+            {selectedUploadProof && (
+                <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] w-full max-w-md border border-slate-100 dark:border-slate-800 shadow-2xl">
+                        <div className="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 className="text-xl font-bold dark:text-white mb-1 flex items-center gap-2">
+                                    <Upload className="w-5 h-5 text-blue-600" /> Upload Bukti Transfer
+                                </h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Invoice: <span className="font-black text-slate-900 dark:text-white">#{selectedUploadProof.invoice_number}</span>
+                                </p>
+                                {selectedUploadProof.user?.name && (
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                        Pasien: <span className="font-black text-indigo-600 dark:text-indigo-400">{selectedUploadProof.user.name}</span>
+                                    </p>
+                                )}
+                            </div>
+                            <button onClick={() => { setSelectedUploadProof(null); resetProof(); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
+                                <X className="w-5 h-5 text-gray-400" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={submitUploadProof} className="space-y-5">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+                                    Foto Bukti Transfer <span className="text-rose-500">*</span>
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/jpg,image/jpeg,image/png"
+                                    onChange={(e) => setProofData('payment_proof', e.target.files[0] || null)}
+                                    className="w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 dark:file:bg-blue-900/40 dark:file:text-blue-400 transition-all cursor-pointer bg-slate-50 dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700"
+                                />
+                                {proofData.payment_proof && (
+                                    <div className="mt-3 rounded-2xl overflow-hidden border border-blue-200 dark:border-blue-800">
+                                        <img
+                                            src={URL.createObjectURL(proofData.payment_proof)}
+                                            alt="Preview bukti transfer"
+                                            className="w-full max-h-48 object-contain bg-slate-50"
+                                        />
+                                    </div>
+                                )}
+                                {proofErrors.payment_proof && (
+                                    <p className="text-xs text-rose-500 font-bold mt-2">{proofErrors.payment_proof}</p>
+                                )}
+                                <p className="text-[9px] text-slate-400 font-medium mt-2">Format: JPG / PNG · Maks 5 MB</p>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => { setSelectedUploadProof(null); resetProof(); }}
+                                    className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={uploadingProof || !proofData.payment_proof}
+                                    className="flex-[2] py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Upload className="w-4 h-4" />
+                                    {uploadingProof ? 'Mengupload...' : 'Upload Bukti'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Modal Validate + Reschedule */}
             {selectedValidate && (
                 <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
@@ -422,6 +517,11 @@ export default function TransactionsIndex({ transactions, therapists = [] }) {
                         <div className="mb-6">
                             <h3 className="text-2xl font-bold dark:text-white mb-2">Validasi Pembayaran</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400">Invoice: <span className="font-black text-slate-900 dark:text-white">#{selectedValidate.invoice_number}</span></p>
+                            {selectedValidate.user?.name && (
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    Pasien: <span className="font-black text-indigo-600 dark:text-indigo-400">{selectedValidate.user.name}</span>
+                                </p>
+                            )}
                         </div>
 
                         <form onSubmit={submitValidate} className="space-y-6">

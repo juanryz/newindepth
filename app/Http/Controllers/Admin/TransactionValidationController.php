@@ -188,6 +188,44 @@ class TransactionValidationController extends Controller
         }
     }
 
+    /**
+     * Admin upload bukti transfer untuk transaksi yang masih pending.
+     * Digunakan saat pasien transfer dan menyerahkan bukti fisik ke admin,
+     * sehingga admin yang mengunggahkannya sebelum memvalidasi.
+     */
+    public function uploadProof(Request $request, Transaction $transaction)
+    {
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+        ], [
+            'payment_proof.required' => 'Foto bukti transfer wajib dipilih.',
+            'payment_proof.image'    => 'File harus berupa gambar.',
+            'payment_proof.mimes'    => 'Format gambar harus JPG atau PNG.',
+            'payment_proof.max'      => 'Ukuran file maksimal 5 MB.',
+        ]);
+
+        if ($transaction->status === 'paid') {
+            return back()->with('error', 'Transaksi ini sudah tervalidasi, tidak perlu upload ulang.');
+        }
+
+        $path = $request->file('payment_proof')->store('payments', 'public');
+
+        $transaction->update([
+            'payment_proof'              => $path,
+            'payment_proof_uploaded_at'  => now(),
+            'payment_agreement_data'     => array_merge(
+                $transaction->payment_agreement_data ?? [],
+                [
+                    'proof_uploaded_by_admin_id'   => auth()->id(),
+                    'proof_uploaded_by_admin_name' => auth()->user()->name,
+                    'proof_uploaded_at'            => now()->toDateTimeString(),
+                ]
+            ),
+        ]);
+
+        return back()->with('success', 'Bukti transfer berhasil diunggah. Silakan validasi pembayaran.');
+    }
+
     public function rejectPayment(Request $request, Transaction $transaction)
     {
         $request->validate(['rejection_reason' => 'required|string|max:255']);

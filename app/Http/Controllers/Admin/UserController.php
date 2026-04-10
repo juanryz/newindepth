@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -169,6 +170,16 @@ class UserController extends Controller
         ]);
 
 
+        // Decrypt temp password yang diset admin saat pendaftaran offline (jika ada)
+        $tempPassword = null;
+        if ($user->admin_temp_password) {
+            try {
+                $tempPassword = Crypt::decrypt($user->admin_temp_password);
+            } catch (\Exception $e) {
+                $tempPassword = null;
+            }
+        }
+
         return Inertia::render('Admin/Users/Show', [
             'userModel' => $user,
             'bookings' => $bookings,
@@ -179,6 +190,7 @@ class UserController extends Controller
             'screeningResults' => $user->screeningResults()->orderBy('completed_at', 'desc')->get(),
             'profileCompletion' => $user->getProfileCompletionStats(),
             'bankAccounts' => config('clinic.bank_accounts', []),
+            'tempPassword' => $tempPassword,
         ]);
     }
 
@@ -324,9 +336,12 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        // 4. Password update
+        // 4. Password update — hapus admin_temp_password karena sudah diganti
         if ($request->filled('password')) {
-            $user->update(['password' => bcrypt($request->password)]);
+            $user->update([
+                'password' => bcrypt($request->password),
+                'admin_temp_password' => null,
+            ]);
         }
 
         // 5. Roles
@@ -552,6 +567,9 @@ class UserController extends Controller
 
             $user = User::create($userData);
             $user->markEmailAsVerified();
+
+            // Simpan password sementara terenkripsi agar admin bisa melihatnya nanti
+            $user->update(['admin_temp_password' => Crypt::encrypt($request->password)]);
 
             if ($request->filled('roles')) {
                 $user->syncRoles($request->roles);
