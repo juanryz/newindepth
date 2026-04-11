@@ -99,7 +99,6 @@ class PricingController extends Controller
             'features' => 'nullable|array',
         ]);
 
-        $package->slug = \Illuminate\Support\Str::slug($validated['name']);
         $package->update($validated);
 
         return redirect()->back()->with('success', 'Paket berhasil diperbarui.');

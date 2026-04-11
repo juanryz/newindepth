@@ -526,7 +526,7 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'articles' => \App\Models\BlogPost::with('author')->where('is_published', true)->latest('published_at')->take(3)->get(),
 
-        'packages' => \App\Models\Package::where('is_active', true)->get(),
+        'packages' => \App\Models\Package::where('is_active', true)->orderBy('base_price', 'asc')->get(),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);

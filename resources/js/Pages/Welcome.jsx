@@ -14,16 +14,10 @@ const DisclaimerSection = lazy(() => import('@/Components/DisclaimerSection'));
 
 
 export default function Welcome({ auth, articles = [], packages = [] }) {
-    // Helper to find package by slug
-    const getPackage = (slug) => {
-        return packages.find(p => p.slug === slug) || {
-            name: slug.toUpperCase(),
-            base_price: 0,
-            current_price: 0,
-            discount_percentage: 0,
-            discount_ends_at: null
-        };
-    };
+    // Sort packages by base_price ascending: cheapest = reguler, middle = premium, most expensive = vip
+    // This is DB-driven — no hardcoded slugs needed
+    const defaultPkg = { name: '', slug: '', base_price: 0, current_price: 0, online_current_price: 0, discount_percentage: 0, discount_ends_at: null };
+    const sortedPackages = [...packages].sort((a, b) => a.base_price - b.base_price);
 
     const formatDate = (dateString) => {
         if (!dateString) return null;
@@ -46,9 +40,9 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
     const [sessionMode, setSessionMode] = useState('offline');
     const isOnline = sessionMode === 'online';
 
-    const regulerPkg = getPackage('reguler');
-    const premiumPkg = getPackage('premium');
-    const vipPkg = getPackage('vip');
+    const regulerPkg = sortedPackages[0] ?? defaultPkg;
+    const premiumPkg = sortedPackages[1] ?? defaultPkg;
+    const vipPkg = sortedPackages[2] ?? defaultPkg;
 
     // Get display price based on session mode
     const getDisplayPrice = (pkg) => isOnline ? pkg.online_current_price : pkg.current_price;
@@ -527,7 +521,7 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                                 </ul>
                             </div>
 
-                            <Link href="/screening/public?package=reguler" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
+                            <Link href={`/screening/public?package=${regulerPkg.slug}`} className="block text-center py-4 px-6 rounded-full border-2 border-gold-500 text-gold-600 dark:text-gold-400 font-bold hover:bg-gold-500 hover:text-white transition-all duration-300 mt-auto">
                                 Pilih Reguler
                             </Link>
                         </div>
@@ -599,7 +593,7 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                                 </ul>
                             </div>
 
-                            <Link href="/register?package=premium" className="block text-center py-4 px-6 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-bold shadow-[0_10px_20px_rgba(208,170,33,0.2)] hover:shadow-[0_15px_30px_rgba(208,170,33,0.3)] transition-all duration-300 hover:-translate-y-1 mt-auto relative z-10">
+                            <Link href={`/register?package=${premiumPkg.slug}`} className="block text-center py-4 px-6 rounded-full bg-gradient-to-r from-gold-500 to-yellow-500 text-white font-bold shadow-[0_10px_20px_rgba(208,170,33,0.2)] hover:shadow-[0_15px_30px_rgba(208,170,33,0.3)] transition-all duration-300 hover:-translate-y-1 mt-auto relative z-10">
                                 Pilih Premium
                             </Link>
                         </div>
@@ -668,7 +662,7 @@ export default function Welcome({ auth, articles = [], packages = [] }) {
                                 </ul>
                             </div>
 
-                            <Link href="/screening/public?package=vip" className="block text-center py-4 px-6 rounded-full border-2 border-gold-500/50 text-white font-bold hover:bg-gold-500 transition-all duration-300 mt-auto relative z-10">
+                            <Link href={`/screening/public?package=${vipPkg.slug}`} className="block text-center py-4 px-6 rounded-full border-2 border-gold-500/50 text-white font-bold hover:bg-gold-500 transition-all duration-300 mt-auto relative z-10">
                                 Pilih VIP
                             </Link>
                         </div>
